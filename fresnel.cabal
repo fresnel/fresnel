@@ -58,6 +58,7 @@ common common
 library
   import: common
   exposed-modules:
+    Fresnel.Getter
     Fresnel.Optic
   build-depends:
     base ^>=4.14
