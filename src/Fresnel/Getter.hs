@@ -1,6 +1,8 @@
+{-# LANGUAGE ConstraintKinds #-}
 module Fresnel.Getter
 ( -- * Getters
   Getter
+, IsGetter
   -- * Construction
 , to
   -- * Elimination
@@ -13,7 +15,9 @@ import Fresnel.Optic
 
 -- Getters
 
-type Getter s a = forall p . (Contravariant (p a), Functor (p a), Strong p) => Optic' p s a
+type Getter s a = forall p . IsGetter p a => Optic' p s a
+
+type IsGetter p a = (Contravariant (p a), Functor (p a), Strong p)
 
 
 -- Construction
