@@ -60,6 +60,7 @@ library
   exposed-modules:
     Fresnel.Getter
     Fresnel.Optic
+    Fresnel.Profunctor.Recall
   build-depends:
     , base ^>=4.14
     , profunctors ^>= 5.6
