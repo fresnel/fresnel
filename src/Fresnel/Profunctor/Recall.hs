@@ -6,3 +6,4 @@ module Fresnel.Profunctor.Recall
 -- * Recall profunctor
 
 newtype Recall e a b = Recall { runRecall :: e -> b }
+  deriving (Applicative, Functor, Monad)
