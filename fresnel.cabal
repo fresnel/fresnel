@@ -58,6 +58,7 @@ common common
 library
   import: common
   exposed-modules:
+    Fresnel.Optic
   build-depends:
     base ^>=4.14
   hs-source-dirs:   src
