@@ -1,3 +1,4 @@
+-- | Type synonyms for defining types of optics.
 module Fresnel.Optic
 ( -- * Optics
   Optic
