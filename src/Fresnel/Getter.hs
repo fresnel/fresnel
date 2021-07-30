@@ -6,6 +6,7 @@ module Fresnel.Getter
   -- * Elimination
 , views
 , view
+, (^.)
 ) where
 
 import Data.Functor.Contravariant
@@ -30,3 +31,8 @@ views b = runForget . b . Forget
 
 view :: Getter s a -> (s -> a)
 view b = views b id
+
+(^.) :: s -> Getter s a -> a
+s ^. o = view o s
+
+infixl 8 ^.
