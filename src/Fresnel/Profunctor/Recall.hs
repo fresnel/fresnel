@@ -19,3 +19,7 @@ instance Bifunctor (Recall e) where
 instance Profunctor (Recall e) where
   dimap _ g = Recall . fmap g . runRecall
   rmap = fmap
+
+instance Costrong (Recall e) where
+  unfirst  = Recall . fmap fst . runRecall
+  unsecond = Recall . fmap snd . runRecall
