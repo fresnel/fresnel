@@ -1,0 +1,21 @@
+cabal-version:      2.4
+name:               fresnel
+version:            0.0.0.0
+synopsis:           high-powered optics in a small package
+description:        fresnel offers (non-indexed) profunctor optics composed with the lowly . operator.
+homepage:           https://github.com/robrix/fresnel
+bug-reports:        https://github.com/robrix/fresnel/issues
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Rob Rix
+maintainer:         rob.rix@me.com
+
+copyright:          2021 Rob Rix
+category:           Control
+extra-source-files: CHANGELOG.md
+
+library
+  exposed-modules:
+  build-depends:    base ^>=4.14.1.0
+  hs-source-dirs:   src
+  default-language: Haskell2010
