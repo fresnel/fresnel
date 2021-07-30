@@ -6,4 +6,6 @@ module Fresnel.Getter
 import Data.Profunctor
 import Fresnel.Optic
 
+-- Getters
+
 type Getter s a = forall p . (Strong p, Cochoice p) => Optic' p s a
