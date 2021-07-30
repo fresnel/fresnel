@@ -7,6 +7,7 @@ import Data.Profunctor
 
 -- * Recall profunctor
 
+-- | @'Recall' e@ is dual to @'Forget' r@: it ignores the argument parameter, substituting in one of its own.
 newtype Recall e a b = Recall { runRecall :: e -> b }
   deriving (Applicative, Functor, Monad)
 
