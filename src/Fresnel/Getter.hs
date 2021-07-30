@@ -5,6 +5,7 @@ module Fresnel.Getter
 , to
   -- * Elimination
 , views
+, view
 ) where
 
 import Data.Functor.Contravariant
@@ -26,3 +27,6 @@ to f = lmap f . phantom
 
 views :: Getter s a -> (a -> r) -> (s -> r)
 views b = runForget . b . Forget
+
+view :: Getter s a -> (s -> a)
+view b = views b id
