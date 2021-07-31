@@ -13,9 +13,12 @@ module Fresnel.Iso
 , flipped
 , curried
 , uncurried
+  -- * Tuples
+, swapped
 ) where
 
 import Data.Profunctor
+import Data.Tuple (swap)
 import Fresnel.Optic
 import Fresnel.Profunctor.Coexp
 
@@ -58,3 +61,9 @@ curried = iso curry uncurry
 
 uncurried :: Iso (a -> b -> c) (a' -> b' -> c') ((a, b) -> c) ((a', b') -> c')
 uncurried = iso uncurry curry
+
+
+-- Tuples
+
+swapped :: Iso (a, b) (a', b') (b, a) (b', a')
+swapped = iso swap swap
