@@ -1,2 +1,6 @@
 module Fresnel.Profunctor.Coexp.Test
-() where
+( test
+) where
+
+test :: IO ()
+test = pure ()
