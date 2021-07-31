@@ -11,4 +11,4 @@ data Coexp r e b a = Coexp { recall :: e -> a, forget :: b -> r }
   deriving (Functor)
 
 instance Profunctor (Coexp r e) where
-  dimap f g (Coexp bt sa) = Coexp (g . bt) (sa . f)
+  dimap f g c = Coexp (g . recall c) (forget c . f)
