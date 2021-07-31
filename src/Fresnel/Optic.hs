@@ -2,6 +2,7 @@
 module Fresnel.Optic
 ( -- * Optics
   Optical
+, Optical'
 , Optic
 , Optic'
 ) where
@@ -9,6 +10,8 @@ module Fresnel.Optic
 -- Optics
 
 type Optical p q s t a b = (a `p` b) -> (s `q` t)
+
+type Optical' p q s a = Optical p q s s a a
 
 
 type Optic p s t a b = (a `p` b) -> (s `p` t)
