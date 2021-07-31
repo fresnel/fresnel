@@ -155,7 +155,7 @@ dimapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso s' t' a' b' -> I
 dimapping a b = withIso a $ \ lsa lbt -> withIso b $ \ rsa rbt -> iso (dimap lsa rsa) (dimap lbt rbt)
 
 lmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p a x) (q b y) (p s x) (q t y)
-lmapping a = lmap (view (getting a)) `iso` lmap (review (reviewing a))
+lmapping a = withIso a $ \ lsa lbt -> iso (lmap lsa) (lmap lbt)
 
 rmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
 rmapping b = rmap (view (getting b)) `iso` rmap (review (reviewing b))
