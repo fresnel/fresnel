@@ -8,6 +8,7 @@ module Fresnel.Prism
 , prism'
   -- * Elimination
 , withPrism
+, matching
 , isn't
   -- * Relations
 , only
@@ -44,6 +45,9 @@ prism' inj prj = prism inj (\ s -> maybe (Left s) Right (prj s))
 
 withPrism :: Prism s t a b -> (((b -> t) -> (s -> Either t a) -> r) -> r)
 withPrism o = withMarket (o (Market id Right))
+
+matching :: Prism s t a b -> (s -> Either t a)
+matching o = withPrism o (const id)
 
 isn't :: Prism s t a b -> s -> Bool
 isn't o s = withPrism o (\ _ f -> either (const True) (const False) (f s))
