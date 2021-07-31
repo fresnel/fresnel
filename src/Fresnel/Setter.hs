@@ -8,6 +8,7 @@ module Fresnel.Setter
 , over
 , (%~)
 , set
+, (.~)
 ) where
 
 import Data.Profunctor.Mapping
@@ -36,5 +37,9 @@ over = id
 infixr 4 %~
 
 
-set :: Setter s t a b -> b -> s -> t
+set, (.~) :: Setter s t a b -> b -> s -> t
 set o = over o . const
+
+(.~) = set
+
+infixr 4 .~
