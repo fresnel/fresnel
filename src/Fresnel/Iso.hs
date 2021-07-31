@@ -15,6 +15,7 @@ module Fresnel.Iso
 , curried
 , uncurried
   -- * Relations
+, non
 , non'
   -- * Tuples
 , swapped
@@ -97,6 +98,9 @@ uncurried = iso uncurry curry
 
 
 -- Relations
+
+non :: Eq a => a -> Iso' (Maybe a) a
+non a = non' (only a)
 
 non' :: Prism' a () -> Iso' (Maybe a) a
 non' o = iso (fromMaybe (review o ())) (select (isn't o))
