@@ -25,6 +25,8 @@ prop_review_elimination f g x = review (iso (applyFun f) (applyFun g)) x === app
 
 prop_involuted_validity = validIso (involuted not)
 
+prop_involuted_invalidity = invalidIso (involuted (+ (1 :: Integer)))
+
 
 pure []
 
