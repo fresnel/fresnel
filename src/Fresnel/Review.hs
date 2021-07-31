@@ -3,6 +3,7 @@ module Fresnel.Review
   Review
   -- * Construction
 , unto
+, reviewing
   -- * Elimination
 , reviews
 , review
@@ -26,6 +27,10 @@ type Review t b = forall p . (Bifunctor p, Profunctor p) => Optic' p t b
 
 unto :: (b -> t) -> Review t b
 unto f = lphantom . rmap f
+
+
+reviewing :: (Profunctor p, Profunctor q, Bifunctor p, Bifunctor q) => Optical p q s t a b -> Optical' p q t b
+reviewing l f = lphantom . l $ lphantom f
 
 
 -- Elimination
