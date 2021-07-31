@@ -1,0 +1,4 @@
+packages: .
+
+package fresnel
+  ghc-options: -Werror
