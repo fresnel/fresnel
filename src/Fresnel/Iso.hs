@@ -128,7 +128,7 @@ coercedFrom = (coerce `iso`)
 -- Functor
 
 fmapping :: (Functor f, Functor g) => Iso s t a b -> Iso (f s) (g t) (f a) (g b)
-fmapping a = fmap (view (getting a)) `iso` fmap (review a)
+fmapping o = withIso o $ \ sa bt -> iso (fmap sa) (fmap bt)
 
 
 -- Contravariant
