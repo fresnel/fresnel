@@ -7,6 +7,8 @@ module Fresnel.Review
 , reviews
 , review
 , (#)
+  -- * Utilities
+, lphantom
 ) where
 
 import Data.Bifunctor
@@ -23,7 +25,7 @@ type Review t b = forall p . (Bifunctor p, Profunctor p) => Optic' p t b
 -- Construction
 
 unto :: (b -> t) -> Review t b
-unto f = first absurd . lmap absurd . rmap f
+unto f = lphantom . rmap f
 
 
 -- Elimination
@@ -38,3 +40,9 @@ review b = reviews b id
 (#) = review
 
 infixr 8 #
+
+
+-- Utilities
+
+lphantom :: (Bifunctor p, Profunctor p) => p b c -> p a c
+lphantom = first absurd . lmap absurd
