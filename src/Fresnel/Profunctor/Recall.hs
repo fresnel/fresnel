@@ -5,6 +5,7 @@ module Fresnel.Profunctor.Recall
 
 import Data.Bifunctor
 import Data.Profunctor
+import Data.Profunctor.Sieve
 
 -- * Recall profunctor
 
@@ -30,3 +31,6 @@ instance Choice (Recall e) where
 
 instance Closed (Recall e) where
   closed = Recall . fmap const . runRecall
+
+instance Sieve (Recall e) ((->) e) where
+  sieve = const . runRecall
