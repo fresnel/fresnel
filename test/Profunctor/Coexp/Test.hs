@@ -13,6 +13,9 @@ prop_semigroup_assoc a b c x y =
 prop_monoid_left_identity :: (Eq b, Show b) => ArbCoexp b a a b -> b -> Property
 prop_monoid_left_identity a x = recall (mempty <> coexp a) x === recall (coexp a) x
 
+prop_monoid_right_identity :: (Eq b, Show b) => ArbCoexp b a a b -> b -> Property
+prop_monoid_right_identity a x = recall (coexp a <> mempty) x === recall (coexp a) x
+
 
 data ArbCoexp e r a b = ArbCoexp (Fun e b) (Fun a r)
   deriving (Show)
