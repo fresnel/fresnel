@@ -1,6 +1,8 @@
 module Fresnel.Profunctor.Market
 ( -- * Market profunctor
   Market(..)
+  -- * Elimination
+, withMarket
 ) where
 
 import Data.Bifunctor (first)
@@ -15,3 +17,9 @@ instance Functor (Market a b s) where
 
 instance Profunctor (Market a b) where
   dimap f g (Market inj prj) = Market (g . inj) (first g . prj . f)
+
+
+-- Elimination
+
+withMarket :: Market a b s t -> (((b -> t) -> (s -> Either t a) -> r) -> r)
+withMarket (Market inj prj) f = f inj prj
