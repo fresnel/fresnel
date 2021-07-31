@@ -4,6 +4,7 @@ module Fresnel.Iso
 , Iso'
   -- * Construction
 , iso
+, from
   -- * Elimination
 , withIso
 , under
@@ -24,6 +25,9 @@ type Iso' s a = Iso s s a a
 
 iso :: (s -> a) -> (b -> t) -> Iso s t a b
 iso = dimap
+
+from :: Iso s t a b -> Iso b a t s
+from o = withIso o (flip iso)
 
 
 -- Elimination
