@@ -49,7 +49,7 @@ withPrism o = withMarket (o (Market id Right))
 matching :: Prism s t a b -> (s -> Either t a)
 matching o = withPrism o (const id)
 
-isn't :: Prism s t a b -> s -> Bool
+isn't :: Prism s t a b -> (s -> Bool)
 isn't o = either (const True) (const False) . matching o
 
 
