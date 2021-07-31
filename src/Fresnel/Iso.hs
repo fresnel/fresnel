@@ -15,6 +15,7 @@ module Fresnel.Iso
 , uncurried
   -- * Tuples
 , swapped
+, mirrored
   -- * Coercion
 , coerced
 , coercedTo
@@ -91,6 +92,11 @@ uncurried = iso uncurry curry
 
 swapped :: Iso (a, b) (a', b') (b, a) (b', a')
 swapped = iso swap swap
+
+mirrored :: Iso (Either a b) (Either a' b') (Either b a) (Either b' a')
+mirrored = iso mirror mirror
+  where
+  mirror = either Right Left
 
 
 -- Coercion
