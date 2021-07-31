@@ -16,4 +16,4 @@ type Optical' p q s a = Optical p q s s a a
 
 type Optic p s t a b = Optical p p s t a b
 
-type Optic' p s a = Optic p s s a a
+type Optic' p s a = Optical' p p s a
