@@ -1,0 +1,2 @@
+- ignore: {name: "Monoid law, left identity", within: Profunctor.Coexp.Test}
+- ignore: {name: "Monoid law, right identity", within: Profunctor.Coexp.Test}
