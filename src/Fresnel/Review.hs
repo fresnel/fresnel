@@ -35,13 +35,13 @@ reviewing l f = lphantom . l $ lphantom f
 
 -- Elimination
 
-reviews :: Optic (Recall e) s t a b -> (e -> b) -> (e -> t)
+reviews :: Review t b -> (e -> b) -> (e -> t)
 reviews b = runRecall . b . Recall
 
-review :: Optic (Recall b) s t a b -> (b -> t)
+review :: Review t b -> (b -> t)
 review b = reviews b id
 
-(#) :: Optic (Recall b) s t a b -> (b -> t)
+(#) :: Review t b -> (b -> t)
 (#) = review
 
 infixr 8 #

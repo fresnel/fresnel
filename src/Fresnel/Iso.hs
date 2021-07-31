@@ -46,7 +46,7 @@ import Data.Tuple (swap)
 import Fresnel.Getter (getting, view)
 import Fresnel.Optic
 import Fresnel.Profunctor.Coexp
-import Fresnel.Review (review)
+import Fresnel.Review (review, reviewing)
 
 -- Isos
 
@@ -140,25 +140,25 @@ contramapping o = withIso o $ \ sa bt -> iso (contramap sa) (contramap bt)
 -- Bifunctor
 
 bimapping :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso s' t' a' b' -> Iso (p s s') (q t t') (p a a') (q b b')
-bimapping a b = bimap (view (getting a)) (view (getting b)) `iso` bimap (review a) (review b)
+bimapping a b = bimap (view (getting a)) (view (getting b)) `iso` bimap (review (reviewing a)) (review (reviewing b))
 
 firsting :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p s x) (q t y) (p a x) (q b y)
-firsting a = first (view (getting a)) `iso` first (review a)
+firsting a = first (view (getting a)) `iso` first (review (reviewing a))
 
 seconding :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
-seconding b = second (view (getting b)) `iso` second (review b)
+seconding b = second (view (getting b)) `iso` second (review (reviewing b))
 
 
 -- Profunctor
 
 dimapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso s' t' a' b' -> Iso (p a s') (q b t') (p s a') (q t b')
-dimapping a b = dimap (view (getting a)) (view (getting b)) `iso` dimap (review a) (review b)
+dimapping a b = dimap (view (getting a)) (view (getting b)) `iso` dimap (review (reviewing a)) (review (reviewing b))
 
 lmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p a x) (q b y) (p s x) (q t y)
-lmapping a = lmap (view (getting a)) `iso` lmap (review a)
+lmapping a = lmap (view (getting a)) `iso` lmap (review (reviewing a))
 
 rmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
-rmapping b = rmap (view (getting b)) `iso` rmap (review b)
+rmapping b = rmap (view (getting b)) `iso` rmap (review (reviewing b))
 
 
 -- (Co-)representable (profunctorial)
