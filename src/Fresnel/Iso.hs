@@ -15,8 +15,13 @@ module Fresnel.Iso
 , uncurried
   -- * Tuples
 , swapped
+  -- * Coercion
+, coerced
+, coercedTo
+, coercedFrom
 ) where
 
+import Data.Coerce (Coercible, coerce)
 import Data.Profunctor
 import Data.Tuple (swap)
 import Fresnel.Optic
@@ -67,3 +72,33 @@ uncurried = iso uncurry curry
 
 swapped :: Iso (a, b) (a', b') (b, a) (b', a')
 swapped = iso swap swap
+
+
+-- Coercion
+
+coerced :: (Coercible s a, Coercible t b) => Iso s t a b
+coerced = coerce `iso` coerce
+
+-- | Build a bidi coercion, taking a constructor for the type being built both to improve type inference and as documentation.
+--
+-- For example, given two newtypes @A@ and @B@ wrapping the same type, this expression:
+--
+-- @
+-- 'coercedTo' B <<< 'coercedFrom' A
+-- @
+--
+-- produces a bijection of type @'Iso'' A B@.
+coercedTo   :: Coercible t b => (s -> a) -> Iso s t a b
+coercedTo   = (`iso` coerce)
+
+-- | Build a bidi coercion, taking a constructor for the type being eliminated both to improve type inference and as documentation.
+--
+-- For example, given two newtypes @A@ and @B@ wrapping the same type, this expression:
+--
+-- @
+-- 'coercedTo' B <<< 'coercedFrom' A
+-- @
+--
+-- produces a bijection of type @'Iso'' A B@.
+coercedFrom :: Coercible s a => (b -> t) -> Iso s t a b
+coercedFrom = (coerce `iso`)
