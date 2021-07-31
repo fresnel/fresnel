@@ -4,8 +4,11 @@ module Fresnel.Traversal
 , Traversal'
   -- * Construction
 , traversed
+  -- * Elimination
+, traverseOf
 ) where
 
+import Data.Profunctor
 import Data.Profunctor.Traversing
 import Fresnel.Optic
 
@@ -20,3 +23,9 @@ type Traversal' s a = Traversal s s a a
 
 traversed :: Traversable t => Traversal (t a) (t b) a b
 traversed = wander traverse
+
+
+-- Elimination
+
+traverseOf :: Applicative f => Traversal s t a b -> ((a -> f b) -> (s -> f t))
+traverseOf o = runStar . o . Star
