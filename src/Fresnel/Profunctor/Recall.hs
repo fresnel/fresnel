@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 module Fresnel.Profunctor.Recall
 ( -- * Recall profunctor
   Recall(..)
@@ -6,6 +7,7 @@ module Fresnel.Profunctor.Recall
 import Data.Bifunctor
 import Data.Functor.Const
 import Data.Profunctor
+import Data.Profunctor.Rep as Pro
 import Data.Profunctor.Sieve
 
 -- * Recall profunctor
@@ -38,3 +40,8 @@ instance Sieve (Recall e) ((->) e) where
 
 instance Cosieve (Recall e) (Const e) where
   cosieve = lmap getConst . runRecall
+
+instance Pro.Corepresentable (Recall e) where
+  type Corep (Recall e) = Const e
+
+  cotabulate = Recall . lmap Const
