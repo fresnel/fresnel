@@ -3,6 +3,7 @@ module Fresnel.Getter
   Getter
   -- * Construction
 , to
+, getting
   -- * Elimination
 , views
 , view
@@ -22,6 +23,10 @@ type Getter s a = forall p . (Contravariant (p a), Functor (p a), Strong p) => O
 
 to :: (s -> a) -> Getter s a
 to f = lmap f . phantom
+
+
+getting :: (Functor (p a), Contravariant (p a), Functor (q s), Contravariant (q s)) => Optical p q s t a b -> Optical' p q s a
+getting l f = phantom . l $ phantom f
 
 
 -- Elimination
