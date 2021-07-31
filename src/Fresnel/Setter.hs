@@ -6,6 +6,7 @@ module Fresnel.Setter
 , sets
   -- * Elimination
 , over
+, (%~)
 ) where
 
 import Data.Profunctor.Mapping
@@ -26,5 +27,9 @@ sets = roam
 
 -- Elimination
 
-over :: Setter s t a b -> (a -> b) -> (s -> t)
+over, (%~) :: Setter s t a b -> (a -> b) -> (s -> t)
 over = id
+
+(%~) = over
+
+infixr 4 %~
