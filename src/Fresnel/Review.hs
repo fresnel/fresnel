@@ -28,13 +28,13 @@ unto f = first absurd . lmap absurd . rmap f
 
 -- Elimination
 
-reviews :: Review t b -> (e -> b) -> (e -> t)
+reviews :: Optic (Recall e) s t a b -> (e -> b) -> (e -> t)
 reviews b = runRecall . b . Recall
 
-review :: Review t b -> (b -> t)
+review :: Optic (Recall b) s t a b -> (b -> t)
 review b = reviews b id
 
-(#) :: Review t b -> (b -> t)
+(#) :: Optic (Recall b) s t a b -> (b -> t)
 (#) = review
 
 infixr 8 #
