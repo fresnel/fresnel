@@ -7,7 +7,7 @@ import Data.Profunctor
 
 -- Coexponential
 
-data Coexp r e b a = Coexp (e -> a) (b -> r)
+data Coexp r e b a = Coexp { recall :: e -> a, forget :: b -> r }
   deriving (Functor)
 
 instance Profunctor (Coexp r e) where
