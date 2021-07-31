@@ -18,6 +18,9 @@ instance Functor (Market a b s) where
 instance Profunctor (Market a b) where
   dimap f g (Market inj prj) = Market (g . inj) (first g . prj . f)
 
+instance Choice (Market a b) where
+  left' (Market inj prj) = Market (Left . inj) (either (either (Left . Left) Right . prj) (Left . Right))
+
 
 -- Elimination
 
