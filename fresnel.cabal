@@ -62,6 +62,7 @@ library
     Fresnel.Optic
     Fresnel.Profunctor.Recall
     Fresnel.Review
+    Fresnel.Setter
   build-depends:
     , base ^>=4.14
     , profunctors ^>= 5.6
