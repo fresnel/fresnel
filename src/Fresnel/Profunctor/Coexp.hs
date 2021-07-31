@@ -1,8 +1,11 @@
 module Fresnel.Profunctor.Coexp
-( Coexp(..)
+( -- * Coexponential profunctor
+  Coexp(..)
 ) where
 
 import Data.Profunctor
+
+-- Coexponential
 
 data Coexp r e b a = Coexp (e -> a) (b -> r)
   deriving (Functor)
