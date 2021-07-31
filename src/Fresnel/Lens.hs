@@ -4,6 +4,8 @@ module Fresnel.Lens
 , Lens'
   -- * Construction
 , lens
+  -- * Tuples
+, fst_
 ) where
 
 import Control.Arrow ((&&&))
@@ -21,3 +23,9 @@ type Lens' s a = Lens s s a a
 
 lens :: (s -> a) -> (s -> b -> t) -> Lens s t a b
 lens get set = dimap (get &&& id) (uncurry (flip set)) . first'
+
+
+-- Tuples
+
+fst_ :: Lens (a, b) (a', b) a a'
+fst_ = lens fst (\ s a' -> (a', snd s))
