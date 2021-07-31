@@ -6,6 +6,7 @@ module Fresnel.Iso
 , iso
   -- * Elimination
 , withIso
+, under
 ) where
 
 import Data.Profunctor
@@ -37,3 +38,7 @@ instance Profunctor (Exchange a b) where
 
 withExchange :: Exchange a b s t -> (((s -> a) -> (b -> t) -> r) -> r)
 withExchange (Exchange sa bt) f = f sa bt
+
+
+under :: Iso s t a b -> (t -> s) -> (b -> a)
+under i = withIso i (\ f r -> (f .) . (. r))
