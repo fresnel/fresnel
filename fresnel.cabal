@@ -60,6 +60,7 @@ test-suite test
   main-is: Test.hs
   other-modules:
     Getter.Test
+    Iso.Test
     Profunctor.Coexp.Test
   build-depends:
     , base
