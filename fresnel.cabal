@@ -59,6 +59,7 @@ library
   import: common
   exposed-modules:
     Fresnel.Getter
+    Fresnel.Iso
     Fresnel.Lens
     Fresnel.Optic
     Fresnel.Prism
