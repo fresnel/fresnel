@@ -9,4 +9,4 @@ import Fresnel.Optic
 
 -- Reviews
 
-type Review t b = forall p . (Bifunctor p, Choice p, Costrong p) => Optic' p t b
+type Review t b = forall p . (Bifunctor p, Profunctor p) => Optic' p t b
