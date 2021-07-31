@@ -2,9 +2,11 @@ module Main
 ( main
 ) where
 
+import qualified Getter.Test
 import qualified Profunctor.Coexp.Test
 
 main :: IO ()
 main = sequence_
-  [ Profunctor.Coexp.Test.test
+  [ Getter.Test.test
+  , Profunctor.Coexp.Test.test
   ]
