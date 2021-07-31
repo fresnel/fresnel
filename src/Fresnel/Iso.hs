@@ -14,6 +14,8 @@ module Fresnel.Iso
 , flipped
 , curried
 , uncurried
+  -- * Relations
+, non'
   -- * Tuples
 , swapped
 , mirrored
@@ -38,15 +40,20 @@ module Fresnel.Iso
 , cotabulated
 ) where
 
+import Control.Applicative (Alternative)
+import Control.Monad (guard)
 import Data.Bifunctor
 import Data.Coerce (Coercible, coerce)
 import Data.Functor.Contravariant
+import Data.Maybe (fromMaybe)
 import Data.Profunctor
 import Data.Profunctor.Rep hiding (cotabulated)
 import Data.Profunctor.Sieve
 import Data.Tuple (swap)
 import Fresnel.Optic
+import Fresnel.Prism
 import Fresnel.Profunctor.Coexp
+import Fresnel.Review (review)
 
 -- Isos
 
@@ -87,6 +94,12 @@ curried = iso curry uncurry
 
 uncurried :: Iso (a -> b -> c) (a' -> b' -> c') ((a, b) -> c) ((a', b') -> c')
 uncurried = iso uncurry curry
+
+
+-- Relations
+
+non' :: Prism' a () -> Iso' (Maybe a) a
+non' o = iso (fromMaybe (review o ())) (select (isn't o))
 
 
 -- Tuples
@@ -173,3 +186,9 @@ protabulated = tabulate `iso` sieve
 
 cotabulated :: (Corepresentable p, Corepresentable q) => Iso (Corep p a -> b) (Corep q a' -> b') (p a b) (q a' b')
 cotabulated = cotabulate `iso` cosieve
+
+
+-- Utilities
+
+select :: Alternative f => (a -> Bool) -> (a -> f a)
+select p a = a <$ guard (p a)
