@@ -35,13 +35,13 @@ getting l f = rphantom . l $ rphantom f
 
 -- Elimination
 
-views :: Optic (Forget r) s t a b -> (a -> r) -> (s -> r)
+views :: Getter s a -> (a -> r) -> (s -> r)
 views b = runForget . b . Forget
 
-view :: Optic (Forget a) s t a b -> (s -> a)
+view :: Getter s a -> (s -> a)
 view b = views b id
 
-(^.) :: s -> Optic (Forget a) s t a b -> a
+(^.) :: s -> Getter s a -> a
 s ^. o = view o s
 
 infixl 8 ^.
