@@ -1,9 +1,12 @@
 module Fresnel.Profunctor.Market
-( Market(..)
+( -- * Market profunctor
+  Market(..)
 ) where
 
 import Data.Bifunctor (first)
 import Data.Profunctor
+
+-- Market profunctor
 
 data Market a b s t = Market { inj :: b -> t, prj :: s -> Either t a }
 
