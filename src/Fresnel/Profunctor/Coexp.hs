@@ -1,2 +1,6 @@
 module Fresnel.Profunctor.Coexp
-() where
+( Coexp(..)
+) where
+
+data Coexp r e b a = Coexp (e -> a) (b -> r)
+  deriving (Functor)
