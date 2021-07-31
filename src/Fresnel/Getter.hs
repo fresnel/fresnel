@@ -26,13 +26,13 @@ to f = lmap f . phantom
 
 -- Elimination
 
-views :: Getter s a -> (a -> r) -> (s -> r)
+views :: Optic (Forget r) s t a b -> (a -> r) -> (s -> r)
 views b = runForget . b . Forget
 
-view :: Getter s a -> (s -> a)
+view :: Optic (Forget a) s t a b -> (s -> a)
 view b = views b id
 
-(^.) :: s -> Getter s a -> a
+(^.) :: s -> Optic (Forget a) s t a b -> a
 s ^. o = view o s
 
 infixl 8 ^.
