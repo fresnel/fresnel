@@ -49,7 +49,7 @@ infixl 8 ^.
 -- Utilities
 
 class Bicontravariant p where
-  bicontramap :: (a' -> a) -> (b' -> b) -> p a b -> p a' b'
+  contrabimap :: (a' -> a) -> (b' -> b) -> p a b -> p a' b'
 
 rphantom :: (Profunctor p, Contravariant (p a)) => p a b -> p a c
 rphantom p = contramap (const ()) (rmap (const ()) p)
