@@ -31,12 +31,17 @@ module Fresnel.Iso
 , dimapping
 , lmapping
 , rmapping
+  -- * (Co-)representable
+, protabulated
+, cotabulated
 ) where
 
 import Data.Bifunctor
 import Data.Coerce (Coercible, coerce)
 import Data.Functor.Contravariant
 import Data.Profunctor
+import Data.Profunctor.Rep hiding (cotabulated)
+import Data.Profunctor.Sieve
 import Data.Tuple (swap)
 import Fresnel.Getter (view)
 import Fresnel.Optic
@@ -154,3 +159,12 @@ lmapping a = lmap (view a) `iso` lmap (review a)
 
 rmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
 rmapping b = rmap (view b) `iso` rmap (review b)
+
+
+-- (Co-)representable (profunctorial)
+
+protabulated :: (Representable p, Representable q) => Iso (a -> Rep p b) (a' -> Rep q b') (a `p` b) (a' `q` b')
+protabulated = tabulate `iso` sieve
+
+cotabulated :: (Corepresentable p, Corepresentable q) => Iso (Corep p a -> b) (Corep q a' -> b') (a `p` b) (a' `q` b')
+cotabulated = cotabulate `iso` cosieve
