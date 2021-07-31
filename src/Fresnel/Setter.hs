@@ -4,6 +4,8 @@ module Fresnel.Setter
 , Setter'
   -- * Construction
 , sets
+  -- * Elimination
+, over
 ) where
 
 import Data.Profunctor.Mapping
@@ -20,3 +22,9 @@ type Setter' s a = Setter s s a a
 
 sets :: ((a -> b) -> (s -> t)) -> Setter s t a b
 sets = roam
+
+
+-- Elimination
+
+over :: Setter s t a b -> (a -> b) -> (s -> t)
+over = id
