@@ -152,7 +152,7 @@ seconding b = withIso b $ \ sa bt -> iso (second sa) (second bt)
 -- Profunctor
 
 dimapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso s' t' a' b' -> Iso (p a s') (q b t') (p s a') (q t b')
-dimapping a b = dimap (view (getting a)) (view (getting b)) `iso` dimap (review (reviewing a)) (review (reviewing b))
+dimapping a b = withIso a $ \ lsa lbt -> withIso b $ \ rsa rbt -> iso (dimap lsa rsa) (dimap lbt rbt)
 
 lmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p a x) (q b y) (p s x) (q t y)
 lmapping a = lmap (view (getting a)) `iso` lmap (review (reviewing a))
