@@ -3,4 +3,5 @@ module Main
 ) where
 
 main :: IO ()
-main = pure ()
+main = sequence_
+  []
