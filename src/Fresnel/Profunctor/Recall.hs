@@ -27,3 +27,6 @@ instance Costrong (Recall e) where
 instance Choice (Recall e) where
   left'  = Recall . fmap Left  . runRecall
   right' = Recall . fmap Right . runRecall
+
+instance Closed (Recall e) where
+  closed = Recall . fmap const . runRecall
