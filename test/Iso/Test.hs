@@ -2,6 +2,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Iso.Test
 ( validIso
+, invalidIso
 , test
 ) where
 
@@ -12,6 +13,9 @@ import Test.QuickCheck
 
 validIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
 validIso o s a = ((view o . review o) a === a) .&&. ((review o . view o) s === s)
+
+invalidIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
+invalidIso o s a = ((view o . review o) a =/= a) .||. ((review o . view o) s =/= s)
 
 
 prop_view_elimination f g x = view (iso (applyFun f) (applyFun g)) x === applyFun f x
