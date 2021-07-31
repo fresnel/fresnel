@@ -19,7 +19,7 @@ instance Monoid r => Applicative (Coexp e r b) where
   pure a = Coexp (pure a) mempty
   Coexp f kf <*> Coexp a ka = Coexp (f <*> a) (mappend <$> kf <*> ka)
 
-instance Profunctor (Coexp r e) where
+instance Profunctor (Coexp e r) where
   dimap f g c = Coexp (g . recall c) (forget c . f)
 
 
