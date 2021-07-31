@@ -10,6 +10,7 @@ module Fresnel.Iso
 , under
   -- * Functions
 , involuted
+, flipped
 ) where
 
 import Data.Profunctor
@@ -46,3 +47,6 @@ under i = withIso i (\ f r -> (f .) . (. r))
 
 involuted :: (a -> a) -> Iso' a a
 involuted f = iso f f
+
+flipped :: Iso (a -> b -> c) (a' -> b' -> c') (b -> a -> c) (b' -> a' -> c')
+flipped = iso flip flip
