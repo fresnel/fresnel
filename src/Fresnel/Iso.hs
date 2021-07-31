@@ -10,6 +10,8 @@ module Fresnel.Iso
 , withIso
 , under
   -- * Functions
+, constant
+, constantWith
 , involuted
 , flipped
 , curried
@@ -83,6 +85,12 @@ under i = withIso i (\ f r -> (f .) . (. r))
 
 
 -- Functions
+
+constant :: a -> Iso (a -> b) (a' -> b') b b'
+constant = (`constantWith` const)
+
+constantWith :: a -> (b' -> a' -> b') -> Iso (a -> b) (a' -> b') b b'
+constantWith = iso . flip ($)
 
 involuted :: (a -> a) -> Iso' a a
 involuted f = iso f f
