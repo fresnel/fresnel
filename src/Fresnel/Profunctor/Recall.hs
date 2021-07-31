@@ -14,7 +14,7 @@ import Data.Profunctor.Sieve
 
 -- | @'Recall' e@ is dual to @'Forget' r@: it ignores the argument parameter, substituting in one of its own.
 newtype Recall e a b = Recall { runRecall :: e -> b }
-  deriving (Applicative, Functor, Monad)
+  deriving (Applicative, Functor, Monad, Monoid, Semigroup)
 
 instance Bifunctor (Recall e) where
   bimap _ g = Recall . fmap g . runRecall
