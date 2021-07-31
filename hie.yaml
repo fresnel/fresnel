@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./src"
+      component: "lib:fresnel"
+    - path: "./test"
+      component: "test:test"
