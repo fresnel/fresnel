@@ -38,3 +38,5 @@
 :set -Wno-unused-packages
 
 :load Fresnel.Getter Fresnel.Iso Fresnel.Lens Fresnel.Prism Fresnel.Review Fresnel.Setter Fresnel.Traversal test/Test.hs
+
+import Main
