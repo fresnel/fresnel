@@ -23,8 +23,13 @@ module Fresnel.Iso
 , fmapping
   -- * Contravariant
 , contramapping
+  -- * Bifunctor
+, bimapping
+, firsting
+, seconding
 ) where
 
+import Data.Bifunctor
 import Data.Coerce (Coercible, coerce)
 import Data.Functor.Contravariant
 import Data.Profunctor
@@ -121,3 +126,15 @@ fmapping a = fmap (view a) `iso` fmap (review a)
 
 contramapping :: (Contravariant f, Contravariant g) => Iso s t a b -> Iso (f a) (g b) (f s) (g t)
 contramapping a = contramap (view a) `iso` contramap (review a)
+
+
+-- Bifunctor
+
+bimapping :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso s' t' a' b' -> Iso (p s s') (q t t') (p a a') (q b b')
+bimapping a b = bimap (view a) (view b) `iso` bimap (review a) (review b)
+
+firsting :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p s x) (q t y) (p a x) (q b y)
+firsting a = first (view a) `iso` first (review a)
+
+seconding :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
+seconding b = second (view b) `iso` second (review b)
