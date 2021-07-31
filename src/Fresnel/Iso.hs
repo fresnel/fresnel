@@ -134,7 +134,7 @@ fmapping o = withIso o $ \ sa bt -> iso (fmap sa) (fmap bt)
 -- Contravariant
 
 contramapping :: (Contravariant f, Contravariant g) => Iso s t a b -> Iso (f a) (g b) (f s) (g t)
-contramapping a = contramap (view (getting a)) `iso` contramap (review a)
+contramapping o = withIso o $ \ sa bt -> iso (contramap sa) (contramap bt)
 
 
 -- Bifunctor
