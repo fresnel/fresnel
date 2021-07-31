@@ -4,6 +4,7 @@ module Iso.Test
 ( validIso
 , validIso1
 , invalidIso
+, withRoundtrips
 , tripL
 , tripR
 , test
@@ -23,11 +24,14 @@ validIso1 o a b = (tripR o b === b) .&&. (tripL o (const b) a === b)
 invalidIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
 invalidIso o s a = (tripR o a =/= a) .||. (tripL o s =/= s)
 
+withRoundtrips :: Iso' s a -> (((s -> s) -> (a -> a) -> r) -> r)
+withRoundtrips o k = withIso o (\ f g -> k (g . f) (f . g))
+
 tripL :: Iso' s a -> (s -> s)
-tripL o = review o . view o
+tripL o = withRoundtrips o const
 
 tripR :: Iso' s a -> (a -> a)
-tripR o = view o . review o
+tripR o = withRoundtrips o (const id)
 
 
 prop_view_elimination f g x = view (iso (applyFun f) (applyFun g)) x === applyFun f x
