@@ -1,6 +1,8 @@
 module Fresnel.Profunctor.Coexp
 ( -- * Coexponential profunctor
   Coexp(..)
+  -- * Elimination
+, withCoexp
 ) where
 
 import Data.Profunctor
@@ -15,3 +17,9 @@ data Coexp r e b a = Coexp { recall :: e -> a, forget :: b -> r }
 
 instance Profunctor (Coexp r e) where
   dimap f g c = Coexp (g . recall c) (forget c . f)
+
+
+-- Elimination
+
+withCoexp :: Coexp r e b a -> ((e -> a) -> (b -> r) -> x) -> x
+withCoexp (Coexp r f) k = k r f
