@@ -16,8 +16,8 @@ import Test.QuickCheck
 validIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
 validIso o s a = withRoundtrips o $ \ ss aa -> (aa a === a) .&&. (ss s === s)
 
-validIso1 :: (Eq b, Show b) => Iso' (a -> b) b -> a -> b -> Property
-validIso1 o a b = withRoundtrips o $ \ abab bb -> (bb b === b) .&&. (abab (const b) a === b)
+validIso1 :: (Eq a, Show a) => Iso' (s -> a) a -> (s -> a) -> s -> a -> Property
+validIso1 o f s a = withRoundtrips o $ \ sasa aa -> (aa a === a) .&&. (sasa f s === f s)
 
 invalidIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
 invalidIso o s a = withRoundtrips o $ \ ss aa -> (aa a =/= a) .||. (ss s =/= s)
@@ -31,7 +31,7 @@ prop_view_elimination f g x = view (iso (applyFun f) (applyFun g)) x === applyFu
 prop_review_elimination f g x = review (iso (applyFun f) (applyFun g)) x === applyFun g x
 
 
-prop_constant_validity c = validIso1 (constant c)
+prop_constant_validity c s = validIso1 (constant c) (const s) s
 
 
 prop_involuted_validity = validIso (involuted not)
