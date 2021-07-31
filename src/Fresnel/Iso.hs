@@ -140,7 +140,7 @@ contramapping o = withIso o $ \ sa bt -> iso (contramap sa) (contramap bt)
 -- Bifunctor
 
 bimapping :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso s' t' a' b' -> Iso (p s s') (q t t') (p a a') (q b b')
-bimapping a b = bimap (view (getting a)) (view (getting b)) `iso` bimap (review (reviewing a)) (review (reviewing b))
+bimapping a b = withIso a $ \ lsa lbt -> withIso b $ \ rsa rbt -> iso (bimap lsa rsa) (bimap lbt rbt)
 
 firsting :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p s x) (q t y) (p a x) (q b y)
 firsting a = first (view (getting a)) `iso` first (review (reviewing a))
