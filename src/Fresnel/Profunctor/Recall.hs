@@ -4,6 +4,7 @@ module Fresnel.Profunctor.Recall
 ) where
 
 import Data.Bifunctor
+import Data.Functor.Const
 import Data.Profunctor
 import Data.Profunctor.Sieve
 
@@ -34,3 +35,6 @@ instance Closed (Recall e) where
 
 instance Sieve (Recall e) ((->) e) where
   sieve = const . runRecall
+
+instance Cosieve (Recall e) (Const e) where
+  cosieve = lmap getConst . runRecall
