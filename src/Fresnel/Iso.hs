@@ -27,6 +27,10 @@ module Fresnel.Iso
 , bimapping
 , firsting
 , seconding
+  -- * Profunctor
+, dimapping
+, lmapping
+, rmapping
 ) where
 
 import Data.Bifunctor
@@ -138,3 +142,15 @@ firsting a = first (view a) `iso` first (review a)
 
 seconding :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
 seconding b = second (view b) `iso` second (review b)
+
+
+-- Profunctor
+
+dimapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso s' t' a' b' -> Iso (p a s') (q b t') (p s a') (q t b')
+dimapping a b = dimap (view a) (view b) `iso` dimap (review a) (review b)
+
+lmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p a x) (q b y) (p s x) (q t y)
+lmapping a = lmap (view a) `iso` lmap (review a)
+
+rmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
+rmapping b = rmap (view b) `iso` rmap (review b)
