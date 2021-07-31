@@ -19,6 +19,9 @@ prop_view_elimination f g x = view (iso (applyFun f) (applyFun g)) x === applyFu
 prop_review_elimination f g x = review (iso (applyFun f) (applyFun g)) x === applyFun g x
 
 
+prop_involuted_validity = validIso (involuted not)
+
+
 pure []
 
 test :: IO Bool
