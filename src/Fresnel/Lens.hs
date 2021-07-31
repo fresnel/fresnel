@@ -6,6 +6,7 @@ module Fresnel.Lens
 , lens
   -- * Tuples
 , fst_
+, snd_
 ) where
 
 import Control.Arrow ((&&&))
@@ -29,3 +30,6 @@ lens get set = dimap (get &&& id) (uncurry (flip set)) . first'
 
 fst_ :: Lens (a, b) (a', b) a a'
 fst_ = lens fst (\ s a' -> (a', snd s))
+
+snd_ :: Lens (a, b) (a, b') b b'
+snd_ = lens snd (\ s b' -> (fst s, b'))
