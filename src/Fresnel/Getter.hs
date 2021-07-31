@@ -15,13 +15,12 @@ module Fresnel.Getter
 , rphantom
 ) where
 
-import Data.Functor.Contravariant
 import Data.Profunctor
 import Fresnel.Optic
 
 -- Getters
 
-type Getter s a = forall p . (Contravariant (p a), Strong p) => Optic' p s a
+type Getter s a = forall p . (Bicontravariant p, Strong p) => Optic' p s a
 
 
 -- Construction
@@ -30,7 +29,7 @@ to :: (s -> a) -> Getter s a
 to f = lmap f . rphantom
 
 
-getting :: (Profunctor p, Profunctor q, Contravariant (p a), Contravariant (q s)) => Optical p q s t a b -> Optical' p q s a
+getting :: (Profunctor p, Profunctor q, Bicontravariant p, Bicontravariant q) => Optical p q s t a b -> Optical' p q s a
 getting l f = rphantom . l $ rphantom f
 
 
@@ -63,5 +62,5 @@ contrasecond :: Bicontravariant p => (b' -> b) -> p a b -> p a b'
 contrasecond = (id `contrabimap`)
 
 
-rphantom :: (Profunctor p, Contravariant (p a)) => p a b -> p a c
-rphantom p = contramap (const ()) (rmap (const ()) p)
+rphantom :: (Profunctor p, Bicontravariant p) => p a b -> p a c
+rphantom = contrasecond (const ()) . rmap (const ())
