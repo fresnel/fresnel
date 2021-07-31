@@ -4,6 +4,8 @@ module Fresnel.Iso
 , Iso'
   -- * Construction
 , iso
+  -- * Elimination
+, withIso
 ) where
 
 import Data.Profunctor
@@ -20,3 +22,18 @@ type Iso' s a = Iso s s a a
 
 iso :: (s -> a) -> (b -> t) -> Iso s t a b
 iso = dimap
+
+
+-- Elimination
+
+withIso :: Iso s t a b -> (((s -> a) -> (b -> t) -> r) -> r)
+withIso = withExchange . ($ Exchange id id)
+
+data Exchange a b s t = Exchange (s -> a) (b -> t)
+  deriving (Functor)
+
+instance Profunctor (Exchange a b) where
+  dimap f g (Exchange sa bt) = Exchange (sa . f) (g . bt)
+
+withExchange :: Exchange a b s t -> (((s -> a) -> (b -> t) -> r) -> r)
+withExchange (Exchange sa bt) f = f sa bt
