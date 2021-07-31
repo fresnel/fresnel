@@ -43,10 +43,8 @@ import Data.Profunctor
 import Data.Profunctor.Rep hiding (cotabulated)
 import Data.Profunctor.Sieve
 import Data.Tuple (swap)
-import Fresnel.Getter (getting, view)
 import Fresnel.Optic
 import Fresnel.Profunctor.Coexp
-import Fresnel.Review (review, reviewing)
 
 -- Isos
 
@@ -158,7 +156,7 @@ lmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p a x) (q b y) (
 lmapping a = withIso a $ \ lsa lbt -> iso (lmap lsa) (lmap lbt)
 
 rmapping :: (Profunctor p, Profunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
-rmapping b = rmap (view (getting b)) `iso` rmap (review (reviewing b))
+rmapping b = withIso b $ \ rsa rbt -> iso (rmap rsa) (rmap rbt)
 
 
 -- (Co-)representable (profunctorial)
