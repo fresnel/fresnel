@@ -13,10 +13,10 @@ import Fresnel.Review
 import Test.QuickCheck
 
 validIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
-validIso o s a = withRoundtrips o $ \ ss aa -> (aa a === a) .&&. (ss s === s)
+validIso o s a = withRoundtrips o $ \ ss aa -> ss s === s .&&. aa a === a
 
 invalidIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
-invalidIso o s a = withRoundtrips o $ \ ss aa -> (aa a =/= a) .||. (ss s =/= s)
+invalidIso o s a = withRoundtrips o $ \ ss aa -> ss s =/= s .||. aa a =/= a
 
 withRoundtrips :: Iso' s a -> (((s -> s) -> (a -> a) -> r) -> r)
 withRoundtrips o k = withIso o (\ f g -> k (g . f) (f . g))
