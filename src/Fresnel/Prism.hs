@@ -10,6 +10,7 @@ module Fresnel.Prism
 , _Right
   -- * Maybe
 , _Just
+, _Nothing
 ) where
 
 import Data.Profunctor
@@ -44,3 +45,6 @@ _Right = prism Right (either (Left . Left) Right)
 
 _Just :: Prism (Maybe a) (Maybe a') a a'
 _Just = prism Just (maybe (Left Nothing) Right)
+
+_Nothing :: Prism' (Maybe a) ()
+_Nothing = prism' (const Nothing) (maybe (Just ()) (const Nothing))
