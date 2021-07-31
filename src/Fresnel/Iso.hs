@@ -143,7 +143,7 @@ bimapping :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso s' t' a' b' -> Iso
 bimapping a b = withIso a $ \ lsa lbt -> withIso b $ \ rsa rbt -> iso (bimap lsa rsa) (bimap lbt rbt)
 
 firsting :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p s x) (q t y) (p a x) (q b y)
-firsting a = first (view (getting a)) `iso` first (review (reviewing a))
+firsting a = withIso a $ \ sa bt -> iso (first sa) (first bt)
 
 seconding :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
 seconding b = second (view (getting b)) `iso` second (review (reviewing b))
