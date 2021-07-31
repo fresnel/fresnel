@@ -15,6 +15,10 @@ import Data.Profunctor
 data Coexp e r b a = Coexp { recall :: e -> a, forget :: b -> r }
   deriving (Functor)
 
+instance Monoid r => Applicative (Coexp e r b) where
+  pure a = Coexp (pure a) mempty
+  Coexp f kf <*> Coexp a ka = Coexp (f <*> a) (mappend <$> kf <*> ka)
+
 instance Profunctor (Coexp r e) where
   dimap f g c = Coexp (g . recall c) (forget c . f)
 
