@@ -50,7 +50,7 @@ matching :: Prism s t a b -> (s -> Either t a)
 matching o = withPrism o (const id)
 
 isn't :: Prism s t a b -> s -> Bool
-isn't o s = withPrism o (\ _ f -> either (const True) (const False) (f s))
+isn't o = either (const True) (const False) . matching o
 
 
 -- Relations
