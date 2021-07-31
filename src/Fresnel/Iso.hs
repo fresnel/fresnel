@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 module Fresnel.Iso
 ( -- * Isos
   Iso
@@ -167,8 +168,8 @@ rmapping b = withIso b $ \ rsa rbt -> iso (rmap rsa) (rmap rbt)
 
 -- (Co-)representable (profunctorial)
 
-protabulated :: (Representable p, Representable q) => Iso (a -> Rep p b) (a' -> Rep q b') (a `p` b) (a' `q` b')
+protabulated :: (Representable p, Representable q) => Iso (a -> Rep p b) (a' -> Rep q b') (p a b) (q a' b')
 protabulated = tabulate `iso` sieve
 
-cotabulated :: (Corepresentable p, Corepresentable q) => Iso (Corep p a -> b) (Corep q a' -> b') (a `p` b) (a' `q` b')
+cotabulated :: (Corepresentable p, Corepresentable q) => Iso (Corep p a -> b) (Corep q a' -> b') (p a b) (q a' b')
 cotabulated = cotabulate `iso` cosieve

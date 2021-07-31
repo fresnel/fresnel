@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Fresnel.Profunctor.Coexp
 ( -- * Coexponential profunctor
   Coexp(..)
@@ -13,7 +14,9 @@ import Data.Profunctor
 --
 -- The record selector names were chosen to indicate that 'Coexp' is essentially the pairing of 'Forget' and 'Fresnel.Profunctor.Recall'.
 data Coexp e r a b = Coexp { recall :: e -> b, forget :: a -> r }
-  deriving (Functor)
+
+instance Functor (Coexp e r a) where
+  fmap = rmap
 
 instance Monoid r => Applicative (Coexp e r a) where
   pure a = Coexp (pure a) mempty

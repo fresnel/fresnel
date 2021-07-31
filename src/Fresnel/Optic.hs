@@ -7,6 +7,6 @@ module Fresnel.Optic
 
 -- Optics
 
-type Optic p s t a b = (a `p` b) -> (s `p` t)
+type Optic p s t a b = p a b -> p s t
 
 type Optic' p s a = Optic p s s a a

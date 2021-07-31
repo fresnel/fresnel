@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 module Fresnel.Review
 ( -- * Reviews
   Review

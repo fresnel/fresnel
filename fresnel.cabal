@@ -33,27 +33,6 @@ common common
     ghc-options:
       -Wno-missing-safe-haskell-mode
       -Wno-prepositive-qualified-module
-  default-extensions:
-    DeriveTraversable
-    DerivingStrategies
-    DerivingVia
-    DisambiguateRecordFields
-    DuplicateRecordFields
-    EmptyCase
-    FlexibleContexts
-    FlexibleInstances
-    GeneralizedNewtypeDeriving
-    KindSignatures
-    LambdaCase
-    MultiParamTypeClasses
-    MultiWayIf
-    NamedFieldPuns
-    RankNTypes
-    StandaloneDeriving
-    TupleSections
-    TypeApplications
-    TypeOperators
-    ViewPatterns
 
 library
   import: common
