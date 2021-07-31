@@ -1,2 +1,5 @@
 module Fresnel.Profunctor.Market
-() where
+( Market(..)
+) where
+
+data Market s t a b = Market { inj :: b -> t, prj :: s -> Either t a }
