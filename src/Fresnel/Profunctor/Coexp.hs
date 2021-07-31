@@ -22,11 +22,11 @@ instance Monoid r => Applicative (Coexp e r b) where
 instance Profunctor (Coexp e r) where
   dimap f g c = Coexp (g . recall c) (forget c . f)
 
-instance (Semigroup b, Semigroup r) => Semigroup (Coexp e r a b) where
-  Coexp r1 f1 <> Coexp r2 f2 = Coexp (r1 <> r2) (f1 <> f2)
+instance Semigroup (Coexp b a a b) where
+  Coexp r1 f1 <> Coexp r2 f2 = Coexp (r2 . r1) (f1 . f2)
 
-instance (Monoid b, Monoid r) => Monoid (Coexp e r a b) where
-  mempty = Coexp mempty mempty
+instance Monoid (Coexp b a a b) where
+  mempty = Coexp id id
 
 
 -- Elimination
