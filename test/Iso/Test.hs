@@ -4,6 +4,8 @@ module Iso.Test
 ( validIso
 , validIso1
 , invalidIso
+, tripL
+, tripR
 , test
 ) where
 
@@ -20,6 +22,12 @@ validIso1 o a b = (view o (review o b) === b) .&&. (review o (view o (const b)) 
 
 invalidIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
 invalidIso o s a = ((view o . review o) a =/= a) .||. ((review o . view o) s =/= s)
+
+tripL :: Iso' s a -> (s -> s)
+tripL o = review o . view o
+
+tripR :: Iso' s a -> (a -> a)
+tripR o = view o . review o
 
 
 prop_view_elimination f g x = view (iso (applyFun f) (applyFun g)) x === applyFun f x
