@@ -25,6 +25,9 @@ instance Profunctor (Coexp e r) where
 instance (Semigroup b, Semigroup r) => Semigroup (Coexp e r a b) where
   Coexp r1 f1 <> Coexp r2 f2 = Coexp (r1 <> r2) (f1 <> f2)
 
+instance (Monoid b, Monoid r) => Monoid (Coexp e r a b) where
+  mempty = Coexp mempty mempty
+
 
 -- Elimination
 
