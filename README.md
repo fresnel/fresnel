@@ -20,4 +20,4 @@ Unlike `lens`, it doesn’t define any typeclasses to abstract over optics’ so
 
 Unlike both `lens` _and_ `optics`, `fresnel` (currently) has no support for indexed optics, folds, affine folds, or certain other baroque optics. Some of these would be simpler additions than others, and are likely to be added in the fullness of time.
 
-Finally, and also unlike either, `fresnel` offers a minimal dependency graph: just `profunctors` and `base`.
+Finally, and also unlike either, `fresnel` offers a minimal dependency graph: just `base`, `profunctors`, and `transformers`.
