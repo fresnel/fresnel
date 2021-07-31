@@ -6,6 +6,8 @@ module Fresnel.Prism
   -- * Construction
 , prism
 , prism'
+  -- * Elimination
+, withPrism
   -- * Either
 , _Left
 , _Right
@@ -16,6 +18,7 @@ module Fresnel.Prism
 
 import Data.Profunctor
 import Fresnel.Optic
+import Fresnel.Profunctor.Market
 
 -- Prisms
 
@@ -31,6 +34,12 @@ prism inj prj = dimap prj (either id inj) . right'
 
 prism' :: (b -> s) -> (s -> Maybe a) -> Prism s s a b
 prism' inj prj = prism inj (\ s -> maybe (Left s) Right (prj s))
+
+
+-- Elimination
+
+withPrism :: Prism s t a b -> (((b -> t) -> (s -> Either t a) -> r) -> r)
+withPrism o = withMarket (o (Market id Right))
 
 
 -- Either
