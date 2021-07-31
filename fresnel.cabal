@@ -59,6 +59,6 @@ test-suite test
   hs-source-dirs: test
   main-is: Test.hs
   other-modules:
-    Fresnel.Profunctor.Coexp.Test
+    Profunctor.Coexp.Test
   build-depends:
     , base

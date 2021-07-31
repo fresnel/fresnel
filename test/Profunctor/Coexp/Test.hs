@@ -1,4 +1,4 @@
-module Fresnel.Profunctor.Coexp.Test
+module Profunctor.Coexp.Test
 ( test
 ) where
 
