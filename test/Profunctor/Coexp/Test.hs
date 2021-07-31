@@ -20,15 +20,14 @@ prop_monoid_right_identity a x = recall (coexp a <> mempty) x === recall (coexp 
 data ArbCoexp e r a b = ArbCoexp (Fun e b) (Fun a r)
   deriving (Show)
 
+instance (Function e, Function a, CoArbitrary e, CoArbitrary a, Arbitrary b, Arbitrary r) => Arbitrary (ArbCoexp e r a b) where
+  arbitrary = ArbCoexp <$> arbitrary <*> arbitrary
+
 coexp :: ArbCoexp e r a b -> Coexp e r a b
 coexp (ArbCoexp eb ar) = Coexp (applyFun eb) (applyFun ar)
 
 appCoexp :: Coexp e r a b -> e -> a -> (b, r)
 appCoexp c e a = (recall c e, forget c a)
-
-
-instance (Function e, Function a, CoArbitrary e, CoArbitrary a, Arbitrary b, Arbitrary r) => Arbitrary (ArbCoexp e r a b) where
-  arbitrary = ArbCoexp <$> arbitrary <*> arbitrary
 
 
 pure []
