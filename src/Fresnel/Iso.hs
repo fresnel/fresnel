@@ -66,7 +66,7 @@ from o = withIso o (flip iso)
 -- Elimination
 
 withIso :: Iso s t a b -> (((s -> a) -> (b -> t) -> r) -> r)
-withIso i = withCoexp (i (Coexp id id)) . flip
+withIso i = withCoexp (i mempty) . flip
 
 
 under :: Iso s t a b -> (t -> s) -> (b -> a)
