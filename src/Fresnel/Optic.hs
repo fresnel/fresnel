@@ -1,11 +1,15 @@
 -- | Type synonyms for defining types of optics.
 module Fresnel.Optic
 ( -- * Optics
-  Optic
+  Optical
+, Optic
 , Optic'
 ) where
 
 -- Optics
+
+type Optical p q s t a b = (a `p` b) -> (s `q` t)
+
 
 type Optic p s t a b = (a `p` b) -> (s `p` t)
 
