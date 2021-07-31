@@ -19,13 +19,17 @@ module Fresnel.Iso
 , coerced
 , coercedTo
 , coercedFrom
+  -- * Functor
+, fmapping
 ) where
 
 import Data.Coerce (Coercible, coerce)
 import Data.Profunctor
 import Data.Tuple (swap)
+import Fresnel.Getter (view)
 import Fresnel.Optic
 import Fresnel.Profunctor.Coexp
+import Fresnel.Review (review)
 
 -- Isos
 
@@ -102,3 +106,9 @@ coercedTo   = (`iso` coerce)
 -- produces a bijection of type @'Iso'' A B@.
 coercedFrom :: Coercible s a => (b -> t) -> Iso s t a b
 coercedFrom = (coerce `iso`)
+
+
+-- Functor
+
+fmapping :: (Functor f, Functor g) => Iso s t a b -> Iso (f s) (g t) (f a) (g b)
+fmapping a = fmap (view a) `iso` fmap (review a)
