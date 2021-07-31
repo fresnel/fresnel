@@ -11,6 +11,7 @@ module Fresnel.Iso
   -- * Functions
 , involuted
 , flipped
+, curried
 ) where
 
 import Data.Profunctor
@@ -50,3 +51,6 @@ involuted f = iso f f
 
 flipped :: Iso (a -> b -> c) (a' -> b' -> c') (b -> a -> c) (b' -> a' -> c')
 flipped = iso flip flip
+
+curried :: Iso ((a, b) -> c) ((a', b') -> c') (a -> b -> c) (a' -> b' -> c')
+curried = iso curry uncurry
