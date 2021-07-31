@@ -5,6 +5,7 @@ module Fresnel.Review
 , unto
   -- * Elimination
 , reviews
+, review
 ) where
 
 import Data.Bifunctor
@@ -28,3 +29,6 @@ unto f = first absurd . lmap absurd . rmap f
 
 reviews :: Review t b -> (e -> b) -> (e -> t)
 reviews b = runRecall . b . Recall
+
+review :: Review t b -> (b -> t)
+review b = reviews b id
