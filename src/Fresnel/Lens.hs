@@ -23,7 +23,7 @@ type Lens' s a = Lens s s a a
 -- Construction
 
 lens :: (s -> a) -> (s -> b -> t) -> Lens s t a b
-lens get set = dimap (get &&& id) (uncurry (flip set)) . first'
+lens get set = dimap (id &&& get) (uncurry set) . second'
 
 
 -- Tuples
