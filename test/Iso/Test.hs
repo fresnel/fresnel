@@ -15,13 +15,13 @@ import Fresnel.Review
 import Test.QuickCheck
 
 validIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
-validIso o s a = ((view o . review o) a === a) .&&. ((review o . view o) s === s)
+validIso o s a = (tripR o a === a) .&&. (tripL o s === s)
 
 validIso1 :: (Eq b, Show b) => Iso' (a -> b) b -> a -> b -> Property
-validIso1 o a b = (view o (review o b) === b) .&&. (review o (view o (const b)) a === b)
+validIso1 o a b = (tripR o b === b) .&&. (tripL o (const b) a === b)
 
 invalidIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
-invalidIso o s a = ((view o . review o) a =/= a) .||. ((review o . view o) s =/= s)
+invalidIso o s a = (tripR o a =/= a) .||. (tripL o s =/= s)
 
 tripL :: Iso' s a -> (s -> s)
 tripL o = review o . view o
