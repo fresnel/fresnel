@@ -11,6 +11,7 @@ module Fresnel.Getter
   -- * Utilities
 , Bicontravariant(..)
 , contrafirst
+, contrasecond
 , rphantom
 ) where
 
@@ -54,6 +55,9 @@ class Bicontravariant p where
 
 contrafirst :: Bicontravariant p => (a' -> a) -> p a b -> p a' b
 contrafirst = (`contrabimap` id)
+
+contrasecond :: Bicontravariant p => (b' -> b) -> p a b -> p a b'
+contrasecond = (id `contrabimap`)
 
 
 rphantom :: (Profunctor p, Contravariant (p a)) => p a b -> p a c
