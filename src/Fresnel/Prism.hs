@@ -8,6 +8,8 @@ module Fresnel.Prism
 , prism'
   -- * Elimination
 , withPrism
+  -- * Relations
+, only
   -- * Either
 , _Left
 , _Right
@@ -16,6 +18,7 @@ module Fresnel.Prism
 , _Nothing
 ) where
 
+import Control.Monad (guard)
 import Data.Profunctor
 import Fresnel.Optic
 import Fresnel.Profunctor.Market
@@ -40,6 +43,12 @@ prism' inj prj = prism inj (\ s -> maybe (Left s) Right (prj s))
 
 withPrism :: Prism s t a b -> (((b -> t) -> (s -> Either t a) -> r) -> r)
 withPrism o = withMarket (o (Market id Right))
+
+
+-- Relations
+
+only :: Eq a => a -> Prism' a ()
+only a = prism' (const a) (guard . (== a))
 
 
 -- Either
