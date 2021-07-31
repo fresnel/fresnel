@@ -29,7 +29,7 @@ to :: (s -> a) -> Getter s a
 to f = lmap f . rphantom
 
 
-getting :: (Profunctor p, Profunctor q, Bicontravariant p, Bicontravariant q) => Optical p q s t a b -> Optical' p q s a
+getting :: (Profunctor p, Bicontravariant p) => Optic p s t a b -> Optic' p s a
 getting l f = rphantom . l $ rphantom f
 
 

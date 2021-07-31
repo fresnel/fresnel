@@ -29,7 +29,7 @@ unto :: (b -> t) -> Review t b
 unto f = lphantom . rmap f
 
 
-reviewing :: (Profunctor p, Profunctor q, Bifunctor p, Bifunctor q) => Optical p q s t a b -> Optical' p q t b
+reviewing :: (Profunctor p, Bifunctor p) => Optic p s t a b -> Optic' p t b
 reviewing l f = lphantom . l $ lphantom f
 
 
