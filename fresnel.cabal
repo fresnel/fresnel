@@ -67,6 +67,7 @@ library
     Fresnel.Profunctor.Recall
     Fresnel.Review
     Fresnel.Setter
+    Fresnel.Traversal
   build-depends:
     , base ^>=4.14
     , profunctors ^>= 5.6
