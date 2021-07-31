@@ -23,3 +23,7 @@ instance Profunctor (Recall e) where
 instance Costrong (Recall e) where
   unfirst  = Recall . fmap fst . runRecall
   unsecond = Recall . fmap snd . runRecall
+
+instance Choice (Recall e) where
+  left'  = Recall . fmap Left  . runRecall
+  right' = Recall . fmap Right . runRecall
