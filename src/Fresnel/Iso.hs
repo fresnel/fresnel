@@ -11,6 +11,7 @@ module Fresnel.Iso
 
 import Data.Profunctor
 import Fresnel.Optic
+import Fresnel.Profunctor.Coexp
 
 -- Isos
 
@@ -28,16 +29,7 @@ iso = dimap
 -- Elimination
 
 withIso :: Iso s t a b -> (((s -> a) -> (b -> t) -> r) -> r)
-withIso = withExchange . ($ Exchange id id)
-
-data Exchange a b s t = Exchange (s -> a) (b -> t)
-  deriving (Functor)
-
-instance Profunctor (Exchange a b) where
-  dimap f g (Exchange sa bt) = Exchange (sa . f) (g . bt)
-
-withExchange :: Exchange a b s t -> (((s -> a) -> (b -> t) -> r) -> r)
-withExchange (Exchange sa bt) f = f sa bt
+withIso i = withCoexp (i (Coexp id id)) . flip
 
 
 under :: Iso s t a b -> (t -> s) -> (b -> a)
