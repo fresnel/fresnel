@@ -21,9 +21,12 @@ module Fresnel.Iso
 , coercedFrom
   -- * Functor
 , fmapping
+  -- * Contravariant
+, contramapping
 ) where
 
 import Data.Coerce (Coercible, coerce)
+import Data.Functor.Contravariant
 import Data.Profunctor
 import Data.Tuple (swap)
 import Fresnel.Getter (view)
@@ -112,3 +115,9 @@ coercedFrom = (coerce `iso`)
 
 fmapping :: (Functor f, Functor g) => Iso s t a b -> Iso (f s) (g t) (f a) (g b)
 fmapping a = fmap (view a) `iso` fmap (review a)
+
+
+-- Contravariant
+
+contramapping :: (Contravariant f, Contravariant g) => Iso s t a b -> Iso (f a) (g b) (f s) (g t)
+contramapping a = contramap (view a) `iso` contramap (review a)
