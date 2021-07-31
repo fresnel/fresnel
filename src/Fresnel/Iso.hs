@@ -146,7 +146,7 @@ firsting :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p s x) (q t y) (p 
 firsting a = withIso a $ \ sa bt -> iso (first sa) (first bt)
 
 seconding :: (Bifunctor p, Bifunctor q) => Iso s t a b -> Iso (p x s) (q y t) (p x a) (q y b)
-seconding b = second (view (getting b)) `iso` second (review (reviewing b))
+seconding b = withIso b $ \ sa bt -> iso (second sa) (second bt)
 
 
 -- Profunctor
