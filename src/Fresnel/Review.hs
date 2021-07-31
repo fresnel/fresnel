@@ -6,6 +6,7 @@ module Fresnel.Review
   -- * Elimination
 , reviews
 , review
+, (#)
 ) where
 
 import Data.Bifunctor
@@ -32,3 +33,8 @@ reviews b = runRecall . b . Recall
 
 review :: Review t b -> (b -> t)
 review b = reviews b id
+
+(#) :: Review t b -> (b -> t)
+(#) = review
+
+infixr 8 #
