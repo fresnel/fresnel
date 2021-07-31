@@ -8,6 +8,8 @@ module Fresnel.Iso
   -- * Elimination
 , withIso
 , under
+  -- * Functions
+, involuted
 ) where
 
 import Data.Profunctor
@@ -38,3 +40,9 @@ withIso i = withCoexp (i (Coexp id id)) . flip
 
 under :: Iso s t a b -> (t -> s) -> (b -> a)
 under i = withIso i (\ f r -> (f .) . (. r))
+
+
+-- Functions
+
+involuted :: (a -> a) -> Iso' a a
+involuted f = iso f f
