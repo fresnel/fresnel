@@ -4,6 +4,8 @@ module Fresnel.Fold
   Fold
   -- * Construction
 , folded
+  -- * Elimination
+, foldOf
 ) where
 
 import Data.Foldable (traverse_)
@@ -21,3 +23,9 @@ type Fold s a = forall p . (Bicontravariant p, Cochoice p, Traversing p) => Opti
 
 folded :: Foldable f => Fold (f a) a
 folded = rphantom . wander traverse_
+
+
+-- Elimination
+
+foldOf :: Monoid a => Fold s a -> (s -> a)
+foldOf o = runForget (o (Forget id))
