@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 module Fresnel.Fold
-( -- Folds
+( -- * Folds
   Fold
 ) where
 
