@@ -5,6 +5,8 @@ module Fresnel.Lens
 , Lens'
   -- * Construction
 , lens
+  -- * Elimination
+, withLens
   -- * Tuples
 , fst_
 , snd_
@@ -28,6 +30,12 @@ type Lens' s a = Lens s s a a
 
 lens :: (s -> a) -> (s -> b -> t) -> Lens s t a b
 lens get set = dimap (id &&& get) (uncurry set) . second'
+
+
+-- Elimination
+
+withLens :: Lens s t a b -> (((s -> a) -> (s -> b -> t) -> r) -> r)
+withLens o = withUnpackedLens (o (UnpackedLens id (const id)))
 
 
 -- Tuples
