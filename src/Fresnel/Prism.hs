@@ -20,6 +20,7 @@ module Fresnel.Prism
 , _Nothing
   -- * Unpacked
 , UnpackedPrism(..)
+, unpackedPrism
 ) where
 
 import Control.Monad (guard)
@@ -45,7 +46,7 @@ prism' inj prj = prism inj (\ s -> maybe (Left s) Right (prj s))
 -- Elimination
 
 withPrism :: Prism s t a b -> (((b -> t) -> (s -> Either t a) -> r) -> r)
-withPrism o = withUnpackedPrism (o (UnpackedPrism (\ k -> k id Right)))
+withPrism o = withUnpackedPrism (o (unpackedPrism id Right))
 
 matching :: Prism s t a b -> (s -> Either t a)
 matching o = withPrism o (const id)
@@ -86,7 +87,11 @@ instance Functor (UnpackedPrism a b s) where
   fmap = rmap
 
 instance Profunctor (UnpackedPrism a b) where
-  dimap f g (UnpackedPrism r) = r $ \ inj prj -> UnpackedPrism $ \ k -> k (g . inj) (either (Left . g) Right . prj . f)
+  dimap f g (UnpackedPrism r) = r $ \ inj prj -> unpackedPrism (g . inj) (either (Left . g) Right . prj . f)
 
 instance Choice (UnpackedPrism a b) where
-  left' (UnpackedPrism r) = r $ \ inj prj -> UnpackedPrism $ \ k -> k (Left . inj) (either (either (Left . Left) Right . prj) (Left . Right))
+  left' (UnpackedPrism r) = r $ \ inj prj -> unpackedPrism (Left . inj) (either (either (Left . Left) Right . prj) (Left . Right))
+
+
+unpackedPrism :: (b -> t) -> (s -> Either t a) -> UnpackedPrism a b s t
+unpackedPrism inj prj = UnpackedPrism (\ k -> k inj prj)
