@@ -28,7 +28,7 @@ folded = rphantom . wander traverse_
 
 -- Elimination
 
-foldMapOf :: Monoid m => Fold s a -> (a -> m) -> (s -> m)
+foldMapOf :: Monoid m => Fold s a -> ((a -> m) -> (s -> m))
 foldMapOf o = runForget . o . Forget
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
