@@ -37,6 +37,7 @@ common common
 library
   import: common
   exposed-modules:
+    Fresnel.Fold
     Fresnel.Getter
     Fresnel.Iso
     Fresnel.Lens
