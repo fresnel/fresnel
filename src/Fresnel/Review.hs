@@ -15,6 +15,7 @@ module Fresnel.Review
 
 import Data.Bifunctor
 import Data.Profunctor
+import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Void
 import Fresnel.Optic
 import Fresnel.Profunctor.Recall
@@ -37,7 +38,7 @@ reviewing l f = lphantom . l $ lphantom f
 -- Elimination
 
 reviews :: Review t b -> (e -> b) -> (e -> t)
-reviews b = runRecall . b . Recall
+reviews b = runRecall #. b .# Recall
 
 review :: Review t b -> (b -> t)
 review b = reviews b id

@@ -14,7 +14,7 @@ import Data.Foldable (traverse_)
 import Data.Monoid
 import Data.Profunctor
 import Data.Profunctor.Traversing
-import Data.Profunctor.Unsafe ((#.))
+import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
 
@@ -32,7 +32,7 @@ folded = rphantom . wander traverse_
 -- Elimination
 
 foldMapOf :: Monoid m => Fold s a -> ((a -> m) -> (s -> m))
-foldMapOf o = runForget . o . Forget
+foldMapOf o = runForget #. o .# Forget
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = runForget (o (Forget id))

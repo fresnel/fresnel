@@ -12,6 +12,7 @@ module Fresnel.Getter
 ) where
 
 import Data.Profunctor
+import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
 
@@ -33,7 +34,7 @@ getting l f = rphantom . l $ rphantom f
 -- Elimination
 
 views :: Getter s a -> (a -> r) -> (s -> r)
-views b = runForget . b . Forget
+views b = runForget #. b .# Forget
 
 view :: Getter s a -> (s -> a)
 view b = views b id
