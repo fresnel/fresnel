@@ -8,6 +8,8 @@ module Fresnel.Lens
   -- * Tuples
 , fst_
 , snd_
+  -- * Unpacked
+, UnpackedLens(..)
 ) where
 
 import Control.Arrow ((&&&))
@@ -34,3 +36,8 @@ fst_ = lens fst (\ s a' -> (a', snd s))
 
 snd_ :: Lens (a, b) (a, b') b b'
 snd_ = lens snd (\ s b' -> (fst s, b'))
+
+
+-- Unpacked
+
+data UnpackedLens a b s t = UnpackedLens { get :: s -> a, set :: s -> b -> t }
