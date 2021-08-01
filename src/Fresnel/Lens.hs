@@ -45,3 +45,6 @@ data UnpackedLens a b s t = UnpackedLens { get :: s -> a, set :: s -> b -> t }
 
 instance Profunctor (UnpackedLens a b) where
   dimap f g (UnpackedLens get set) = UnpackedLens (get . f) (rmap g . set . f)
+
+instance Strong (UnpackedLens a b) where
+  first' (UnpackedLens get set) = UnpackedLens (get . fst) (\ (a, c) b -> (set a b, c))
