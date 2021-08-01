@@ -51,12 +51,5 @@ infixl 8 ^.
 
 -- Utilities
 
-contrafirst :: Bicontravariant p => (a' -> a) -> p a b -> p a' b
-contrafirst = (`contrabimap` id)
-
-contrasecond :: Bicontravariant p => (b' -> b) -> p a b -> p a b'
-contrasecond = (id `contrabimap`)
-
-
 rphantom :: (Profunctor p, Bicontravariant p) => p a b -> p a c
 rphantom = contrasecond (const ()) . rmap (const ())
