@@ -12,6 +12,7 @@ module Fresnel.Lens
 , snd_
   -- * Unpacked
 , UnpackedLens(..)
+, unpackedLens
 ) where
 
 import Control.Arrow ((&&&))
@@ -34,7 +35,7 @@ lens get set = dimap (id &&& get) (uncurry set) . second'
 -- Elimination
 
 withLens :: Lens s t a b -> (((s -> a) -> (s -> b -> t) -> r) -> r)
-withLens o = withUnpackedLens (o (UnpackedLens (\ k -> k id (const id))))
+withLens o = withUnpackedLens (o (unpackedLens id (const id)))
 
 
 -- Tuples
@@ -52,7 +53,11 @@ snd_ = lens snd (\ s b' -> (fst s, b'))
 newtype UnpackedLens a b s t = UnpackedLens { withUnpackedLens :: forall r . ((s -> a) -> (s -> b -> t) -> r) -> r }
 
 instance Profunctor (UnpackedLens a b) where
-  dimap f g (UnpackedLens r) = r $ \ get set -> UnpackedLens $ \ k -> k (get . f) (rmap g . set . f)
+  dimap f g (UnpackedLens r) = r $ \ get set -> unpackedLens (get . f) (rmap g . set . f)
 
 instance Strong (UnpackedLens a b) where
-  first' (UnpackedLens r) = r $ \ get set -> UnpackedLens $ \ k -> k (get . fst) (\ (a, c) b -> (set a b, c))
+  first' (UnpackedLens r) = r $ \ get set -> unpackedLens (get . fst) (\ (a, c) b -> (set a b, c))
+
+
+unpackedLens :: (s -> a) -> (s -> b -> t) -> UnpackedLens a b s t
+unpackedLens get set = UnpackedLens (\ k -> k get set)
