@@ -1,11 +1,11 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE RankNTypes #-}
 module Fresnel.Profunctor.Coexp
 ( -- * Coexponential profunctor
   Coexp(..)
   -- * Construction
 , coexp
   -- * Elimination
-, withCoexp
 , recall
 , forget
 ) where
@@ -15,7 +15,7 @@ import Data.Profunctor
 -- Coexponential
 
 -- | Coexponentials are the dual of functions, consisting of an argument of type @a@ (derived within an environment of type @s@) and a continuation from the return type @b@ (extending to the eventual result type @t@). As such, they naturally have the shape of optics, relating the outer context @s -> t@ to the inner @a -> b@.
-data Coexp s t b a = Coexp (s -> a) (b -> t)
+newtype Coexp s t b a = Coexp { withCoexp :: forall r . ((s -> a) -> (b -> t) -> r) -> r }
 
 instance Functor (Coexp s t b) where
   fmap = rmap
@@ -37,13 +37,10 @@ instance Monoid (Coexp a b b a) where
 -- Construction
 
 coexp :: (s -> a) -> (b -> t) -> Coexp s t b a
-coexp = Coexp
+coexp recall forget = Coexp (\ k -> k recall forget)
 
 
 -- Elimination
-
-withCoexp :: Coexp s t b a -> ((s -> a) -> (b -> t) -> x) -> x
-withCoexp (Coexp r f) k = k r f
 
 recall :: Coexp s t b a -> (s -> a)
 recall c = withCoexp c const
