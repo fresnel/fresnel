@@ -2,6 +2,8 @@
 module Fresnel.Profunctor.Coexp
 ( -- * Coexponential profunctor
   Coexp(..)
+  -- * Construction
+, coexp
   -- * Elimination
 , withCoexp
 ) where
@@ -30,6 +32,12 @@ instance Semigroup (Coexp a b b a) where
 
 instance Monoid (Coexp a b b a) where
   mempty = Coexp id id
+
+
+-- Construction
+
+coexp :: (s -> a) -> (b -> t) -> Coexp s t b a
+coexp = Coexp
 
 
 -- Elimination
