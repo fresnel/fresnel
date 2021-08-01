@@ -40,4 +40,5 @@ snd_ = lens snd (\ s b' -> (fst s, b'))
 
 -- Unpacked
 
+-- | A 'Lens' unpacked into the get & set functions it was constructed from.
 data UnpackedLens a b s t = UnpackedLens { get :: s -> a, set :: s -> b -> t }
