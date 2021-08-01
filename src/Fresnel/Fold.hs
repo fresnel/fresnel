@@ -7,11 +7,14 @@ module Fresnel.Fold
   -- * Elimination
 , foldMapOf
 , foldOf
+, (^?)
 ) where
 
 import Data.Foldable (traverse_)
+import Data.Monoid
 import Data.Profunctor
 import Data.Profunctor.Traversing
+import Data.Profunctor.Unsafe ((#.))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
 
@@ -33,3 +36,9 @@ foldMapOf o = runForget . o . Forget
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = runForget (o (Forget id))
+
+
+(^?) :: s -> Fold s a -> Maybe a
+s ^? l = getFirst (foldMapOf l (First #. Just) s)
+
+infixl 8 ^?
