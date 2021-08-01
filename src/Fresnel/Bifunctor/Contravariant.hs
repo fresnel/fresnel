@@ -3,6 +3,8 @@ module Fresnel.Bifunctor.Contravariant
   Bicontravariant(..)
 , contrafirst
 , contrasecond
+  -- * Phantom parameters
+, rphantom
 ) where
 
 import Data.Profunctor (Forget(..), Profunctor(..))
@@ -21,3 +23,9 @@ contrafirst = (`contrabimap` id)
 
 contrasecond :: Bicontravariant p => (b' -> b) -> p a b -> p a b'
 contrasecond = (id `contrabimap`)
+
+
+-- Phantom parameters
+
+rphantom :: (Profunctor p, Bicontravariant p) => p a b -> p a c
+rphantom = contrasecond (const ()) . rmap (const ())

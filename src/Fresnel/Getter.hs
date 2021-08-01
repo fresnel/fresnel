@@ -47,9 +47,3 @@ view b = views b id
 s ^. o = view o s
 
 infixl 8 ^.
-
-
--- Utilities
-
-rphantom :: (Profunctor p, Bicontravariant p) => p a b -> p a c
-rphantom = contrasecond (const ()) . rmap (const ())
