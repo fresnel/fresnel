@@ -6,6 +6,8 @@ module Fresnel.Profunctor.Coexp
 , coexp
   -- * Elimination
 , withCoexp
+, recall
+, forget
 ) where
 
 import Data.Profunctor
@@ -13,9 +15,7 @@ import Data.Profunctor
 -- Coexponential
 
 -- | Coexponentials are the dual of functions, consisting of an argument of type @a@ (derived within an environment of type @s@) and a continuation from the return type @b@ (extending to the eventual result type @t@). As such, they naturally have the shape of optics, relating the outer context @s -> t@ to the inner @a -> b@.
---
--- The record selector names were chosen to indicate that 'Coexp' is essentially the pairing of 'Forget' and 'Fresnel.Profunctor.Recall'.
-data Coexp s t b a = Coexp { recall :: s -> a, forget :: b -> t }
+data Coexp s t b a = Coexp (s -> a) (b -> t)
 
 instance Functor (Coexp s t b) where
   fmap = rmap
@@ -44,3 +44,9 @@ coexp = Coexp
 
 withCoexp :: Coexp s t b a -> ((s -> a) -> (b -> t) -> x) -> x
 withCoexp (Coexp r f) k = k r f
+
+recall :: Coexp s t b a -> (s -> a)
+recall c = withCoexp c const
+
+forget :: Coexp s t b a -> (b -> t)
+forget c = withCoexp c (const id)
