@@ -37,6 +37,7 @@ common common
 library
   import: common
   exposed-modules:
+    Fresnel.Bifunctor.Contravariant
     Fresnel.Fold
     Fresnel.Getter
     Fresnel.Iso
