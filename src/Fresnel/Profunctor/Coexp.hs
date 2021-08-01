@@ -21,17 +21,17 @@ instance Functor (Coexp s t b) where
   fmap = rmap
 
 instance Monoid t => Applicative (Coexp s t b) where
-  pure a = Coexp (pure a) mempty
-  Coexp f kf <*> Coexp a ka = Coexp (f <*> a) (mappend <$> kf <*> ka)
+  pure a = coexp (pure a) mempty
+  Coexp f kf <*> Coexp a ka = coexp (f <*> a) (mappend <$> kf <*> ka)
 
 instance Profunctor (Coexp s t) where
-  dimap f g c = Coexp (g . recall c) (forget c . f)
+  dimap f g c = coexp (g . recall c) (forget c . f)
 
 instance Semigroup (Coexp a b b a) where
-  Coexp r1 f1 <> Coexp r2 f2 = Coexp (r2 . r1) (f1 . f2)
+  Coexp r1 f1 <> Coexp r2 f2 = coexp (r2 . r1) (f1 . f2)
 
 instance Monoid (Coexp a b b a) where
-  mempty = Coexp id id
+  mempty = coexp id id
 
 
 -- Construction

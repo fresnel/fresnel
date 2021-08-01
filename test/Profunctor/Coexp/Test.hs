@@ -24,7 +24,7 @@ instance (Function e, Function a, CoArbitrary e, CoArbitrary a, Arbitrary b, Arb
   arbitrary = ArbCoexp <$> arbitrary <*> arbitrary
 
 toCoexp :: ArbCoexp e r a b -> Coexp e r a b
-toCoexp (ArbCoexp eb ar) = Coexp (applyFun eb) (applyFun ar)
+toCoexp (ArbCoexp eb ar) = coexp (applyFun eb) (applyFun ar)
 
 appCoexp :: Coexp e r a b -> e -> a -> (b, r)
 appCoexp c e a = (recall c e, forget c a)
