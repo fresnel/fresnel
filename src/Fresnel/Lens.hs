@@ -42,3 +42,6 @@ snd_ = lens snd (\ s b' -> (fst s, b'))
 
 -- | A 'Lens' unpacked into the get & set functions it was constructed from.
 data UnpackedLens a b s t = UnpackedLens { get :: s -> a, set :: s -> b -> t }
+
+instance Profunctor (UnpackedLens a b) where
+  dimap f g (UnpackedLens get set) = UnpackedLens (get . f) (rmap g . set . f)
