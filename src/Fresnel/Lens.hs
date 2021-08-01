@@ -10,12 +10,13 @@ module Fresnel.Lens
   -- * Tuples
 , fst_
 , snd_
+, alongside
   -- * Unpacked
 , UnpackedLens(..)
 , unpackedLens
 ) where
 
-import Control.Arrow ((&&&))
+import Control.Arrow ((&&&), (***))
 import Data.Profunctor
 import Fresnel.Optic
 
@@ -45,6 +46,10 @@ fst_ = lens fst (\ s a' -> (a', snd s))
 
 snd_ :: Lens (a, b) (a, b') b b'
 snd_ = lens snd (\ s b' -> (fst s, b'))
+
+alongside :: Lens s1 t1 a1 b1 -> Lens s2 t2 a2 b2 -> Lens (s1, s2) (t1, t2) (a1, a2) (b1, b2)
+alongside o1 o2 = withLens o1 $ \ get1 set1 -> withLens o2 $ \ get2 set2 ->
+  lens (get1 *** get2) (uncurry (***) . (set1 *** set2))
 
 
 -- Unpacked
