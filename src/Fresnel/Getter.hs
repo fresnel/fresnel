@@ -9,11 +9,6 @@ module Fresnel.Getter
 , views
 , view
 , (^.)
-  -- * Utilities
-, Bicontravariant(..)
-, contrafirst
-, contrasecond
-, rphantom
 ) where
 
 import Data.Profunctor
