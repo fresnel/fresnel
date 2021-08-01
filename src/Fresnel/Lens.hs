@@ -10,6 +10,7 @@ module Fresnel.Lens
 , snd_
   -- * Unpacked
 , UnpackedLens(..)
+, withUnpackedLens
 ) where
 
 import Control.Arrow ((&&&))
@@ -48,3 +49,6 @@ instance Profunctor (UnpackedLens a b) where
 
 instance Strong (UnpackedLens a b) where
   first' (UnpackedLens get set) = UnpackedLens (get . fst) (\ (a, c) b -> (set a b, c))
+
+withUnpackedLens :: UnpackedLens a b s t -> (((s -> a) -> (s -> b -> t) -> r) -> r)
+withUnpackedLens (UnpackedLens get set) f = f get set
