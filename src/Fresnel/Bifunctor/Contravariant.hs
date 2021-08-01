@@ -1,2 +1,6 @@
 module Fresnel.Bifunctor.Contravariant
-() where
+( Bicontravariant(..)
+) where
+
+class Bicontravariant p where
+  contrabimap :: (a' -> a) -> (b' -> b) -> p a b -> p a' b'
