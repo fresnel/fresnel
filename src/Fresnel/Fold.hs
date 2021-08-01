@@ -6,6 +6,7 @@ module Fresnel.Fold
 , folded
   -- * Elimination
 , foldOf
+, foldMapOf
 ) where
 
 import Data.Foldable (traverse_)
@@ -29,3 +30,6 @@ folded = rphantom . wander traverse_
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = runForget (o (Forget id))
+
+foldMapOf :: Monoid m => Fold s a -> (a -> m) -> (s -> m)
+foldMapOf o = runForget . o . Forget
