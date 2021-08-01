@@ -27,7 +27,7 @@ toCoexp :: ArbCoexp e r a b -> Coexp e r a b
 toCoexp (ArbCoexp eb ar) = coexp (applyFun eb) (applyFun ar)
 
 appCoexp :: Coexp e r a b -> e -> a -> (b, r)
-appCoexp c e a = (recall c e, forget c a)
+appCoexp c e a = withCoexp c $ \ recall forget -> (recall e, forget a)
 
 
 pure []
