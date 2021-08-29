@@ -68,10 +68,10 @@ type Iso' s a = Iso s s a a
 -- Construction
 
 iso :: (s -> a) -> (b -> t) -> Iso s t a b
-iso = dimap
+iso f g = f `dimap` g
 
 from :: Iso s t a b -> Iso b a t s
-from o = withIso o (flip iso)
+from o = withIso o (flip dimap)
 
 
 -- Elimination
@@ -87,10 +87,10 @@ under i = withIso i (\ f r -> (f .) . (. r))
 -- Functions
 
 constant :: a -> Iso (a -> b) (a' -> b') b b'
-constant = (`constantWith` const)
+constant a = a `constantWith` const
 
 constantWith :: a -> (b' -> a' -> b') -> Iso (a -> b) (a' -> b') b b'
-constantWith = iso . flip ($)
+constantWith a = iso ($ a)
 
 involuted :: (a -> a) -> Iso' a a
 involuted f = iso f f
@@ -139,8 +139,8 @@ coerced = coerce `iso` coerce
 -- @
 --
 -- produces a bijection of type @'Iso'' A B@.
-coercedTo   :: Coercible t b => (s -> a) -> Iso s t a b
-coercedTo   = (`iso` coerce)
+coercedTo :: Coercible t b => (s -> a) -> Iso s t a b
+coercedTo f = f `iso` coerce
 
 -- | Build a bidi coercion, taking a constructor for the type being eliminated both to improve type inference and as documentation.
 --
@@ -152,7 +152,7 @@ coercedTo   = (`iso` coerce)
 --
 -- produces a bijection of type @'Iso'' A B@.
 coercedFrom :: Coercible s a => (b -> t) -> Iso s t a b
-coercedFrom = (coerce `iso`)
+coercedFrom g = coerce `iso` g
 
 
 -- Functor
