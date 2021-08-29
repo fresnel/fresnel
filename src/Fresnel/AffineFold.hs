@@ -12,4 +12,4 @@ import Fresnel.Optic
 -- Affine folds
 
 -- FIXME: this is stronger than we actually mean; we need a Visiting class to express that.
-type AffineFold s a = forall p . (Bicontravariant p, Cochoice p, Traversing p) => Optic' p s a
+type AffineFold s a = forall p . (Bicontravariant p, Traversing p) => Optic' p s a
