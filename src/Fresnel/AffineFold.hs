@@ -4,6 +4,7 @@ module Fresnel.AffineFold
   AffineFold
   -- * Construction
 , afolding
+, filtered
   -- * Elimination
 , previews
 , preview
@@ -26,6 +27,9 @@ type AffineFold s a = forall p . (Bicontravariant p, Traversing p) => Optic' p s
 
 afolding :: (s -> Maybe a) -> AffineFold s a
 afolding f = contrabimap ((`maybe` Right) . Left <*> f) Left . right'
+
+filtered :: (a -> Bool) -> AffineFold a a
+filtered p = afolding (\ a -> if p a then Just a else Nothing)
 
 
 -- Elimination
