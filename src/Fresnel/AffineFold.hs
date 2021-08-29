@@ -7,6 +7,7 @@ module Fresnel.AffineFold
   -- * Elimination
 , previews
 , preview
+, (^?)
 ) where
 
 import Data.Monoid (First(..))
@@ -34,3 +35,8 @@ previews o f = getFirst . runForget (o (Forget (First . Just . f)))
 
 preview :: AffineFold s a -> s -> Maybe a
 preview o = previews o id
+
+(^?) :: s -> AffineFold s a -> Maybe a
+s ^? o = preview o s
+
+infixl 8 ^?
