@@ -6,6 +6,7 @@ module Fresnel.AffineFold
 , afolding
   -- * Elimination
 , previews
+, preview
 ) where
 
 import Data.Monoid (First(..))
@@ -30,3 +31,6 @@ afolding f = contrabimap ((`maybe` Right) . Left <*> f) Left . right'
 
 previews :: AffineFold s a -> (a -> r) -> (s -> Maybe r)
 previews o f = getFirst . runForget (o (Forget (First . Just . f)))
+
+preview :: AffineFold s a -> s -> Maybe a
+preview o = previews o id
