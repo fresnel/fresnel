@@ -37,6 +37,7 @@ common common
 library
   import: common
   exposed-modules:
+    Fresnel.AffineFold
     Fresnel.Bifunctor.Contravariant
     Fresnel.Fold
     Fresnel.Getter
@@ -50,7 +51,7 @@ library
     Fresnel.Setter
     Fresnel.Traversal
   build-depends:
-    , base ^>=4.14
+    , base >=4.14 && < 5
     , profunctors ^>= 5.6
     , transformers >= 0.5.6 && < 0.7
   hs-source-dirs:   src
@@ -68,3 +69,8 @@ test-suite test
     , base
     , fresnel
     , QuickCheck ^>= 2.14
+
+
+source-repository head
+  type:     git
+  location: https://github.com/robrix/fresnel

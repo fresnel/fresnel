@@ -25,13 +25,13 @@ type Setter' s a = Setter s s a a
 -- Construction
 
 sets :: ((a -> b) -> (s -> t)) -> Setter s t a b
-sets = roam
+sets f = (f `roam`) -- written thus to placate hlint
 
 
 -- Elimination
 
 over, (%~) :: Setter s t a b -> (a -> b) -> (s -> t)
-over = id
+over o = o
 
 (%~) = over
 
