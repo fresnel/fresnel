@@ -5,11 +5,11 @@ on: [pull_request]
 jobs:
   build:
     name: ghc ${{ matrix.ghc }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     strategy:
       matrix:
-        ghc: ["8.10", "9.0"]
-        cabal: ["3.4"]
+        ghc: ["8.10.4", "9.0.1"]
+        cabal: ["3.2"]
 
     steps:
     - uses: actions/checkout@v2
