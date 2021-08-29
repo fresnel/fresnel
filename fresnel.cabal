@@ -69,3 +69,8 @@ test-suite test
     , base
     , fresnel
     , QuickCheck ^>= 2.14
+
+
+source-repository head
+  type:     git
+  location: https://github.com/robrix/fresnel
