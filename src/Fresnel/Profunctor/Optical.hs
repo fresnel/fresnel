@@ -53,6 +53,7 @@ class (Isoing p, Choice p) => Prisming p
 
 instance Prisming (->)
 instance Monad m => Prisming (Kleisli m)
+instance Monoid r => Prisming (Forget r)
 instance Prisming (Recall e)
 instance Applicative f => Prisming (Star f)
 instance Functor f => Prisming (AffineStar f)
