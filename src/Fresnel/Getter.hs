@@ -2,6 +2,7 @@
 module Fresnel.Getter
 ( -- * Getters
   Getter
+, Getting
   -- * Construction
 , to
 , getting
@@ -15,6 +16,7 @@ import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
+import Fresnel.Profunctor.Getting
 
 -- Getters
 
