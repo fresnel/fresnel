@@ -46,5 +46,9 @@ instance Strong (UnpackedAffineTraversal a b) where
 instance Choice (UnpackedAffineTraversal a b) where
   left' (UnpackedAffineTraversal r) = r $ \ prj set -> unpackedAffineTraversal (either (either (Left . Left) Right . prj) (Left . Right)) (\ e b -> first (`set` b) e)
 
+instance Isoing (UnpackedAffineTraversal a b)
+instance Lensing (UnpackedAffineTraversal a b)
+instance Prisming (UnpackedAffineTraversal a b)
+
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
 unpackedAffineTraversal prj set = UnpackedAffineTraversal (\ k -> k prj set)
