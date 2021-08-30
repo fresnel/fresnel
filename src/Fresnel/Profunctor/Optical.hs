@@ -2,6 +2,7 @@ module Fresnel.Profunctor.Optical
 ( Isoing
 , Lensing
 , Getting
+, Prisming
 , Reviewing
 ) where
 
@@ -26,6 +27,9 @@ class (Isoing p, Strong p) => Lensing p
 class (Isoing p, Bicontravariant p, Strong p) => Getting p
 
 instance Getting (Forget r)
+
+
+class (Isoing p, Choice p) => Prisming p
 
 
 class (Isoing p, Bifunctor p, Choice p) => Reviewing p
