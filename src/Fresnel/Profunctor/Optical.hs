@@ -38,6 +38,6 @@ instance Prisming (->)
 instance Prisming (Recall e)
 
 
-class (Isoing p, Bifunctor p, Choice p) => Reviewing p
+class (Prisming p, Bifunctor p) => Reviewing p
 
 instance Reviewing (Recall e) where
