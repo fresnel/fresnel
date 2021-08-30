@@ -7,6 +7,7 @@ module Fresnel.Profunctor.Optical
 , AffineTraversing
 , Traversing(..)
 , AffineFolding
+, Folding
 ) where
 
 
@@ -78,3 +79,6 @@ class (AffineTraversing p, Bicontravariant p) => AffineFolding p
 instance Monoid r => AffineFolding (Forget r)
 instance (Applicative f, Contravariant f) => AffineFolding (Star f)
 instance (Functor f, Contravariant f) => AffineFolding (AffineStar f)
+
+
+class (AffineFolding p, Cochoice p, Traversing p) => Folding p
