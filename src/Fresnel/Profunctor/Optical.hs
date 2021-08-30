@@ -80,3 +80,5 @@ instance (Functor f, Contravariant f) => AffineFolding (AffineStar f)
 
 
 class (AffineFolding p, Cochoice p, Traversing p) => Folding p
+
+instance Monoid r => Folding (Forget r)
