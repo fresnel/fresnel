@@ -12,6 +12,8 @@ module Fresnel.Profunctor.AffineStar
 ) where
 
 import Data.Profunctor
+import Data.Functor.Contravariant
+import Fresnel.Bifunctor.Contravariant
 
 -- Affine star profunctors
 
@@ -27,6 +29,9 @@ instance Functor f => Choice (AffineStar f) where
 instance Functor f => Strong (AffineStar f) where
   first'  r = mapAffineStar (\ f (a, c) -> (,c) <$> f a) r
   second' r = mapAffineStar (\ f (c, a) -> (c,) <$> f a) r
+
+instance Contravariant f => Bicontravariant (AffineStar f) where
+  contrabimap f g = mapAffineStar (\ h -> contramap g . h . f)
 
 
 -- Construction
