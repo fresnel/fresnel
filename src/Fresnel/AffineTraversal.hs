@@ -8,10 +8,13 @@ module Fresnel.AffineTraversal
   -- * Construction
 , atraversal
   -- * Elimination
+, matching
 , withAffineTraversal
   -- * Unpacked
 , UnpackedAffineTraversal(..)
 , unpackedAffineTraversal
+, UnpackedProject(..)
+, unpackedProject
 ) where
 
 import Fresnel.Profunctor.Optical
@@ -36,6 +39,9 @@ atraversal prj set = dimap
 
 
 -- Elimination
+
+matching :: AffineTraversal s t a b -> (s -> Either t a)
+matching o = withUnpackedProject (o (unpackedProject Right)) id
 
 withAffineTraversal :: AffineTraversal s t a b -> (((s -> Either t a) -> (s -> b -> t) -> r) -> r)
 withAffineTraversal o = withUnpackedAffineTraversal (o (unpackedAffineTraversal Right (const id)))
@@ -62,3 +68,24 @@ instance AffineTraversing (UnpackedAffineTraversal a b)
 
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
 unpackedAffineTraversal prj set = UnpackedAffineTraversal (\ k -> k prj set)
+
+
+newtype UnpackedProject a s t = UnpackedProject { withUnpackedProject :: forall r . ((s -> Either t a) -> r) -> r }
+
+instance Profunctor (UnpackedProject a) where
+  dimap f g (UnpackedProject r) = r $ \ prj -> unpackedProject (either (Left . g) Right . prj . f)
+
+instance Strong (UnpackedProject a) where
+  first' (UnpackedProject r) = r $ \ prj -> unpackedProject (\ (a, c) -> first (,c) (prj a))
+
+instance Choice (UnpackedProject a) where
+  left' (UnpackedProject r) = r $ \ prj -> unpackedProject (either (either (Left . Left) Right . prj) (Left . Right))
+
+instance Isoing (UnpackedProject a)
+instance Lensing (UnpackedProject a)
+instance Prisming (UnpackedProject a)
+instance AffineTraversing (UnpackedProject a)
+
+
+unpackedProject :: (s -> Either t a) -> UnpackedProject a s t
+unpackedProject prj = UnpackedProject (\ k -> k prj)
