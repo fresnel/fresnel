@@ -49,6 +49,7 @@ instance Choice (UnpackedAffineTraversal a b) where
 instance Isoing (UnpackedAffineTraversal a b)
 instance Lensing (UnpackedAffineTraversal a b)
 instance Prisming (UnpackedAffineTraversal a b)
+instance AffineTraversing (UnpackedAffineTraversal a b)
 
 
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
