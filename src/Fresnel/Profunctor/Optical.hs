@@ -41,6 +41,7 @@ instance Functor f => Lensing (AffineStar f)
 class (Lensing p, Bicontravariant p) => Getting p
 
 instance Getting (Forget r)
+instance (Contravariant f, Functor f) => Getting (AffineStar f)
 
 
 class (Isoing p, Choice p) => Prisming p
