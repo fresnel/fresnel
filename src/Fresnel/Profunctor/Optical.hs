@@ -60,7 +60,7 @@ instance Applicative f => Prisming (Star f)
 instance Functor f => Prisming (AffineStar f)
 
 
-class (Prisming p, Bifunctor p) => Reviewing p
+class (Prisming p, Bifunctor p, Costrong p) => Reviewing p
 
 instance Reviewing (Recall e)
 
