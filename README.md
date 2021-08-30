@@ -1,8 +1,10 @@
 # `fresnel`: high-powered optics in a small package
 
-![CI status badge](https://github.com/robrix/fresnel/actions/workflows/ci.yml/badge.svg)
+[![CI status badge](https://github.com/robrix/fresnel/actions/workflows/ci.yml/badge.svg)][CI status]
 
 `fresnel` is yet another optics (aka functional references) package for Haskell.
+
+[CI status]: https://github.com/robrix/fresnel/actions
 
 
 ## The name
