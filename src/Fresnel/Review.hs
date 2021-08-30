@@ -2,6 +2,7 @@
 module Fresnel.Review
 ( -- * Reviews
   Review
+, Reviewing
   -- * Construction
 , unto
 , reviewing
@@ -19,6 +20,7 @@ import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Void
 import Fresnel.Optic
 import Fresnel.Profunctor.Recall
+import Fresnel.Profunctor.Reviewing
 
 -- Reviews
 
