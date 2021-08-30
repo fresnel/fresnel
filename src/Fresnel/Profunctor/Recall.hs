@@ -9,8 +9,10 @@ module Fresnel.Profunctor.Recall
 import Data.Bifunctor
 import Data.Functor.Const
 import Data.Profunctor
+import Data.Profunctor.Unsafe
 import Data.Profunctor.Rep as Pro
 import Data.Profunctor.Sieve
+import Data.Coerce
 
 -- Recall profunctor
 
@@ -25,6 +27,8 @@ instance Bifunctor (Recall e) where
 instance Profunctor (Recall e) where
   dimap _ g = Recall . fmap g . runRecall
   rmap = fmap
+  (#.) = const coerce
+  (.#) = fmap coerce . const
 
 instance Choice (Recall e) where
   left'  = Recall . fmap Left  . runRecall
