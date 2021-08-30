@@ -68,6 +68,7 @@ class (Lensing p, Prisming p) => AffineTraversing p where
 
 instance AffineTraversing (->)
 instance Monad m => AffineTraversing (Kleisli m)
+instance Monoid r => AffineTraversing (Forget r)
 instance Applicative f => AffineTraversing (Star f)
 instance Functor f => AffineTraversing (AffineStar f)
 
