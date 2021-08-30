@@ -26,6 +26,7 @@ instance Bifunctor (Recall e) where
 
 instance Profunctor (Recall e) where
   dimap _ g = Recall . fmap g . runRecall
+  lmap = const coerce
   rmap = fmap
   (#.) = const coerce
   (.#) = fmap coerce . const
