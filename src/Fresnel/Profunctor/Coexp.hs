@@ -27,6 +27,7 @@ instance Monoid t => Applicative (Coexp s t b) where
 instance Profunctor (Coexp s t) where
   dimap f g c = withCoexp c $ \ recall forget -> coexp (g . recall) (forget . f)
   lmap f c = withCoexp c $ \ recall forget -> coexp recall (forget . f)
+  rmap g c = withCoexp c $ \ recall forget -> coexp (g . recall) forget
 
 instance Semigroup (Coexp a b b a) where
   c1 <> c2 = withCoexp c1 $ \ r1 f1 -> withCoexp c2 $ \ r2 f2 -> coexp (r2 . r1) (f1 . f2)
