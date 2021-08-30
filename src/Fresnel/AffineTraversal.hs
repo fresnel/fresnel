@@ -6,6 +6,8 @@ module Fresnel.AffineTraversal
 , AffineTraversing
   -- * Construction
 , atraversal
+  -- * Unpacked
+, UnpackedAffineTraversal(..)
 ) where
 
 import Fresnel.Profunctor.Optical
@@ -26,3 +28,8 @@ atraversal prj set = dimap
     (Left  t, _) -> t
     (Right b, f) -> f b)
   . first' . right'
+
+
+-- Unpacked
+
+newtype UnpackedAffineTraversal a b s t = UnpackedAffineTraversal { withUnpackedAffineTraversal :: forall r . ((s -> Either t a) -> (s -> b -> t) -> r) -> r }
