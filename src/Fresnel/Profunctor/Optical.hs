@@ -27,7 +27,7 @@ instance Lensing (->)
 instance Lensing (Forget r)
 
 
-class (Isoing p, Bicontravariant p, Strong p) => Getting p
+class (Lensing p, Bicontravariant p, Strong p) => Getting p
 
 instance Getting (Forget r)
 
