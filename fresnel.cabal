@@ -47,6 +47,7 @@ library
     Fresnel.Optic
     Fresnel.Prism
     Fresnel.Profunctor.Coexp
+    Fresnel.Profunctor.Iso
     Fresnel.Profunctor.Recall
     Fresnel.Review
     Fresnel.Setter
