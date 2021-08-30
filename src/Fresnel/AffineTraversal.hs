@@ -1,5 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 module Fresnel.AffineTraversal
 ( -- * Affine traversals
   AffineTraversal
@@ -14,6 +15,7 @@ module Fresnel.AffineTraversal
 import Fresnel.Profunctor.Optical
 import Fresnel.Optic
 import Data.Profunctor
+import Data.Bifunctor
 
 -- Affine traversals
 
@@ -37,6 +39,9 @@ newtype UnpackedAffineTraversal a b s t = UnpackedAffineTraversal { withUnpacked
 
 instance Profunctor (UnpackedAffineTraversal a b) where
   dimap f g (UnpackedAffineTraversal r) = r $ \ prj set -> unpackedAffineTraversal (either (Left . g) Right . prj . f) (rmap g . set . f)
+
+instance Strong (UnpackedAffineTraversal a b) where
+  first' (UnpackedAffineTraversal r) = r $ \ prj set -> unpackedAffineTraversal (\ (a, c) -> first (,c) (prj a)) (\ (a, c) b -> (set a b, c))
 
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
 unpackedAffineTraversal prj set = UnpackedAffineTraversal (\ k -> k prj set)
