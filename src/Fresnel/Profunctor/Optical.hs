@@ -43,6 +43,7 @@ instance Functor f => Lensing (AffineStar f)
 
 class (Lensing p, Bicontravariant p) => Getting p
 
+instance (Contravariant m, Monad m) => Getting (Kleisli m)
 instance Getting (Forget r)
 instance (Contravariant f, Functor f) => Getting (Star f)
 instance (Contravariant f, Functor f) => Getting (AffineStar f)
