@@ -24,7 +24,7 @@ import Fresnel.Profunctor.Reviewing
 
 -- Reviews
 
-type Review t b = forall p . (Bifunctor p, Choice p) => Optic' p t b
+type Review t b = forall p . Reviewing p => Optic' p t b
 
 
 -- Construction
