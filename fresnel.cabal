@@ -47,6 +47,7 @@ library
     Fresnel.Lens
     Fresnel.Optic
     Fresnel.Prism
+    Fresnel.Profunctor.AffineStar
     Fresnel.Profunctor.Coexp
     Fresnel.Profunctor.Optical
     Fresnel.Profunctor.Recall
