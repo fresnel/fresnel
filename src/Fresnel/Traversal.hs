@@ -3,6 +3,7 @@ module Fresnel.Traversal
 ( -- * Traversals
   Traversal
 , Traversal'
+, Traversing(..)
   -- * Construction
 , traversed
 , backwards
@@ -12,7 +13,7 @@ module Fresnel.Traversal
 
 import Control.Applicative.Backwards
 import Data.Profunctor
-import Data.Profunctor.Traversing
+import Fresnel.Profunctor.Optical
 import Fresnel.Optic
 
 -- Traversals
