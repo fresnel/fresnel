@@ -5,7 +5,7 @@ module Fresnel.Profunctor.Optical
 , Prisming
 , Reviewing
 , AffineTraversing
-, Traversing
+, Traversing(..)
 ) where
 
 
