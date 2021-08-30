@@ -1,4 +1,4 @@
-module Fresnel.Profunctor.Iso
+module Fresnel.Profunctor.Isoing
 ( -- * Iso constraints
   Isoing
 ) where
