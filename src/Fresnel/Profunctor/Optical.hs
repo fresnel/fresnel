@@ -4,6 +4,7 @@ module Fresnel.Profunctor.Optical
 , Getting
 , Prisming
 , Reviewing
+, AffineTraversing
 ) where
 
 
@@ -41,3 +42,6 @@ instance Prisming (Recall e)
 class (Prisming p, Bifunctor p) => Reviewing p
 
 instance Reviewing (Recall e) where
+
+
+class (Lensing p, Prisming p) => AffineTraversing p where
