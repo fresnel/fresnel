@@ -1,5 +1,4 @@
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
 module Fresnel.AffineTraversal
 ( -- * Affine traversals
@@ -32,9 +31,7 @@ type AffineTraversal s t a b = forall p . AffineTraversing p => Optic p s t a b
 atraversal :: (s -> Either t a) -> (s -> b -> t) -> AffineTraversal s t a b
 atraversal prj set = dimap
   (\ s -> (prj s, set s))
-  (\case
-    (Left  t, _) -> t
-    (Right b, f) -> f b)
+  (\ (e, f) -> either id f e)
   . first' . right'
 
 
