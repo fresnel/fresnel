@@ -24,7 +24,7 @@ import Fresnel.Profunctor.Optical
 
 -- Lenses
 
-type Lens s t a b = forall p . Strong p => Optic p s t a b
+type Lens s t a b = forall p . Lensing p => Optic p s t a b
 
 type Lens' s a = Lens s s a a
 
