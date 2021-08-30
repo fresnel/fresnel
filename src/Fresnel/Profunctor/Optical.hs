@@ -67,4 +67,5 @@ instance Functor f => AffineTraversing (AffineStar f)
 
 class (AffineTraversing p, Bicontravariant p) => AffineFolding p
 
+instance (Applicative f, Contravariant f) => AffineFolding (Star f)
 instance (Functor f, Contravariant f) => AffineFolding (AffineStar f)
