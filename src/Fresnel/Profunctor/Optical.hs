@@ -83,6 +83,7 @@ instance (Functor f, Contravariant f) => AffineFolding (AffineStar f)
 class (AffineTraversing p, Pro.Traversing p) => Traversing p
 
 instance Traversing (->)
+instance Monad m => Traversing (Kleisli m)
 instance Monoid r => Traversing (Forget r)
 instance Applicative f => Traversing (Star f)
 
