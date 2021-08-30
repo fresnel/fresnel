@@ -30,6 +30,7 @@ class (Isoing p, Strong p) => Lensing p
 
 instance Lensing (->)
 instance Lensing (Forget r)
+instance Functor f => Lensing (Star f)
 
 
 class (Lensing p, Bicontravariant p, Strong p) => Getting p
