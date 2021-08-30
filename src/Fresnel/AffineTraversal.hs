@@ -7,6 +7,8 @@ module Fresnel.AffineTraversal
 , AffineTraversing
   -- * Construction
 , atraversal
+  -- * Elimination
+, withAffineTraversal
   -- * Unpacked
 , UnpackedAffineTraversal(..)
 , unpackedAffineTraversal
@@ -31,6 +33,12 @@ atraversal prj set = dimap
     (Left  t, _) -> t
     (Right b, f) -> f b)
   . first' . right'
+
+
+-- Elimination
+
+withAffineTraversal :: AffineTraversal s t a b -> (((s -> Either t a) -> (s -> b -> t) -> r) -> r)
+withAffineTraversal o = withUnpackedAffineTraversal (o (unpackedAffineTraversal Right (const id)))
 
 
 -- Unpacked
