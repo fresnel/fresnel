@@ -3,7 +3,7 @@ module Fresnel.Traversal
 ( -- * Traversals
   Traversal
 , Traversal'
-, Traversing(..)
+, Traversing
   -- * Construction
 , traversed
 , backwards
