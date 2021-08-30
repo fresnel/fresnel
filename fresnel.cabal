@@ -49,6 +49,7 @@ library
     Fresnel.Profunctor.Coexp
     Fresnel.Profunctor.Iso
     Fresnel.Profunctor.Recall
+    Fresnel.Profunctor.Reviewing
     Fresnel.Review
     Fresnel.Setter
     Fresnel.Traversal
