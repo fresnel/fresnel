@@ -3,6 +3,7 @@ module Fresnel.Prism
 ( -- * Prisms
   Prism
 , Prism'
+, Prisming
   -- * Construction
 , prism
 , prism'
@@ -28,6 +29,7 @@ import Control.Monad (guard)
 import Data.Bifunctor (bimap)
 import Data.Profunctor
 import Fresnel.Optic
+import Fresnel.Profunctor.Optical
 
 -- Prisms
 
