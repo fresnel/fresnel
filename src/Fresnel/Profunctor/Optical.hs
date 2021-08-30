@@ -34,6 +34,8 @@ instance Getting (Forget r)
 
 class (Isoing p, Choice p) => Prisming p
 
+instance Prisming (->)
+
 
 class (Isoing p, Bifunctor p, Choice p) => Reviewing p
 
