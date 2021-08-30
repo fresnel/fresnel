@@ -20,7 +20,7 @@ import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Void
 import Fresnel.Optic
 import Fresnel.Profunctor.Recall
-import Fresnel.Profunctor.Reviewing
+import Fresnel.Profunctor.Optical
 
 -- Reviews
 

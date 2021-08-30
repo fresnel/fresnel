@@ -57,7 +57,7 @@ import Data.Tuple (swap)
 import Fresnel.Optic
 import Fresnel.Prism
 import Fresnel.Profunctor.Coexp
-import Fresnel.Profunctor.Isoing
+import Fresnel.Profunctor.Optical
 import Fresnel.Review (review)
 
 -- Isos
