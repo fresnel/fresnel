@@ -39,6 +39,7 @@ library
   import: common
   exposed-modules:
     Fresnel.AffineFold
+    Fresnel.AffineTraversal
     Fresnel.Bifunctor.Contravariant
     Fresnel.Fold
     Fresnel.Getter
