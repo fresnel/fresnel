@@ -50,6 +50,7 @@ library
     Fresnel.Profunctor.Getting
     Fresnel.Profunctor.Lensing
     Fresnel.Profunctor.Isoing
+    Fresnel.Profunctor.Optical
     Fresnel.Profunctor.Recall
     Fresnel.Profunctor.Reviewing
     Fresnel.Review
