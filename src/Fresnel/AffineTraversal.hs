@@ -35,5 +35,8 @@ atraversal prj set = dimap
 
 newtype UnpackedAffineTraversal a b s t = UnpackedAffineTraversal { withUnpackedAffineTraversal :: forall r . ((s -> Either t a) -> (s -> b -> t) -> r) -> r }
 
+instance Profunctor (UnpackedAffineTraversal a b) where
+  dimap f g (UnpackedAffineTraversal r) = r $ \ prj set -> unpackedAffineTraversal (either (Left . g) Right . prj . f) (rmap g . set . f)
+
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
 unpackedAffineTraversal prj set = UnpackedAffineTraversal (\ k -> k prj set)
