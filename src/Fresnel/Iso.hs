@@ -3,6 +3,7 @@ module Fresnel.Iso
 ( -- * Isos
   Iso
 , Iso'
+, Isoing
   -- * Construction
 , iso
 , from
@@ -63,6 +64,9 @@ import Fresnel.Review (review)
 type Iso s t a b = forall p . Profunctor p => Optic p s t a b
 
 type Iso' s a = Iso s s a a
+
+
+class Profunctor p => Isoing p
 
 
 -- Construction
