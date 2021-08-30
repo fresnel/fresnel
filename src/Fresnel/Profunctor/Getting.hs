@@ -5,9 +5,10 @@ module Fresnel.Profunctor.Getting
 
 import Fresnel.Bifunctor.Contravariant
 import Data.Profunctor
+import Fresnel.Profunctor.Isoing
 
 -- Getter constraints
 
-class (Bicontravariant p, Strong p) => Getting p
+class (Isoing p, Bicontravariant p, Strong p) => Getting p
 
 instance Getting (Forget r)
