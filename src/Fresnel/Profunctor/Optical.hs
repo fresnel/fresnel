@@ -42,6 +42,7 @@ class (Isoing p, Choice p) => Prisming p
 
 instance Prisming (->)
 instance Prisming (Recall e)
+instance Applicative f => Prisming (Star f)
 
 
 class (Prisming p, Bifunctor p) => Reviewing p
