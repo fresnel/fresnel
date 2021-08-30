@@ -14,10 +14,11 @@ module Fresnel.Setter
 
 import Data.Profunctor.Mapping
 import Fresnel.Optic
+import Fresnel.Profunctor.Optical
 
 -- Setters
 
-type Setter s t a b = forall p . Mapping p => Optic p s t a b
+type Setter s t a b = forall p . Setting p => Optic p s t a b
 
 type Setter' s a = Setter s s a a
 
