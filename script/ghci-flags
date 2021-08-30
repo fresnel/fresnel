@@ -61,6 +61,7 @@ function flags {
   echo "-Wno-missed-specialisations"
   echo "-Wno-missing-import-lists"
   echo "-Wno-missing-local-signatures"
+  echo "-Wno-missing-safe-haskell-mode"
   echo "-Wno-monomorphism-restriction"
   echo "-Wno-name-shadowing"
   echo "-Wno-safe"

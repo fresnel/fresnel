@@ -23,6 +23,7 @@ common common
     -Wno-missed-specialisations
     -Wno-missing-import-lists
     -Wno-missing-local-signatures
+    -Wno-missing-safe-haskell-mode
     -Wno-monomorphism-restriction
     -Wno-name-shadowing
     -Wno-safe
