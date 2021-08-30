@@ -50,5 +50,6 @@ instance Isoing (UnpackedAffineTraversal a b)
 instance Lensing (UnpackedAffineTraversal a b)
 instance Prisming (UnpackedAffineTraversal a b)
 
+
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
 unpackedAffineTraversal prj set = UnpackedAffineTraversal (\ k -> k prj set)
