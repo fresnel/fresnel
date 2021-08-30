@@ -17,6 +17,7 @@ import Fresnel.Profunctor.Coexp
 import Data.Bifunctor
 import Data.Profunctor.Traversing
 import Fresnel.Profunctor.AffineStar
+import Data.Functor.Contravariant
 
 class Profunctor p => Isoing p
 
@@ -63,3 +64,5 @@ instance Functor f => AffineTraversing (AffineStar f)
 
 
 class (AffineTraversing p, Bicontravariant p) => AffineFolding p
+
+instance (Functor f, Contravariant f) => AffineFolding (AffineStar f)
