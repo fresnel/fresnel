@@ -34,7 +34,7 @@ instance Lensing (Forget r)
 instance Functor f => Lensing (Star f)
 
 
-class (Lensing p, Bicontravariant p, Strong p) => Getting p
+class (Lensing p, Bicontravariant p) => Getting p
 
 instance Getting (Forget r)
 
