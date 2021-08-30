@@ -17,7 +17,7 @@ import Fresnel.Bifunctor.Contravariant
 import Fresnel.Profunctor.Recall
 import Fresnel.Profunctor.Coexp
 import Data.Bifunctor
-import Data.Profunctor.Traversing
+import qualified Data.Profunctor.Traversing as Pro
 import Fresnel.Profunctor.AffineStar
 import Data.Functor.Contravariant
 import Control.Arrow
@@ -78,6 +78,12 @@ class (AffineTraversing p, Bicontravariant p) => AffineFolding p
 instance Monoid r => AffineFolding (Forget r)
 instance (Applicative f, Contravariant f) => AffineFolding (Star f)
 instance (Functor f, Contravariant f) => AffineFolding (AffineStar f)
+
+
+class (AffineTraversing p, Pro.Traversing p) => Traversing p
+
+instance Monoid r => Traversing (Forget r)
+instance Applicative f => Traversing (Star f)
 
 
 class (AffineFolding p, Cochoice p, Traversing p) => Folding p
