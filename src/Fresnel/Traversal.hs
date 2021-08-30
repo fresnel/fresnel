@@ -13,6 +13,7 @@ module Fresnel.Traversal
 
 import Control.Applicative.Backwards
 import Data.Profunctor
+import Data.Profunctor.Traversing (wander)
 import Fresnel.Profunctor.Optical
 import Fresnel.Optic
 
