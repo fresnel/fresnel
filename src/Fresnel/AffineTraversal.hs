@@ -43,5 +43,8 @@ instance Profunctor (UnpackedAffineTraversal a b) where
 instance Strong (UnpackedAffineTraversal a b) where
   first' (UnpackedAffineTraversal r) = r $ \ prj set -> unpackedAffineTraversal (\ (a, c) -> first (,c) (prj a)) (\ (a, c) b -> (set a b, c))
 
+instance Choice (UnpackedAffineTraversal a b) where
+  left' (UnpackedAffineTraversal r) = r $ \ prj set -> unpackedAffineTraversal (either (either (Left . Left) Right . prj) (Left . Right)) (\ e b -> first (`set` b) e)
+
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
 unpackedAffineTraversal prj set = UnpackedAffineTraversal (\ k -> k prj set)
