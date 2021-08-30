@@ -11,3 +11,4 @@ import Data.Profunctor
 class Profunctor p => Isoing p
 
 instance Isoing (->)
+instance Isoing (Forget r)
