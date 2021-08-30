@@ -20,7 +20,7 @@ import Fresnel.Profunctor.Getting
 
 -- Getters
 
-type Getter s a = forall p . (Bicontravariant p, Strong p) => Optic' p s a
+type Getter s a = forall p . Getting p => Optic' p s a
 
 
 -- Construction
