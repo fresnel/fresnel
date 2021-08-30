@@ -21,6 +21,7 @@ class Profunctor p => Isoing p
 instance Isoing (->)
 instance Isoing (Forget r)
 instance Isoing (Recall e)
+instance Functor f => Isoing (Star f)
 instance Isoing (Coexp s t)
 
 
