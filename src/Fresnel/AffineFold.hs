@@ -15,10 +15,11 @@ import Data.Monoid (First(..))
 import Data.Profunctor
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
+import Fresnel.Profunctor.Optical
 
 -- Affine folds
 
-type AffineFold s a = forall p . (Bicontravariant p, Choice p, Strong p) => Optic' p s a
+type AffineFold s a = forall p . AffineFolding p => Optic' p s a
 
 
 -- Construction
