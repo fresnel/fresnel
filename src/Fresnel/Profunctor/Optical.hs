@@ -86,3 +86,5 @@ instance Monoid r => Folding (Forget r)
 
 
 class (AffineTraversing p, Mapping p) => Setting p
+
+instance Setting (->)
