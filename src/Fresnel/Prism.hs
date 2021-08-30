@@ -100,6 +100,8 @@ instance Profunctor (UnpackedPrism a b) where
 instance Choice (UnpackedPrism a b) where
   left' (UnpackedPrism r) = r $ \ inj prj -> unpackedPrism (Left . inj) (either (either (Left . Left) Right . prj) (Left . Right))
 
+instance Isoing (UnpackedPrism a b)
+
 
 unpackedPrism :: (b -> t) -> (s -> Either t a) -> UnpackedPrism a b s t
 unpackedPrism inj prj = UnpackedPrism (\ k -> k inj prj)
