@@ -48,6 +48,7 @@ library
     Fresnel.Prism
     Fresnel.Profunctor.Coexp
     Fresnel.Profunctor.Getting
+    Fresnel.Profunctor.Lensing
     Fresnel.Profunctor.Isoing
     Fresnel.Profunctor.Recall
     Fresnel.Profunctor.Reviewing
