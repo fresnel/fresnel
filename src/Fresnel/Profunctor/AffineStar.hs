@@ -21,6 +21,7 @@ newtype AffineStar f a b = AffineStar { withAffineStar :: forall r . ((forall x 
 
 instance Functor f => Profunctor (AffineStar f) where
   dimap f g = mapAffineStar (dimap f (fmap g))
+  lmap f = mapAffineStar (lmap f)
 
 instance Functor f => Choice (AffineStar f) where
   left'  (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . f) (fmap Right . point))))
