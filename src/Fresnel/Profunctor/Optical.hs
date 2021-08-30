@@ -93,6 +93,6 @@ class (AffineFolding p, Cochoice p, Traversing p) => Folding p
 instance Monoid r => Folding (Forget r)
 
 
-class (AffineTraversing p, Mapping p) => Setting p
+class (Traversing p, Mapping p) => Setting p
 
 instance Setting (->)
