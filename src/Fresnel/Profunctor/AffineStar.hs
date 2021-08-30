@@ -12,8 +12,10 @@ module Fresnel.Profunctor.AffineStar
 ) where
 
 import Data.Profunctor
+import Data.Profunctor.Unsafe
 import Data.Functor.Contravariant
 import Fresnel.Bifunctor.Contravariant
+import Data.Coerce
 
 -- Affine star profunctors
 
@@ -23,6 +25,7 @@ instance Functor f => Profunctor (AffineStar f) where
   dimap f g = mapAffineStar (dimap f (fmap g))
   lmap f = mapAffineStar (lmap f)
   rmap g = mapAffineStar (rmap (fmap g))
+  (.#) = fmap coerce . const
 
 instance Functor f => Choice (AffineStar f) where
   left'  (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . f) (fmap Right . point))))
