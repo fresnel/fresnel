@@ -1,10 +1,11 @@
 # `fresnel`: high-powered optics in a small package
 
-[![CI status badge](https://github.com/robrix/fresnel/actions/workflows/ci.yml/badge.svg)][CI status]
+[![CI status badge](https://github.com/robrix/fresnel/actions/workflows/ci.yml/badge.svg)][CI status] [![hackage](https://img.shields.io/hackage/v/fresnel.svg?color=blue&style=popout)][hackage]
 
 `fresnel` is yet another optics (aka functional references) package for Haskell.
 
 [CI status]: https://github.com/robrix/fresnel/actions
+[hackage]: http://hackage.haskell.org/package/fresnel
 
 
 ## The name
