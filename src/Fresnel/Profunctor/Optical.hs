@@ -24,6 +24,7 @@ instance Isoing (Coexp s t)
 class (Isoing p, Strong p) => Lensing p
 
 instance Lensing (->)
+instance Lensing (Forget r)
 
 
 class (Isoing p, Bicontravariant p, Strong p) => Getting p
