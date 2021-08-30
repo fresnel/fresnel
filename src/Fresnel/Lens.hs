@@ -3,6 +3,7 @@ module Fresnel.Lens
 ( -- * Lenses
   Lens
 , Lens'
+, Lensing
   -- * Construction
 , lens
   -- * Elimination
@@ -19,6 +20,7 @@ module Fresnel.Lens
 import Control.Arrow ((&&&), (***))
 import Data.Profunctor
 import Fresnel.Optic
+import Fresnel.Profunctor.Optical
 
 -- Lenses
 
