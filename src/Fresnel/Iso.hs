@@ -57,6 +57,7 @@ import Data.Tuple (swap)
 import Fresnel.Optic
 import Fresnel.Prism
 import Fresnel.Profunctor.Coexp
+import Fresnel.Profunctor.Iso
 import Fresnel.Review (review)
 
 -- Isos
@@ -64,9 +65,6 @@ import Fresnel.Review (review)
 type Iso s t a b = forall p . Profunctor p => Optic p s t a b
 
 type Iso' s a = Iso s s a a
-
-
-class Profunctor p => Isoing p
 
 
 -- Construction
