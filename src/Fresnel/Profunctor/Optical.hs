@@ -18,10 +18,12 @@ import Data.Bifunctor
 import Data.Profunctor.Traversing
 import Fresnel.Profunctor.AffineStar
 import Data.Functor.Contravariant
+import Control.Arrow
 
 class Profunctor p => Isoing p
 
 instance Isoing (->)
+instance Monad m => Isoing (Kleisli m)
 instance Isoing (Forget r)
 instance Isoing (Recall e)
 instance Functor f => Isoing (Star f)
@@ -33,6 +35,7 @@ instance Isoing (Coexp s t)
 class (Isoing p, Strong p) => Lensing p
 
 instance Lensing (->)
+instance Monad m => Lensing (Kleisli m)
 instance Lensing (Forget r)
 instance Functor f => Lensing (Star f)
 instance Functor f => Lensing (AffineStar f)
@@ -48,6 +51,7 @@ instance (Contravariant f, Functor f) => Getting (AffineStar f)
 class (Isoing p, Choice p) => Prisming p
 
 instance Prisming (->)
+instance Monad m => Prisming (Kleisli m)
 instance Prisming (Recall e)
 instance Applicative f => Prisming (Star f)
 instance Functor f => Prisming (AffineStar f)
@@ -61,6 +65,7 @@ instance Reviewing (Recall e)
 class (Lensing p, Prisming p) => AffineTraversing p where
 
 instance AffineTraversing (->)
+instance Monad m => AffineTraversing (Kleisli m)
 instance Applicative f => AffineTraversing (Star f)
 instance Functor f => AffineTraversing (AffineStar f)
 
