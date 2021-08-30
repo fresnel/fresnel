@@ -9,3 +9,5 @@ import Data.Profunctor
 -- Iso constraints
 
 class Profunctor p => Isoing p
+
+instance Isoing (->)
