@@ -33,7 +33,7 @@ import Fresnel.Profunctor.Optical
 
 -- Prisms
 
-type Prism s t a b = forall p . Choice p => Optic p s t a b
+type Prism s t a b = forall p . Prisming p => Optic p s t a b
 
 type Prism' s a = Prism s s a a
 
