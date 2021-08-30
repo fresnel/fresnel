@@ -5,6 +5,7 @@ module Fresnel.Profunctor.Optical
 , Prisming
 , Reviewing
 , AffineTraversing
+, Traversing
 ) where
 
 
@@ -13,6 +14,7 @@ import Fresnel.Bifunctor.Contravariant
 import Fresnel.Profunctor.Recall
 import Fresnel.Profunctor.Coexp
 import Data.Bifunctor
+import Data.Profunctor.Traversing
 
 class Profunctor p => Isoing p
 
