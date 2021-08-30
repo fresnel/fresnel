@@ -9,3 +9,5 @@ import Data.Profunctor
 -- Getter constraints
 
 class (Bicontravariant p, Strong p) => Getting p
+
+instance Getting (Forget r)
