@@ -12,7 +12,6 @@ module Fresnel.Profunctor.AffineStar
 ) where
 
 import Data.Profunctor
-import Fresnel.Profunctor.Optical
 
 -- Affine star profunctors
 
@@ -27,11 +26,6 @@ instance Functor f => Choice (AffineStar f) where
 instance Functor f => Strong (AffineStar f) where
   first'  r = mapAffineStar (\ f (a, c) -> (,c) <$> f a) r
   second' r = mapAffineStar (\ f (c, a) -> (c,) <$> f a) r
-
-instance Functor f => Isoing (AffineStar f)
-instance Functor f => Lensing (AffineStar f)
-instance Functor f => Prisming (AffineStar f)
-instance Functor f => AffineTraversing (AffineStar f)
 
 
 -- Construction
