@@ -6,6 +6,7 @@ module Fresnel.Profunctor.Optical
 , Reviewing
 , AffineTraversing
 , Traversing(..)
+, AffineFolding
 ) where
 
 
@@ -54,3 +55,6 @@ class (Lensing p, Prisming p) => AffineTraversing p where
 
 instance AffineTraversing (->)
 instance Applicative f => AffineTraversing (Star f)
+
+
+class (AffineTraversing p, Bicontravariant p) => AffineFolding p
