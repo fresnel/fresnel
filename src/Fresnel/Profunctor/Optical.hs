@@ -53,3 +53,4 @@ instance Reviewing (Recall e) where
 class (Lensing p, Prisming p) => AffineTraversing p where
 
 instance AffineTraversing (->)
+instance Applicative f => AffineTraversing (Star f)
