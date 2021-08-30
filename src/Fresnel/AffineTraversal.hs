@@ -20,6 +20,7 @@ import Fresnel.Profunctor.Optical
 import Fresnel.Optic
 import Data.Profunctor
 import Data.Bifunctor
+import Fresnel.Profunctor.AffineStar
 
 -- Affine traversals
 
@@ -70,30 +71,3 @@ instance AffineTraversing (UnpackedAffineTraversal a b)
 
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
 unpackedAffineTraversal prj set = UnpackedAffineTraversal (\ k -> k prj set)
-
-
-newtype AffineStar f a b = AffineStar { withAffineStar :: forall r . ((forall x . x -> f x) -> (a -> f b) -> r) -> r }
-
-instance Functor f => Profunctor (AffineStar f) where
-  dimap f g = mapAffineStar (dimap f (fmap g))
-
-instance Functor f => Choice (AffineStar f) where
-  left' (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . f) (fmap Right . point))))
-
-instance Functor f => Strong (AffineStar f) where
-  first'  r = mapAffineStar (\ f (a, c) -> (,c) <$> f a) r
-  second' r = mapAffineStar (\ f (c, a) -> (c,) <$> f a) r
-
-instance Functor f => Isoing (AffineStar f)
-instance Functor f => Lensing (AffineStar f)
-instance Functor f => Prisming (AffineStar f)
-instance Functor f => AffineTraversing (AffineStar f)
-
-affineStar :: (forall x . x -> f x) -> (a -> f b) -> AffineStar f a b
-affineStar point f = AffineStar (\ k -> k point f)
-
-runAffineStar :: AffineStar f a b -> (a -> f b)
-runAffineStar a = withAffineStar a (\ _ f -> f)
-
-mapAffineStar :: ((a -> f b) -> (c -> f d)) -> (AffineStar f a b -> AffineStar f c d)
-mapAffineStar f (AffineStar r) = AffineStar (\ k -> r (\ point -> k point . f))
