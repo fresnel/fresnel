@@ -21,7 +21,8 @@ instance Functor f => Profunctor (AffineStar f) where
   dimap f g = mapAffineStar (dimap f (fmap g))
 
 instance Functor f => Choice (AffineStar f) where
-  left' (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . f) (fmap Right . point))))
+  left'  (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . f) (fmap Right . point))))
+  right' (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . point) (fmap Right . f))))
 
 instance Functor f => Strong (AffineStar f) where
   first'  r = mapAffineStar (\ f (a, c) -> (,c) <$> f a) r
