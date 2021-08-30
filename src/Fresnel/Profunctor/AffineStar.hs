@@ -27,8 +27,8 @@ instance Functor f => Choice (AffineStar f) where
   right' (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . point) (fmap Right . f))))
 
 instance Functor f => Strong (AffineStar f) where
-  first'  r = mapAffineStar (\ f (a, c) -> (,c) <$> f a) r
-  second' r = mapAffineStar (\ f (c, a) -> (c,) <$> f a) r
+  first'  = mapAffineStar (\ f (a, c) -> (,c) <$> f a)
+  second' = mapAffineStar (\ f (c, a) -> (c,) <$> f a)
 
 instance Contravariant f => Bicontravariant (AffineStar f) where
   contrabimap f g = mapAffineStar (\ h -> contramap g . h . f)
