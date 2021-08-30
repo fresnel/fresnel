@@ -53,7 +53,7 @@ instance Functor f => Prisming (AffineStar f)
 
 class (Prisming p, Bifunctor p) => Reviewing p
 
-instance Reviewing (Recall e) where
+instance Reviewing (Recall e)
 
 
 class (Lensing p, Prisming p) => AffineTraversing p where
