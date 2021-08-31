@@ -8,7 +8,7 @@ module Fresnel.Profunctor.Optical
 , IsTraversal
 , IsAffineFold
 , IsFold
-, Setting
+, IsSetter
 ) where
 
 
@@ -93,6 +93,6 @@ class (IsAffineFold p, IsTraversal p, Cochoice p) => IsFold p
 instance Monoid r => IsFold (Forget r)
 
 
-class (IsTraversal p, Mapping p) => Setting p
+class (IsTraversal p, Mapping p) => IsSetter p
 
-instance Setting (->)
+instance IsSetter (->)

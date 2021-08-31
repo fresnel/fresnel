@@ -18,7 +18,7 @@ import Fresnel.Profunctor.Optical
 
 -- Setters
 
-type Setter s t a b = forall p . Setting p => Optic p s t a b
+type Setter s t a b = forall p . IsSetter p => Optic p s t a b
 
 type Setter' s a = Setter s s a a
 
