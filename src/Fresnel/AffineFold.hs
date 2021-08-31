@@ -19,7 +19,7 @@ import Fresnel.Profunctor.Optical
 
 -- Affine folds
 
-type AffineFold s a = forall p . AffineFolding p => Optic' p s a
+type AffineFold s a = forall p . IsAffineFold p => Optic' p s a
 
 
 -- Construction
