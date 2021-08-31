@@ -3,7 +3,7 @@ module Fresnel.Lens
 ( -- * Lenses
   Lens
 , Lens'
-, Lensing
+, IsLens
   -- * Construction
 , lens
   -- * Elimination
@@ -24,7 +24,7 @@ import Fresnel.Profunctor.Optical
 
 -- Lenses
 
-type Lens s t a b = forall p . Lensing p => Optic p s t a b
+type Lens s t a b = forall p . IsLens p => Optic p s t a b
 
 type Lens' s a = Lens s s a a
 
@@ -66,7 +66,7 @@ instance Strong (UnpackedLens a b) where
   first' (UnpackedLens r) = r $ \ get set -> unpackedLens (get . fst) (\ (a, c) b -> (set a b, c))
 
 instance IsIso (UnpackedLens a b)
-instance Lensing (UnpackedLens a b)
+instance IsLens (UnpackedLens a b)
 
 
 unpackedLens :: (s -> a) -> (s -> b -> t) -> UnpackedLens a b s t
