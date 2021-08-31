@@ -1,7 +1,7 @@
 module Fresnel.Profunctor.Optical
 ( IsIso
 , IsLens
-, Getting
+, IsGetter
 , Prisming
 , Reviewing
 , AffineTraversing
@@ -43,10 +43,10 @@ instance Functor f => IsLens (Star f)
 instance Functor f => IsLens (AffineStar f)
 
 
-class (IsLens p, Bicontravariant p, Cochoice p) => Getting p
+class (IsLens p, Bicontravariant p, Cochoice p) => IsGetter p
 
-instance Getting (Forget r)
-instance (Contravariant f, Traversable f) => Getting (Star f)
+instance IsGetter (Forget r)
+instance (Contravariant f, Traversable f) => IsGetter (Star f)
 
 
 class (IsIso p, Choice p) => Prisming p

@@ -2,7 +2,7 @@
 module Fresnel.Getter
 ( -- * Getters
   Getter
-, Getting
+, IsGetter
   -- * Construction
 , to
 , getting
@@ -20,7 +20,7 @@ import Fresnel.Profunctor.Optical
 
 -- Getters
 
-type Getter s a = forall p . Getting p => Optic' p s a
+type Getter s a = forall p . IsGetter p => Optic' p s a
 
 
 -- Construction
