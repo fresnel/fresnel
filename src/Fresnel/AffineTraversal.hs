@@ -64,7 +64,7 @@ instance Choice (UnpackedAffineTraversal a b) where
 
 instance IsIso (UnpackedAffineTraversal a b)
 instance IsLens (UnpackedAffineTraversal a b)
-instance Prisming (UnpackedAffineTraversal a b)
+instance IsPrism (UnpackedAffineTraversal a b)
 instance AffineTraversing (UnpackedAffineTraversal a b)
 
 

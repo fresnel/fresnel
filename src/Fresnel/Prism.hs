@@ -3,7 +3,7 @@ module Fresnel.Prism
 ( -- * Prisms
   Prism
 , Prism'
-, Prisming
+, IsPrism
   -- * Construction
 , prism
 , prism'
@@ -33,7 +33,7 @@ import Fresnel.Profunctor.Optical
 
 -- Prisms
 
-type Prism s t a b = forall p . Prisming p => Optic p s t a b
+type Prism s t a b = forall p . IsPrism p => Optic p s t a b
 
 type Prism' s a = Prism s s a a
 
@@ -101,7 +101,7 @@ instance Choice (UnpackedPrism a b) where
   left' (UnpackedPrism r) = r $ \ inj prj -> unpackedPrism (Left . inj) (either (either (Left . Left) Right . prj) (Left . Right))
 
 instance IsIso (UnpackedPrism a b)
-instance Prisming (UnpackedPrism a b)
+instance IsPrism (UnpackedPrism a b)
 
 
 unpackedPrism :: (b -> t) -> (s -> Either t a) -> UnpackedPrism a b s t
