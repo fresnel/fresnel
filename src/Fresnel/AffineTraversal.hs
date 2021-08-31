@@ -62,7 +62,7 @@ instance Choice (UnpackedAffineTraversal a b) where
   left' (UnpackedAffineTraversal r) = r $ \ prj set -> unpackedAffineTraversal (either (either (Left . Left) Right . prj) (Left . Right)) (\ e b -> first (`set` b) e)
   right' (UnpackedAffineTraversal r) = r $ \ prj set -> unpackedAffineTraversal (either (Left . Left) (either (Left . Right) Right . prj)) (\ e b -> fmap (`set` b) e)
 
-instance Isoing (UnpackedAffineTraversal a b)
+instance IsIso (UnpackedAffineTraversal a b)
 instance Lensing (UnpackedAffineTraversal a b)
 instance Prisming (UnpackedAffineTraversal a b)
 instance AffineTraversing (UnpackedAffineTraversal a b)

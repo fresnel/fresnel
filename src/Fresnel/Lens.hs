@@ -65,7 +65,7 @@ instance Profunctor (UnpackedLens a b) where
 instance Strong (UnpackedLens a b) where
   first' (UnpackedLens r) = r $ \ get set -> unpackedLens (get . fst) (\ (a, c) b -> (set a b, c))
 
-instance Isoing (UnpackedLens a b)
+instance IsIso (UnpackedLens a b)
 instance Lensing (UnpackedLens a b)
 
 

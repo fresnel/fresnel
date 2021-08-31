@@ -1,5 +1,5 @@
 module Fresnel.Profunctor.Optical
-( Isoing
+( IsIso
 , Lensing
 , Getting
 , Prisming
@@ -22,19 +22,19 @@ import Fresnel.Profunctor.AffineStar
 import Data.Functor.Contravariant
 import Control.Arrow
 
-class Profunctor p => Isoing p
+class Profunctor p => IsIso p
 
-instance Isoing (->)
-instance Monad m => Isoing (Kleisli m)
-instance Isoing (Forget r)
-instance Isoing (Recall e)
-instance Functor f => Isoing (Star f)
-instance Functor f => Isoing (Costar f)
-instance Functor f => Isoing (AffineStar f)
-instance Isoing (Coexp s t)
+instance IsIso (->)
+instance Monad m => IsIso (Kleisli m)
+instance IsIso (Forget r)
+instance IsIso (Recall e)
+instance Functor f => IsIso (Star f)
+instance Functor f => IsIso (Costar f)
+instance Functor f => IsIso (AffineStar f)
+instance IsIso (Coexp s t)
 
 
-class (Isoing p, Strong p) => Lensing p
+class (IsIso p, Strong p) => Lensing p
 
 instance Lensing (->)
 instance Monad m => Lensing (Kleisli m)
@@ -49,7 +49,7 @@ instance Getting (Forget r)
 instance (Contravariant f, Traversable f) => Getting (Star f)
 
 
-class (Isoing p, Choice p) => Prisming p
+class (IsIso p, Choice p) => Prisming p
 
 instance Prisming (->)
 instance Monad m => Prisming (Kleisli m)
