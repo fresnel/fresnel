@@ -2,6 +2,7 @@
 module Fresnel.AffineFold
 ( -- * Affine folds
   AffineFold
+, IsAffineFold
   -- * Construction
 , afolding
 , filtered
