@@ -3,7 +3,7 @@ module Fresnel.Profunctor.Optical
 , IsLens
 , IsGetter
 , IsPrism
-, Reviewing
+, IsReview
 , AffineTraversing
 , Traversing
 , AffineFolding
@@ -59,9 +59,9 @@ instance Applicative f => IsPrism (Star f)
 instance Functor f => IsPrism (AffineStar f)
 
 
-class (IsPrism p, Bifunctor p, Costrong p) => Reviewing p
+class (IsPrism p, Bifunctor p, Costrong p) => IsReview p
 
-instance Reviewing (Recall e)
+instance IsReview (Recall e)
 
 
 class (IsLens p, IsPrism p) => AffineTraversing p where
