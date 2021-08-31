@@ -3,6 +3,7 @@ module Fresnel.Setter
 ( -- * Setters
   Setter
 , Setter'
+, IsSetter
   -- * Construction
 , sets
   -- * Elimination
