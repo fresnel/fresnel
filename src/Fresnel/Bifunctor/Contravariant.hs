@@ -9,7 +9,9 @@ module Fresnel.Bifunctor.Contravariant
 ) where
 
 import Data.Bifunctor (Bifunctor(..))
-import Data.Profunctor (Forget(..), Profunctor(..))
+import Data.Profunctor (Forget(..), Profunctor(..), Star(..))
+import Data.Functor.Contravariant
+import Control.Arrow
 
 -- Bicontravariant functors
 
@@ -18,6 +20,12 @@ class Bicontravariant p where
 
 instance Bicontravariant (Forget r) where
   contrabimap f _ = Forget . lmap f . runForget
+
+instance Contravariant f => Bicontravariant (Star f) where
+  contrabimap f g = Star . dimap f (contramap g) . runStar
+
+instance Contravariant m => Bicontravariant (Kleisli m) where
+  contrabimap f g = Kleisli . dimap f (contramap g) . runKleisli
 
 
 contrafirst :: Bicontravariant p => (a' -> a) -> p a b -> p a' b

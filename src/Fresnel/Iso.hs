@@ -3,6 +3,7 @@ module Fresnel.Iso
 ( -- * Isos
   Iso
 , Iso'
+, IsIso
   -- * Construction
 , iso
 , from
@@ -56,11 +57,12 @@ import Data.Tuple (swap)
 import Fresnel.Optic
 import Fresnel.Prism
 import Fresnel.Profunctor.Coexp
+import Fresnel.Profunctor.Optical
 import Fresnel.Review (review)
 
 -- Isos
 
-type Iso s t a b = forall p . Profunctor p => Optic p s t a b
+type Iso s t a b = forall p . IsIso p => Optic p s t a b
 
 type Iso' s a = Iso s s a a
 

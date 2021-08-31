@@ -3,6 +3,7 @@ module Fresnel.Prism
 ( -- * Prisms
   Prism
 , Prism'
+, IsPrism
   -- * Construction
 , prism
 , prism'
@@ -28,10 +29,11 @@ import Control.Monad (guard)
 import Data.Bifunctor (bimap)
 import Data.Profunctor
 import Fresnel.Optic
+import Fresnel.Profunctor.Optical
 
 -- Prisms
 
-type Prism s t a b = forall p . Choice p => Optic p s t a b
+type Prism s t a b = forall p . IsPrism p => Optic p s t a b
 
 type Prism' s a = Prism s s a a
 
@@ -97,6 +99,9 @@ instance Profunctor (UnpackedPrism a b) where
 
 instance Choice (UnpackedPrism a b) where
   left' (UnpackedPrism r) = r $ \ inj prj -> unpackedPrism (Left . inj) (either (either (Left . Left) Right . prj) (Left . Right))
+
+instance IsIso (UnpackedPrism a b)
+instance IsPrism (UnpackedPrism a b)
 
 
 unpackedPrism :: (b -> t) -> (s -> Either t a) -> UnpackedPrism a b s t
