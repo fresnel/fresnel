@@ -2,6 +2,7 @@
 module Fresnel.Fold
 ( -- * Folds
   Fold
+, IsFold
   -- * Construction
 , folded
   -- * Elimination
