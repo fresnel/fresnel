@@ -5,7 +5,7 @@ module Fresnel.Profunctor.Optical
 , IsPrism
 , IsReview
 , IsAffineTraversal
-, Traversing
+, IsTraversal
 , IsAffineFold
 , Folding
 , Setting
@@ -17,7 +17,7 @@ import Fresnel.Bifunctor.Contravariant
 import Fresnel.Profunctor.Recall
 import Fresnel.Profunctor.Coexp
 import Data.Bifunctor
-import qualified Data.Profunctor.Traversing as Pro
+import Data.Profunctor.Traversing
 import Fresnel.Profunctor.AffineStar
 import Data.Functor.Contravariant
 import Control.Arrow
@@ -80,19 +80,19 @@ instance (Applicative f, Contravariant f) => IsAffineFold (Star f)
 instance (Functor f, Contravariant f) => IsAffineFold (AffineStar f)
 
 
-class (IsAffineTraversal p, Pro.Traversing p) => Traversing p
+class (IsAffineTraversal p, Traversing p) => IsTraversal p
 
-instance Traversing (->)
-instance Monad m => Traversing (Kleisli m)
-instance Monoid r => Traversing (Forget r)
-instance Applicative f => Traversing (Star f)
+instance IsTraversal (->)
+instance Monad m => IsTraversal (Kleisli m)
+instance Monoid r => IsTraversal (Forget r)
+instance Applicative f => IsTraversal (Star f)
 
 
-class (IsAffineFold p, Cochoice p, Traversing p) => Folding p
+class (IsAffineFold p, IsTraversal p, Cochoice p) => Folding p
 
 instance Monoid r => Folding (Forget r)
 
 
-class (Traversing p, Mapping p) => Setting p
+class (IsTraversal p, Mapping p) => Setting p
 
 instance Setting (->)
