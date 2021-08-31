@@ -21,7 +21,7 @@ import Fresnel.Profunctor.Optical
 
 -- Folds
 
-type Fold s a = forall p . Folding p => Optic' p s a
+type Fold s a = forall p . IsFold p => Optic' p s a
 
 
 -- Construction

@@ -7,7 +7,7 @@ module Fresnel.Profunctor.Optical
 , IsAffineTraversal
 , IsTraversal
 , IsAffineFold
-, Folding
+, IsFold
 , Setting
 ) where
 
@@ -88,9 +88,9 @@ instance Monoid r => IsTraversal (Forget r)
 instance Applicative f => IsTraversal (Star f)
 
 
-class (IsAffineFold p, IsTraversal p, Cochoice p) => Folding p
+class (IsAffineFold p, IsTraversal p, Cochoice p) => IsFold p
 
-instance Monoid r => Folding (Forget r)
+instance Monoid r => IsFold (Forget r)
 
 
 class (IsTraversal p, Mapping p) => Setting p
