@@ -4,7 +4,7 @@ module Fresnel.Profunctor.Optical
 , IsGetter
 , IsPrism
 , IsReview
-, AffineTraversing
+, IsAffineTraversal
 , Traversing
 , AffineFolding
 , Folding
@@ -64,23 +64,23 @@ class (IsPrism p, Bifunctor p, Costrong p) => IsReview p
 instance IsReview (Recall e)
 
 
-class (IsLens p, IsPrism p) => AffineTraversing p where
+class (IsLens p, IsPrism p) => IsAffineTraversal p where
 
-instance AffineTraversing (->)
-instance Monad m => AffineTraversing (Kleisli m)
-instance Monoid r => AffineTraversing (Forget r)
-instance Applicative f => AffineTraversing (Star f)
-instance Functor f => AffineTraversing (AffineStar f)
+instance IsAffineTraversal (->)
+instance Monad m => IsAffineTraversal (Kleisli m)
+instance Monoid r => IsAffineTraversal (Forget r)
+instance Applicative f => IsAffineTraversal (Star f)
+instance Functor f => IsAffineTraversal (AffineStar f)
 
 
-class (AffineTraversing p, Bicontravariant p) => AffineFolding p
+class (IsAffineTraversal p, Bicontravariant p) => AffineFolding p
 
 instance Monoid r => AffineFolding (Forget r)
 instance (Applicative f, Contravariant f) => AffineFolding (Star f)
 instance (Functor f, Contravariant f) => AffineFolding (AffineStar f)
 
 
-class (AffineTraversing p, Pro.Traversing p) => Traversing p
+class (IsAffineTraversal p, Pro.Traversing p) => Traversing p
 
 instance Traversing (->)
 instance Monad m => Traversing (Kleisli m)

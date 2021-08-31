@@ -3,7 +3,7 @@
 module Fresnel.AffineTraversal
 ( -- * Affine traversals
   AffineTraversal
-, AffineTraversing
+, IsAffineTraversal
   -- * Construction
 , atraversal
   -- * Elimination
@@ -23,7 +23,7 @@ import Fresnel.Profunctor.AffineStar
 
 -- Affine traversals
 
-type AffineTraversal s t a b = forall p . AffineTraversing p => Optic p s t a b
+type AffineTraversal s t a b = forall p . IsAffineTraversal p => Optic p s t a b
 
 
 -- Construction
@@ -65,7 +65,7 @@ instance Choice (UnpackedAffineTraversal a b) where
 instance IsIso (UnpackedAffineTraversal a b)
 instance IsLens (UnpackedAffineTraversal a b)
 instance IsPrism (UnpackedAffineTraversal a b)
-instance AffineTraversing (UnpackedAffineTraversal a b)
+instance IsAffineTraversal (UnpackedAffineTraversal a b)
 
 
 unpackedAffineTraversal :: (s -> Either t a) -> (s -> b -> t) -> UnpackedAffineTraversal a b s t
