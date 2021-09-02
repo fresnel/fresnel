@@ -88,9 +88,6 @@ text {
   stroke-opacity: 90%;
   stroke-linejoin: round;
 }
-text:hover {
-
-}
 text.typeclass {
   fill: var(--typeclass-colour);
 }
