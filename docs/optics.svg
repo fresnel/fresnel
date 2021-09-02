@@ -213,10 +213,10 @@ stop.setter {
     <use id="strong-lens" href="#edge-down" class="typeclass" x="-200" y="100"/>
     <use id="choice-prism" href="#edge-down" class="typeclass" x="200" y="100"/>
 
-    <use id="bicontravariant-getter" href="#edge-down-2" class="typeclass" x="-400" y="100" transform="translate(15, -7.5)"/>
-    <use id="bicontravariant-affine-fold" href="#edge-down-2-right" class="typeclass" x="-400" y="100" transform="translate(5, -2.5)"/>
-    <use id="cochoice-fold" href="#edge-down-right-2" class="typeclass" x="-400" y="200" transform="translate(-5, 2.5)"/>
-    <use id="cochoice-getter" href="#edge-down" class="typeclass" x="-400" y="200" transform="translate(-15,7.5)"/>
+    <use id="bicontravariant-getter" href="#edge-down-2" class="typeclass" x="-400" y="100" transform="translate(20, -10)"/>
+    <use id="bicontravariant-affine-fold" href="#edge-down-2-right" class="typeclass" x="-400" y="100" transform="translate(10, -5)"/>
+    <use id="cochoice-getter" href="#edge-down" class="typeclass" x="-400" y="200"/>
+    <use id="cochoice-fold" href="#edge-down-right-2" class="typeclass" x="-400" y="200" transform="translate(-10, 5)"/>
 
     <use id="bifunctor-review" href="#edge-down-2" class="typeclass" x="400" y="100" transform="translate(-5, -2.5)"/>
     <use id="costrong-review" href="#edge-down" class="typeclass" x="400" y="200" transform="translate(5, 2.5)"/>
@@ -266,7 +266,7 @@ stop.setter {
   <use id="affine-traversal-affine-fold" href="#edge-left" class="optic" y="300"/>
   <use id="affine-traversal-traversal" href="#edge-right" class="optic" y="300"/>
 
-  <use id="affine-fold-fold" href="#edge-right" class="optic" x="-200" y="400" transform="translate(5,-2.5)"/>
+  <use id="affine-fold-fold" href="#edge-right" class="optic" x="-200" y="400"/>
 
   <use id="traversal-fold" href="#edge-left" class="optic" x="200" y="400"/>
   <use id="traversal-setter" href="#edge-right" class="optic" x="200" y="400"/>
