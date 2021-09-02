@@ -118,16 +118,10 @@ use:hover {
 circle {
   stroke: transparent;
   stroke-width: 0;
+}
+use.typeclass {
   fill: var(--typeclass-colour);
-}
-path.typeclass {
   stroke: var(--typeclass-colour);
-}
-use.typeclass, path.typeclass, polyline.typeclass {
-  stroke: var(--typeclass-colour);
-}
-use.optic, path.optic, polyline.optic {
-  stroke: var(--optic-colour);
 }
 #iso {
   fill: var(--iso-colour);
