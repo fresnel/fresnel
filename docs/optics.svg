@@ -131,35 +131,35 @@ use.typeclass {
   fill: currentColor;
   stroke: currentColor;
 }
-#iso {
+#iso, .iso {
   color: var(--iso-colour);
 }
-#lens {
+#lens, .lens {
   color: var(--lens-colour);
 }
-#getter {
+#getter, .getter {
   color: var(--getter-colour);
 }
-#prism {
+#prism, .prism {
   color: var(--prism-colour);
 }
-#review {
+#review, .review {
   color: var(--review-colour);
 }
-#affine-traversal, #affine-traversal text {
+#affine-traversal, .affine-traversal, #affine-traversal text {
   color: var(--affine-traversal-colour);
   text-anchor: end;
 }
-#affine-fold {
+#affine-fold, .affine-fold {
   color: var(--affine-fold-colour);
 }
-#traversal {
+#traversal, .traversal {
   color: var(--traversal-colour);
 }
-#fold {
+#fold, .fold {
   color: var(--fold-colour);
 }
-#setter {
+#setter, .setter {
   color: var(--setter-colour);
 }
 #iso-lens {
@@ -195,35 +195,8 @@ use.typeclass {
 #traversal-setter {
   stroke: url(#gradient-traversal-setter);
 }
-stop.iso {
-  stop-color: var(--iso-colour);
-}
-stop.lens {
-  stop-color: var(--lens-colour);
-}
-stop.getter {
-  stop-color: var(--getter-colour);
-}
-stop.prism {
-  stop-color: var(--prism-colour);
-}
-stop.review {
-  stop-color: var(--review-colour);
-}
-stop.affine-traversal {
-  stop-color: var(--affine-traversal-colour);
-}
-stop.affine-fold {
-  stop-color: var(--affine-fold-colour);
-}
-stop.traversal {
-  stop-color: var(--traversal-colour);
-}
-stop.fold {
-  stop-color: var(--fold-colour);
-}
-stop.setter {
-  stop-color: var(--setter-colour);
+stop {
+  stop-color: currentColor;
 }
 </style>
 
