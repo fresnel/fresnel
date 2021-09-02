@@ -13,6 +13,22 @@
 <path id="edge-down-2" class="edge" d="m 0,15 v 170 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
 <path id="edge-down-2-right" class="edge" d="m 0,15 v 185 l 170,85 m -6,-8 l 6,8 l -10,0"/>
 <path id="edge-down-right-2" class="edge" d="m 0,15 v 85 l 370,185 m -6,-8 l 6,8 l -10,0"/>
+<g id="label-up-left" class="label">
+  <circle r="2.5"/>
+  <path d="m 0,0 l -30,-15 h -50"/>
+</g>
+<g id="label-up-right" class="label">
+  <circle r="2.5"/>
+  <path d="m 0,0 l 30,-15 h 50"/>
+</g>
+<g id="label-down-left" class="label">
+  <circle r="2.5"/>
+  <path d="m 0,0 l -30,15 h -50"/>
+</g>
+<g id="label-down-right" class="label">
+  <circle r="2.5"/>
+  <path d="m 0,0 l 30,15 h 50"/>
+</g>
 <linearGradient id="gradient-left" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
 <linearGradient id="gradient-right" x1="0%" y1="0%" x2="100%" y2="100%"></linearGradient>
 <linearGradient id="gradient-iso-lens" href="#gradient-left">
