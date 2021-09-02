@@ -90,6 +90,7 @@ text {
 }
 text.typeclass {
   fill: var(--typeclass-colour);
+  font-style: italic;
 }
 path, polyline {
   stroke-miterlimit: 8;
