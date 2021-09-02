@@ -65,15 +65,15 @@
   --optic-colour: #000;
   --typeclass-colour: #aaa;
 
+  --lens-colour: hsl(45, 50%, 50%);
+  --getter-colour: hsl(90, 50%, 50%);
+  --affine-fold-colour: hsl(135, 50%, 50%);
   --fold-colour: hsl(180, 50%, 50%);
   --traversal-colour: hsl(225, 50%, 50%);
   --setter-colour: hsl(225, 50%, 75%);
   --review-colour: hsl(270, 50%, 50%);
   --prism-colour: hsl(315, 50%, 50%);
   --iso-colour: hsl(0, 50%, 50%);
-  --lens-colour: hsl(45, 50%, 50%);
-  --getter-colour: hsl(90, 50%, 50%);
-  --affine-fold-colour: hsl(135, 50%, 50%);
   --affine-traversal-colour: hsl(0, 0%, 60%);
 }
 text {
