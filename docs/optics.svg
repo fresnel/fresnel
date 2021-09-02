@@ -180,29 +180,13 @@ stop {
 </style>
 
 <g id="profunctors">
-  <g id="constraints">
-    <use id="profunctor-iso" href="#edge-down" class="typeclass"/>
-    <use id="strong-lens" href="#edge-down" class="typeclass" x="-200" y="100"/>
-    <use id="choice-prism" href="#edge-down" class="typeclass" x="200" y="100"/>
-
-    <use id="bicontravariant-getter" href="#edge-down-2" class="typeclass" x="-400" y="100" transform="translate(20, -10)"/>
-    <use id="bicontravariant-affine-fold" href="#edge-down-2-right" class="typeclass" x="-400" y="100" transform="translate(10, -5)"/>
-    <use id="cochoice-getter" href="#edge-down" class="typeclass" x="-400" y="200"/>
-    <use id="cochoice-fold" href="#edge-down-right-2" class="typeclass" x="-400" y="200" transform="translate(-10, 5)"/>
-
-    <use id="bifunctor-review" href="#edge-down-2" class="typeclass" x="400" y="100" transform="translate(-10, -5)"/>
-    <use id="costrong-review" href="#edge-down" class="typeclass" x="400" y="200"/>
-
-    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" y="200" transform="translate(-10, 5)"/>
-    <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
-  </g>
-
   <g id="profunctor" class="typeclass">
     <use id="profunctor-cochoice" href="#edge-left-2" class="typeclass" transform="translate(-10,-5)"/>
     <use id="profunctor-strong" href="#edge" class="typeclass"/>
     <use id="profunctor-choice" href="#edge" transform="scale(-1,1)" class="typeclass"/>
     <use id="profunctor-costrong" href="#edge-right-2" class="typeclass" transform="translate(-10,5)"/>
     <use id="profunctor-closed" href="#edge-right-3" class="typeclass" transform="translate(10, -5)"/>
+    <use id="profunctor-iso" href="#edge-down" class="typeclass"/>
 
     <circle r="2.5"/>
     <use id="profunctor-label" href="#label-edge" class="typeclass"/>
@@ -210,34 +194,42 @@ stop {
   </g>
 
   <g id="bifunctor" class="typeclass" transform="translate(400,100)">
+    <use id="bifunctor-review" href="#edge-down-2" class="typeclass" transform="translate(-10, -5)"/>
     <circle r="2.5"/>
     <use id="bifunctor-label" href="#label-edge" class="typeclass"/>
     <text id="bifunctor" class="typeclass" transform="translate(80,-30)">Bifunctor</text>
   </g>
   <g id="strong" class="typeclass" transform="translate(-200,100)">
     <use id="strong-traversing" href="#edge" transform="scale(-1,1)" class="typeclass"/>
+    <use id="strong-lens" href="#edge-down" class="typeclass"/>
     <circle r="2.5"/>
     <use id="strong-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="strong-text" class="typeclass" transform="translate(-80,-30)">Strong</text>
   </g>
-  <g id="choice" x="200" y="100" class="typeclass" transform="translate(200,100)">
+  <g id="choice" class="typeclass" transform="translate(200,100)">
     <use id="choice-traversing" href="#edge" class="typeclass"/>
+    <use id="choice-prism" href="#edge-down" class="typeclass"/>
     <circle r="2.5"/>
     <use id="choice-label" href="#label-edge" class="typeclass"/>
     <text id="choice-text" class="typeclass" transform="translate(80,-30)">Choice</text>
   </g>
   <g id="bicontravariant" class="typeclass" transform="translate(-400,100)">
+    <use id="bicontravariant-getter" href="#edge-down-2" class="typeclass" transform="translate(20, -10)"/>
+    <use id="bicontravariant-affine-fold" href="#edge-down-2-right" class="typeclass" transform="translate(10, -5)"/>
     <circle r="2.5"/>
     <use id="bicontravariant-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="bicontravariant-text" class="typeclass" transform="translate(-80,-30)">Bicontravariant</text>
   </g>
 
   <g id="costrong" class="typeclass" transform="translate(400,200)">
+    <use id="costrong-review" href="#edge-down" class="typeclass"/>
     <circle r="2.5"/>
     <use id="costrong-label" href="#label-edge" class="typeclass"/>
     <text id="costrong-text" class="typeclass" transform="translate(80,-30)">Costrong</text>
   </g>
   <g id="cochoice" class="typeclass" transform="translate(-400,200)">
+    <use id="cochoice-getter" href="#edge-down" class="typeclass"/>
+    <use id="cochoice-fold" href="#edge-down-right-2" class="typeclass" transform="translate(-10, 5)"/>
     <circle r="2.5"/>
     <use id="cochoice-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="cochoice-text" class="typeclass" transform="translate(-80,-30)">Cochoice</text>
@@ -245,6 +237,7 @@ stop {
 
   <g id="traversing" class="typeclass" transform="translate(0,200)">
     <use id="traversing-mapping" href="#edge-right-2" class="typeclass"/>
+    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" transform="translate(-10, 5)"/>
     <circle r="2.5"/>
     <use id="traversing-label" href="#label-edge" class="typeclass" transform="scale(-1,-1)"/>
     <text id="traversing-text" class="typeclass" transform="translate(-80,30)">Traversing</text>
@@ -258,6 +251,7 @@ stop {
   </g>
 
   <g id="mapping" class="typeclass" transform="translate(400,400)">
+    <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
     <circle r="2.5"/>
     <use id="mapping-label" href="#label-edge" class="typeclass" transform="scale(1,-1)"/>
     <text id="mapping-text" class="typeclass" transform="translate(80,30)">Mapping</text>
