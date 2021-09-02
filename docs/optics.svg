@@ -62,7 +62,7 @@
 <style>
 :root {
   --optic-colour: #000;
-  --typeclass-colour: #aaa;
+  --typeclass-colour: #bbb;
 
   --iso-colour: hsl(0, 50%, 50%);
   --prism-colour: hsl(45, 50%, 50%);
