@@ -218,8 +218,8 @@ stop.setter {
     <use id="cochoice-getter" href="#edge-down" class="typeclass" x="-400" y="200"/>
     <use id="cochoice-fold" href="#edge-down-right-2" class="typeclass" x="-400" y="200" transform="translate(-10, 5)"/>
 
-    <use id="bifunctor-review" href="#edge-down-2" class="typeclass" x="400" y="100" transform="translate(-5, -2.5)"/>
-    <use id="costrong-review" href="#edge-down" class="typeclass" x="400" y="200" transform="translate(5, 2.5)"/>
+    <use id="bifunctor-review" href="#edge-down-2" class="typeclass" x="400" y="100" transform="translate(-10, -5)"/>
+    <use id="costrong-review" href="#edge-down" class="typeclass" x="400" y="200"/>
 
     <use id="traversing-traversal" href="#edge-right-down" class="typeclass" y="200" transform="translate(-5, 2.5)"/>
     <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
