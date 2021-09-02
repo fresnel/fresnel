@@ -98,6 +98,7 @@ text {
   text-anchor: middle;
   alignment-baseline: middle;
   transform-origin: center center;
+  stroke-width: 0;
 }
 text.typeclass {
   fill: var(--typeclass-colour);
