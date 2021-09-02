@@ -294,8 +294,8 @@ stop.setter {
   </g>
 
   <g id="closed">
-    <use id="closed-label" href="#label-down-right" class="typeclass" x="600" y="300"/>
-    <text id="closed-text" class="typeclass" x="600" y="300" transform="translate(80,30)">Closed</text>
+    <use id="closed-label" href="#label-up-right" class="typeclass" x="600" y="300"/>
+    <text id="closed-text" class="typeclass" x="600" y="300" transform="translate(80,-30)">Closed</text>
   </g>
 
   <g id="mapping">
