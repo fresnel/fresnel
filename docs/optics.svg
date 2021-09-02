@@ -13,10 +13,7 @@
 <path id="edge-down-2" class="edge" d="m 0,10 v 180 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
 <path id="edge-down-2-right" class="edge" d="m 0,10 v 190 l 190,95 m -6,-8 l 6,8 l -10,0"/>
 <path id="edge-down-right-2" class="edge" d="m 0,10 v 90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
-<path id="label-up-left" class="label" d="m 0,0 l -30,-15 h -50"/>
-<path id="label-up-right" class="label" d="m 0,0 l 30,-15 h 50"/>
-<path id="label-down-left" class="label" d="m 0,0 l -30,15 h -50"/>
-<path id="label-down-right" class="label" d="m 0,0 l 30,15 h 50"/>
+<path id="label-edge" class="label" d="m 0,0 l 30,-15 h 50"/>
 <path id="label-left" class="label" d="m 0,0 h -50"/>
 <linearGradient id="gradient-left" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
 <linearGradient id="gradient-right" x1="0%" y1="0%" x2="100%" y2="100%"></linearGradient>
@@ -216,57 +213,57 @@ stop {
 
   <g id="profunctor" class="typeclass">
     <circle r="2.5"/>
-    <use id="profunctor-label" href="#label-up-right" class="typeclass"/>
+    <use id="profunctor-label" href="#label-edge" class="typeclass"/>
     <text id="profunctor-text" class="typeclass" transform="translate(80,-30)">Profunctor</text>
   </g>
 
   <g id="bifunctor" class="typeclass" transform="translate(400,100)">
     <circle r="2.5"/>
-    <use id="bifunctor-label" href="#label-up-right" class="typeclass"/>
+    <use id="bifunctor-label" href="#label-edge" class="typeclass"/>
     <text id="bifunctor" class="typeclass" transform="translate(80,-30)">Bifunctor</text>
   </g>
   <g id="strong" class="typeclass" transform="translate(-200,100)">
     <circle r="2.5"/>
-    <use id="strong-label" href="#label-up-left" class="typeclass"/>
+    <use id="strong-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="strong-text" class="typeclass" transform="translate(-80,-30)">Strong</text>
   </g>
   <g id="choice" x="200" y="100" class="typeclass" transform="translate(200,100)">
     <circle r="2.5"/>
-    <use id="choice-label" href="#label-up-right" class="typeclass"/>
+    <use id="choice-label" href="#label-edge" class="typeclass"/>
     <text id="choice-text" class="typeclass" transform="translate(80,-30)">Choice</text>
   </g>
   <g id="bicontravariant" class="typeclass" transform="translate(-400,100)">
     <circle r="2.5"/>
-    <use id="bicontravariant-label" href="#label-up-left" class="typeclass"/>
+    <use id="bicontravariant-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="bicontravariant-text" class="typeclass" transform="translate(-80,-30)">Bicontravariant</text>
   </g>
 
   <g id="costrong" class="typeclass" transform="translate(400,200)">
     <circle r="2.5"/>
-    <use id="costrong-label" href="#label-up-right" class="typeclass"/>
+    <use id="costrong-label" href="#label-edge" class="typeclass"/>
     <text id="costrong-text" class="typeclass" transform="translate(80,-30)">Costrong</text>
   </g>
   <g id="cochoice" class="typeclass" transform="translate(-400,200)">
     <circle r="2.5"/>
-    <use id="cochoice-label" href="#label-up-left" class="typeclass"/>
+    <use id="cochoice-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="cochoice-text" class="typeclass" transform="translate(-80,-30)">Cochoice</text>
   </g>
 
   <g id="traversing" class="typeclass" transform="translate(0,200)">
     <circle r="2.5"/>
-    <use id="traversing-label" href="#label-down-left" class="typeclass"/>
+    <use id="traversing-label" href="#label-edge" class="typeclass" transform="scale(-1,-1)"/>
     <text id="traversing-text" class="typeclass" transform="translate(-80,30)">Traversing</text>
   </g>
 
   <g id="closed" class="typeclass" transform="translate(600,300)">
     <circle r="2.5"/>
-    <use id="closed-label" href="#label-up-right" class="typeclass"/>
+    <use id="closed-label" href="#label-edge" class="typeclass"/>
     <text id="closed-text" class="typeclass" transform="translate(80,-30)">Closed</text>
   </g>
 
   <g id="mapping" class="typeclass" transform="translate(400,400)">
     <circle r="2.5"/>
-    <use id="mapping-label" href="#label-down-right" class="typeclass"/>
+    <use id="mapping-label" href="#label-edge" class="typeclass" transform="scale(1,-1)"/>
     <text id="mapping-text" class="typeclass" transform="translate(80,30)">Mapping</text>
   </g>
 </g>
@@ -291,24 +288,24 @@ stop {
 
   <g id="iso" class="optic" transform="translate(0,100)">
     <circle r="2.5"/>
-    <use id="iso-label" href="#label-up-right" class="optic"/>
+    <use id="iso-label" href="#label-edge" class="optic"/>
     <text id="iso-text" class="optic" transform="translate(80,-30)">Iso</text>
   </g>
 
   <g id="lens" class="optic" transform="translate(-200,200)">
     <circle r="2.5"/>
-    <use id="lens-label" href="#label-up-left" class="optic"/>
+    <use id="lens-label" href="#label-edge" class="optic" transform="scale(-1,1)"/>
     <text id="lens-text" class="optic" transform="translate(-80,-30)">Lens</text>
   </g>
   <g id="prism" class="optic" transform="translate(200,200)">
     <circle r="2.5"/>
-    <use id="prism-label" href="#label-up-right" class="optic"/>
+    <use id="prism-label" href="#label-edge" class="optic"/>
     <text id="prism-text" class="optic" transform="translate(80,-30)">Prism</text>
   </g>
 
   <g id="getter" class="optic" transform="translate(-400,300)">
     <circle r="2.5"/>
-    <use id="getter-label" href="#label-down-left" class="optic"/>
+    <use id="getter-label" href="#label-edge" class="optic" transform="scale(-1,-1)"/>
     <text id="getter-text" class="optic" transform="translate(-80,30)">Getter</text>
   </g>
   <g id="affine-traversal" class="optic" transform="translate(0,300)">
@@ -318,29 +315,29 @@ stop {
   </g>
   <g id="review" class="optic" transform="translate(400,300)">
     <circle r="2.5"/>
-    <use id="review-label" href="#label-up-right" class="optic"/>
+    <use id="review-label" href="#label-edge" class="optic"/>
     <text id="review-text" class="optic" transform="translate(80,-30)">Review</text>
   </g>
 
   <g id="affine-fold" class="optic" transform="translate(-200,400)">
     <circle r="2.5"/>
-    <use id="affine-fold-label" href="#label-down-left" class="optic"/>
+    <use id="affine-fold-label" href="#label-edge" class="optic" transform="scale(-1,-1)"/>
     <text id="affine-fold-text" class="optic" transform="translate(-80,30)">AffineFold</text>
   </g>
   <g id="traversal" class="optic" transform="translate(200,400)">
     <circle r="2.5"/>
-    <use id="traversal-label" href="#label-up-right" class="optic"/>
+    <use id="traversal-label" href="#label-edge" class="optic"/>
     <text id="traversal-text" class="optic" transform="translate(80,-30)">Traversal</text>
   </g>
 
   <g id="fold" class="optic" transform="translate(0,500)">
     <circle r="2.5"/>
-    <use id="fold-label" href="#label-down-left" class="optic"/>
+    <use id="fold-label" href="#label-edge" class="optic" transform="scale(-1,-1)"/>
     <text id="fold-text" class="optic" transform="translate(-80,30)">Fold</text>
   </g>
   <g id="setter" class="optic" transform="translate(400,500)">
     <circle r="2.5"/>
-    <use id="setter-label" href="#label-down-right" class="optic"/>
+    <use id="setter-label" href="#label-edge" class="optic" transform="scale(1,-1)"/>
     <text id="setter-text" class="optic" transform="translate(80,30)">Setter</text>
   </g>
 </g>
