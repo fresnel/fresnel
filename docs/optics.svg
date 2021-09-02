@@ -3,16 +3,16 @@
 
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-525 -100 1200 700">
 <defs>
-<path id="edge-left" class="edge" d="m -20,10 l -150,75 m 6,-8 l -6,8 l 10,0"/>
-<path id="edge-left-2" class="edge" d="m -20,10 l -350,175 m 6,-8 l -6,8 l 10,0"/>
-<path id="edge-right" class="edge" d="m 20,10 l 150,75 m -6,-8 l 6,8 l -10,0"/>
-<path id="edge-right-2" class="edge" d="m 20,10 l 350,175 m -6,-8 l 6,8 l -10,0"/>
-<path id="edge-right-3" class="edge" d="m 20,10 l 550,275 m -6,-8 l 6,8 l -10,0"/>
-<path id="edge-right-down" class="edge" d="m 10,5 l 190,95 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
-<path id="edge-down" class="edge" d="m 0,15 v 70 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
-<path id="edge-down-2" class="edge" d="m 0,15 v 170 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
-<path id="edge-down-2-right" class="edge" d="m 0,15 v 185 l 170,85 m -6,-8 l 6,8 l -10,0"/>
-<path id="edge-down-right-2" class="edge" d="m 0,15 v 85 l 370,185 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-left" class="edge" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0"/>
+<path id="edge-left-2" class="edge" d="m -10,5 l -380,190 m 6,-8 l -6,8 l 10,0"/>
+<path id="edge-right" class="edge" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-right-2" class="edge" d="m 10,5 l 380,190 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-right-3" class="edge" d="m 10,5 l 580,290 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-right-down" class="edge" d="m 10,5 l 200,100 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-down" class="edge" d="m 0,10 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-down-2" class="edge" d="m 0,10 v 180 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-down-2-right" class="edge" d="m 0,10 v 190 l 190,95 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-down-right-2" class="edge" d="m 0,10 v 90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
 <g id="label-up-left" class="label">
   <circle r="2.5"/>
   <path d="m 0,0 l -30,-15 h -50"/>
@@ -241,7 +241,7 @@ stop.setter {
     <use id="bifunctor-review" href="#edge-down-2" class="typeclass" x="400" y="100" transform="translate(-10, -5)"/>
     <use id="costrong-review" href="#edge-down" class="typeclass" x="400" y="200"/>
 
-    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" y="200" transform="translate(0, 10)"/>
+    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" y="200" transform="translate(-10, 5)"/>
     <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
   </g>
 
