@@ -9,8 +9,8 @@
 <path id="edge-right-down" class="edge" d="m 10,5 l 200,100 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
 <path id="edge-v" class="edge" d="m 0,10 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
 <path id="edge-v-2" class="edge" d="m 0,10 v 180 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
-<path id="edge-down-2-right" class="edge" d="m 0,10 v 190 l 190,95 m -6,-8 l 6,8 l -10,0"/>
-<path id="edge-down-right-2" class="edge" d="m 0,10 v 90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-v-2-right" class="edge" d="m 0,10 v 190 l 190,95 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-v-right-2" class="edge" d="m 0,10 v 90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
 <path id="label-edge" class="label" d="m 0,0 l 30,-15 h 50"/>
 <path id="label-left" class="label" d="m 0,0 h -50"/>
 <linearGradient id="optic-gradient" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
@@ -214,7 +214,7 @@ stop {
   </g>
   <g id="bicontravariant" class="typeclass" transform="translate(-400,100)">
     <use id="bicontravariant-getter" href="#edge-v-2" class="typeclass" transform="translate(20, -10)"/>
-    <use id="bicontravariant-affine-fold" href="#edge-down-2-right" class="typeclass" transform="translate(10, -5)"/>
+    <use id="bicontravariant-affine-fold" href="#edge-v-2-right" class="typeclass" transform="translate(10, -5)"/>
     <circle r="2.5"/>
     <use id="bicontravariant-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="bicontravariant-text" class="typeclass" transform="translate(-80,-30)">Bicontravariant</text>
@@ -228,7 +228,7 @@ stop {
   </g>
   <g id="cochoice" class="typeclass" transform="translate(-400,200)">
     <use id="cochoice-getter" href="#edge-v" class="typeclass"/>
-    <use id="cochoice-fold" href="#edge-down-right-2" class="typeclass" transform="translate(-10, 5)"/>
+    <use id="cochoice-fold" href="#edge-v-right-2" class="typeclass" transform="translate(-10, 5)"/>
     <circle r="2.5"/>
     <use id="cochoice-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="cochoice-text" class="typeclass" transform="translate(-80,-30)">Cochoice</text>
