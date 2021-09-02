@@ -225,8 +225,8 @@ stop.setter {
     <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
   </g>
 
-  <use id="profunctor-cochoice" href="#edge-left-2" class="typeclass" transform="translate(-5, -2.5)"/>
-  <use id="profunctor-strong" href="#edge-left" class="typeclass" transform="translate(5,2.5)"/>
+  <use id="profunctor-cochoice" href="#edge-left-2" class="typeclass"/>
+  <use id="profunctor-strong" href="#edge-left" class="typeclass" transform="translate(10,5)"/>
   <use id="profunctor-choice" href="#edge-right" class="typeclass" transform="translate(-10,5)"/>
   <use id="profunctor-costrong" href="#edge-right-2" class="typeclass"/>
   <use id="profunctor-closed" href="#edge-right-3" class="typeclass" transform="translate(10, -5)"/>
