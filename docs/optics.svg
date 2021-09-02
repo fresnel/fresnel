@@ -114,6 +114,11 @@ path, polyline {
 use:hover {
   stroke: red;
 }
+circle {
+  stroke: transparent;
+  stroke-width: 0;
+  fill: var(--typeclass-colour);
+}
 path.typeclass {
   stroke: var(--typeclass-colour);
 }
