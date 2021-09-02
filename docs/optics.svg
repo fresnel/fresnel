@@ -29,6 +29,10 @@
   <circle r="2.5"/>
   <path d="m 0,0 l 30,15 h 50"/>
 </g>
+<g id="label-left" class="label">
+  <circle r="2.5"/>
+  <path d="m 0,0 h -50"/>
+</g>
 <linearGradient id="gradient-left" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
 <linearGradient id="gradient-right" x1="0%" y1="0%" x2="100%" y2="100%"></linearGradient>
 <linearGradient id="gradient-iso-lens" href="#gradient-left">
@@ -142,8 +146,9 @@ use.typeclass {
 #review {
   color: var(--review-colour);
 }
-#affine-traversal {
+#affine-traversal, #affine-traversal text {
   color: var(--affine-traversal-colour);
+  text-anchor: end;
 }
 #affine-fold {
   color: var(--affine-fold-colour);
@@ -336,8 +341,8 @@ stop.setter {
     <text id="getter-text" class="optic" x="-400" y="300" transform="translate(-80,30)">Getter</text>
   </g>
   <g id="affine-traversal">
-    <use id="affine-traversal-label" href="#label-down-left" class="optic" y="300"/>
-    <text id="affine-traversal-text" class="optic" y="300" transform="translate(-80,30)">AffineTraversal</text>
+    <use id="affine-traversal-label" href="#label-left" class="optic" y="300"/>
+    <text id="affine-traversal-text" class="optic" y="300" transform="translate(-50,0)">AffineTraversal</text>
   </g>
   <g id="review">
     <use id="review-label" href="#label-up-right" class="optic" x="400" y="300"/>
