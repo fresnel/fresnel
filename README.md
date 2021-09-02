@@ -8,7 +8,7 @@
 [hackage]: http://hackage.haskell.org/package/fresnel
 
 
-![diagram of the optical and profunctor hierarchies and their relationships to one another](https://raw.githubusercontent.com/robrix/fresnel/377644ad5709845244046395f2a9c0303624f691/docs/optics.svg)
+![diagram of the optical and profunctor hierarchies and their relationships to one another](https://raw.githubusercontent.com/robrix/fresnel/thought-dot%2C-fought-dot%2C-shot-dot/docs/optics.svg)
 
 
 ## The name
