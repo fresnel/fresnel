@@ -317,20 +317,50 @@ stop.setter {
   <use id="traversal-fold" href="#edge-left" class="optic" x="200" y="400"/>
   <use id="traversal-setter" href="#edge-right" class="optic" x="200" y="400"/>
 
-  <text id="iso" class="optic" y="100">Iso</text>
+  <g id="iso">
+    <use id="iso-label" href="#label-up-right" class="optic" y="100"/>
+    <text id="iso-text" class="optic" y="100" transform="translate(80,-30)">Iso</text>
+  </g>
 
-  <text id="lens" class="optic" x="-200" y="200">Lens</text>
-  <text id="prism" class="optic" x="200" y="200">Prism</text>
+  <g id="lens">
+    <use id="lens-label" href="#label-up-left" class="optic" x="-200" y="200"/>
+    <text id="lens-text" class="optic" x="-200" y="200" transform="translate(-80,-30)">Lens</text>
+  </g>
+  <g id="prism">
+    <use id="prism-label" href="#label-up-right" class="optic" x="200" y="200"/>
+    <text id="prism-text" class="optic" x="200" y="200" transform="translate(80,-30)">Prism</text>
+  </g>
 
-  <text id="getter" class="optic" x="-400" y="300">Getter</text>
-  <text id="affine-traversal" class="optic" y="300">AffineTraversal</text>
-  <text id="review" class="optic" x="400" y="300">Review</text>
+  <g id="getter">
+    <use id="getter-label" href="#label-down-left" class="optic" x="-400" y="300"/>
+    <text id="getter-text" class="optic" x="-400" y="300" transform="translate(-80,30)">Getter</text>
+  </g>
+  <g id="affine-traversal">
+    <use id="affine-traversal-label" href="#label-down-left" class="optic" y="300"/>
+    <text id="affine-traversal-text" class="optic" y="300" transform="translate(-80,30)">AffineTraversal</text>
+  </g>
+  <g id="review">
+    <use id="review-label" href="#label-up-right" class="optic" x="400" y="300"/>
+    <text id="review-text" class="optic" x="400" y="300" transform="translate(80,-30)">Review</text>
+  </g>
 
-  <text id="affine-fold" class="optic" x="-200" y="400">AffineFold</text>
-  <text id="traversal" class="optic" x="200" y="400">Traversal</text>
+  <g id="affine-fold">
+    <use id="affine-fold-label" href="#label-down-left" class="optic" x="-200" y="400"/>
+    <text id="affine-fold-text" class="optic" x="-200" y="400" transform="translate(-80,30)">AffineFold</text>
+  </g>
+  <g id="traversal">
+    <use id="traversal-label" href="#label-up-right" class="optic" x="200" y="400"/>
+    <text id="traversal-text" class="optic" x="200" y="400" transform="translate(80,-30)">Traversal</text>
+  </g>
 
-  <text id="fold" class="optic" y="500">Fold</text>
-  <text id="setter" class="optic" x="400" y="500">Setter</text>
+  <g id="fold">
+    <use id="fold-label" href="#label-down-left" class="optic" y="500"/>
+    <text id="fold-text" class="optic" y="500" transform="translate(-80,30)">Fold</text>
+  </g>
+  <g id="setter">
+    <use id="setter-label" href="#label-down-right" class="optic" x="400" y="500"/>
+    <text id="setter-text" class="optic" x="400" y="500" transform="translate(80,30)">Setter</text>
+  </g>
 </g>
 
 </svg>
