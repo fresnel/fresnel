@@ -206,8 +206,6 @@ stop.setter {
 }
 </style>
 
-<rect width="100%" height="100%" x="-525" y="-100" stroke="red" fill="transparent"/>
-
 <g id="profunctors">
   <g id="constraints">
     <use id="profunctor-iso" href="#edge-down" class="typeclass"/>
