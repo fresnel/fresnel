@@ -105,7 +105,7 @@ use.typeclass {
   fill: var(--typeclass-colour);
   stroke: var(--typeclass-colour);
 }
-.optic, .typeclass {
+.optic, .optic use, .typeclass {
   fill: currentColor;
   stroke: currentColor;
 }
@@ -140,37 +140,37 @@ use.typeclass {
 #setter, .setter {
   color: var(--setter-colour);
 }
-#iso-lens {
+.iso.lens {
   stroke: url(#gradient-iso-lens);
 }
-#iso-prism {
+.iso.prism {
   stroke: url(#gradient-iso-prism);
 }
-#lens-affine-traversal {
+.lens.affine-traversal {
   stroke: url(#gradient-lens-affine-traversal);
 }
-#lens-getter {
+.lens.getter {
   stroke: url(#gradient-lens-getter);
 }
-#prism-affine-traversal {
+.prism.affine-traversal {
   stroke: url(#gradient-prism-affine-traversal);
 }
-#prism-review {
+.prism.review {
   stroke: url(#gradient-prism-review);
 }
-#affine-traversal-affine-fold {
+.affine-traversal.affine-fold {
   stroke: url(#gradient-affine-traversal-affine-fold);
 }
-#affine-fold-fold {
+.affine-fold.fold {
   stroke: url(#gradient-affine-fold-fold);
 }
-#affine-traversal-traversal {
+.affine-traversal.traversal {
   stroke: url(#gradient-affine-traversal-traversal);
 }
-#traversal-fold {
+.traversal.fold {
   stroke: url(#gradient-traversal-fold);
 }
-#traversal-setter {
+.traversal.setter {
   stroke: url(#gradient-traversal-setter);
 }
 stop {
@@ -259,68 +259,68 @@ stop {
 
 <g id="optics">
   <g id="iso" class="optic" transform="translate(0,100)">
-    <use id="iso-lens" href="#edge" class="optic"/>
-    <use id="iso-prism" href="#edge" transform="scale(-1,1)" class="optic"/>
+    <use class="iso lens edge" href="#edge"/>
+    <use class="iso prism edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
-    <use id="iso-label" href="#label-edge" class="optic"/>
-    <text id="iso-text" class="optic" transform="translate(80,-30)">Iso</text>
+    <use id="iso-label" href="#label-edge"/>
+    <text id="iso-text" transform="translate(80,-30)">Iso</text>
   </g>
 
   <g id="lens" class="optic" transform="translate(-200,200)">
-    <use id="lens-getter" href="#edge" class="optic"/>
-    <use id="lens-affine-traversal" href="#edge" transform="scale(-1,1)" class="optic"/>
+    <use class="lens getter edge" href="#edge"/>
+    <use class="lens affine-traversal edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
-    <use id="lens-label" href="#label-edge" class="optic" transform="scale(-1,1)"/>
+    <use id="lens-label" href="#label-edge" transform="scale(-1,1)"/>
     <text id="lens-text" class="optic" transform="translate(-80,-30)">Lens</text>
   </g>
   <g id="prism" class="optic" transform="translate(200,200)">
-    <use id="prism-affine-traversal" href="#edge" class="optic"/>
-    <use id="prism-review" href="#edge" transform="scale(-1,1)" class="optic"/>
+    <use class="prism affine-traversal edge" href="#edge"/>
+    <use class="prism review edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
-    <use id="prism-label" href="#label-edge" class="optic"/>
+    <use id="prism-label" href="#label-edge"/>
     <text id="prism-text" class="optic" transform="translate(80,-30)">Prism</text>
   </g>
 
   <g id="getter" class="optic" transform="translate(-400,300)">
     <circle r="2.5"/>
-    <use id="getter-label" href="#label-edge" class="optic" transform="scale(-1,-1)"/>
+    <use id="getter-label" href="#label-edge" transform="scale(-1,-1)"/>
     <text id="getter-text" class="optic" transform="translate(-80,30)">Getter</text>
   </g>
   <g id="affine-traversal" class="optic" transform="translate(0,300)">
-    <use id="affine-traversal-affine-fold" href="#edge" class="optic"/>
-    <use id="affine-traversal-traversal" href="#edge" transform="scale(-1,1)" class="optic"/>
+    <use class="affine-traversal affine-fold edge" href="#edge"/>
+    <use class="affine-traversal traversal edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
     <use id="affine-traversal-label" href="#label-left" class="optic"/>
     <text id="affine-traversal-text" class="optic" transform="translate(-50,0)">AffineTraversal</text>
   </g>
   <g id="review" class="optic" transform="translate(400,300)">
     <circle r="2.5"/>
-    <use id="review-label" href="#label-edge" class="optic"/>
+    <use id="review-label" href="#label-edge"/>
     <text id="review-text" class="optic" transform="translate(80,-30)">Review</text>
   </g>
 
   <g id="affine-fold" class="optic" transform="translate(-200,400)">
-    <use id="affine-fold-fold" href="#edge" transform="scale(-1,1)" class="optic"/>
+    <use class="affine-fold fold edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
-    <use id="affine-fold-label" href="#label-edge" class="optic" transform="scale(-1,-1)"/>
+    <use id="affine-fold-label" href="#label-edge" transform="scale(-1,-1)"/>
     <text id="affine-fold-text" class="optic" transform="translate(-80,30)">AffineFold</text>
   </g>
   <g id="traversal" class="optic" transform="translate(200,400)">
-    <use id="traversal-fold" href="#edge" class="optic"/>
-    <use id="traversal-setter" href="#edge" transform="scale(-1,1)" class="optic"/>
+    <use class="traversal fold edge" href="#edge"/>
+    <use class="traversal setter edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
-    <use id="traversal-label" href="#label-edge" class="optic"/>
+    <use id="traversal-label" href="#label-edge"/>
     <text id="traversal-text" class="optic" transform="translate(80,-30)">Traversal</text>
   </g>
 
   <g id="fold" class="optic" transform="translate(0,500)">
     <circle r="2.5"/>
-    <use id="fold-label" href="#label-edge" class="optic" transform="scale(-1,-1)"/>
+    <use id="fold-label" href="#label-edge" transform="scale(-1,-1)"/>
     <text id="fold-text" class="optic" transform="translate(-80,30)">Fold</text>
   </g>
   <g id="setter" class="optic" transform="translate(400,500)">
     <circle r="2.5"/>
-    <use id="setter-label" href="#label-edge" class="optic" transform="scale(1,-1)"/>
+    <use id="setter-label" href="#label-edge" transform="scale(1,-1)"/>
     <text id="setter-text" class="optic" transform="translate(80,30)">Setter</text>
   </g>
 </g>
