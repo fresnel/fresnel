@@ -174,6 +174,11 @@ use.typeclass {
 stop {
   stop-color: currentColor;
 }
+.optic:hover circle,
+.typeclass:hover circle {
+  stroke-width: 2px;
+  r: 5;
+}
 </style>
 
 <g id="profunctors">
