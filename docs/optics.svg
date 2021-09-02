@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css" type="text/css"?>
+
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-525 -100 1200 700">
+<defs>
+<path id="edge-left" class="edge" d="m 0,0 l -170,85 m 6,-8 l -6,8 l 10,0"/>
+<path id="edge-left-2" class="edge" d="m 0,0 l -370,185 m 6,-8 l -6,8 l 10,0"/>
+<path id="edge-right" class="edge" d="m 0,0 l 170,85 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-right-2" class="edge" d="m 0,0 l 370,185 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-right-3" class="edge" d="m 0,0 l 570,285 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-right-down" class="edge" d="m 0,0 l 200,100 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-down" class="edge" d="m 0,0 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-down-2" class="edge" d="m 0,0 v 180 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-down-2-right" class="edge" d="m 0,0 v 200 l 170,85 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-down-right-2" class="edge" d="m 0,0 v 100 l 370,185 m -6,-8 l 6,8 l -10,0"/>
+<linearGradient id="gradient-left" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
+<linearGradient id="gradient-right" x1="0%" y1="0%" x2="100%" y2="100%"></linearGradient>
+<linearGradient id="gradient-iso-lens" href="#gradient-left">
+  <stop class="iso" offset="0%"/>
+  <stop class="lens" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-iso-prism" href="#gradient-right">
+  <stop class="iso" offset="0%"/>
+  <stop class="prism" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-lens-affine-traversal" href="#gradient-right">
+  <stop class="lens" offset="0%"/>
+  <stop class="affine-traversal" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-lens-getter" href="#gradient-left">
+  <stop class="lens" offset="0%"/>
+  <stop class="getter" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-prism-review" href="#gradient-right">
+  <stop class="prism" offset="0%"/>
+  <stop class="review" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-prism-affine-traversal" href="#gradient-left">
+  <stop class="prism" offset="0%"/>
+  <stop class="affine-traversal" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-affine-traversal-affine-fold" href="#gradient-left">
+  <stop class="affine-traversal" offset="0%"/>
+  <stop class="affine-fold" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-affine-traversal-traversal" href="#gradient-right">
+  <stop class="affine-traversal" offset="0%"/>
+  <stop class="traversal" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-affine-fold-fold" href="#gradient-right">
+  <stop class="affine-fold" offset="0%"/>
+  <stop class="fold" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-traversal-fold" href="#gradient-left">
+  <stop class="traversal" offset="0%"/>
+  <stop class="fold" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-traversal-setter" href="#gradient-right">
+  <stop class="traversal" offset="0%"/>
+  <stop class="setter" offset="100%"/>
+</linearGradient>
+</defs>
+<style>
+:root {
+  --optic-colour: #000;
+  --typeclass-colour: #aaa;
+
+  --traversal-colour: hsl(45, 50%, 50%);
+  --setter-colour: hsl(45, 50%, 75%);
+  --review-colour: hsl(90, 50%, 50%);
+  --prism-colour: hsl(135, 50%, 50%);
+  --iso-colour: hsl(180, 50%, 50%);
+  --lens-colour: hsl(225, 50%, 50%);
+  --getter-colour: hsl(270, 50%, 50%);
+  --affine-fold-colour: hsl(315, 50%, 50%);
+  --fold-colour: hsl(0, 50%, 50%);
+  --affine-traversal-colour: hsl(0, 0%, 60%);
+}
+text {
+  font-family: "Computer Modern Serif";
+  font-size: 20px;
+  text-anchor: middle;
+  alignment-baseline: middle;
+  transform-origin: center center;
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 7pt;
+  stroke-opacity: 90%;
+  stroke-linejoin: round;
+}
+text:hover {
+
+}
+text.typeclass {
+  fill: var(--typeclass-colour);
+}
+path, polyline {
+  stroke-miterlimit: 8;
+  stroke-linejoin: miter;
+  stroke-linecap: square;
+  fill: transparent;
+  stroke-width: 1;
+  shape-rendering: geometricPrecision;
+}
+use:hover {
+  stroke: red;
+}
+path.typeclass {
+  stroke: var(--typeclass-colour);
+}
+use.typeclass, path.typeclass, polyline.typeclass {
+  stroke: var(--typeclass-colour);
+}
+use.optic, path.optic, polyline.optic {
+  stroke: var(--optic-colour);
+}
+#iso {
+  fill: var(--iso-colour);
+}
+#lens {
+  fill: var(--lens-colour);
+}
+#getter {
+  fill: var(--getter-colour);
+}
+#prism {
+  fill: var(--prism-colour);
+}
+#review {
+  fill: var(--review-colour);
+}
+#affine-traversal {
+  fill: var(--affine-traversal-colour);
+}
+#affine-fold {
+  fill: var(--affine-fold-colour);
+}
+#traversal {
+  fill: var(--traversal-colour);
+}
+#fold {
+  fill: var(--fold-colour);
+}
+#setter {
+  fill: var(--setter-colour);
+}
+#iso-lens {
+  stroke: url(#gradient-iso-lens);
+}
+#iso-prism {
+  stroke: url(#gradient-iso-prism);
+}
+#lens-affine-traversal {
+  stroke: url(#gradient-lens-affine-traversal);
+}
+#lens-getter {
+  stroke: url(#gradient-lens-getter);
+}
+#prism-affine-traversal {
+  stroke: url(#gradient-prism-affine-traversal);
+}
+#prism-review {
+  stroke: url(#gradient-prism-review);
+}
+#affine-traversal-affine-fold {
+  stroke: url(#gradient-affine-traversal-affine-fold);
+}
+#affine-fold-fold {
+  stroke: url(#gradient-affine-fold-fold);
+}
+#affine-traversal-traversal {
+  stroke: url(#gradient-affine-traversal-traversal);
+}
+#traversal-fold {
+  stroke: url(#gradient-traversal-fold);
+}
+#traversal-setter {
+  stroke: url(#gradient-traversal-setter);
+}
+stop.iso {
+  stop-color: var(--iso-colour);
+}
+stop.lens {
+  stop-color: var(--lens-colour);
+}
+stop.getter {
+  stop-color: var(--getter-colour);
+}
+stop.prism {
+  stop-color: var(--prism-colour);
+}
+stop.review {
+  stop-color: var(--review-colour);
+}
+stop.affine-traversal {
+  stop-color: var(--affine-traversal-colour);
+}
+stop.affine-fold {
+  stop-color: var(--affine-fold-colour);
+}
+stop.traversal {
+  stop-color: var(--traversal-colour);
+}
+stop.fold {
+  stop-color: var(--fold-colour);
+}
+stop.setter {
+  stop-color: var(--setter-colour);
+}
+</style>
+
+<rect width="100%" height="100%" x="-525" y="-100" stroke="red" fill="transparent"/>
+
+<g id="profunctors">
+  <g id="constraints">
+    <use id="profunctor-iso" href="#edge-down" class="typeclass"/>
+    <use id="strong-lens" href="#edge-down" class="typeclass" x="-200" y="100"/>
+    <use id="choice-prism" href="#edge-down" class="typeclass" x="200" y="100"/>
+
+    <use id="bicontravariant-getter" href="#edge-down-2" class="typeclass" x="-400" y="100" transform="translate(15, -7.5)"/>
+    <use id="bicontravariant-affine-fold" href="#edge-down-2-right" class="typeclass" x="-400" y="100" transform="translate(5, -2.5)"/>
+    <use id="cochoice-fold" href="#edge-down-right-2" class="typeclass" x="-400" y="200" transform="translate(-5, 2.5)"/>
+    <use id="cochoice-getter" href="#edge-down" class="typeclass" x="-400" y="200" transform="translate(-15,7.5)"/>
+
+    <use id="bifunctor-review" href="#edge-down-2" class="typeclass" x="400" y="100" transform="translate(-5, -2.5)"/>
+    <use id="costrong-review" href="#edge-down" class="typeclass" x="400" y="200" transform="translate(5, 2.5)"/>
+
+    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" y="200" transform="translate(-5, 2.5)"/>
+    <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
+  </g>
+
+  <use id="profunctor-cochoice" href="#edge-left-2" class="typeclass" transform="translate(-5, -2.5)"/>
+  <use id="profunctor-strong" href="#edge-left" class="typeclass" transform="translate(5,2.5)"/>
+  <use id="profunctor-choice" href="#edge-right" class="typeclass" transform="translate(-10,5)"/>
+  <use id="profunctor-costrong" href="#edge-right-2" class="typeclass"/>
+  <use id="profunctor-closed" href="#edge-right-3" class="typeclass" transform="translate(10, -5)"/>
+
+  <use id="strong-traversing" href="#edge-right" class="typeclass" x="-200" y="100"/>
+  <use id="choice-traversing" href="#edge-left" class="typeclass" x="200" y="100"/>
+
+  <use id="closed-mapping" href="#edge-left" class="typeclass" x="600" y="300"/>
+  <use id="traversing-mapping" href="#edge-right-2" class="typeclass" y="200" transform="translate(5, -2.5)"/>
+
+  <text id="profunctor" class="typeclass">Profunctor</text>
+
+  <text id="bifunctor" class="typeclass" x="400" y="100">Bifunctor</text>
+  <text id="strong" class="typeclass" x="-200" y="100">Strong</text>
+  <text id="choice" class="typeclass" x="200" y="100">Choice</text>
+  <text id="bicontravariant" class="typeclass" x="-400" y="100">Bicontravariant</text>
+
+  <text id="costrong" class="typeclass" x="400" y="200">Costrong</text>
+  <text id="cochoice" class="typeclass" x="-400" y="200">Cochoice</text>
+
+  <text id="traversing" class="typeclass" y="200">Traversing</text>
+  <text id="closed" class="typeclass" x="600" y="300">Closed</text>
+
+  <text id="mapping" class="typeclass" x="400" y="400">Mapping</text>
+</g>
+
+<g id="optics">
+  <use id="iso-lens" href="#edge-left" class="optic" y="100"/>
+  <use id="iso-prism" href="#edge-right" class="optic" y="100"/>
+
+  <use id="lens-getter" href="#edge-left" class="optic" x="-200" y="200"/>
+  <use id="lens-affine-traversal" href="#edge-right" class="optic" x="-200" y="200"/>
+
+  <use id="prism-affine-traversal" href="#edge-left" class="optic" x="200" y="200"/>
+  <use id="prism-review" href="#edge-right" class="optic" x="200" y="200"/>
+
+  <use id="affine-traversal-affine-fold" href="#edge-left" class="optic" y="300"/>
+  <use id="affine-traversal-traversal" href="#edge-right" class="optic" y="300"/>
+
+  <use id="affine-fold-fold" href="#edge-right" class="optic" x="-200" y="400" transform="translate(5,-2.5)"/>
+
+  <use id="traversal-fold" href="#edge-left" class="optic" x="200" y="400"/>
+  <use id="traversal-setter" href="#edge-right" class="optic" x="200" y="400"/>
+
+  <text id="iso" class="optic" y="100">Iso</text>
+
+  <text id="lens" class="optic" x="-200" y="200">Lens</text>
+  <text id="prism" class="optic" x="200" y="200">Prism</text>
+
+  <text id="getter" class="optic" x="-400" y="300">Getter</text>
+  <text id="affine-traversal" class="optic" y="300">AffineTraversal</text>
+  <text id="review" class="optic" x="400" y="300">Review</text>
+
+  <text id="affine-fold" class="optic" x="-200" y="400">AffineFold</text>
+  <text id="traversal" class="optic" x="200" y="400">Traversal</text>
+
+  <text id="fold" class="optic" y="500">Fold</text>
+  <text id="setter" class="optic" x="400" y="500">Setter</text>
+</g>
+
+</svg>
