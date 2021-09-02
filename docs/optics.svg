@@ -13,26 +13,11 @@
 <path id="edge-down-2" class="edge" d="m 0,10 v 180 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
 <path id="edge-down-2-right" class="edge" d="m 0,10 v 190 l 190,95 m -6,-8 l 6,8 l -10,0"/>
 <path id="edge-down-right-2" class="edge" d="m 0,10 v 90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
-<g id="label-up-left" class="label">
-  <circle r="2.5"/>
-  <path d="m 0,0 l -30,-15 h -50"/>
-</g>
-<g id="label-up-right" class="label">
-  <circle r="2.5"/>
-  <path d="m 0,0 l 30,-15 h 50"/>
-</g>
-<g id="label-down-left" class="label">
-  <circle r="2.5"/>
-  <path d="m 0,0 l -30,15 h -50"/>
-</g>
-<g id="label-down-right" class="label">
-  <circle r="2.5"/>
-  <path d="m 0,0 l 30,15 h 50"/>
-</g>
-<g id="label-left" class="label">
-  <circle r="2.5"/>
-  <path d="m 0,0 h -50"/>
-</g>
+<path id="label-up-left" class="label" d="m 0,0 l -30,-15 h -50"/>
+<path id="label-up-right" class="label" d="m 0,0 l 30,-15 h 50"/>
+<path id="label-down-left" class="label" d="m 0,0 l -30,15 h -50"/>
+<path id="label-down-right" class="label" d="m 0,0 l 30,15 h 50"/>
+<path id="label-left" class="label" d="m 0,0 h -50"/>
 <linearGradient id="gradient-left" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
 <linearGradient id="gradient-right" x1="0%" y1="0%" x2="100%" y2="100%"></linearGradient>
 <linearGradient id="gradient-iso-lens" href="#gradient-left">
@@ -104,8 +89,10 @@ text {
   transform-origin: center center;
   stroke-width: 0;
 }
+.typeclass {
+  color: var(--typeclass-colour);
+}
 text.typeclass {
-  fill: var(--typeclass-colour);
   font-style: italic;
 }
 path, polyline {
@@ -116,9 +103,6 @@ path, polyline {
   stroke-width: 1;
   shape-rendering: geometricPrecision;
 }
-use:hover {
-  stroke: red;
-}
 circle {
   stroke: transparent;
   stroke-width: 0;
@@ -127,7 +111,7 @@ use.typeclass {
   fill: var(--typeclass-colour);
   stroke: var(--typeclass-colour);
 }
-.optic {
+.optic, .typeclass {
   fill: currentColor;
   stroke: currentColor;
 }
@@ -230,50 +214,60 @@ stop {
   <use id="closed-mapping" href="#edge-left" class="typeclass" x="600" y="300"/>
   <use id="traversing-mapping" href="#edge-right-2" class="typeclass" y="200"/>
 
-  <g id="profunctor">
+  <g id="profunctor" class="typeclass">
+    <circle r="2.5"/>
     <use id="profunctor-label" href="#label-up-right" class="typeclass"/>
     <text id="profunctor-text" class="typeclass" transform="translate(80,-30)">Profunctor</text>
   </g>
 
-  <g id="bifunctor">
-    <use id="bifunctor-label" href="#label-up-right" class="typeclass" x="400" y="100"/>
-    <text id="bifunctor" class="typeclass" x="400" y="100" transform="translate(80,-30)">Bifunctor</text>
+  <g id="bifunctor" class="typeclass" transform="translate(400,100)">
+    <circle r="2.5"/>
+    <use id="bifunctor-label" href="#label-up-right" class="typeclass"/>
+    <text id="bifunctor" class="typeclass" transform="translate(80,-30)">Bifunctor</text>
   </g>
-  <g id="strong">
-    <use id="strong-label" href="#label-up-left" class="typeclass" x="-200" y="100"/>
-    <text id="strong-text" class="typeclass" x="-200" y="100" transform="translate(-80,-30)">Strong</text>
+  <g id="strong" class="typeclass" transform="translate(-200,100)">
+    <circle r="2.5"/>
+    <use id="strong-label" href="#label-up-left" class="typeclass"/>
+    <text id="strong-text" class="typeclass" transform="translate(-80,-30)">Strong</text>
   </g>
-  <g id="choice" x="200" y="100">
-    <use id="choice-label" href="#label-up-right" class="typeclass" x="200" y="100"/>
-    <text id="choice-text" class="typeclass" x="200" y="100" transform="translate(80,-30)">Choice</text>
+  <g id="choice" x="200" y="100" class="typeclass" transform="translate(200,100)">
+    <circle r="2.5"/>
+    <use id="choice-label" href="#label-up-right" class="typeclass"/>
+    <text id="choice-text" class="typeclass" transform="translate(80,-30)">Choice</text>
   </g>
-  <g id="bicontravariant">
-    <use id="bicontravariant-label" href="#label-up-left" class="typeclass" x="-400" y="100"/>
-    <text id="bicontravariant-text" class="typeclass" x="-400" y="100" transform="translate(-80,-30)">Bicontravariant</text>
-  </g>
-
-  <g id="costrong">
-    <use id="costrong-label" href="#label-up-right" class="typeclass" x="400" y="200"/>
-    <text id="costrong-text" class="typeclass" x="400" y="200" transform="translate(80,-30)">Costrong</text>
-  </g>
-  <g id="cochoice">
-    <use id="cochoice-label" href="#label-up-left" class="typeclass" x="-400" y="200"/>
-    <text id="cochoice-text" class="typeclass" x="-400" y="200" transform="translate(-80,-30)">Cochoice</text>
+  <g id="bicontravariant" class="typeclass" transform="translate(-400,100)">
+    <circle r="2.5"/>
+    <use id="bicontravariant-label" href="#label-up-left" class="typeclass"/>
+    <text id="bicontravariant-text" class="typeclass" transform="translate(-80,-30)">Bicontravariant</text>
   </g>
 
-  <g id="traversing">
-    <use id="traversing-label" href="#label-down-left" class="typeclass" y="200"/>
-    <text id="traversing-text" class="typeclass" y="200" transform="translate(-80,30)">Traversing</text>
+  <g id="costrong" class="typeclass" transform="translate(400,200)">
+    <circle r="2.5"/>
+    <use id="costrong-label" href="#label-up-right" class="typeclass"/>
+    <text id="costrong-text" class="typeclass" transform="translate(80,-30)">Costrong</text>
+  </g>
+  <g id="cochoice" class="typeclass" transform="translate(-400,200)">
+    <circle r="2.5"/>
+    <use id="cochoice-label" href="#label-up-left" class="typeclass"/>
+    <text id="cochoice-text" class="typeclass" transform="translate(-80,-30)">Cochoice</text>
   </g>
 
-  <g id="closed">
-    <use id="closed-label" href="#label-up-right" class="typeclass" x="600" y="300"/>
-    <text id="closed-text" class="typeclass" x="600" y="300" transform="translate(80,-30)">Closed</text>
+  <g id="traversing" class="typeclass" transform="translate(0,200)">
+    <circle r="2.5"/>
+    <use id="traversing-label" href="#label-down-left" class="typeclass"/>
+    <text id="traversing-text" class="typeclass" transform="translate(-80,30)">Traversing</text>
   </g>
 
-  <g id="mapping">
-    <use id="mapping-label" href="#label-down-right" class="typeclass" x="400" y="400"/>
-    <text id="mapping-text" class="typeclass" x="400" y="400" transform="translate(80,30)">Mapping</text>
+  <g id="closed" class="typeclass" transform="translate(600,300)">
+    <circle r="2.5"/>
+    <use id="closed-label" href="#label-up-right" class="typeclass"/>
+    <text id="closed-text" class="typeclass" transform="translate(80,-30)">Closed</text>
+  </g>
+
+  <g id="mapping" class="typeclass" transform="translate(400,400)">
+    <circle r="2.5"/>
+    <use id="mapping-label" href="#label-down-right" class="typeclass"/>
+    <text id="mapping-text" class="typeclass" transform="translate(80,30)">Mapping</text>
   </g>
 </g>
 
@@ -295,49 +289,59 @@ stop {
   <use id="traversal-fold" href="#edge-left" class="optic" x="200" y="400"/>
   <use id="traversal-setter" href="#edge-right" class="optic" x="200" y="400"/>
 
-  <g id="iso">
-    <use id="iso-label" href="#label-up-right" class="optic" y="100"/>
-    <text id="iso-text" class="optic" y="100" transform="translate(80,-30)">Iso</text>
+  <g id="iso" class="optic" transform="translate(0,100)">
+    <circle r="2.5"/>
+    <use id="iso-label" href="#label-up-right" class="optic"/>
+    <text id="iso-text" class="optic" transform="translate(80,-30)">Iso</text>
   </g>
 
-  <g id="lens">
-    <use id="lens-label" href="#label-up-left" class="optic" x="-200" y="200"/>
-    <text id="lens-text" class="optic" x="-200" y="200" transform="translate(-80,-30)">Lens</text>
+  <g id="lens" class="optic" transform="translate(-200,200)">
+    <circle r="2.5"/>
+    <use id="lens-label" href="#label-up-left" class="optic"/>
+    <text id="lens-text" class="optic" transform="translate(-80,-30)">Lens</text>
   </g>
-  <g id="prism">
-    <use id="prism-label" href="#label-up-right" class="optic" x="200" y="200"/>
-    <text id="prism-text" class="optic" x="200" y="200" transform="translate(80,-30)">Prism</text>
-  </g>
-
-  <g id="getter">
-    <use id="getter-label" href="#label-down-left" class="optic" x="-400" y="300"/>
-    <text id="getter-text" class="optic" x="-400" y="300" transform="translate(-80,30)">Getter</text>
-  </g>
-  <g id="affine-traversal">
-    <use id="affine-traversal-label" href="#label-left" class="optic" y="300"/>
-    <text id="affine-traversal-text" class="optic" y="300" transform="translate(-50,0)">AffineTraversal</text>
-  </g>
-  <g id="review">
-    <use id="review-label" href="#label-up-right" class="optic" x="400" y="300"/>
-    <text id="review-text" class="optic" x="400" y="300" transform="translate(80,-30)">Review</text>
+  <g id="prism" class="optic" transform="translate(200,200)">
+    <circle r="2.5"/>
+    <use id="prism-label" href="#label-up-right" class="optic"/>
+    <text id="prism-text" class="optic" transform="translate(80,-30)">Prism</text>
   </g>
 
-  <g id="affine-fold">
-    <use id="affine-fold-label" href="#label-down-left" class="optic" x="-200" y="400"/>
-    <text id="affine-fold-text" class="optic" x="-200" y="400" transform="translate(-80,30)">AffineFold</text>
+  <g id="getter" class="optic" transform="translate(-400,300)">
+    <circle r="2.5"/>
+    <use id="getter-label" href="#label-down-left" class="optic"/>
+    <text id="getter-text" class="optic" transform="translate(-80,30)">Getter</text>
   </g>
-  <g id="traversal">
-    <use id="traversal-label" href="#label-up-right" class="optic" x="200" y="400"/>
-    <text id="traversal-text" class="optic" x="200" y="400" transform="translate(80,-30)">Traversal</text>
+  <g id="affine-traversal" class="optic" transform="translate(0,300)">
+    <circle r="2.5"/>
+    <use id="affine-traversal-label" href="#label-left" class="optic"/>
+    <text id="affine-traversal-text" class="optic" transform="translate(-50,0)">AffineTraversal</text>
+  </g>
+  <g id="review" class="optic" transform="translate(400,300)">
+    <circle r="2.5"/>
+    <use id="review-label" href="#label-up-right" class="optic"/>
+    <text id="review-text" class="optic" transform="translate(80,-30)">Review</text>
   </g>
 
-  <g id="fold">
-    <use id="fold-label" href="#label-down-left" class="optic" y="500"/>
-    <text id="fold-text" class="optic" y="500" transform="translate(-80,30)">Fold</text>
+  <g id="affine-fold" class="optic" transform="translate(-200,400)">
+    <circle r="2.5"/>
+    <use id="affine-fold-label" href="#label-down-left" class="optic"/>
+    <text id="affine-fold-text" class="optic" transform="translate(-80,30)">AffineFold</text>
   </g>
-  <g id="setter">
-    <use id="setter-label" href="#label-down-right" class="optic" x="400" y="500"/>
-    <text id="setter-text" class="optic" x="400" y="500" transform="translate(80,30)">Setter</text>
+  <g id="traversal" class="optic" transform="translate(200,400)">
+    <circle r="2.5"/>
+    <use id="traversal-label" href="#label-up-right" class="optic"/>
+    <text id="traversal-text" class="optic" transform="translate(80,-30)">Traversal</text>
+  </g>
+
+  <g id="fold" class="optic" transform="translate(0,500)">
+    <circle r="2.5"/>
+    <use id="fold-label" href="#label-down-left" class="optic"/>
+    <text id="fold-text" class="optic" transform="translate(-80,30)">Fold</text>
+  </g>
+  <g id="setter" class="optic" transform="translate(400,500)">
+    <circle r="2.5"/>
+    <use id="setter-label" href="#label-down-right" class="optic"/>
+    <text id="setter-text" class="optic" transform="translate(80,30)">Setter</text>
   </g>
 </g>
 
