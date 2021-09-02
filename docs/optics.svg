@@ -123,45 +123,39 @@ use.typeclass {
   fill: var(--typeclass-colour);
   stroke: var(--typeclass-colour);
 }
+.optic {
+  fill: currentColor;
+  stroke: currentColor;
+}
 #iso {
-  fill: var(--iso-colour);
-  stroke: var(--iso-colour);
+  color: var(--iso-colour);
 }
 #lens {
-  fill: var(--lens-colour);
-  stroke: var(--lens-colour);
+  color: var(--lens-colour);
 }
 #getter {
-  fill: var(--getter-colour);
-  stroke: var(--getter-colour);
+  color: var(--getter-colour);
 }
 #prism {
-  fill: var(--prism-colour);
-  stroke: var(--prism-colour);
+  color: var(--prism-colour);
 }
 #review {
-  fill: var(--review-colour);
-  stroke: var(--review-colour);
+  color: var(--review-colour);
 }
 #affine-traversal {
-  fill: var(--affine-traversal-colour);
-  stroke: var(--affine-traversal-colour);
+  color: var(--affine-traversal-colour);
 }
 #affine-fold {
-  fill: var(--affine-fold-colour);
-  stroke: var(--affine-fold-colour);
+  color: var(--affine-fold-colour);
 }
 #traversal {
-  fill: var(--traversal-colour);
-  stroke: var(--traversal-colour);
+  color: var(--traversal-colour);
 }
 #fold {
-  fill: var(--fold-colour);
-  stroke: var(--fold-colour);
+  color: var(--fold-colour);
 }
 #setter {
-  fill: var(--setter-colour);
-  stroke: var(--setter-colour);
+  color: var(--setter-colour);
 }
 #iso-lens {
   stroke: url(#gradient-iso-lens);
