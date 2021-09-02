@@ -251,7 +251,7 @@ stop {
   </g>
 
   <g id="mapping" class="typeclass" transform="translate(400,400)">
-    <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
+    <use id="mapping-setter" href="#edge-down" class="typeclass"/>
     <circle r="2.5"/>
     <use id="mapping-label" href="#label-edge" class="typeclass" transform="scale(1,-1)"/>
     <text id="mapping-text" class="typeclass" transform="translate(80,30)">Mapping</text>
