@@ -221,7 +221,7 @@ stop.setter {
     <use id="bifunctor-review" href="#edge-down-2" class="typeclass" x="400" y="100" transform="translate(-10, -5)"/>
     <use id="costrong-review" href="#edge-down" class="typeclass" x="400" y="200"/>
 
-    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" y="200" transform="translate(-5, 2.5)"/>
+    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" y="200" transform="translate(0, 10)"/>
     <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
   </g>
 
@@ -235,7 +235,7 @@ stop.setter {
   <use id="choice-traversing" href="#edge-left" class="typeclass" x="200" y="100"/>
 
   <use id="closed-mapping" href="#edge-left" class="typeclass" x="600" y="300"/>
-  <use id="traversing-mapping" href="#edge-right-2" class="typeclass" y="200" transform="translate(5, -2.5)"/>
+  <use id="traversing-mapping" href="#edge-right-2" class="typeclass" y="200"/>
 
   <text id="profunctor" class="typeclass">Profunctor</text>
 
