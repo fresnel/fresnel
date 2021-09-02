@@ -94,11 +94,9 @@ path, polyline {
   stroke-linejoin: miter;
   stroke-linecap: square;
   fill: transparent;
-  stroke-width: 1;
   shape-rendering: geometricPrecision;
 }
 circle {
-  stroke: transparent;
   stroke-width: 0;
 }
 use.typeclass {
