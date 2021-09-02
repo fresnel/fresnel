@@ -3,9 +3,8 @@
 
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-575 -50 1300 650">
 <defs>
-<path id="edge-left" class="edge" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0"/>
+<path id="edge" class="edge" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0"/>
 <path id="edge-left-2" class="edge" d="m -10,5 l -380,190 m 6,-8 l -6,8 l 10,0"/>
-<path id="edge-right" class="edge" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0"/>
 <path id="edge-right-2" class="edge" d="m 10,5 l 380,190 m -6,-8 l 6,8 l -10,0"/>
 <path id="edge-right-3" class="edge" d="m 10,5 l 580,290 m -6,-8 l 6,8 l -10,0"/>
 <path id="edge-right-down" class="edge" d="m 10,5 l 200,100 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
@@ -15,49 +14,48 @@
 <path id="edge-down-right-2" class="edge" d="m 0,10 v 90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
 <path id="label-edge" class="label" d="m 0,0 l 30,-15 h 50"/>
 <path id="label-left" class="label" d="m 0,0 h -50"/>
-<linearGradient id="gradient-left" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
-<linearGradient id="gradient-right" x1="0%" y1="0%" x2="100%" y2="100%"></linearGradient>
-<linearGradient id="gradient-iso-lens" href="#gradient-left">
+<linearGradient id="optic-gradient" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
+<linearGradient id="gradient-iso-lens" href="#optic-gradient">
   <stop class="iso" offset="0%"/>
   <stop class="lens" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-iso-prism" href="#gradient-right">
+<linearGradient id="gradient-iso-prism" href="#optic-gradient">
   <stop class="iso" offset="0%"/>
   <stop class="prism" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-lens-affine-traversal" href="#gradient-right">
+<linearGradient id="gradient-lens-affine-traversal" href="#optic-gradient">
   <stop class="lens" offset="0%"/>
   <stop class="affine-traversal" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-lens-getter" href="#gradient-left">
+<linearGradient id="gradient-lens-getter" href="#optic-gradient">
   <stop class="lens" offset="0%"/>
   <stop class="getter" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-prism-review" href="#gradient-right">
+<linearGradient id="gradient-prism-review" href="#optic-gradient">
   <stop class="prism" offset="0%"/>
   <stop class="review" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-prism-affine-traversal" href="#gradient-left">
+<linearGradient id="gradient-prism-affine-traversal" href="#optic-gradient">
   <stop class="prism" offset="0%"/>
   <stop class="affine-traversal" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-affine-traversal-affine-fold" href="#gradient-left">
+<linearGradient id="gradient-affine-traversal-affine-fold" href="#optic-gradient">
   <stop class="affine-traversal" offset="0%"/>
   <stop class="affine-fold" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-affine-traversal-traversal" href="#gradient-right">
+<linearGradient id="gradient-affine-traversal-traversal" href="#optic-gradient">
   <stop class="affine-traversal" offset="0%"/>
   <stop class="traversal" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-affine-fold-fold" href="#gradient-right">
+<linearGradient id="gradient-affine-fold-fold" href="#optic-gradient">
   <stop class="affine-fold" offset="0%"/>
   <stop class="fold" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-traversal-fold" href="#gradient-left">
+<linearGradient id="gradient-traversal-fold" href="#optic-gradient">
   <stop class="traversal" offset="0%"/>
   <stop class="fold" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-traversal-setter" href="#gradient-right">
+<linearGradient id="gradient-traversal-setter" href="#optic-gradient">
   <stop class="traversal" offset="0%"/>
   <stop class="setter" offset="100%"/>
 </linearGradient>
@@ -199,19 +197,13 @@ stop {
     <use id="mapping-setter" href="#edge-down" class="typeclass" x="400" y="400"/>
   </g>
 
-  <use id="profunctor-cochoice" href="#edge-left-2" class="typeclass" transform="translate(-10,-5)"/>
-  <use id="profunctor-strong" href="#edge-left" class="typeclass"/>
-  <use id="profunctor-choice" href="#edge-right" class="typeclass"/>
-  <use id="profunctor-costrong" href="#edge-right-2" class="typeclass" transform="translate(-10,5)"/>
-  <use id="profunctor-closed" href="#edge-right-3" class="typeclass" transform="translate(10, -5)"/>
-
-  <use id="strong-traversing" href="#edge-right" class="typeclass" x="-200" y="100"/>
-  <use id="choice-traversing" href="#edge-left" class="typeclass" x="200" y="100"/>
-
-  <use id="closed-mapping" href="#edge-left" class="typeclass" x="600" y="300"/>
-  <use id="traversing-mapping" href="#edge-right-2" class="typeclass" y="200"/>
-
   <g id="profunctor" class="typeclass">
+    <use id="profunctor-cochoice" href="#edge-left-2" class="typeclass" transform="translate(-10,-5)"/>
+    <use id="profunctor-strong" href="#edge" class="typeclass"/>
+    <use id="profunctor-choice" href="#edge" transform="scale(-1,1)" class="typeclass"/>
+    <use id="profunctor-costrong" href="#edge-right-2" class="typeclass" transform="translate(-10,5)"/>
+    <use id="profunctor-closed" href="#edge-right-3" class="typeclass" transform="translate(10, -5)"/>
+
     <circle r="2.5"/>
     <use id="profunctor-label" href="#label-edge" class="typeclass"/>
     <text id="profunctor-text" class="typeclass" transform="translate(80,-30)">Profunctor</text>
@@ -223,11 +215,13 @@ stop {
     <text id="bifunctor" class="typeclass" transform="translate(80,-30)">Bifunctor</text>
   </g>
   <g id="strong" class="typeclass" transform="translate(-200,100)">
+    <use id="strong-traversing" href="#edge" transform="scale(-1,1)" class="typeclass"/>
     <circle r="2.5"/>
     <use id="strong-label" href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text id="strong-text" class="typeclass" transform="translate(-80,-30)">Strong</text>
   </g>
   <g id="choice" x="200" y="100" class="typeclass" transform="translate(200,100)">
+    <use id="choice-traversing" href="#edge" class="typeclass"/>
     <circle r="2.5"/>
     <use id="choice-label" href="#label-edge" class="typeclass"/>
     <text id="choice-text" class="typeclass" transform="translate(80,-30)">Choice</text>
@@ -250,12 +244,14 @@ stop {
   </g>
 
   <g id="traversing" class="typeclass" transform="translate(0,200)">
+    <use id="traversing-mapping" href="#edge-right-2" class="typeclass"/>
     <circle r="2.5"/>
     <use id="traversing-label" href="#label-edge" class="typeclass" transform="scale(-1,-1)"/>
     <text id="traversing-text" class="typeclass" transform="translate(-80,30)">Traversing</text>
   </g>
 
   <g id="closed" class="typeclass" transform="translate(600,300)">
+    <use id="closed-mapping" href="#edge" class="typeclass"/>
     <circle r="2.5"/>
     <use id="closed-label" href="#label-edge" class="typeclass"/>
     <text id="closed-text" class="typeclass" transform="translate(80,-30)">Closed</text>
@@ -269,35 +265,24 @@ stop {
 </g>
 
 <g id="optics">
-  <use id="iso-lens" href="#edge-left" class="optic" y="100"/>
-  <use id="iso-prism" href="#edge-right" class="optic" y="100"/>
-
-  <use id="lens-getter" href="#edge-left" class="optic" x="-200" y="200"/>
-  <use id="lens-affine-traversal" href="#edge-right" class="optic" x="-200" y="200"/>
-
-  <use id="prism-affine-traversal" href="#edge-left" class="optic" x="200" y="200"/>
-  <use id="prism-review" href="#edge-right" class="optic" x="200" y="200"/>
-
-  <use id="affine-traversal-affine-fold" href="#edge-left" class="optic" y="300"/>
-  <use id="affine-traversal-traversal" href="#edge-right" class="optic" y="300"/>
-
-  <use id="affine-fold-fold" href="#edge-right" class="optic" x="-200" y="400"/>
-
-  <use id="traversal-fold" href="#edge-left" class="optic" x="200" y="400"/>
-  <use id="traversal-setter" href="#edge-right" class="optic" x="200" y="400"/>
-
   <g id="iso" class="optic" transform="translate(0,100)">
+    <use id="iso-lens" href="#edge" class="optic"/>
+    <use id="iso-prism" href="#edge" transform="scale(-1,1)" class="optic"/>
     <circle r="2.5"/>
     <use id="iso-label" href="#label-edge" class="optic"/>
     <text id="iso-text" class="optic" transform="translate(80,-30)">Iso</text>
   </g>
 
   <g id="lens" class="optic" transform="translate(-200,200)">
+    <use id="lens-getter" href="#edge" class="optic"/>
+    <use id="lens-affine-traversal" href="#edge" transform="scale(-1,1)" class="optic"/>
     <circle r="2.5"/>
     <use id="lens-label" href="#label-edge" class="optic" transform="scale(-1,1)"/>
     <text id="lens-text" class="optic" transform="translate(-80,-30)">Lens</text>
   </g>
   <g id="prism" class="optic" transform="translate(200,200)">
+    <use id="prism-affine-traversal" href="#edge" class="optic"/>
+    <use id="prism-review" href="#edge" transform="scale(-1,1)" class="optic"/>
     <circle r="2.5"/>
     <use id="prism-label" href="#label-edge" class="optic"/>
     <text id="prism-text" class="optic" transform="translate(80,-30)">Prism</text>
@@ -309,6 +294,8 @@ stop {
     <text id="getter-text" class="optic" transform="translate(-80,30)">Getter</text>
   </g>
   <g id="affine-traversal" class="optic" transform="translate(0,300)">
+    <use id="affine-traversal-affine-fold" href="#edge" class="optic"/>
+    <use id="affine-traversal-traversal" href="#edge" transform="scale(-1,1)" class="optic"/>
     <circle r="2.5"/>
     <use id="affine-traversal-label" href="#label-left" class="optic"/>
     <text id="affine-traversal-text" class="optic" transform="translate(-50,0)">AffineTraversal</text>
@@ -320,11 +307,14 @@ stop {
   </g>
 
   <g id="affine-fold" class="optic" transform="translate(-200,400)">
+    <use id="affine-fold-fold" href="#edge" transform="scale(-1,1)" class="optic"/>
     <circle r="2.5"/>
     <use id="affine-fold-label" href="#label-edge" class="optic" transform="scale(-1,-1)"/>
     <text id="affine-fold-text" class="optic" transform="translate(-80,30)">AffineFold</text>
   </g>
   <g id="traversal" class="optic" transform="translate(200,400)">
+    <use id="traversal-fold" href="#edge" class="optic"/>
+    <use id="traversal-setter" href="#edge" transform="scale(-1,1)" class="optic"/>
     <circle r="2.5"/>
     <use id="traversal-label" href="#label-edge" class="optic"/>
     <text id="traversal-text" class="optic" transform="translate(80,-30)">Traversal</text>
