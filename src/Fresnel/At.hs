@@ -6,6 +6,8 @@ module Fresnel.At
 , atSet
 , atMap
 , atList
+  -- * Elimination
+, sans
   -- * Indexable collections
 , module Fresnel.Ixed
 ) where
@@ -20,6 +22,7 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import           Fresnel.Ixed
 import           Fresnel.Lens (Lens', lens)
+import           Fresnel.Setter
 
 -- Updateable collections
 
@@ -65,3 +68,9 @@ atList i = lens (get i) (\ as -> maybe as (set i as))
   set i as a' = case as of
     []   -> as
     a:as -> if i <= 0 then a':as else a : set (i - 1) as a'
+
+
+-- Elimination
+
+sans :: At c => Index c -> c -> c
+sans k = at k .~ Nothing
