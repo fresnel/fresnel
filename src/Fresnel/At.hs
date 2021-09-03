@@ -8,6 +8,7 @@ module Fresnel.At
 import qualified Data.HashMap.Internal as HashMap
 import           Data.Hashable (Hashable)
 import qualified Data.IntMap as IntMap
+import qualified Data.IntSet as IntSet
 import qualified Data.Map as Map
 import           Data.Profunctor.Traversing (Traversing(..))
 import           Fresnel.Traversal (Traversal')
@@ -19,6 +20,14 @@ class Ixed c where
   type IxValue c
 
   ix :: Index c -> Traversal' c (IxValue c)
+
+instance Ixed IntSet.IntSet where
+  type Index IntSet.IntSet = IntSet.Key
+  type IxValue IntSet.IntSet = ()
+
+  ix k = wander $ \ f s -> if IntSet.member k s
+    then IntSet.insert k s <$ f ()
+    else pure s
 
 instance Ixed (IntMap.IntMap v) where
   type Index (IntMap.IntMap v) = IntMap.Key
