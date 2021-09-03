@@ -7,6 +7,7 @@ module Fresnel.At
 
 import           Data.Functor ((<&>))
 import qualified Data.IntMap as IntMap
+import qualified Data.Map as Map
 import           Data.Profunctor.Traversing (Traversing(..))
 import           Fresnel.Traversal (Traversal')
 
@@ -24,4 +25,12 @@ instance Ixed (IntMap.IntMap v) where
 
   ix k = wander $ \ f m -> case IntMap.lookup k m of
     Just v  -> f v <&> \ v' -> IntMap.insert k v' m
+    Nothing -> pure m
+
+instance Ord k => Ixed (Map.Map k v) where
+  type Index (Map.Map k v) = k
+  type IxValue (Map.Map k v) = v
+
+  ix k = wander $ \ f m -> case Map.lookup k m of
+    Just v  -> f v <&> \ v' -> Map.insert k v' m
     Nothing -> pure m
