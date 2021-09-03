@@ -3,6 +3,7 @@ module Fresnel.At
 ( -- * Updateable collections
   At(..)
 , atSet
+, atMap
   -- * Indexable collections
 , module Fresnel.Ixed
 ) where
@@ -42,3 +43,6 @@ instance (Eq k, Hashable k) => At (HashMap.HashMap k v) where
 
 atSet :: (Index c -> c -> Bool) -> (Index c -> c -> c) -> Index c -> Lens' c (Maybe ())
 atSet member insert k = lens (guard . member k) (\ s -> maybe s (const (insert k s)))
+
+atMap :: (Index c -> c -> Maybe (IxValue c)) -> (Index c -> IxValue c -> c -> c) -> Index c -> Lens' c (Maybe (IxValue c))
+atMap lookup insert k = lens (lookup k) (\ m -> maybe m (flip (insert k) m))
