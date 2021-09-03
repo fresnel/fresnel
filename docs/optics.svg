@@ -193,7 +193,7 @@ stop {
 </style>
 
 <g id="profunctors">
-  <g id="profunctor" class="typeclass">
+  <g id="profunctor" class="typeclass vertex">
     <use id="profunctor-cochoice" href="#edge-2" class="typeclass" transform="translate(-10,-5)"/>
     <use id="profunctor-strong" href="#edge" class="typeclass"/>
     <use id="profunctor-choice" href="#edge" transform="scale(-1,1)" class="typeclass"/>
@@ -206,27 +206,27 @@ stop {
     <text transform="translate(80,-30)">Profunctor</text>
   </g>
 
-  <g id="bifunctor" class="typeclass" transform="translate(400,100)">
+  <g id="bifunctor" class="typeclass vertex" transform="translate(400,100)">
     <use id="bifunctor-review" href="#edge-v-2" class="typeclass" transform="translate(-10, -5)"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass"/>
     <text transform="translate(80,-30)">Bifunctor</text>
   </g>
-  <g id="strong" class="typeclass" transform="translate(-200,100)">
+  <g id="strong" class="typeclass vertex" transform="translate(-200,100)">
     <use id="strong-traversing" href="#edge" transform="scale(-1,1)" class="typeclass"/>
     <use id="strong-lens" href="#edge-v" class="typeclass"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text transform="translate(-80,-30)">Strong</text>
   </g>
-  <g id="choice" class="typeclass" transform="translate(200,100)">
+  <g id="choice" class="typeclass vertex" transform="translate(200,100)">
     <use id="choice-traversing" href="#edge" class="typeclass"/>
     <use id="choice-prism" href="#edge-v" class="typeclass"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass"/>
     <text transform="translate(80,-30)">Choice</text>
   </g>
-  <g id="bicontravariant" class="typeclass" transform="translate(-400,100)">
+  <g id="bicontravariant" class="typeclass vertex" transform="translate(-400,100)">
     <use id="bicontravariant-getter" href="#edge-v-2" class="typeclass" transform="translate(20, -10)"/>
     <use id="bicontravariant-affine-fold" href="#edge-v-2-right" class="typeclass" transform="translate(10, -5)"/>
     <circle r="2.5"/>
@@ -234,13 +234,13 @@ stop {
     <text transform="translate(-80,-30)">Bicontravariant</text>
   </g>
 
-  <g id="costrong" class="typeclass" transform="translate(400,200)">
+  <g id="costrong" class="typeclass vertex" transform="translate(400,200)">
     <use id="costrong-review" href="#edge-v" class="typeclass"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass"/>
     <text transform="translate(80,-30)">Costrong</text>
   </g>
-  <g id="cochoice" class="typeclass" transform="translate(-400,200)">
+  <g id="cochoice" class="typeclass vertex" transform="translate(-400,200)">
     <use id="cochoice-getter" href="#edge-v" class="typeclass"/>
     <use id="cochoice-fold" href="#edge-v-right-2" class="typeclass" transform="translate(-10, 5)"/>
     <circle r="2.5"/>
@@ -248,7 +248,7 @@ stop {
     <text transform="translate(-80,-30)">Cochoice</text>
   </g>
 
-  <g id="traversing" class="typeclass" transform="translate(0,200)">
+  <g id="traversing" class="typeclass vertex" transform="translate(0,200)">
     <use id="traversing-mapping" href="#edge-2" class="typeclass" transform="scale(-1,1)"/>
     <use id="traversing-traversal" href="#edge-right-down" class="typeclass" transform="translate(-10, 5)"/>
     <circle r="2.5"/>
@@ -256,14 +256,14 @@ stop {
     <text transform="translate(-80,30)">Traversing</text>
   </g>
 
-  <g id="closed" class="typeclass" transform="translate(600,300)">
+  <g id="closed" class="typeclass vertex" transform="translate(600,300)">
     <use id="closed-mapping" href="#edge" class="typeclass"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass"/>
     <text transform="translate(80,-30)">Closed</text>
   </g>
 
-  <g id="mapping" class="typeclass" transform="translate(400,400)">
+  <g id="mapping" class="typeclass vertex" transform="translate(400,400)">
     <use id="mapping-setter" href="#edge-v" class="typeclass"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass" transform="scale(1,-1)"/>
@@ -272,7 +272,7 @@ stop {
 </g>
 
 <g id="optics">
-  <g id="iso" class="optic" transform="translate(0,100)">
+  <g id="iso" class="optic vertex" transform="translate(0,100)">
     <use id="iso-lens" class="iso lens edge" href="#edge"/>
     <use id="iso-prism" class="iso prism edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
@@ -280,7 +280,7 @@ stop {
     <text transform="translate(80,-30)">Iso</text>
   </g>
 
-  <g id="lens" class="optic" transform="translate(-200,200)">
+  <g id="lens" class="optic vertex" transform="translate(-200,200)">
     <use id="lens-getter" class="lens getter edge" href="#edge"/>
     <use id="lens-affine-traversal" class="lens affine-traversal edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
@@ -290,7 +290,7 @@ stop {
       <use class="ancestor" href="#iso-lens" transform="translate(200,-100)"/>
     </g>
   </g>
-  <g id="prism" class="optic" transform="translate(200,200)">
+  <g id="prism" class="optic vertex" transform="translate(200,200)">
     <use id="prism-affine-traversal" class="prism affine-traversal edge" href="#edge"/>
     <use id="prism-review" class="prism review edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
@@ -301,7 +301,7 @@ stop {
     </g>
   </g>
 
-  <g id="getter" class="optic" transform="translate(-400,300)">
+  <g id="getter" class="optic vertex" transform="translate(-400,300)">
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,-1)"/>
     <text transform="translate(-80,30)">Getter</text>
@@ -310,7 +310,7 @@ stop {
       <use class="ancestor" href="#lens-getter"/>
     </g>
   </g>
-  <g id="affine-traversal" class="optic" transform="translate(0,300)">
+  <g id="affine-traversal" class="optic vertex" transform="translate(0,300)">
     <use id="affine-traversal-affine-fold" class="affine-traversal affine-fold edge" href="#edge"/>
     <use id="affine-traversal-traversal" class="affine-traversal traversal edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
@@ -323,7 +323,7 @@ stop {
       <use class="ancestor" href="#prism-affine-traversal" transform="translate(200,100)"/>
     </g>
   </g>
-  <g id="review" class="optic" transform="translate(400,300)">
+  <g id="review" class="optic vertex" transform="translate(400,300)">
     <circle r="2.5"/>
     <use href="#label-edge"/>
     <text class="optic" transform="translate(80,-30)">Review</text>
@@ -333,7 +333,7 @@ stop {
     </g>
   </g>
 
-  <g id="affine-fold" class="optic" transform="translate(-200,400)">
+  <g id="affine-fold" class="optic vertex" transform="translate(-200,400)">
     <use id="affine-fold-fold" class="affine-fold fold edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,-1)"/>
@@ -343,7 +343,7 @@ stop {
       <use class="ancestor" href="#affine-traversal-affine-fold"/>
     </g>
   </g>
-  <g id="traversal" class="optic" transform="translate(200,400)">
+  <g id="traversal" class="optic vertex" transform="translate(200,400)">
     <use id="traversal-fold" class="traversal fold edge" href="#edge"/>
     <use id="traversal-setter" class="traversal setter edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
@@ -355,7 +355,7 @@ stop {
     </g>
   </g>
 
-  <g id="fold" class="optic" transform="translate(0,500)">
+  <g id="fold" class="optic vertex" transform="translate(0,500)">
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,-1)"/>
     <text transform="translate(-80,30)">Fold</text>
@@ -370,7 +370,7 @@ stop {
       </g>
     </g>
   </g>
-  <g id="setter" class="optic" transform="translate(400,500)">
+  <g id="setter" class="optic vertex" transform="translate(400,500)">
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(1,-1)"/>
     <text transform="translate(80,30)">Setter</text>
