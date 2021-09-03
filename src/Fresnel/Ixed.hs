@@ -4,6 +4,7 @@
 module Fresnel.Ixed
 ( -- * Indexable collections
   Ixed(..)
+, ixList
 ) where
 
 import           Control.Monad (guard)
