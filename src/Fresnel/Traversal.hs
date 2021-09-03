@@ -3,6 +3,7 @@ module Fresnel.Traversal
 ( -- * Traversals
   Traversal
 , Traversal'
+, IsTraversal
   -- * Construction
 , traversed
 , backwards
@@ -12,12 +13,13 @@ module Fresnel.Traversal
 
 import Control.Applicative.Backwards
 import Data.Profunctor
-import Data.Profunctor.Traversing
+import Data.Profunctor.Traversing (wander)
+import Fresnel.Profunctor.Optical
 import Fresnel.Optic
 
 -- Traversals
 
-type Traversal s t a b = forall p . Traversing p => Optic p s t a b
+type Traversal s t a b = forall p . IsTraversal p => Optic p s t a b
 
 type Traversal' s a = Traversal s s a a
 

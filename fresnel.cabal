@@ -23,6 +23,7 @@ common common
     -Wno-missed-specialisations
     -Wno-missing-import-lists
     -Wno-missing-local-signatures
+    -Wno-missing-safe-haskell-mode
     -Wno-monomorphism-restriction
     -Wno-name-shadowing
     -Wno-safe
@@ -37,6 +38,8 @@ common common
 library
   import: common
   exposed-modules:
+    Fresnel.AffineFold
+    Fresnel.AffineTraversal
     Fresnel.At
     Fresnel.Bifunctor.Contravariant
     Fresnel.Fold
@@ -45,13 +48,15 @@ library
     Fresnel.Lens
     Fresnel.Optic
     Fresnel.Prism
+    Fresnel.Profunctor.AffineStar
     Fresnel.Profunctor.Coexp
+    Fresnel.Profunctor.Optical
     Fresnel.Profunctor.Recall
     Fresnel.Review
     Fresnel.Setter
     Fresnel.Traversal
   build-depends:
-    , base ^>=4.14
+    , base >=4.14 && < 5
     , profunctors ^>= 5.6
     , transformers >= 0.5.6 && < 0.7
   hs-source-dirs:   src
@@ -69,3 +74,8 @@ test-suite test
     , base
     , fresnel
     , QuickCheck ^>= 2.14
+
+
+source-repository head
+  type:     git
+  location: https://github.com/robrix/fresnel

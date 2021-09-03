@@ -9,10 +9,12 @@ module Fresnel.Profunctor.Recall
 import Data.Bifunctor
 import Data.Functor.Const
 import Data.Profunctor
+import Data.Profunctor.Unsafe
 import Data.Profunctor.Rep as Pro
 import Data.Profunctor.Sieve
+import Data.Coerce
 
--- * Recall profunctor
+-- Recall profunctor
 
 -- | @'Recall' e@ is dual to @'Forget' r@: it ignores the argument parameter, substituting in one of its own.
 newtype Recall e a b = Recall { runRecall :: e -> b }
@@ -24,7 +26,10 @@ instance Bifunctor (Recall e) where
 
 instance Profunctor (Recall e) where
   dimap _ g = Recall . fmap g . runRecall
+  lmap = const coerce
   rmap = fmap
+  (#.) = const coerce
+  (.#) = fmap coerce . const
 
 instance Choice (Recall e) where
   left'  = Recall . fmap Left  . runRecall

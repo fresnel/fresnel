@@ -2,6 +2,7 @@
 module Fresnel.Review
 ( -- * Reviews
   Review
+, IsReview
   -- * Construction
 , unto
 , reviewing
@@ -19,10 +20,11 @@ import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Void
 import Fresnel.Optic
 import Fresnel.Profunctor.Recall
+import Fresnel.Profunctor.Optical
 
 -- Reviews
 
-type Review t b = forall p . (Bifunctor p, Choice p) => Optic' p t b
+type Review t b = forall p . IsReview p => Optic' p t b
 
 
 -- Construction

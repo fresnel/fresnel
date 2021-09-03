@@ -2,6 +2,7 @@
 module Fresnel.Getter
 ( -- * Getters
   Getter
+, IsGetter
   -- * Construction
 , to
 , getting
@@ -15,10 +16,11 @@ import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
+import Fresnel.Profunctor.Optical
 
 -- Getters
 
-type Getter s a = forall p . (Bicontravariant p, Strong p) => Optic' p s a
+type Getter s a = forall p . IsGetter p => Optic' p s a
 
 
 -- Construction

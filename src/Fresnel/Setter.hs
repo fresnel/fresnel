@@ -3,6 +3,7 @@ module Fresnel.Setter
 ( -- * Setters
   Setter
 , Setter'
+, IsSetter
   -- * Construction
 , sets
   -- * Elimination
@@ -14,10 +15,11 @@ module Fresnel.Setter
 
 import Data.Profunctor.Mapping
 import Fresnel.Optic
+import Fresnel.Profunctor.Optical
 
 -- Setters
 
-type Setter s t a b = forall p . Mapping p => Optic p s t a b
+type Setter s t a b = forall p . IsSetter p => Optic p s t a b
 
 type Setter' s a = Setter s s a a
 
@@ -25,13 +27,13 @@ type Setter' s a = Setter s s a a
 -- Construction
 
 sets :: ((a -> b) -> (s -> t)) -> Setter s t a b
-sets = roam
+sets f = (f `roam`) -- written thus to placate hlint
 
 
 -- Elimination
 
 over, (%~) :: Setter s t a b -> (a -> b) -> (s -> t)
-over = id
+over o = o
 
 (%~) = over
 

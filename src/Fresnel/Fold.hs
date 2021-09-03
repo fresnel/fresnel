@@ -2,6 +2,7 @@
 module Fresnel.Fold
 ( -- * Folds
   Fold
+, IsFold
   -- * Construction
 , folded
   -- * Elimination
@@ -17,10 +18,11 @@ import Data.Profunctor.Traversing
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
+import Fresnel.Profunctor.Optical
 
 -- Folds
 
-type Fold s a = forall p . (Bicontravariant p, Cochoice p, Traversing p) => Optic' p s a
+type Fold s a = forall p . IsFold p => Optic' p s a
 
 
 -- Construction
