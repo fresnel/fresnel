@@ -178,23 +178,25 @@ use.typeclass {
 stop {
   stop-color: currentColor;
 }
+.vertex text, .vertex .label .vertex circle {
+  pointer-events: all;
+}
+.vertex .ancestors {
+  --edge-stroke-width: 0.5px;
+  pointer-events: none;
+}
 .vertex:hover {
   --label-stroke-width: 1px;
 }
 .vertex:hover circle {
   stroke-width: 2px;
 }
-.vertex use.ancestor {
-  --visibility: visible;
-  visibility: visible;
+.vertex:hover .ancestors {
+  --edge-stroke-width: 2px;
 }
-.vertex:hover use.ancestor {
-  --visibility: visible;
-  stroke-width: 2px;
-}
-
 .edge {
-  visibility: var(--visibility, visible);
+  pointer-events: none;
+  stroke-width: var(--edge-stroke-width, 0.5px);
 }
 </style>
 
@@ -224,6 +226,9 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text transform="translate(-80,-30)">Strong</text>
+    <g class="ancestors" id="strong-ancestors" transform="translate(200,-100)">
+      <use class="ancestor" href="#profunctor-strong"/>
+    </g>
   </g>
   <g id="choice" class="typeclass vertex" transform="translate(200,100)">
     <use id="choice-traversing" href="#edge" class="typeclass"/>
@@ -231,6 +236,9 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass"/>
     <text transform="translate(80,-30)">Choice</text>
+    <g class="ancestors" id="choice-ancestors" transform="translate(-200,-100)">
+      <use class="ancestor" href="#profunctor-choice"/>
+    </g>
   </g>
   <g id="bicontravariant" class="typeclass vertex" transform="translate(-400,100)">
     <use id="bicontravariant-getter" href="#edge-v-2" class="typeclass" transform="translate(20, -10)"/>
@@ -245,6 +253,9 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass"/>
     <text transform="translate(80,-30)">Costrong</text>
+    <g class="ancestors" id="costrong-ancestors" transform="translate(-400,-200)">
+      <use class="ancestor" href="#profunctor-costrong"/>
+    </g>
   </g>
   <g id="cochoice" class="typeclass vertex" transform="translate(-400,200)">
     <use id="cochoice-getter" href="#edge-v" class="typeclass"/>
@@ -252,6 +263,9 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text transform="translate(-80,-30)">Cochoice</text>
+    <g class="ancestors" id="cochoice-ancestors" transform="translate(400,-200)">
+      <use class="ancestor" href="#profunctor-cochoice"/>
+    </g>
   </g>
 
   <g id="traversing" class="typeclass vertex" transform="translate(0,200)">
@@ -260,6 +274,16 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass" transform="scale(-1,-1)"/>
     <text transform="translate(-80,30)">Traversing</text>
+    <g class="ancestors" id="traversing-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#strong-ancestors"/>
+        <use class="ancestor" href="#strong-traversing"/>
+      </g>
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#choice-ancestors"/>
+        <use class="ancestor" href="#choice-traversing"/>
+      </g>
+    </g>
   </g>
 
   <g id="closed" class="typeclass vertex" transform="translate(600,300)">
@@ -267,6 +291,9 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass"/>
     <text transform="translate(80,-30)">Closed</text>
+    <g class="ancestors" id="closed-ancestors" transform="translate(-600,-300)">
+      <use class="ancestor" href="#profunctor-closed"/>
+    </g>
   </g>
 
   <g id="mapping" class="typeclass vertex" transform="translate(400,400)">
@@ -274,6 +301,16 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass" transform="scale(1,-1)"/>
     <text transform="translate(80,30)">Mapping</text>
+    <g class="ancestors" id="mapping-ancestors">
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#closed-ancestors"/>
+        <use class="ancestor" href="#closed-mapping"/>
+      </g>
+      <g transform="translate(-400,-200)">
+        <use class="ancestor" href="#traversing-ancestors"/>
+        <use class="ancestor" href="#traversing-mapping"/>
+      </g>
+    </g>
   </g>
 </g>
 
@@ -284,6 +321,9 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge"/>
     <text transform="translate(80,-30)">Iso</text>
+    <g class="ancestors" id="iso-ancestors" transform="translate(0,-100)">
+      <use class="ancestor" href="#profunctor-iso"/>
+    </g>
   </g>
 
   <g id="lens" class="optic vertex" transform="translate(-200,200)">
@@ -292,8 +332,15 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,1)"/>
     <text transform="translate(-80,-30)">Lens</text>
-    <g id="lens-ancestors">
-      <use class="ancestor" href="#iso-lens" transform="translate(200,-100)"/>
+    <g class="ancestors" id="lens-ancestors">
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#iso-ancestors"/>
+        <use class="ancestor" href="#iso-lens"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#strong-ancestors"/>
+        <use class="ancestor" href="#strong-lens"/>
+      </g>
     </g>
   </g>
   <g id="prism" class="optic vertex" transform="translate(200,200)">
@@ -302,8 +349,15 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge"/>
     <text transform="translate(80,-30)">Prism</text>
-    <g id="prism-ancestors">
-      <use class="ancestor" href="#iso-prism" transform="translate(-200,-100)"/>
+    <g class="ancestors" id="prism-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#iso-ancestors"/>
+        <use class="ancestor" href="#iso-prism"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#choice-ancestors"/>
+        <use class="ancestor" href="#choice-prism"/>
+      </g>
     </g>
   </g>
 
@@ -311,9 +365,16 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,-1)"/>
     <text transform="translate(-80,30)">Getter</text>
-    <g id="getter-ancestors" transform="translate(200,-100)">
-      <use class="ancestor" href="#lens-ancestors"/>
-      <use class="ancestor" href="#lens-getter"/>
+    <g class="ancestors" id="getter-ancestors">
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#lens-ancestors"/>
+        <use class="ancestor" href="#lens-getter"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#cochoice-getter"/>
+        <use class="ancestor" href="#cochoice-ancestors"/>
+      </g>
+      <use class="ancestor" href="#bicontravariant-getter" transform="translate(0,-200)"/>
     </g>
   </g>
   <g id="affine-traversal" class="optic vertex" transform="translate(0,300)">
@@ -322,20 +383,31 @@ stop {
     <circle r="2.5"/>
     <use href="#label-left" class="optic"/>
     <text transform="translate(-50,0)">AffineTraversal</text>
-    <g id="affine-traversal-ancestors" transform="translate(0,-200)">
-      <use class="ancestor" href="#iso-lens"/>
-      <use class="ancestor" href="#iso-prism"/>
-      <use class="ancestor" href="#lens-affine-traversal" transform="translate(-200,100)"/>
-      <use class="ancestor" href="#prism-affine-traversal" transform="translate(200,100)"/>
+    <g class="ancestors" id="affine-traversal-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#lens-ancestors"/>
+        <use class="ancestor" href="#lens-affine-traversal"/>
+      </g>
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#prism-ancestors"/>
+        <use class="ancestor" href="#prism-affine-traversal"/>
+      </g>
     </g>
   </g>
   <g id="review" class="optic vertex" transform="translate(400,300)">
     <circle r="2.5"/>
     <use href="#label-edge"/>
     <text class="optic" transform="translate(80,-30)">Review</text>
-    <g id="review-ancestors" transform="translate(-200,-100)">
-      <use class="ancestor" href="#prism-ancestors"/>
-      <use class="ancestor" href="#prism-review"/>
+    <g class="ancestors" id="review-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#prism-ancestors"/>
+        <use class="ancestor" href="#prism-review"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#costrong-ancestors"/>
+        <use class="ancestor" href="#costrong-review"/>
+      </g>
+      <use class="ancestor" href="#bifunctor-review" transform="translate(0,-200)"/>
     </g>
   </g>
 
@@ -344,9 +416,14 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,-1)"/>
     <text transform="translate(-80,30)">AffineFold</text>
-    <g id="affine-fold-ancestors" transform="translate(200,-100)">
-      <use class="ancestor" href="#affine-traversal-ancestors"/>
-      <use class="ancestor" href="#affine-traversal-affine-fold"/>
+    <g class="ancestors" id="affine-fold-ancestors">
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#affine-traversal-ancestors"/>
+        <use class="ancestor" href="#affine-traversal-affine-fold"/>
+      </g>
+      <g transform="translate(-200,-300)">
+        <use class="ancestor" href="#bicontravariant-affine-fold"/>
+      </g>
     </g>
   </g>
   <g id="traversal" class="optic vertex" transform="translate(200,400)">
@@ -355,9 +432,15 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge"/>
     <text transform="translate(80,-30)">Traversal</text>
-    <g id="traversal-ancestors" transform="translate(-200, -100)">
-      <use class="ancestor" href="#affine-traversal-ancestors"/>
-      <use class="ancestor" href="#affine-traversal-traversal"/>
+    <g class="ancestors" id="traversal-ancestors">
+      <g transform="translate(-200, -100)">
+        <use class="ancestor" href="#affine-traversal-ancestors"/>
+        <use class="ancestor" href="#affine-traversal-traversal"/>
+      </g>
+      <g transform="translate(-200,-200)">
+        <use class="ancestor" href="#traversing-ancestors"/>
+        <use class="ancestor" href="#traversing-traversal"/>
+      </g>
     </g>
   </g>
 
@@ -365,7 +448,7 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,-1)"/>
     <text transform="translate(-80,30)">Fold</text>
-    <g id="fold-ancestors" transform="translate(0,-100)">
+    <g class="ancestors" id="fold-ancestors" transform="translate(0,-100)">
       <g transform="translate(-200,0)">
         <use class="ancestor" href="#affine-fold-ancestors"/>
         <use class="ancestor" href="#affine-fold-fold"/>
@@ -374,15 +457,25 @@ stop {
         <use class="ancestor" href="#traversal-ancestors"/>
         <use class="ancestor" href="#traversal-fold"/>
       </g>
+      <g transform="translate(-400, -200)">
+        <use class="ancestor" href="#cochoice-ancestors"/>
+        <use class="ancestor" href="#cochoice-fold"/>
+      </g>
     </g>
   </g>
   <g id="setter" class="optic vertex" transform="translate(400,500)">
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(1,-1)"/>
     <text transform="translate(80,30)">Setter</text>
-    <g id="setter-ancestors" transform="translate(-200, -100)">
-      <use class="ancestor" href="#traversal-ancestors"/>
-      <use class="ancestor" href="#traversal-setter"/>
+    <g class="ancestors" id="setter-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#traversal-ancestors"/>
+        <use class="ancestor" href="#traversal-setter"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#mapping-ancestors"/>
+        <use class="ancestor" href="#mapping-setter"/>
+      </g>
     </g>
   </g>
 </g>
