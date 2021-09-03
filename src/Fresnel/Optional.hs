@@ -6,7 +6,7 @@ module Fresnel.Optional
 , Optional'
 , IsOptional
   -- * Construction
-, atraversal
+, optional
   -- * Elimination
 , matching
 , withOptional
@@ -31,8 +31,8 @@ type Optional' s a = Optional s s a a
 
 -- Construction
 
-atraversal :: (s -> Either t a) -> (s -> b -> t) -> Optional s t a b
-atraversal prj set = dimap
+optional :: (s -> Either t a) -> (s -> b -> t) -> Optional s t a b
+optional prj set = dimap
   (\ s -> (prj s, set s))
   (\ (e, f) -> either id f e)
   . first' . right'
