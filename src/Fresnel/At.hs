@@ -20,6 +20,8 @@ import qualified Data.Set as Set
 import           Fresnel.Ixed
 import           Fresnel.Lens (Lens', lens)
 
+-- Updateable collections
+
 class Ixed c => At c where
   at :: Index c -> Lens' c (Maybe (IxValue c))
 
