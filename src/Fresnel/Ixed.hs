@@ -35,26 +35,26 @@ instance Ixed (IntMap.IntMap v) where
 
   ix k = optional' (IntMap.lookup k) (flip (IntMap.insert k))
 
-instance Ord k => Ixed (Map.Map k v) where
-  type Index (Map.Map k v) = k
-  type IxValue (Map.Map k v) = v
-
-  ix k = optional' (Map.lookup k) (flip (Map.insert k))
-
 instance Ord k => Ixed (Set.Set k) where
   type Index (Set.Set k) = k
   type IxValue (Set.Set k) = ()
 
   ix k = optional' (guard . Set.member k) (const . Set.insert k)
 
-instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
-  type Index (HashMap.HashMap k v) = k
-  type IxValue (HashMap.HashMap k v) = v
+instance Ord k => Ixed (Map.Map k v) where
+  type Index (Map.Map k v) = k
+  type IxValue (Map.Map k v) = v
 
-  ix k = optional' (HashMap.lookup k) (flip (HashMap.insert k))
+  ix k = optional' (Map.lookup k) (flip (Map.insert k))
 
 instance (Eq k, Hashable k) => Ixed (HashSet.HashSet k) where
   type Index (HashSet.HashSet k) = k
   type IxValue (HashSet.HashSet k) = ()
 
   ix k = optional' (guard . HashSet.member k) (const . HashSet.insert k)
+
+instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
+  type Index (HashMap.HashMap k v) = k
+  type IxValue (HashMap.HashMap k v) = v
+
+  ix k = optional' (HashMap.lookup k) (flip (HashMap.insert k))
