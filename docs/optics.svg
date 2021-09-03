@@ -86,6 +86,7 @@ text {
 .label {
   stroke-width: var(--label-stroke-width, 0.5px);
   stroke-dasharray: 1px 1px;
+  pointer-events: none;
 }
 .typeclass {
   color: var(--typeclass-colour);
@@ -103,6 +104,7 @@ path, polyline {
 }
 circle {
   stroke-width: 0;
+  pointer-events: none;
 }
 use.typeclass {
   fill: var(--typeclass-colour);
@@ -179,7 +181,11 @@ use.typeclass {
 stop {
   stop-color: currentColor;
 }
-.vertex text, .vertex .label .vertex circle {
+.vertex {
+  pointer-events: none;
+  --edge-stroke-width: 0.5px;
+}
+.vertex text {
   pointer-events: all;
 }
 .vertex .ancestors {
