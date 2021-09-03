@@ -5,6 +5,8 @@ module Fresnel.At
   Ixed(..)
 ) where
 
+import qualified Data.HashMap.Internal as HashMap
+import           Data.Hashable (Hashable)
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
 import           Data.Profunctor.Traversing (Traversing(..))
@@ -32,4 +34,12 @@ instance Ord k => Ixed (Map.Map k v) where
 
   ix k = wander $ \ f m -> case Map.lookup k m of
     Just v  -> flip (Map.insert k) m <$> f v
+    Nothing -> pure m
+
+instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
+  type Index (HashMap.HashMap k v) = k
+  type IxValue (HashMap.HashMap k v) = v
+
+  ix k = wander $ \ f m -> case HashMap.lookup k m of
+    Just v  -> flip (HashMap.insert k) m <$> f v
     Nothing -> pure m
