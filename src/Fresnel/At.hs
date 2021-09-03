@@ -6,6 +6,7 @@ module Fresnel.At
 ) where
 
 import qualified Data.HashMap.Internal as HashMap
+import qualified Data.HashSet as HashSet
 import           Data.Hashable (Hashable)
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
@@ -61,3 +62,11 @@ instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
   ix k = wander $ \ f m -> case HashMap.lookup k m of
     Just v  -> flip (HashMap.insert k) m <$> f v
     Nothing -> pure m
+
+instance (Eq k, Hashable k) => Ixed (HashSet.HashSet k) where
+  type Index (HashSet.HashSet k) = k
+  type IxValue (HashSet.HashSet k) = ()
+
+  ix k = wander $ \ f s -> if HashSet.member k s
+    then HashSet.insert k s <$ f ()
+    else pure s
