@@ -44,6 +44,7 @@ library
     Fresnel.Fold
     Fresnel.Getter
     Fresnel.Iso
+    Fresnel.Ixed
     Fresnel.Lens
     Fresnel.Optic
     Fresnel.Optional
