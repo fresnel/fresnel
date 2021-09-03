@@ -26,19 +26,19 @@ instance At IntSet.IntSet where
   at = atSet IntSet.member IntSet.insert
 
 instance At (IntMap.IntMap v) where
-  at k = lens (IntMap.lookup k) (\ m -> maybe m (flip (IntMap.insert k) m))
+  at = atMap IntMap.lookup IntMap.insert
 
 instance Ord k => At (Set.Set k) where
   at = atSet Set.member Set.insert
 
 instance Ord k => At (Map.Map k v) where
-  at k = lens (Map.lookup k) (\ m -> maybe m (flip (Map.insert k) m))
+  at = atMap Map.lookup Map.insert
 
 instance (Eq k, Hashable k) => At (HashSet.HashSet k) where
   at = atSet HashSet.member HashSet.insert
 
 instance (Eq k, Hashable k) => At (HashMap.HashMap k v) where
-  at k = lens (HashMap.lookup k) (\ m -> maybe m (flip (HashMap.insert k) m))
+  at = atMap HashMap.lookup HashMap.insert
 
 
 atSet :: (Index c -> c -> Bool) -> (Index c -> c -> c) -> Index c -> Lens' c (Maybe ())
