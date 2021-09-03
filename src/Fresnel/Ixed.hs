@@ -13,8 +13,10 @@ import qualified Data.HashSet as HashSet
 import           Data.Hashable (Hashable)
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
+import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import           Fresnel.List.NonEmpty (head_, tail_)
 import           Fresnel.Optional (Optional', optional')
 
 -- Indexable collections
@@ -66,6 +68,14 @@ instance Ixed [v] where
   type IxValue [v] = v
 
   ix k = ixList k
+
+instance Ixed (NonEmpty.NonEmpty v) where
+  type Index (NonEmpty.NonEmpty v) = Int
+  type IxValue (NonEmpty.NonEmpty v) = v
+
+  ix k
+    | k <= 0    = head_
+    | otherwise = tail_.ixList (k - 1)
 
 ixList :: Int -> Optional' [a] a
 ixList i = optional' (get i) (set i)
