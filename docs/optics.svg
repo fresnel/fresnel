@@ -89,6 +89,7 @@ text {
 }
 .typeclass {
   color: var(--typeclass-colour);
+  stroke-dasharray: 1px 1px;
 }
 .typeclass text {
   font-style: italic;
