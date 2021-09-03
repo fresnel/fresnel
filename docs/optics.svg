@@ -83,6 +83,9 @@ text {
   transform-origin: center center;
   stroke-width: 0;
 }
+.label {
+  stroke-dasharray: 1px 1px;
+}
 .typeclass {
   color: var(--typeclass-colour);
 }
