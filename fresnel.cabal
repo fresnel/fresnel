@@ -39,7 +39,6 @@ library
   import: common
   exposed-modules:
     Fresnel.AffineFold
-    Fresnel.AffineTraversal
     Fresnel.At
     Fresnel.Bifunctor.Contravariant
     Fresnel.Fold
@@ -47,6 +46,7 @@ library
     Fresnel.Iso
     Fresnel.Lens
     Fresnel.Optic
+    Fresnel.Optional
     Fresnel.Prism
     Fresnel.Profunctor.AffineStar
     Fresnel.Profunctor.Coexp

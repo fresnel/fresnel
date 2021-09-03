@@ -22,9 +22,9 @@
   <stop class="iso" offset="0%"/>
   <stop class="prism" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-lens-affine-traversal" href="#optic-gradient">
+<linearGradient id="gradient-lens-optional" href="#optic-gradient">
   <stop class="lens" offset="0%"/>
-  <stop class="affine-traversal" offset="100%"/>
+  <stop class="optional" offset="100%"/>
 </linearGradient>
 <linearGradient id="gradient-lens-getter" href="#optic-gradient">
   <stop class="lens" offset="0%"/>
@@ -34,16 +34,16 @@
   <stop class="prism" offset="0%"/>
   <stop class="review" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-prism-affine-traversal" href="#optic-gradient">
+<linearGradient id="gradient-prism-optional" href="#optic-gradient">
   <stop class="prism" offset="0%"/>
-  <stop class="affine-traversal" offset="100%"/>
+  <stop class="optional" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-affine-traversal-affine-fold" href="#optic-gradient">
-  <stop class="affine-traversal" offset="0%"/>
+<linearGradient id="gradient-optional-affine-fold" href="#optic-gradient">
+  <stop class="optional" offset="0%"/>
   <stop class="affine-fold" offset="100%"/>
 </linearGradient>
-<linearGradient id="gradient-affine-traversal-traversal" href="#optic-gradient">
-  <stop class="affine-traversal" offset="0%"/>
+<linearGradient id="gradient-optional-traversal" href="#optic-gradient">
+  <stop class="optional" offset="0%"/>
   <stop class="traversal" offset="100%"/>
 </linearGradient>
 <linearGradient id="gradient-affine-fold-fold" href="#optic-gradient">
@@ -73,7 +73,7 @@
   --affine-fold-colour: hsl(225, 50%, 50%);
   --getter-colour: hsl(270, 50%, 50%);
   --lens-colour: hsl(315, 50%, 50%);
-  --affine-traversal-colour: hsl(0, 0%, 60%);
+  --optional-colour: hsl(0, 0%, 60%);
 }
 text {
   font-family: "Computer Modern Serif";
@@ -129,8 +129,8 @@ use.typeclass {
 #review, .review {
   color: var(--review-colour);
 }
-#affine-traversal, .affine-traversal, #affine-traversal text {
-  color: var(--affine-traversal-colour);
+#optional, .optional, #optional text {
+  color: var(--optional-colour);
   text-anchor: end;
 }
 #affine-fold, .affine-fold {
@@ -151,26 +151,26 @@ use.typeclass {
 .iso.prism {
   stroke: url(#gradient-iso-prism);
 }
-.lens.affine-traversal {
-  stroke: url(#gradient-lens-affine-traversal);
+.lens.optional {
+  stroke: url(#gradient-lens-optional);
 }
 .lens.getter {
   stroke: url(#gradient-lens-getter);
 }
-.prism.affine-traversal {
-  stroke: url(#gradient-prism-affine-traversal);
+.prism.optional {
+  stroke: url(#gradient-prism-optional);
 }
 .prism.review {
   stroke: url(#gradient-prism-review);
 }
-.affine-traversal.affine-fold {
-  stroke: url(#gradient-affine-traversal-affine-fold);
+.optional.affine-fold {
+  stroke: url(#gradient-optional-affine-fold);
 }
 .affine-fold.fold {
   stroke: url(#gradient-affine-fold-fold);
 }
-.affine-traversal.traversal {
-  stroke: url(#gradient-affine-traversal-traversal);
+.optional.traversal {
+  stroke: url(#gradient-optional-traversal);
 }
 .traversal.fold {
   stroke: url(#gradient-traversal-fold);
@@ -334,7 +334,7 @@ stop {
 
   <g id="lens" class="optic vertex" transform="translate(-200,200)">
     <use id="lens-getter" class="lens getter edge" href="#edge"/>
-    <use id="lens-affine-traversal" class="lens affine-traversal edge" href="#edge" transform="scale(-1,1)"/>
+    <use id="lens-optional" class="lens optional edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,1)"/>
     <text transform="translate(-80,-30)">Lens</text>
@@ -350,7 +350,7 @@ stop {
     </g>
   </g>
   <g id="prism" class="optic vertex" transform="translate(200,200)">
-    <use id="prism-affine-traversal" class="prism affine-traversal edge" href="#edge"/>
+    <use id="prism-optional" class="prism optional edge" href="#edge"/>
     <use id="prism-review" class="prism review edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
     <use href="#label-edge"/>
@@ -383,20 +383,20 @@ stop {
       <use class="ancestor" href="#bicontravariant-getter" transform="translate(0,-200)"/>
     </g>
   </g>
-  <g id="affine-traversal" class="optic vertex" transform="translate(0,300)">
-    <use id="affine-traversal-affine-fold" class="affine-traversal affine-fold edge" href="#edge"/>
-    <use id="affine-traversal-traversal" class="affine-traversal traversal edge" href="#edge" transform="scale(-1,1)"/>
+  <g id="optional" class="optic vertex" transform="translate(0,300)">
+    <use id="optional-affine-fold" class="optional affine-fold edge" href="#edge"/>
+    <use id="optional-traversal" class="optional traversal edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
     <use href="#label-left" class="optic"/>
-    <text transform="translate(-50,0)">AffineTraversal</text>
-    <g class="ancestors" id="affine-traversal-ancestors">
+    <text transform="translate(-50,0)">Optional</text>
+    <g class="ancestors" id="optional-ancestors">
       <g transform="translate(-200,-100)">
         <use class="ancestor" href="#lens-ancestors"/>
-        <use class="ancestor" href="#lens-affine-traversal"/>
+        <use class="ancestor" href="#lens-optional"/>
       </g>
       <g transform="translate(200,-100)">
         <use class="ancestor" href="#prism-ancestors"/>
-        <use class="ancestor" href="#prism-affine-traversal"/>
+        <use class="ancestor" href="#prism-optional"/>
       </g>
     </g>
   </g>
@@ -424,8 +424,8 @@ stop {
     <text transform="translate(-80,30)">AffineFold</text>
     <g class="ancestors" id="affine-fold-ancestors">
       <g transform="translate(200,-100)">
-        <use class="ancestor" href="#affine-traversal-ancestors"/>
-        <use class="ancestor" href="#affine-traversal-affine-fold"/>
+        <use class="ancestor" href="#optional-ancestors"/>
+        <use class="ancestor" href="#optional-affine-fold"/>
       </g>
       <g transform="translate(-200,-300)">
         <use class="ancestor" href="#bicontravariant-affine-fold"/>
@@ -440,8 +440,8 @@ stop {
     <text transform="translate(80,-30)">Traversal</text>
     <g class="ancestors" id="traversal-ancestors">
       <g transform="translate(-200, -100)">
-        <use class="ancestor" href="#affine-traversal-ancestors"/>
-        <use class="ancestor" href="#affine-traversal-traversal"/>
+        <use class="ancestor" href="#optional-ancestors"/>
+        <use class="ancestor" href="#optional-traversal"/>
       </g>
       <g transform="translate(-200,-200)">
         <use class="ancestor" href="#traversing-ancestors"/>

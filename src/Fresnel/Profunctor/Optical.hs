@@ -4,7 +4,7 @@ module Fresnel.Profunctor.Optical
 , IsGetter
 , IsPrism
 , IsReview
-, IsAffineTraversal
+, IsOptional
 , IsTraversal
 , IsAffineFold
 , IsFold
@@ -12,15 +12,15 @@ module Fresnel.Profunctor.Optical
 ) where
 
 
-import Data.Profunctor
-import Fresnel.Bifunctor.Contravariant
-import Fresnel.Profunctor.Recall
-import Fresnel.Profunctor.Coexp
-import Data.Bifunctor
-import Data.Profunctor.Traversing
-import Fresnel.Profunctor.AffineStar
-import Data.Functor.Contravariant
 import Control.Arrow
+import Data.Bifunctor
+import Data.Functor.Contravariant
+import Data.Profunctor
+import Data.Profunctor.Traversing
+import Fresnel.Bifunctor.Contravariant
+import Fresnel.Profunctor.AffineStar
+import Fresnel.Profunctor.Coexp
+import Fresnel.Profunctor.Recall
 
 class Profunctor p => IsIso p
 
@@ -64,23 +64,23 @@ class (IsPrism p, Bifunctor p, Costrong p) => IsReview p
 instance IsReview (Recall e)
 
 
-class (IsLens p, IsPrism p) => IsAffineTraversal p where
+class (IsLens p, IsPrism p) => IsOptional p where
 
-instance IsAffineTraversal (->)
-instance Monad m => IsAffineTraversal (Kleisli m)
-instance Monoid r => IsAffineTraversal (Forget r)
-instance Applicative f => IsAffineTraversal (Star f)
-instance Functor f => IsAffineTraversal (AffineStar f)
+instance IsOptional (->)
+instance Monad m => IsOptional (Kleisli m)
+instance Monoid r => IsOptional (Forget r)
+instance Applicative f => IsOptional (Star f)
+instance Functor f => IsOptional (AffineStar f)
 
 
-class (IsAffineTraversal p, Bicontravariant p) => IsAffineFold p
+class (IsOptional p, Bicontravariant p) => IsAffineFold p
 
 instance Monoid r => IsAffineFold (Forget r)
 instance (Applicative f, Contravariant f) => IsAffineFold (Star f)
 instance (Functor f, Contravariant f) => IsAffineFold (AffineStar f)
 
 
-class (IsAffineTraversal p, Traversing p) => IsTraversal p
+class (IsOptional p, Traversing p) => IsTraversal p
 
 instance IsTraversal (->)
 instance Monad m => IsTraversal (Kleisli m)
