@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 module Fresnel.Ixed
@@ -58,3 +59,19 @@ instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
   type IxValue (HashMap.HashMap k v) = v
 
   ix k = optional' (HashMap.lookup k) (flip (HashMap.insert k))
+
+instance Ixed [v] where
+  type Index [v] = Int
+  type IxValue [v] = v
+
+  ix k = ixList k
+
+ixList :: Int -> Optional' [a] a
+ixList i = optional' (get i) (set i)
+  where
+  get i as = case as of
+    []   -> Nothing
+    a:as -> if i <= 0 then Just a else get (i - 1) as
+  set i as a' = case as of
+    []   -> as
+    a:as -> if i <= 0 then a':as else a : set (i - 1) as a'
