@@ -4,6 +4,7 @@
 module Fresnel.Ixed
 ( -- * Indexable collections
   Ixed(..)
+, ixSet
 , ixList
 ) where
 
@@ -31,7 +32,7 @@ instance Ixed IntSet.IntSet where
   type Index IntSet.IntSet = IntSet.Key
   type IxValue IntSet.IntSet = ()
 
-  ix k = optional' (guard . IntSet.member k) (const . IntSet.insert k)
+  ix = ixSet IntSet.member IntSet.insert
 
 instance Ixed (IntMap.IntMap v) where
   type Index (IntMap.IntMap v) = IntMap.Key
@@ -43,7 +44,7 @@ instance Ord k => Ixed (Set.Set k) where
   type Index (Set.Set k) = k
   type IxValue (Set.Set k) = ()
 
-  ix k = optional' (guard . Set.member k) (const . Set.insert k)
+  ix = ixSet Set.member Set.insert
 
 instance Ord k => Ixed (Map.Map k v) where
   type Index (Map.Map k v) = k
@@ -55,7 +56,7 @@ instance (Eq k, Hashable k) => Ixed (HashSet.HashSet k) where
   type Index (HashSet.HashSet k) = k
   type IxValue (HashSet.HashSet k) = ()
 
-  ix k = optional' (guard . HashSet.member k) (const . HashSet.insert k)
+  ix = ixSet HashSet.member HashSet.insert
 
 instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
   type Index (HashMap.HashMap k v) = k
@@ -77,6 +78,9 @@ instance Ixed (NonEmpty.NonEmpty v) where
     | k <= 0    = head_
     | otherwise = tail_.ixList (k - 1)
 
+
+ixSet :: (Index c -> c -> Bool) -> (Index c -> c -> c) -> Index c -> Optional' c ()
+ixSet member insert k = optional' (guard . member k) (const . insert k)
 
 ixList :: Int -> Optional' [a] a
 ixList i = optional' (get i) (set i)
