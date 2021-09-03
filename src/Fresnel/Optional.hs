@@ -1,7 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
 module Fresnel.Optional
-( -- * Affine traversals
+( -- * Optionals
   Optional
 , Optional'
 , IsOptional
