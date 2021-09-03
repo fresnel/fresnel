@@ -4,6 +4,7 @@ module Fresnel.At
   At(..)
 , atSet
 , atMap
+, atList
   -- * Indexable collections
 , module Fresnel.Ixed
 ) where
@@ -46,3 +47,13 @@ atSet member insert k = lens (guard . member k) (\ s -> maybe s (const (insert k
 
 atMap :: (Index c -> c -> Maybe (IxValue c)) -> (Index c -> IxValue c -> c -> c) -> Index c -> Lens' c (Maybe (IxValue c))
 atMap lookup insert k = lens (lookup k) (\ m -> maybe m (flip (insert k) m))
+
+atList :: Int -> Lens' [a] (Maybe a)
+atList i = lens (get i) (\ as -> maybe as (set i as))
+  where
+  get i as = case as of
+    []   -> Nothing
+    a:as -> if i <= 0 then Just a else get (i - 1) as
+  set i as a' = case as of
+    []   -> as
+    a:as -> if i <= 0 then a':as else a : set (i - 1) as a'
