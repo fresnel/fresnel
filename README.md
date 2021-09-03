@@ -8,6 +8,11 @@
 [hackage]: http://hackage.haskell.org/package/fresnel
 
 
+![diagram of the optical and profunctor hierarchies and their relationships to one another](https://raw.githubusercontent.com/robrix/fresnel/main/docs/optics.svg)
+
+_The above image is interactive. Click to open it, and then hover over labels to highlight everything they include._
+
+
 ## The name
 
 Fresnel (pronounced approx. like “fray knell”) lenses are compact optics commonly seen in lighthouses, allowing much greater brightness or magnification than would otherwise be possible due to the size and weight of conventional glass optics.

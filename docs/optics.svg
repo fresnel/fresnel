@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css" type="text/css"?>
+
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-575 -50 1300 650">
+<defs>
+<path id="edge" class="edge" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0"/>
+<path id="edge-2" class="edge" d="m -10,5 l -380,190 m 6,-8 l -6,8 l 10,0"/>
+<path id="edge-right-3" class="edge" d="m 10,5 l 580,290 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-right-down" class="edge" d="m 10,5 l 200,100 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-v" class="edge" d="m 0,10 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-v-2" class="edge" d="m 0,10 v 180 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
+<path id="edge-v-2-right" class="edge" d="m 0,10 v 190 l 190,95 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-v-right-2" class="edge" d="m 0,10 v 90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
+<path id="label-edge" class="label" d="m 0,0 l 30,-15 h 50"/>
+<path id="label-left" class="label" d="m 0,0 h -50"/>
+<linearGradient id="optic-gradient" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
+<linearGradient id="gradient-iso-lens" href="#optic-gradient">
+  <stop class="iso" offset="0%"/>
+  <stop class="lens" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-iso-prism" href="#optic-gradient">
+  <stop class="iso" offset="0%"/>
+  <stop class="prism" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-lens-affine-traversal" href="#optic-gradient">
+  <stop class="lens" offset="0%"/>
+  <stop class="affine-traversal" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-lens-getter" href="#optic-gradient">
+  <stop class="lens" offset="0%"/>
+  <stop class="getter" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-prism-review" href="#optic-gradient">
+  <stop class="prism" offset="0%"/>
+  <stop class="review" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-prism-affine-traversal" href="#optic-gradient">
+  <stop class="prism" offset="0%"/>
+  <stop class="affine-traversal" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-affine-traversal-affine-fold" href="#optic-gradient">
+  <stop class="affine-traversal" offset="0%"/>
+  <stop class="affine-fold" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-affine-traversal-traversal" href="#optic-gradient">
+  <stop class="affine-traversal" offset="0%"/>
+  <stop class="traversal" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-affine-fold-fold" href="#optic-gradient">
+  <stop class="affine-fold" offset="0%"/>
+  <stop class="fold" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-traversal-fold" href="#optic-gradient">
+  <stop class="traversal" offset="0%"/>
+  <stop class="fold" offset="100%"/>
+</linearGradient>
+<linearGradient id="gradient-traversal-setter" href="#optic-gradient">
+  <stop class="traversal" offset="0%"/>
+  <stop class="setter" offset="100%"/>
+</linearGradient>
+</defs>
+<style>
+:root {
+  --optic-colour: #000;
+  --typeclass-colour: #bbb;
+
+  --iso-colour: hsl(0, 50%, 50%);
+  --prism-colour: hsl(45, 50%, 50%);
+  --review-colour: hsl(90, 50%, 50%);
+  --traversal-colour: hsl(135, 50%, 50%);
+  --setter-colour: hsl(135, 50%, 75%);
+  --fold-colour: hsl(180, 50%, 50%);
+  --affine-fold-colour: hsl(225, 50%, 50%);
+  --getter-colour: hsl(270, 50%, 50%);
+  --lens-colour: hsl(315, 50%, 50%);
+  --affine-traversal-colour: hsl(0, 0%, 60%);
+}
+text {
+  font-family: "Computer Modern Serif";
+  font-size: 20px;
+  text-anchor: middle;
+  alignment-baseline: middle;
+  transform-origin: center center;
+  stroke-width: 0;
+}
+.label {
+  stroke-width: var(--label-stroke-width, 0.5px);
+  stroke-dasharray: 1px 1px;
+  pointer-events: none;
+}
+.typeclass {
+  color: var(--typeclass-colour);
+  stroke-dasharray: 1px 1px;
+}
+.typeclass text {
+  font-style: italic;
+}
+path, polyline {
+  stroke-miterlimit: 8;
+  stroke-linejoin: miter;
+  stroke-linecap: square;
+  fill: transparent;
+  shape-rendering: geometricPrecision;
+}
+circle {
+  stroke-width: 0;
+  pointer-events: none;
+}
+use.typeclass {
+  fill: var(--typeclass-colour);
+  stroke: var(--typeclass-colour);
+}
+.vertex {
+  fill: currentColor;
+  stroke: currentColor;
+}
+#iso, .iso {
+  color: var(--iso-colour);
+}
+#lens, .lens {
+  color: var(--lens-colour);
+}
+#getter, .getter {
+  color: var(--getter-colour);
+}
+#prism, .prism {
+  color: var(--prism-colour);
+}
+#review, .review {
+  color: var(--review-colour);
+}
+#affine-traversal, .affine-traversal, #affine-traversal text {
+  color: var(--affine-traversal-colour);
+  text-anchor: end;
+}
+#affine-fold, .affine-fold {
+  color: var(--affine-fold-colour);
+}
+#traversal, .traversal {
+  color: var(--traversal-colour);
+}
+#fold, .fold {
+  color: var(--fold-colour);
+}
+#setter, .setter {
+  color: var(--setter-colour);
+}
+.iso.lens {
+  stroke: url(#gradient-iso-lens);
+}
+.iso.prism {
+  stroke: url(#gradient-iso-prism);
+}
+.lens.affine-traversal {
+  stroke: url(#gradient-lens-affine-traversal);
+}
+.lens.getter {
+  stroke: url(#gradient-lens-getter);
+}
+.prism.affine-traversal {
+  stroke: url(#gradient-prism-affine-traversal);
+}
+.prism.review {
+  stroke: url(#gradient-prism-review);
+}
+.affine-traversal.affine-fold {
+  stroke: url(#gradient-affine-traversal-affine-fold);
+}
+.affine-fold.fold {
+  stroke: url(#gradient-affine-fold-fold);
+}
+.affine-traversal.traversal {
+  stroke: url(#gradient-affine-traversal-traversal);
+}
+.traversal.fold {
+  stroke: url(#gradient-traversal-fold);
+}
+.traversal.setter {
+  stroke: url(#gradient-traversal-setter);
+}
+stop {
+  stop-color: currentColor;
+}
+.vertex {
+  pointer-events: none;
+  --edge-stroke-width: 0.5px;
+}
+.vertex text {
+  pointer-events: all;
+}
+.vertex .ancestors {
+  pointer-events: none;
+}
+.vertex:hover {
+  --label-stroke-width: 1px;
+}
+.vertex:hover circle {
+  stroke-width: 2px;
+}
+.vertex:hover .ancestors {
+  --edge-stroke-width: 1.25px;
+}
+.edge {
+  pointer-events: none;
+  stroke-width: var(--edge-stroke-width, 0.5px);
+}
+</style>
+
+<g id="profunctors">
+  <g id="profunctor" class="typeclass vertex">
+    <use id="profunctor-cochoice" href="#edge-2" class="typeclass" transform="translate(-10,-5)"/>
+    <use id="profunctor-strong" href="#edge" class="typeclass"/>
+    <use id="profunctor-choice" href="#edge" transform="scale(-1,1)" class="typeclass"/>
+    <use id="profunctor-costrong" href="#edge-2" class="typeclass" transform="translate(-10,5) scale(-1,1)"/>
+    <use id="profunctor-closed" href="#edge-right-3" class="typeclass" transform="translate(10, -5)"/>
+    <use id="profunctor-iso" href="#edge-v" class="typeclass"/>
+
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass"/>
+    <text transform="translate(80,-30)">Profunctor</text>
+  </g>
+
+  <g id="bifunctor" class="typeclass vertex" transform="translate(400,100)">
+    <use id="bifunctor-review" href="#edge-v-2" class="typeclass" transform="translate(-10, -5)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass"/>
+    <text transform="translate(80,-30)">Bifunctor</text>
+  </g>
+  <g id="strong" class="typeclass vertex" transform="translate(-200,100)">
+    <use id="strong-traversing" href="#edge" transform="scale(-1,1)" class="typeclass"/>
+    <use id="strong-lens" href="#edge-v" class="typeclass"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
+    <text transform="translate(-80,-30)">Strong</text>
+    <g class="ancestors" id="strong-ancestors" transform="translate(200,-100)">
+      <use class="ancestor" href="#profunctor-strong"/>
+    </g>
+  </g>
+  <g id="choice" class="typeclass vertex" transform="translate(200,100)">
+    <use id="choice-traversing" href="#edge" class="typeclass"/>
+    <use id="choice-prism" href="#edge-v" class="typeclass"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass"/>
+    <text transform="translate(80,-30)">Choice</text>
+    <g class="ancestors" id="choice-ancestors" transform="translate(-200,-100)">
+      <use class="ancestor" href="#profunctor-choice"/>
+    </g>
+  </g>
+  <g id="bicontravariant" class="typeclass vertex" transform="translate(-400,100)">
+    <use id="bicontravariant-getter" href="#edge-v-2" class="typeclass" transform="translate(20, -10)"/>
+    <use id="bicontravariant-affine-fold" href="#edge-v-2-right" class="typeclass" transform="translate(10, -5)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
+    <text transform="translate(-80,-30)">Bicontravariant</text>
+  </g>
+
+  <g id="costrong" class="typeclass vertex" transform="translate(400,200)">
+    <use id="costrong-review" href="#edge-v" class="typeclass"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass"/>
+    <text transform="translate(80,-30)">Costrong</text>
+    <g class="ancestors" id="costrong-ancestors" transform="translate(-400,-200)">
+      <use class="ancestor" href="#profunctor-costrong"/>
+    </g>
+  </g>
+  <g id="cochoice" class="typeclass vertex" transform="translate(-400,200)">
+    <use id="cochoice-getter" href="#edge-v" class="typeclass"/>
+    <use id="cochoice-fold" href="#edge-v-right-2" class="typeclass" transform="translate(-10, 5)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
+    <text transform="translate(-80,-30)">Cochoice</text>
+    <g class="ancestors" id="cochoice-ancestors" transform="translate(400,-200)">
+      <use class="ancestor" href="#profunctor-cochoice"/>
+    </g>
+  </g>
+
+  <g id="traversing" class="typeclass vertex" transform="translate(0,200)">
+    <use id="traversing-mapping" href="#edge-2" class="typeclass" transform="scale(-1,1)"/>
+    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" transform="translate(-10, 5)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass" transform="scale(-1,-1)"/>
+    <text transform="translate(-80,30)">Traversing</text>
+    <g class="ancestors" id="traversing-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#strong-ancestors"/>
+        <use class="ancestor" href="#strong-traversing"/>
+      </g>
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#choice-ancestors"/>
+        <use class="ancestor" href="#choice-traversing"/>
+      </g>
+    </g>
+  </g>
+
+  <g id="closed" class="typeclass vertex" transform="translate(600,300)">
+    <use id="closed-mapping" href="#edge" class="typeclass"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass"/>
+    <text transform="translate(80,-30)">Closed</text>
+    <g class="ancestors" id="closed-ancestors" transform="translate(-600,-300)">
+      <use class="ancestor" href="#profunctor-closed"/>
+    </g>
+  </g>
+
+  <g id="mapping" class="typeclass vertex" transform="translate(400,400)">
+    <use id="mapping-setter" href="#edge-v" class="typeclass"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" class="typeclass" transform="scale(1,-1)"/>
+    <text transform="translate(80,30)">Mapping</text>
+    <g class="ancestors" id="mapping-ancestors">
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#closed-ancestors"/>
+        <use class="ancestor" href="#closed-mapping"/>
+      </g>
+      <g transform="translate(-400,-200)">
+        <use class="ancestor" href="#traversing-ancestors"/>
+        <use class="ancestor" href="#traversing-mapping"/>
+      </g>
+    </g>
+  </g>
+</g>
+
+<g id="optics">
+  <g id="iso" class="optic vertex" transform="translate(0,100)">
+    <use id="iso-lens" class="iso lens edge" href="#edge"/>
+    <use id="iso-prism" class="iso prism edge" href="#edge" transform="scale(-1,1)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge"/>
+    <text transform="translate(80,-30)">Iso</text>
+    <g class="ancestors" id="iso-ancestors" transform="translate(0,-100)">
+      <use class="ancestor" href="#profunctor-iso"/>
+    </g>
+  </g>
+
+  <g id="lens" class="optic vertex" transform="translate(-200,200)">
+    <use id="lens-getter" class="lens getter edge" href="#edge"/>
+    <use id="lens-affine-traversal" class="lens affine-traversal edge" href="#edge" transform="scale(-1,1)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" transform="scale(-1,1)"/>
+    <text transform="translate(-80,-30)">Lens</text>
+    <g class="ancestors" id="lens-ancestors">
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#iso-ancestors"/>
+        <use class="ancestor" href="#iso-lens"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#strong-ancestors"/>
+        <use class="ancestor" href="#strong-lens"/>
+      </g>
+    </g>
+  </g>
+  <g id="prism" class="optic vertex" transform="translate(200,200)">
+    <use id="prism-affine-traversal" class="prism affine-traversal edge" href="#edge"/>
+    <use id="prism-review" class="prism review edge" href="#edge" transform="scale(-1,1)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge"/>
+    <text transform="translate(80,-30)">Prism</text>
+    <g class="ancestors" id="prism-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#iso-ancestors"/>
+        <use class="ancestor" href="#iso-prism"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#choice-ancestors"/>
+        <use class="ancestor" href="#choice-prism"/>
+      </g>
+    </g>
+  </g>
+
+  <g id="getter" class="optic vertex" transform="translate(-400,300)">
+    <circle r="2.5"/>
+    <use href="#label-edge" transform="scale(-1,-1)"/>
+    <text transform="translate(-80,30)">Getter</text>
+    <g class="ancestors" id="getter-ancestors">
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#lens-ancestors"/>
+        <use class="ancestor" href="#lens-getter"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#cochoice-getter"/>
+        <use class="ancestor" href="#cochoice-ancestors"/>
+      </g>
+      <use class="ancestor" href="#bicontravariant-getter" transform="translate(0,-200)"/>
+    </g>
+  </g>
+  <g id="affine-traversal" class="optic vertex" transform="translate(0,300)">
+    <use id="affine-traversal-affine-fold" class="affine-traversal affine-fold edge" href="#edge"/>
+    <use id="affine-traversal-traversal" class="affine-traversal traversal edge" href="#edge" transform="scale(-1,1)"/>
+    <circle r="2.5"/>
+    <use href="#label-left" class="optic"/>
+    <text transform="translate(-50,0)">AffineTraversal</text>
+    <g class="ancestors" id="affine-traversal-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#lens-ancestors"/>
+        <use class="ancestor" href="#lens-affine-traversal"/>
+      </g>
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#prism-ancestors"/>
+        <use class="ancestor" href="#prism-affine-traversal"/>
+      </g>
+    </g>
+  </g>
+  <g id="review" class="optic vertex" transform="translate(400,300)">
+    <circle r="2.5"/>
+    <use href="#label-edge"/>
+    <text class="optic" transform="translate(80,-30)">Review</text>
+    <g class="ancestors" id="review-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#prism-ancestors"/>
+        <use class="ancestor" href="#prism-review"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#costrong-ancestors"/>
+        <use class="ancestor" href="#costrong-review"/>
+      </g>
+      <use class="ancestor" href="#bifunctor-review" transform="translate(0,-200)"/>
+    </g>
+  </g>
+
+  <g id="affine-fold" class="optic vertex" transform="translate(-200,400)">
+    <use id="affine-fold-fold" class="affine-fold fold edge" href="#edge" transform="scale(-1,1)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge" transform="scale(-1,-1)"/>
+    <text transform="translate(-80,30)">AffineFold</text>
+    <g class="ancestors" id="affine-fold-ancestors">
+      <g transform="translate(200,-100)">
+        <use class="ancestor" href="#affine-traversal-ancestors"/>
+        <use class="ancestor" href="#affine-traversal-affine-fold"/>
+      </g>
+      <g transform="translate(-200,-300)">
+        <use class="ancestor" href="#bicontravariant-affine-fold"/>
+      </g>
+    </g>
+  </g>
+  <g id="traversal" class="optic vertex" transform="translate(200,400)">
+    <use id="traversal-fold" class="traversal fold edge" href="#edge"/>
+    <use id="traversal-setter" class="traversal setter edge" href="#edge" transform="scale(-1,1)"/>
+    <circle r="2.5"/>
+    <use href="#label-edge"/>
+    <text transform="translate(80,-30)">Traversal</text>
+    <g class="ancestors" id="traversal-ancestors">
+      <g transform="translate(-200, -100)">
+        <use class="ancestor" href="#affine-traversal-ancestors"/>
+        <use class="ancestor" href="#affine-traversal-traversal"/>
+      </g>
+      <g transform="translate(-200,-200)">
+        <use class="ancestor" href="#traversing-ancestors"/>
+        <use class="ancestor" href="#traversing-traversal"/>
+      </g>
+    </g>
+  </g>
+
+  <g id="fold" class="optic vertex" transform="translate(0,500)">
+    <circle r="2.5"/>
+    <use href="#label-edge" transform="scale(-1,-1)"/>
+    <text transform="translate(-80,30)">Fold</text>
+    <g class="ancestors" id="fold-ancestors" transform="translate(0,-100)">
+      <g transform="translate(-200,0)">
+        <use class="ancestor" href="#affine-fold-ancestors"/>
+        <use class="ancestor" href="#affine-fold-fold"/>
+      </g>
+      <g transform="translate(200,0)">
+        <use class="ancestor" href="#traversal-ancestors"/>
+        <use class="ancestor" href="#traversal-fold"/>
+      </g>
+      <g transform="translate(-400, -200)">
+        <use class="ancestor" href="#cochoice-ancestors"/>
+        <use class="ancestor" href="#cochoice-fold"/>
+      </g>
+    </g>
+  </g>
+  <g id="setter" class="optic vertex" transform="translate(400,500)">
+    <circle r="2.5"/>
+    <use href="#label-edge" transform="scale(1,-1)"/>
+    <text transform="translate(80,30)">Setter</text>
+    <g class="ancestors" id="setter-ancestors">
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#traversal-ancestors"/>
+        <use class="ancestor" href="#traversal-setter"/>
+      </g>
+      <g transform="translate(0,-100)">
+        <use class="ancestor" href="#mapping-ancestors"/>
+        <use class="ancestor" href="#mapping-setter"/>
+      </g>
+    </g>
+  </g>
+</g>
+
+</svg>
