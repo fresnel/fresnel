@@ -7,6 +7,8 @@ module Fresnel.At
 ) where
 
 import           Control.Monad (guard)
+import qualified Data.HashSet as HashSet
+import           Data.Hashable
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 import qualified Data.Map as Map
@@ -28,3 +30,6 @@ instance Ord k => At (Set.Set k) where
 
 instance Ord k => At (Map.Map k v) where
   at k = lens (Map.lookup k) (\ m -> maybe m (flip (Map.insert k) m))
+
+instance (Eq k, Hashable k) => At (HashSet.HashSet k) where
+  at k = lens (guard . HashSet.member k) (\ s -> maybe s (const (HashSet.insert k s)))
