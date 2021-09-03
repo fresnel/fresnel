@@ -177,11 +177,11 @@ stop {
 .vertex:hover circle {
   stroke-width: 2px;
 }
-.optic use.ancestor {
+.vertex use.ancestor {
   --visibility: visible;
   visibility: visible;
 }
-.optic:hover use.ancestor {
+.vertex:hover use.ancestor {
   --visibility: visible;
   stroke-width: 2px;
 }
