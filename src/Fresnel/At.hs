@@ -22,19 +22,19 @@ class Ixed c => At c where
   at :: Index c -> Lens' c (Maybe (IxValue c))
 
 instance At IntSet.IntSet where
-  at k = lens (guard . IntSet.member k) (\ s -> maybe s (const (IntSet.insert k s)))
+  at = atSet IntSet.member IntSet.insert
 
 instance At (IntMap.IntMap v) where
   at k = lens (IntMap.lookup k) (\ m -> maybe m (flip (IntMap.insert k) m))
 
 instance Ord k => At (Set.Set k) where
-  at k = lens (guard . Set.member k) (\ s -> maybe s (const (Set.insert k s)))
+  at = atSet Set.member Set.insert
 
 instance Ord k => At (Map.Map k v) where
   at k = lens (Map.lookup k) (\ m -> maybe m (flip (Map.insert k) m))
 
 instance (Eq k, Hashable k) => At (HashSet.HashSet k) where
-  at k = lens (guard . HashSet.member k) (\ s -> maybe s (const (HashSet.insert k s)))
+  at = atSet HashSet.member HashSet.insert
 
 instance (Eq k, Hashable k) => At (HashMap.HashMap k v) where
   at k = lens (HashMap.lookup k) (\ m -> maybe m (flip (HashMap.insert k) m))
