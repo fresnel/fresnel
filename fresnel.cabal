@@ -46,6 +46,7 @@ library
     Fresnel.Iso
     Fresnel.Ixed
     Fresnel.Lens
+    Fresnel.List.NonEmpty
     Fresnel.Optic
     Fresnel.Optional
     Fresnel.Prism
