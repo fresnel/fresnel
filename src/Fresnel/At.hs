@@ -5,7 +5,6 @@ module Fresnel.At
   -- * Construction
 , atSet
 , atMap
-, atList
   -- * Elimination
 , sans
   -- * Indexable collections
@@ -47,9 +46,6 @@ instance (Eq k, Hashable k) => At (HashSet.HashSet k) where
 instance (Eq k, Hashable k) => At (HashMap.HashMap k v) where
   at = atMap HashMap.lookup HashMap.insert HashMap.delete
 
-instance At [v] where
-  at = atList
-
 
 -- Construction
 
@@ -58,16 +54,6 @@ atSet member insert delete k = lens (guard . member k) (\ s -> maybe (delete k s
 
 atMap :: (Index c -> c -> Maybe (IxValue c)) -> (Index c -> IxValue c -> c -> c) -> (Index c -> c -> c) -> Index c -> Lens' c (Maybe (IxValue c))
 atMap lookup insert delete k = lens (lookup k) (\ m -> maybe (delete k m) (flip (insert k) m))
-
-atList :: Int -> Lens' [a] (Maybe a)
-atList i = lens (get i) (\ as -> maybe as (set i as))
-  where
-  get i as = case as of
-    []   -> Nothing
-    a:as -> if i <= 0 then Just a else get (i - 1) as
-  set i as a' = case as of
-    []   -> as
-    a:as -> if i <= 0 then a':as else a : set (i - 1) as a'
 
 
 -- Elimination
