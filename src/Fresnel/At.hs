@@ -33,19 +33,19 @@ instance At IntSet.IntSet where
   at = atSet IntSet.member IntSet.insert IntSet.delete
 
 instance At (IntMap.IntMap v) where
-  at = atMap IntMap.lookup IntMap.insert
+  at = atMap IntMap.lookup IntMap.insert IntMap.delete
 
 instance Ord k => At (Set.Set k) where
   at = atSet Set.member Set.insert Set.delete
 
 instance Ord k => At (Map.Map k v) where
-  at = atMap Map.lookup Map.insert
+  at = atMap Map.lookup Map.insert Map.delete
 
 instance (Eq k, Hashable k) => At (HashSet.HashSet k) where
   at = atSet HashSet.member HashSet.insert HashSet.delete
 
 instance (Eq k, Hashable k) => At (HashMap.HashMap k v) where
-  at = atMap HashMap.lookup HashMap.insert
+  at = atMap HashMap.lookup HashMap.insert HashMap.delete
 
 instance At [v] where
   at = atList
@@ -56,8 +56,8 @@ instance At [v] where
 atSet :: (Index c -> c -> Bool) -> (Index c -> c -> c) -> (Index c -> c -> c) -> Index c -> Lens' c (Maybe ())
 atSet member insert delete k = lens (guard . member k) (\ s -> maybe (delete k s) (const (insert k s)))
 
-atMap :: (Index c -> c -> Maybe (IxValue c)) -> (Index c -> IxValue c -> c -> c) -> Index c -> Lens' c (Maybe (IxValue c))
-atMap lookup insert k = lens (lookup k) (\ m -> maybe m (flip (insert k) m))
+atMap :: (Index c -> c -> Maybe (IxValue c)) -> (Index c -> IxValue c -> c -> c) -> (Index c -> c -> c) -> Index c -> Lens' c (Maybe (IxValue c))
+atMap lookup insert delete k = lens (lookup k) (\ m -> maybe (delete k m) (flip (insert k) m))
 
 atList :: Int -> Lens' [a] (Maybe a)
 atList i = lens (get i) (\ as -> maybe as (set i as))
