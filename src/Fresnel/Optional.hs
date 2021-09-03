@@ -7,6 +7,7 @@ module Fresnel.Optional
 , IsOptional
   -- * Construction
 , optional
+, optional'
   -- * Elimination
 , matching
 , withOptional
@@ -36,6 +37,9 @@ optional prj set = dimap
   (\ s -> (prj s, set s))
   (\ (e, f) -> either id f e)
   . first' . right'
+
+optional' :: (s -> Maybe a) -> (s -> b -> s) -> Optional s s a b
+optional' prj = optional (\ s -> maybe (Left s) Right (prj s))
 
 
 -- Elimination
