@@ -9,6 +9,7 @@ module Fresnel.At
 import           Control.Monad (guard)
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
+import qualified Data.Set as Set
 import           Fresnel.Ixed
 import           Fresnel.Lens (Lens', lens)
 
@@ -20,3 +21,6 @@ instance At IntSet.IntSet where
 
 instance At (IntMap.IntMap v) where
   at k = lens (IntMap.lookup k) (\ m -> maybe m (flip (IntMap.insert k) m))
+
+instance Ord k => At (Set.Set k) where
+  at k = lens (guard . Set.member k) (\ s -> maybe s (const (Set.insert k s)))
