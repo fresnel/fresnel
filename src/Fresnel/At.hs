@@ -11,6 +11,7 @@ import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 import qualified Data.Map as Map
 import           Data.Profunctor.Traversing (Traversing(..))
+import qualified Data.Set as Set
 import           Fresnel.Traversal (Traversal')
 
 -- Indexable collections
@@ -44,6 +45,14 @@ instance Ord k => Ixed (Map.Map k v) where
   ix k = wander $ \ f m -> case Map.lookup k m of
     Just v  -> flip (Map.insert k) m <$> f v
     Nothing -> pure m
+
+instance Ord k => Ixed (Set.Set k) where
+  type Index (Set.Set k) = k
+  type IxValue (Set.Set k) = ()
+
+  ix k = wander $ \ f s -> if Set.member k s
+    then Set.insert k s <$ f ()
+    else pure s
 
 instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
   type Index (HashMap.HashMap k v) = k
