@@ -3,6 +3,7 @@
 module Fresnel.Optional
 ( -- * Affine traversals
   Optional
+, Optional'
 , IsOptional
   -- * Construction
 , atraversal
@@ -15,15 +16,17 @@ module Fresnel.Optional
 , unpackedOptional
 ) where
 
-import Fresnel.Profunctor.Optical
-import Fresnel.Optic
-import Data.Profunctor
 import Data.Bifunctor
+import Data.Profunctor
+import Fresnel.Optic
 import Fresnel.Profunctor.AffineStar
+import Fresnel.Profunctor.Optical
 
 -- Affine traversals
 
 type Optional s t a b = forall p . IsOptional p => Optic p s t a b
+
+type Optional' s a = Optional s s a a
 
 
 -- Construction
