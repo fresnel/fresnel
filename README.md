@@ -10,6 +10,8 @@
 
 ![diagram of the optical and profunctor hierarchies and their relationships to one another](https://raw.githubusercontent.com/robrix/fresnel/thought-dot%2C-fought-dot%2C-shot-dot/docs/optics.svg)
 
+_The above image is interactive. Click to open it, and then hover over labels to highlight everything they include._
+
 
 ## The name
 
