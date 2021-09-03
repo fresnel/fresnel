@@ -84,6 +84,7 @@ text {
   stroke-width: 0;
 }
 .label {
+  stroke-width: var(--label-stroke-width, 0.5px);
   stroke-dasharray: 1px 1px;
 }
 .typeclass {
@@ -176,6 +177,9 @@ use.typeclass {
 }
 stop {
   stop-color: currentColor;
+}
+.vertex:hover {
+  --label-stroke-width: 1px;
 }
 .vertex:hover circle {
   stroke-width: 2px;
