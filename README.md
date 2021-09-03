@@ -24,7 +24,7 @@ It seemed like an apt metaphor for a pared-down optics library based on function
 
 Like `optics`, it uses profunctor optics rather than the Van Laarhoven representation. Like `lens`, it uses type synonyms and `-XRankNTypes` to compose optics with the `.` operator and allow `ghc` to deduce the (faux-)subtyping relationships between optics.
 
-Unlike `optics` (but like `lens`), since it uses functions instead of newtypes, it could suffer worse type errors. (This has not yet been thoroughly explored.)
+Unlike `lens` (but like `optics`), it goes to some effort to provide a sensibly-named hierarchy of optics to improve type errors. In `optics` this is provided by means of type families providing the subsumption relation and constraints; in `fresnel`, names, subsumption, and constraints are all provided by `Is*` typeclasses (e.g. `IsPrism`, `IsTraversal`, etc.) subclassing the profunctor classes directly.
 
 Unlike `lens`, it doesn’t define any typeclasses to abstract over optics’ sources. It also has a comparatively minimal suite of combinators for complex compositions of projections, etc.
 
