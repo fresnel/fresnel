@@ -103,7 +103,7 @@ use.typeclass {
   fill: var(--typeclass-colour);
   stroke: var(--typeclass-colour);
 }
-.optic, .optic use, .typeclass {
+.vertex {
   fill: currentColor;
   stroke: currentColor;
 }
@@ -174,8 +174,7 @@ use.typeclass {
 stop {
   stop-color: currentColor;
 }
-.optic:hover circle,
-.typeclass:hover circle {
+.vertex:hover circle {
   stroke-width: 2px;
 }
 .optic use.ancestor {
