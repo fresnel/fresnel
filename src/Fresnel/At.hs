@@ -2,6 +2,7 @@
 module Fresnel.At
 ( -- * Updateable collections
   At(..)
+  -- * Construction
 , atSet
 , atMap
 , atList
@@ -46,6 +47,8 @@ instance (Eq k, Hashable k) => At (HashMap.HashMap k v) where
 instance At [v] where
   at = atList
 
+
+-- Construction
 
 atSet :: (Index c -> c -> Bool) -> (Index c -> c -> c) -> Index c -> Lens' c (Maybe ())
 atSet member insert k = lens (guard . member k) (\ s -> maybe s (const (insert k s)))

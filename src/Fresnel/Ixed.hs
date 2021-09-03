@@ -4,6 +4,7 @@
 module Fresnel.Ixed
 ( -- * Indexable collections
   Ixed(..)
+  -- * Construction
 , ixSet
 , ixMap
 , ixList
@@ -79,6 +80,8 @@ instance Ixed (NonEmpty.NonEmpty v) where
     | k <= 0    = head_
     | otherwise = tail_.ixList (k - 1)
 
+
+-- Construction
 
 ixSet :: (Index c -> c -> Bool) -> (Index c -> c -> c) -> Index c -> Optional' c ()
 ixSet member insert k = optional' (guard . member k) (const . insert k)
