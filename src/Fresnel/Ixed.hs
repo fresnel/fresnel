@@ -77,6 +77,7 @@ instance Ixed (NonEmpty.NonEmpty v) where
     | k <= 0    = head_
     | otherwise = tail_.ixList (k - 1)
 
+
 ixList :: Int -> Optional' [a] a
 ixList i = optional' (get i) (set i)
   where
