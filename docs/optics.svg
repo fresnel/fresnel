@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css" type="text/css"?>
 
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-575 -50 1300 650">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-575 50 1300 650">
 <defs>
 <path id="edge" class="edge" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0"/>
 <path id="edge-2" class="edge" d="m -10,5 l -380,190 m 6,-8 l -6,8 l 10,0"/>
 <path id="edge-right-3" class="edge" d="m 10,5 l 580,290 m -6,-8 l 6,8 l -10,0"/>
-<path id="edge-right-down" class="edge" d="m 10,5 l 200,100 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
-<path id="edge-v" class="edge" d="m 0,10 v 80 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
-<path id="edge-v-2" class="edge" d="m 0,10 v 180 m -4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916"/>
-<path id="edge-v-2-right" class="edge" d="m 0,10 v 190 l 190,95 m -6,-8 l 6,8 l -10,0"/>
-<path id="edge-v-right-2" class="edge" d="m 0,10 v 90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-right-v" class="edge" d="m 10,5 l 200,100 v -80 m -4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916"/>
+<path id="edge-v" class="edge" d="m 0,-10 v -80 m -4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916"/>
+<path id="edge-v-2" class="edge" d="m 0,-10 v -180 m -4.47213595499958,8.94427190999916 l 4.47213595499958,-8.94427190999916 l 4.47213595499958,8.94427190999916"/>
+<path id="edge-v-2-right" class="edge" d="m 0,-10 v -190 l 190,95 m -6,-8 l 6,8 l -10,0"/>
+<path id="edge-v-right-2" class="edge" d="m 0,-10 v -90 l 390,195 m -6,-8 l 6,8 l -10,0"/>
 <path id="label-edge" class="label" d="m 0,0 l 30,-15 h 50"/>
 <path id="label-left" class="label" d="m 0,0 h -50"/>
 <linearGradient id="optic-gradient" x1="100%" y1="0%" x2="0%" y2="100%"></linearGradient>
@@ -200,7 +200,7 @@ stop {
 }
 </style>
 
-<g id="profunctors">
+<g id="profunctors" transform="translate(0, 200)">
   <g id="profunctor" class="typeclass vertex">
     <use id="profunctor-cochoice" href="#edge-2" class="typeclass" transform="translate(-10,-5)"/>
     <use id="profunctor-strong" href="#edge" class="typeclass"/>
@@ -214,7 +214,7 @@ stop {
     <text transform="translate(80,-30)">Profunctor</text>
   </g>
 
-  <g id="bifunctor" class="typeclass vertex" transform="translate(400,100)">
+  <g id="bifunctor" class="typeclass vertex" transform="translate(400,300)">
     <use id="bifunctor-review" href="#edge-v-2" class="typeclass" transform="translate(-10, -5)"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass"/>
@@ -240,7 +240,7 @@ stop {
       <use class="ancestor" href="#profunctor-choice"/>
     </g>
   </g>
-  <g id="bicontravariant" class="typeclass vertex" transform="translate(-400,100)">
+  <g id="bicontravariant" class="typeclass vertex" transform="translate(-400,300)">
     <use id="bicontravariant-getter" href="#edge-v-2" class="typeclass" transform="translate(20, -10)"/>
     <use id="bicontravariant-affine-fold" href="#edge-v-2-right" class="typeclass" transform="translate(10, -5)"/>
     <circle r="2.5"/>
@@ -270,7 +270,7 @@ stop {
 
   <g id="traversing" class="typeclass vertex" transform="translate(0,200)">
     <use id="traversing-mapping" href="#edge-2" class="typeclass" transform="scale(-1,1)"/>
-    <use id="traversing-traversal" href="#edge-right-down" class="typeclass" transform="translate(-10, 5)"/>
+    <use id="traversing-traversal" href="#edge-right-v" class="typeclass" transform="translate(-10, 5)"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass" transform="scale(-1,-1)"/>
     <text transform="translate(-80,30)">Traversing</text>
@@ -321,7 +321,7 @@ stop {
     <circle r="2.5"/>
     <use href="#label-edge"/>
     <text transform="translate(80,-30)">Iso</text>
-    <g class="ancestors" id="iso-ancestors" transform="translate(0,-100)">
+    <g class="ancestors" id="iso-ancestors" transform="translate(0,100)">
       <use class="ancestor" href="#profunctor-iso"/>
     </g>
   </g>
@@ -337,7 +337,7 @@ stop {
         <use class="ancestor" href="#iso-ancestors"/>
         <use class="ancestor" href="#iso-lens"/>
       </g>
-      <g transform="translate(0,-100)">
+      <g transform="translate(0,100)">
         <use class="ancestor" href="#strong-ancestors"/>
         <use class="ancestor" href="#strong-lens"/>
       </g>
@@ -354,7 +354,7 @@ stop {
         <use class="ancestor" href="#iso-ancestors"/>
         <use class="ancestor" href="#iso-prism"/>
       </g>
-      <g transform="translate(0,-100)">
+      <g transform="translate(0,100)">
         <use class="ancestor" href="#choice-ancestors"/>
         <use class="ancestor" href="#choice-prism"/>
       </g>
@@ -370,11 +370,11 @@ stop {
         <use class="ancestor" href="#lens-ancestors"/>
         <use class="ancestor" href="#lens-getter"/>
       </g>
-      <g transform="translate(0,-100)">
+      <g transform="translate(0,100)">
         <use class="ancestor" href="#cochoice-getter"/>
         <use class="ancestor" href="#cochoice-ancestors"/>
       </g>
-      <use class="ancestor" href="#bicontravariant-getter" transform="translate(0,-200)"/>
+      <use class="ancestor" href="#bicontravariant-getter" transform="translate(0,200)"/>
     </g>
   </g>
   <g id="affine-traversal" class="optic vertex" transform="translate(0,300)">
@@ -403,11 +403,11 @@ stop {
         <use class="ancestor" href="#prism-ancestors"/>
         <use class="ancestor" href="#prism-review"/>
       </g>
-      <g transform="translate(0,-100)">
+      <g transform="translate(0,100)">
         <use class="ancestor" href="#costrong-ancestors"/>
         <use class="ancestor" href="#costrong-review"/>
       </g>
-      <use class="ancestor" href="#bifunctor-review" transform="translate(0,-200)"/>
+      <use class="ancestor" href="#bifunctor-review" transform="translate(0,200)"/>
     </g>
   </g>
 
@@ -421,7 +421,7 @@ stop {
         <use class="ancestor" href="#affine-traversal-ancestors"/>
         <use class="ancestor" href="#affine-traversal-affine-fold"/>
       </g>
-      <g transform="translate(-200,-300)">
+      <g transform="translate(-200,100)">
         <use class="ancestor" href="#bicontravariant-affine-fold"/>
       </g>
     </g>
@@ -437,7 +437,7 @@ stop {
         <use class="ancestor" href="#affine-traversal-ancestors"/>
         <use class="ancestor" href="#affine-traversal-traversal"/>
       </g>
-      <g transform="translate(-200,-200)">
+      <g transform="translate(-200,0)">
         <use class="ancestor" href="#traversing-ancestors"/>
         <use class="ancestor" href="#traversing-traversal"/>
       </g>
@@ -457,7 +457,7 @@ stop {
         <use class="ancestor" href="#traversal-ancestors"/>
         <use class="ancestor" href="#traversal-fold"/>
       </g>
-      <g transform="translate(-400, -200)">
+      <g transform="translate(-400, 0)">
         <use class="ancestor" href="#cochoice-ancestors"/>
         <use class="ancestor" href="#cochoice-fold"/>
       </g>
@@ -472,7 +472,7 @@ stop {
         <use class="ancestor" href="#traversal-ancestors"/>
         <use class="ancestor" href="#traversal-setter"/>
       </g>
-      <g transform="translate(0,-100)">
+      <g transform="translate(0,100)">
         <use class="ancestor" href="#mapping-ancestors"/>
         <use class="ancestor" href="#mapping-setter"/>
       </g>
