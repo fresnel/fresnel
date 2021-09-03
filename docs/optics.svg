@@ -182,7 +182,6 @@ stop {
   pointer-events: all;
 }
 .vertex .ancestors {
-  --edge-stroke-width: 0.5px;
   pointer-events: none;
 }
 .vertex:hover {
