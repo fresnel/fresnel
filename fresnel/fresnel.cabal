@@ -41,6 +41,7 @@ library
     Fresnel.AffineFold
     Fresnel.At
     Fresnel.Bifunctor.Contravariant
+    Fresnel.Either
     Fresnel.Fold
     Fresnel.Getter
     Fresnel.Iso
