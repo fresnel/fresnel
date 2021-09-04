@@ -25,6 +25,7 @@ main = do
                   v = (x point + y point) * 100 - z point * 100
               g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
                 for_ outEdges $ \ dest -> S.path ! A.id_ (stringValue (name <> "-" <> dest))
+                circle ! A.r "2.5"
                 text_ (toMarkup name)
   getArgs >>= \case
     []     -> putStrLn rendered
