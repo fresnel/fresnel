@@ -72,7 +72,7 @@ graph = In $ Mu ["Iso", "Lens", "Getter", "Prism", "Review", "Optional", "Affine
     , Vertex Class "Costrong" (Point 0 2 1) [review]
     , Vertex Class "Bifunctor" (Point 0 2 2) [review]
     , Vertex Class "Closed" (Point 0 3 1) [mapping]
-    , Vertex Class "Traversing" (Point 0 3 1) [traversal, mapping]
-    , Vertex Class "Mapping" (Point 0 3 1) [setter]
+    , Vertex Class "Traversing" (Point 1 2 1) [traversal, mapping]
+    , Vertex Class "Mapping" (Point 1 3 1) [setter]
     ]
   _ -> error "not enough vertices, or too many. either way, it’s bad."
