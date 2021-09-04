@@ -49,8 +49,8 @@ jobs:
 
     - name: Build & test
       run: |
-        cabal v2-build   --project-file=cabal.project.ci
-        cabal v2-run     --project-file=cabal.project.ci test
-        cabal v2-haddock --project-file=cabal.project.ci
-        cabal v2-sdist   --project-file=cabal.project.ci
-        cabal check
+        cabal v2-build   --project-file=cabal.project.ci all
+        cabal v2-run     --project-file=cabal.project.ci fresnel:test
+        cabal v2-haddock --project-file=cabal.project.ci all
+        cabal v2-sdist   --project-file=cabal.project.ci all
+        cd fresnel && cabal check
