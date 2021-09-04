@@ -253,8 +253,7 @@ stop {
     </g>
   </g>
   <g id="bicontravariant" class="typeclass vertex" transform="translate(-400,100)">
-    <use id="bicontravariant-getter" href="#edge-v-2" class="typeclass" transform="translate(20, -10)"/>
-    <use id="bicontravariant-affine-fold" href="#edge-v-2-right" class="typeclass" transform="translate(10, -5)"/>
+    <use id="bicontravariant-getter" href="#edge-v-2" class="typeclass" transform="translate(10, -5)"/>
     <circle r="2.5"/>
     <use href="#label-edge" class="typeclass" transform="scale(-1,1)"/>
     <text transform="translate(-80,-30)">Bicontravariant</text>
