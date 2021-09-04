@@ -89,7 +89,7 @@ instance Monoid r => IsTraversal (Forget r)
 instance Applicative f => IsTraversal (Star f)
 
 
-class (IsAffineFold p, IsTraversal p, Cochoice p) => IsFold p
+class (IsAffineFold p, IsTraversal p) => IsFold p
 
 instance Monoid r => IsFold (Forget r)
 
