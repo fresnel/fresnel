@@ -9,21 +9,26 @@ module Main
 ) where
 
 import           Data.Foldable (for_)
+import           System.Environment (getArgs)
 import           Text.Blaze.Svg.Renderer.Pretty
 import           Text.Blaze.Svg11 as S hiding (z)
 import qualified Text.Blaze.Svg11.Attributes as A
 
 main :: IO ()
-main = putStrLn . renderSvg $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -50 1300 650" $ do
-  S.style (toMarkup ("@import url(https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css);" :: String))
-  case out graph of
-    Mu ns f -> do
-      for_ (f ns) $ \ Vertex{ kind, name, point, edges } -> do
-        let h = x point * negate 200 + y point * 200
-            v = (x point + y point) * 100 - z point * 100
-        g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
-          for_ edges $ \ dest -> S.path ! A.id_ (stringValue (name <> "-" <> dest))
-          text_ (toMarkup name)
+main = do
+  let rendered = renderSvg $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -50 1300 650" $ do
+        S.style (toMarkup ("@import url(https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css);" :: String))
+        case out graph of
+          Mu ns f -> do
+            for_ (f ns) $ \ Vertex{ kind, name, point, edges } -> do
+              let h = x point * negate 200 + y point * 200
+                  v = (x point + y point) * 100 - z point * 100
+              g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
+                for_ edges $ \ dest -> S.path ! A.id_ (stringValue (name <> "-" <> dest))
+                text_ (toMarkup name)
+  getArgs >>= \case
+    []     -> putStrLn rendered
+    path:_ -> writeFile path rendered
 
 xmlns = customAttribute "xmlns"
 
