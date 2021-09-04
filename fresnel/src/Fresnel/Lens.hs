@@ -8,9 +8,7 @@ module Fresnel.Lens
 , lens
   -- * Elimination
 , withLens
-  -- * Tuples
-, fst_
-, snd_
+  -- * Combinators
 , alongside
   -- * Unpacked
 , UnpackedLens(..)
@@ -41,13 +39,7 @@ withLens :: Lens s t a b -> (((s -> a) -> (s -> b -> t) -> r) -> r)
 withLens o = withUnpackedLens (o (unpackedLens id (const id)))
 
 
--- Tuples
-
-fst_ :: Lens (a, b) (a', b) a a'
-fst_ = lens fst (\ s a' -> (a', snd s))
-
-snd_ :: Lens (a, b) (a, b') b b'
-snd_ = lens snd (\ s b' -> (fst s, b'))
+-- Combinators
 
 alongside :: Lens s1 t1 a1 b1 -> Lens s2 t2 a2 b2 -> Lens (s1, s2) (t1, t2) (a1, a2) (b1, b2)
 alongside o1 o2 = withLens o1 $ \ get1 set1 -> withLens o2 $ \ get2 set2 ->
