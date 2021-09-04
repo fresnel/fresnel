@@ -20,11 +20,11 @@ main = do
         S.style (toMarkup ("@import url(https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css);" :: String))
         case out graph of
           Mu ns f -> do
-            for_ (f ns) $ \ Vertex{ kind, name, point, edges } -> do
+            for_ (f ns) $ \ Vertex{ kind, name, point, outEdges } -> do
               let h = x point * negate 200 + y point * 200
                   v = (x point + y point) * 100 - z point * 100
               g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
-                for_ edges $ \ dest -> S.path ! A.id_ (stringValue (name <> "-" <> dest))
+                for_ outEdges $ \ dest -> S.path ! A.id_ (stringValue (name <> "-" <> dest))
                 text_ (toMarkup name)
   getArgs >>= \case
     []     -> putStrLn rendered
@@ -36,7 +36,7 @@ newtype Graph = In { out :: forall v . Mu v }
 
 data Mu v = Mu [String] ([v] -> [Vertex v])
 
-data Vertex v = Vertex { kind :: VertexKind, name :: String, point :: Point Int, edges :: [v] }
+data Vertex v = Vertex { kind :: VertexKind, name :: String, point :: Point Int, outEdges :: [v] }
 
 data VertexKind
   = Optic
