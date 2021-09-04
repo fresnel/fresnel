@@ -73,11 +73,11 @@ instance Applicative f => IsOptional (Star f)
 instance Functor f => IsOptional (AffineStar f)
 
 
-class (IsOptional p, Bicontravariant p) => IsAffineFold p
+class (IsOptional p, Bicontravariant p, Cochoice p) => IsAffineFold p
 
 instance Monoid r => IsAffineFold (Forget r)
-instance (Applicative f, Contravariant f) => IsAffineFold (Star f)
-instance (Functor f, Contravariant f) => IsAffineFold (AffineStar f)
+instance (Applicative f, Traversable f, Contravariant f) => IsAffineFold (Star f)
+instance (Traversable f, Contravariant f) => IsAffineFold (AffineStar f)
 
 
 class (IsOptional p, Traversing p) => IsTraversal p
