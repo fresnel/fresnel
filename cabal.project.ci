@@ -1,5 +1,9 @@
 packages:
   fresnel
+  fresnel-diagram
 
 package fresnel
+  ghc-options: -Werror
+
+package fresnel-diagram
   ghc-options: -Werror
