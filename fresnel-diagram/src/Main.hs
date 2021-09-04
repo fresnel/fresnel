@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -40,6 +41,7 @@ data Point a = Point
   , y :: a
   , z :: a
   }
+  deriving (Functor)
 
 graph :: Graph
 graph = In $ Mu ["Iso", "Lens", "Getter", "Prism", "Review", "Optional", "AffineFold", "Traversal", "Fold", "Setter", "Profunctor", "Strong", "Cochoice", "Bicontravariant", "Choice", "Costrong", "Bifunctor", "Closed", "Traversing", "Mapping"] $ \case
