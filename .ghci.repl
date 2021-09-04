@@ -37,6 +37,6 @@
 :seti -Wno-type-defaults
 :set -Wno-unused-packages
 
-:load Fresnel.AffineFold Fresnel.At Fresnel.Fold Fresnel.Getter Fresnel.Iso Fresnel.Lens Fresnel.Optional Fresnel.Prism Fresnel.Review Fresnel.Setter Fresnel.Traversal test/Test.hs
+:load Fresnel.AffineFold Fresnel.At Fresnel.Fold Fresnel.Getter Fresnel.Iso Fresnel.Lens Fresnel.Optional Fresnel.Prism Fresnel.Review Fresnel.Setter Fresnel.Traversal fresnel/test/Test.hs
 
 import Main

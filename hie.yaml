@@ -1,6 +1,6 @@
 cradle:
   cabal:
-    - path: "./src"
+    - path: "./fresnel/src"
       component: "lib:fresnel"
-    - path: "./test"
+    - path: "./fresnel/test"
       component: "test:test"
