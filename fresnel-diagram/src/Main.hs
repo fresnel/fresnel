@@ -20,7 +20,7 @@ main = do
         S.style (toMarkup ("@import url(https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css);" :: String))
         case out graph of
           Mu ns f -> do
-            for_ (f ns) $ \ Vertex{ kind, name, point, outEdges } -> do
+            for_ (f ns) $ \ (Vertex kind name point outEdges) -> do
               let h = x point * negate 200 + y point * 200
                   v = (x point + y point) * 100 - z point * 100
               g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
@@ -37,7 +37,7 @@ newtype Graph = In { out :: forall v . Mu v }
 
 data Mu v = Mu [String] ([v] -> [Vertex v])
 
-data Vertex v = Vertex { kind :: VertexKind, name :: String, point :: Point Int, outEdges :: [v] }
+data Vertex v = Vertex VertexKind String (Point Int) [v]
 
 data VertexKind
   = Optic
