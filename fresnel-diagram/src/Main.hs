@@ -1,4 +1,5 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
@@ -7,7 +8,6 @@ module Main
 ) where
 
 import Data.Foldable (for_)
-import Data.Maybe
 import Text.Blaze.Svg.Renderer.Pretty
 import Text.Blaze.Svg11 as S
 import Text.Blaze.Svg11.Attributes as A
@@ -42,16 +42,27 @@ data Point = Point
   }
 
 graph :: Graph
-graph = In $ Mu ["Iso", "Lens", "Getter", "Prism", "Review", "Optional", "AffineFold", "Traversal", "Fold", "Setter"] $ \ [iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter] ->
-  [ Vertex Optic "Iso" (Point 0 0 0) [lens, prism]
-  , Vertex Optic "Lens" (Point 1 0 0) [optional]
-  , Vertex Optic "Getter" (Point 2 0 0) [affineFold]
-  , Vertex Optic "Prism" (Point 0 1 0) [optional]
-  , Vertex Optic "Review" (Point 0 2 0) []
-  , Vertex Optic "Optional" (Point 1 1 0) [affineFold, traversal]
-  , Vertex Optic "AffineFold" (Point 2 1 0) [fold]
-  , Vertex Optic "Traversal" (Point 1 2 0) [fold, setter]
-  , Vertex Optic "Fold" (Point 2 2 0) []
-  , Vertex Optic "Setter" (Point 1 3 0) []
-  , Vertex Class "Profunctor" (Point 0 0 1) [iso]
-  ]
+graph = In $ Mu ["Iso", "Lens", "Getter", "Prism", "Review", "Optional", "AffineFold", "Traversal", "Fold", "Setter", "Profunctor", "Strong", "Cochoice", "Bicontravariant", "Choice", "Costrong", "Bifunctor", "Closed", "Traversing", "Mapping"] $ \case
+  [iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, _profunctor, strong, cochoice, _bicontravariant, choice, costrong, _bifunctor, closed, traversing, mapping] ->
+    [ Vertex Optic "Iso" (Point 0 0 0) [lens, prism]
+    , Vertex Optic "Lens" (Point 1 0 0) [optional, getter]
+    , Vertex Optic "Getter" (Point 2 0 0) [affineFold]
+    , Vertex Optic "Prism" (Point 0 1 0) [optional, review]
+    , Vertex Optic "Review" (Point 0 2 0) []
+    , Vertex Optic "Optional" (Point 1 1 0) [affineFold, traversal]
+    , Vertex Optic "AffineFold" (Point 2 1 0) [fold]
+    , Vertex Optic "Traversal" (Point 1 2 0) [fold, setter]
+    , Vertex Optic "Fold" (Point 2 2 0) []
+    , Vertex Optic "Setter" (Point 1 3 0) []
+    , Vertex Class "Profunctor" (Point 0 0 1) [iso, strong, choice, cochoice, costrong, closed]
+    , Vertex Class "Strong" (Point 1 0 1) [lens, traversing]
+    , Vertex Class "Cochoice" (Point 2 0 1) [getter]
+    , Vertex Class "Bicontravariant" (Point 2 0 2) [getter]
+    , Vertex Class "Choice" (Point 0 1 1) [prism, traversing]
+    , Vertex Class "Costrong" (Point 0 2 1) [review]
+    , Vertex Class "Bifunctor" (Point 0 2 2) [review]
+    , Vertex Class "Closed" (Point 0 3 1) [mapping]
+    , Vertex Class "Traversing" (Point 0 3 1) [traversal, mapping]
+    , Vertex Class "Mapping" (Point 0 3 1) [setter]
+    ]
+  _ -> error "not enough vertices, or too many. either way, it’s bad."
