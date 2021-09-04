@@ -28,17 +28,17 @@ newtype Graph = In { out :: forall v . Mu v }
 
 data Mu v = Mu [String] ([v] -> [Vertex v])
 
-data Vertex v = Vertex { kind :: VertexKind, name :: String, point :: Point, edges :: [v] }
+data Vertex v = Vertex { kind :: VertexKind, name :: String, point :: Point Int, edges :: [v] }
 
 data VertexKind
   = Optic
   | Class
   deriving (Eq, Ord, Show)
 
-data Point = Point
-  { x :: Int
-  , y :: Int
-  , z :: Int
+data Point a = Point
+  { x :: a
+  , y :: a
+  , z :: a
   }
 
 graph :: Graph
