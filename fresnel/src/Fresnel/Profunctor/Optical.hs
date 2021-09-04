@@ -47,6 +47,7 @@ class (IsLens p, Bicontravariant p, Cochoice p) => IsGetter p
 
 instance IsGetter (Forget r)
 instance (Contravariant f, Traversable f) => IsGetter (Star f)
+instance (Contravariant f, Traversable f) => IsGetter (AffineStar f)
 
 
 class (IsIso p, Choice p) => IsPrism p
