@@ -10,7 +10,7 @@ module Main
 
 import           Data.Foldable (for_)
 import           Text.Blaze.Svg.Renderer.Pretty
-import           Text.Blaze.Svg11 as S
+import           Text.Blaze.Svg11 as S hiding (z)
 import qualified Text.Blaze.Svg11.Attributes as A
 
 main :: IO ()
@@ -19,7 +19,9 @@ main = putStrLn . renderSvg $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2
   case out graph of
     Mu ns f -> do
       for_ (f ns) $ \ Vertex{ kind, name, point, edges } -> do
-        g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) $ do
+        let h = x point * negate 200 + y point * 200
+            v = (x point + y point) * 100 - z point * 100
+        g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
           for_ edges $ \ dest -> S.path ! A.id_ (stringValue (name <> "-" <> dest))
           text_ (toMarkup name)
 
