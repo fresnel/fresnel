@@ -53,4 +53,4 @@ jobs:
         cabal v2-run     --project-file=cabal.project.ci fresnel:test
         cabal v2-haddock --project-file=cabal.project.ci all
         cabal v2-sdist   --project-file=cabal.project.ci all
-        cd fresnel && cabal check
+        cd fresnel && cabal check ; cd ..
