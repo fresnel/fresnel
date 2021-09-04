@@ -39,8 +39,8 @@ function flags {
   echo "-I$build_dir/fresnel-0.0.0.0/build/autogen"
 
   # .hs source dirs
-  echo "-isrc"
-  echo "-itest"
+  echo "-ifresnel/src"
+  echo "-ifresnel/test"
 
   # disable automatic selection of packages
   echo "-hide-all-packages"

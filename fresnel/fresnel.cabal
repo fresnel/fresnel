@@ -41,12 +41,14 @@ library
     Fresnel.AffineFold
     Fresnel.At
     Fresnel.Bifunctor.Contravariant
+    Fresnel.Either
     Fresnel.Fold
     Fresnel.Getter
     Fresnel.Iso
     Fresnel.Ixed
     Fresnel.Lens
     Fresnel.List.NonEmpty
+    Fresnel.Maybe
     Fresnel.Optic
     Fresnel.Optional
     Fresnel.Prism
@@ -57,6 +59,7 @@ library
     Fresnel.Review
     Fresnel.Setter
     Fresnel.Traversal
+    Fresnel.Tuple
   build-depends:
     , base >=4.14 && < 5
     , containers   >= 0.5 && < 0.7
@@ -84,3 +87,4 @@ test-suite test
 source-repository head
   type:     git
   location: https://github.com/robrix/fresnel
+  subdir:   fresnel

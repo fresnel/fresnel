@@ -11,11 +11,11 @@ module Fresnel.Profunctor.AffineStar
 , mapAffineStar
 ) where
 
+import Data.Coerce
+import Data.Functor.Contravariant
 import Data.Profunctor
 import Data.Profunctor.Unsafe
-import Data.Functor.Contravariant
 import Fresnel.Bifunctor.Contravariant
-import Data.Coerce
 
 -- Affine star profunctors
 
@@ -30,6 +30,9 @@ instance Functor f => Profunctor (AffineStar f) where
 instance Functor f => Choice (AffineStar f) where
   left'  (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . f) (fmap Right . point))))
   right' (AffineStar r) = AffineStar (\ k -> r (\ point f -> k point (either (fmap Left . point) (fmap Right . f))))
+
+instance Traversable f => Cochoice (AffineStar f) where
+  unright r = withAffineStar r $ \ point f -> let go = either (go . Left) id . sequenceA . f in affineStar point (go . Right)
 
 instance Functor f => Strong (AffineStar f) where
   first'  = mapAffineStar (\ f (a, c) -> (,c) <$> f a)

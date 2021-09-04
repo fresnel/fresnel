@@ -38,6 +38,10 @@
   <stop class="prism" offset="0%"/>
   <stop class="optional" offset="100%"/>
 </linearGradient>
+<linearGradient id="gradient-getter-affine-fold" href="#optic-gradient">
+  <stop class="getter" offset="0%"/>
+  <stop class="affine-fold" offset="100%"/>
+</linearGradient>
 <linearGradient id="gradient-optional-affine-fold" href="#optic-gradient">
   <stop class="optional" offset="0%"/>
   <stop class="affine-fold" offset="100%"/>
@@ -162,6 +166,9 @@ use.typeclass {
 }
 .prism.review {
   stroke: url(#gradient-prism-review);
+}
+.getter.affine-fold {
+  stroke: url(#gradient-getter-affine-fold);
 }
 .optional.affine-fold {
   stroke: url(#gradient-optional-affine-fold);
@@ -368,6 +375,7 @@ stop {
   </g>
 
   <g id="getter" class="optic vertex" transform="translate(-400,300)">
+    <use id="getter-affine-fold" class="getter affine-fold edge" href="#edge" transform="scale(-1,1)"/>
     <circle r="2.5"/>
     <use href="#label-edge" transform="scale(-1,-1)"/>
     <text transform="translate(-80,30)">Getter</text>
@@ -426,6 +434,10 @@ stop {
       <g transform="translate(200,-100)">
         <use class="ancestor" href="#optional-ancestors"/>
         <use class="ancestor" href="#optional-affine-fold"/>
+      </g>
+      <g transform="translate(-200,-100)">
+        <use class="ancestor" href="#getter-ancestors"/>
+        <use class="ancestor" href="#getter-affine-fold"/>
       </g>
       <g transform="translate(-200,-300)">
         <use class="ancestor" href="#bicontravariant-affine-fold"/>

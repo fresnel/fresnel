@@ -47,6 +47,7 @@ class (IsLens p, Bicontravariant p, Cochoice p) => IsGetter p
 
 instance IsGetter (Forget r)
 instance (Contravariant f, Traversable f) => IsGetter (Star f)
+instance (Contravariant f, Traversable f) => IsGetter (AffineStar f)
 
 
 class (IsIso p, Choice p) => IsPrism p
@@ -73,11 +74,11 @@ instance Applicative f => IsOptional (Star f)
 instance Functor f => IsOptional (AffineStar f)
 
 
-class (IsOptional p, Bicontravariant p) => IsAffineFold p
+class (IsOptional p, IsGetter p) => IsAffineFold p
 
 instance Monoid r => IsAffineFold (Forget r)
-instance (Applicative f, Contravariant f) => IsAffineFold (Star f)
-instance (Functor f, Contravariant f) => IsAffineFold (AffineStar f)
+instance (Applicative f, Traversable f, Contravariant f) => IsAffineFold (Star f)
+instance (Traversable f, Contravariant f) => IsAffineFold (AffineStar f)
 
 
 class (IsOptional p, Traversing p) => IsTraversal p

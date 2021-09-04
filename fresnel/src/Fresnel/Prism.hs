@@ -13,13 +13,8 @@ module Fresnel.Prism
 , isn't
   -- * Relations
 , only
-  -- * Either
-, _Left
-, _Right
+  -- * Combinators
 , without
-  -- * Maybe
-, _Just
-, _Nothing
   -- * Unpacked
 , UnpackedPrism(..)
 , unpackedPrism
@@ -65,26 +60,11 @@ only :: Eq a => a -> Prism' a ()
 only a = prism' (const a) (guard . (== a))
 
 
--- Either
-
-_Left :: Prism (Either a b) (Either a' b) a a'
-_Left = prism Left (either Right (Left . Right))
-
-_Right :: Prism (Either a b) (Either a b') b b'
-_Right = prism Right (either (Left . Left) Right)
+-- Combinators
 
 without :: Prism s1 t1 a1 b1 -> Prism s2 t2 a2 b2 -> Prism (Either s1 s2) (Either t1 t2) (Either a1 a2) (Either b1 b2)
 without o1 o2 = withPrism o1 $ \ inj1 prj1 -> withPrism o2 $ \ inj2 prj2 ->
   prism (bimap inj1 inj2) (either (bimap Left Left . prj1) (bimap Right Right . prj2))
-
-
--- Maybe
-
-_Just :: Prism (Maybe a) (Maybe a') a a'
-_Just = prism Just (maybe (Left Nothing) Right)
-
-_Nothing :: Prism' (Maybe a) ()
-_Nothing = prism' (const Nothing) (maybe (Just ()) (const Nothing))
 
 
 -- Unpacked
