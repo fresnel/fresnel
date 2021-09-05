@@ -136,27 +136,27 @@ uncurryP2 f (P2 x y) = f x y
 
 graph :: Diagram Vertex
 graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, strong, cochoice, choice, costrong, closed, traversing, mapping } -> Diagram
-      { iso             = Vertex Optic "Iso"             (P3 0 0 0) (P2 (Just Max) (Just Min)) [lens, prism]
-      , lens            = Vertex Optic "Lens"            (P3 1 0 0) (P2 (Just Min) (Just Min)) [optional, getter]
-      , getter          = Vertex Optic "Getter"          (P3 2 0 0) (P2 (Just Min) (Just Max)) [affineFold]
-      , prism           = Vertex Optic "Prism"           (P3 0 1 0) (P2 (Just Max) (Just Min)) [optional, review]
-      , review          = Vertex Optic "Review"          (P3 0 2 0) (P2 (Just Max) (Just Min)) []
-      , optional        = Vertex Optic "Optional"        (P3 1 1 0) (P2 (Just Min) Nothing)    [affineFold, traversal]
-      , affineFold      = Vertex Optic "AffineFold"      (P3 2 1 0) (P2 (Just Min) (Just Max)) [fold]
-      , traversal       = Vertex Optic "Traversal"       (P3 1 2 0) (P2 (Just Max) (Just Min)) [fold, setter]
-      , fold            = Vertex Optic "Fold"            (P3 2 2 0) (P2 (Just Min) (Just Max)) []
-      , setter          = Vertex Optic "Setter"          (P3 1 3 0) (P2 (Just Max) (Just Max)) []
-      , profunctor      = Vertex Class "Profunctor"      (P3 0 0 1) (P2 (Just Max) (Just Min)) [iso, strong, choice, cochoice, costrong, closed]
-      , strong          = Vertex Class "Strong"          (P3 1 0 1) (P2 (Just Min) (Just Min)) [lens, traversing]
-      , cochoice        = Vertex Class "Cochoice"        (P3 2 0 1) (P2 (Just Min) (Just Min)) [getter]
-      , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) (P2 (Just Min) (Just Min)) [getter]
-      , choice          = Vertex Class "Choice"          (P3 0 1 1) (P2 (Just Max) (Just Min)) [prism, traversing]
-      , costrong        = Vertex Class "Costrong"        (P3 0 2 1) (P2 (Just Max) (Just Min)) [review]
-      , bifunctor       = Vertex Class "Bifunctor"       (P3 0 2 2) (P2 (Just Max) (Just Min)) [review]
-      , closed          = Vertex Class "Closed"          (P3 0 3 1) (P2 (Just Max) (Just Min)) [mapping]
-      , traversing      = Vertex Class "Traversing"      (P3 1 2 1) (P2 (Just Min) (Just Max)) [traversal, mapping]
-      , mapping         = Vertex Class "Mapping"         (P3 1 3 1) (P2 (Just Max) (Just Max)) [setter]
-      }
+  { iso             = Vertex Optic "Iso"             (P3 0 0 0) (P2 (Just Max) (Just Min)) [lens, prism]
+  , lens            = Vertex Optic "Lens"            (P3 1 0 0) (P2 (Just Min) (Just Min)) [optional, getter]
+  , getter          = Vertex Optic "Getter"          (P3 2 0 0) (P2 (Just Min) (Just Max)) [affineFold]
+  , prism           = Vertex Optic "Prism"           (P3 0 1 0) (P2 (Just Max) (Just Min)) [optional, review]
+  , review          = Vertex Optic "Review"          (P3 0 2 0) (P2 (Just Max) (Just Min)) []
+  , optional        = Vertex Optic "Optional"        (P3 1 1 0) (P2 (Just Min) Nothing)    [affineFold, traversal]
+  , affineFold      = Vertex Optic "AffineFold"      (P3 2 1 0) (P2 (Just Min) (Just Max)) [fold]
+  , traversal       = Vertex Optic "Traversal"       (P3 1 2 0) (P2 (Just Max) (Just Min)) [fold, setter]
+  , fold            = Vertex Optic "Fold"            (P3 2 2 0) (P2 (Just Min) (Just Max)) []
+  , setter          = Vertex Optic "Setter"          (P3 1 3 0) (P2 (Just Max) (Just Max)) []
+  , profunctor      = Vertex Class "Profunctor"      (P3 0 0 1) (P2 (Just Max) (Just Min)) [iso, strong, choice, cochoice, costrong, closed]
+  , strong          = Vertex Class "Strong"          (P3 1 0 1) (P2 (Just Min) (Just Min)) [lens, traversing]
+  , cochoice        = Vertex Class "Cochoice"        (P3 2 0 1) (P2 (Just Min) (Just Min)) [getter]
+  , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) (P2 (Just Min) (Just Min)) [getter]
+  , choice          = Vertex Class "Choice"          (P3 0 1 1) (P2 (Just Max) (Just Min)) [prism, traversing]
+  , costrong        = Vertex Class "Costrong"        (P3 0 2 1) (P2 (Just Max) (Just Min)) [review]
+  , bifunctor       = Vertex Class "Bifunctor"       (P3 0 2 2) (P2 (Just Max) (Just Min)) [review]
+  , closed          = Vertex Class "Closed"          (P3 0 3 1) (P2 (Just Max) (Just Min)) [mapping]
+  , traversing      = Vertex Class "Traversing"      (P3 1 2 1) (P2 (Just Min) (Just Max)) [traversal, mapping]
+  , mapping         = Vertex Class "Mapping"         (P3 1 3 1) (P2 (Just Max) (Just Max)) [setter]
+  }
 
 data Diagram a = Diagram
   { iso             :: a
