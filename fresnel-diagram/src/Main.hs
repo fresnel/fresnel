@@ -32,7 +32,7 @@ main = do
     path:_ -> writeFile path rendered
 
 renderVertex :: Vertex -> (Svg, Svg)
-renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = (do
+renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, labelPos = P2 ex ey, outEdges } = (do
   let p = scale (project coords)
   g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryP2 translate p) $ do
     for_ outEdges $ \ Vertex{ name = dname, coords = dcoords@P3{ x = dx, y = dy} } ->
@@ -55,16 +55,22 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = (do
           uncurryP2 lr (sδ * P2 (-10) 0)
         ))
     circle ! A.r "2.5"
-    path ! A.class_ "label" ! A.d (mkPath (do
-      uncurryP2 mr (0 :: P2 Int)
-      uncurryP2 lr (P2 (-30) 15 :: P2 Int)
-      hr (-50 :: Int)))
-    text_ ! A.transform (uncurryP2 translate (P2 (-80) (30 :: Int))) $ toMarkup name, defs)
+    path ! A.class_ "label" ! A.d (mkPath labelEdge)
+    text_ ! A.transform (uncurryP2 translate labelOffset) $ toMarkup name, defs)
   where
   hoffset = P2 10 5
   voffset = P2 0 10
   project (P3 x y z) = P2 (negate x + y) (x + y - z)
   scale (P2 x y) = P2 (x * 200) (y * 100)
+  labelEdge = do
+    mr 0 (0 :: Int)
+    lr (sige ex * 30) (sige ey * 15)
+    hr (sige ex * 50)
+  labelOffset = P2 (sige ex * 80) (sige ey * 30 :: Int)
+  sige = \case
+    Just Min -> -1 :: Int
+    Nothing  -> 0
+    Just Max -> 1
   defs = case kind of
     Optic -> foldMap edge outEdges where
       edge Vertex{ name = dname, coords = P3{ x = dx } } =
