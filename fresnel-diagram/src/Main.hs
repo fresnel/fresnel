@@ -43,6 +43,9 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = do
         else do
           uncurryP2 mr (sδ * hoffset)
           uncurryP2 lr (δ - sδ * hoffset * 2)
+          uncurryP2 mr (sδ * P2 (-6) (-8))
+          uncurryP2 lr (sδ * P2 6 8)
+          uncurryP2 lr (sδ * P2 (-10) 0)
         ))
     circle ! A.r "2.5"
     text_ (toMarkup name)
