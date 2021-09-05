@@ -25,12 +25,12 @@ main = do
     path:_ -> writeFile path rendered
 
 renderVertex :: Vertex -> Svg
-renderVertex Vertex{ kind, name, coords, outEdges } = do
+renderVertex Vertex{ kind, name = n, coords, outEdges } = do
   let P2 h v = project coords
-  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
-    for_ outEdges $ \ dest -> S.path ! A.id_ (stringValue (name <> "-" <> Main.name dest))
+  g ! A.id_ (stringValue n) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
+    for_ outEdges $ \ dest -> S.path ! A.id_ (stringValue (n <> "-" <> name dest))
     circle ! A.r "2.5"
-    text_ (toMarkup name)
+    text_ (toMarkup n)
   where
   project (P3 x y z) = P2 (x * negate 200 + y * 200) ((x + y) * 100 - z * 100)
 
