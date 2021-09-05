@@ -8,6 +8,7 @@ module Main
 ( main
 ) where
 
+import           Control.Applicative (liftA2)
 import           Control.Monad (join)
 import           Data.Foldable (for_)
 import           Data.Function (fix)
@@ -59,6 +60,14 @@ data P2 a = P2 a a
 instance Applicative P2 where
   pure = join P2
   P2 f1 f2 <*> P2 a1 a2 = P2 (f1 a1) (f2 a2)
+
+instance Num a => Num (P2 a) where
+  (+) = liftA2 (+)
+  (*) = liftA2 (*)
+  (-) = liftA2 (-)
+  abs = fmap abs
+  signum = fmap signum
+  fromInteger = pure . fromInteger
 
 graph :: Diagram Vertex
 graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, strong, cochoice, choice, costrong, closed, traversing, mapping } -> Diagram
