@@ -40,6 +40,9 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = do
         if x == dx && y == dy then do
           uncurryP2 mr (sδ * voffset)
           uncurryP2 lr (δ - voffset * 2)
+          uncurryP2 mr (P2 (-4.47213595499958) (-8.94427190999916) :: P2 Float)
+          uncurryP2 lr (P2 4.47213595499958 8.94427190999916 :: P2 Float)
+          uncurryP2 lr (P2 4.47213595499958 (-8.94427190999916) :: P2 Float)
         else do
           uncurryP2 mr (sδ * hoffset)
           uncurryP2 lr (δ - sδ * hoffset * 2)
