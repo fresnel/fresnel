@@ -22,7 +22,7 @@ import qualified Text.Blaze.Svg11.Attributes as A
 
 main :: IO ()
 main = do
-  let rendered = renderSvg $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -50 1300 650" $ do
+  let rendered = renderSvg $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -150 1300 650" $ do
         S.style (toMarkup ("@import url(./optics.css);" :: String))
         let (vertices, gradients) = traverse renderVertex graph
         defs (Foldable.fold gradients)
