@@ -12,7 +12,7 @@ module Main
 ) where
 
 import           Control.Applicative (liftA2)
-import           Control.Monad (join)
+import           Control.Monad (join, unless)
 import           Data.Foldable as Foldable (fold, for_)
 import           Data.Function (fix)
 import           System.Environment (getArgs)
@@ -67,34 +67,43 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x }, labelPos = P2 ex ey, o
 xmlns = customAttribute "xmlns"
 
 edge :: P3 Int -> P3 Int -> Path
-edge s e =
-  if not horizontal then do
-    uncurryP2 mr (sδ * voffset)
-    edgeV
-  else do
-    let δ = scale (project (P3 dx dy 0))
+edge s e = edgeX
+  where
+  P3 dx dy dz = e - s
+  voffset = P2 0 10
+  project (P3 x y z) = P2 (negate x + y) (x + y - z)
+  scale (P2 x y) = P2 (x * 200) (y * 100)
+  edgeX | dx == 0   = edgeY False
+        | otherwise = do
+    let δ = scale (project (P3 dx 0 0))
         sδ = signum δ
-    uncurryP2 mr (sδ * hoffset)
-    uncurryP2 lr (δ - sδ * hoffset * if not vertical then 2 else 1)
-    if not vertical then do
+        hoffset = P2 (-10) 5
+        isLast = dy == 0 && dz == 0
+    uncurryP2 mr hoffset
+    uncurryP2 lr (δ - hoffset * if isLast then 2 else 1)
+    if isLast then do
       uncurryP2 mr (sδ * P2 (-6) (-8))
       uncurryP2 lr (sδ * P2 6 8)
       uncurryP2 lr (sδ * P2 (-10) 0)
     else
-      edgeV
-  where
-  horizontal = dx /= 0 || dy /= 0
-  vertical = dz /= 0
-  d@(P3 dx dy dz) = e - s
-  δ = scale (project d)
-  sδ = signum δ
-  hoffset = P2 10 5
-  voffset = P2 0 10
-  project (P3 x y z) = P2 (negate x + y) (x + y - z)
-  scale (P2 x y) = P2 (x * 200) (y * 100)
-  edgeV = do
+      edgeY True
+  edgeY c | dy == 0   = edgeZ c
+          | otherwise = do
+    let δ = scale (project (P3 0 dy 0))
+        sδ = signum δ
+        hoffset = P2 10 5
+    unless c $ uncurryP2 mr (sδ * hoffset)
+    uncurryP2 lr (δ - sδ * hoffset * if c then 1 else 2)
+    if dz /= 0 then
+      edgeZ True
+    else do
+      uncurryP2 mr (sδ * P2 (-6) (-8))
+      uncurryP2 lr (sδ * P2 6 8)
+      uncurryP2 lr (sδ * P2 (-10) 0)
+  edgeZ c = do
+    unless c $ uncurryP2 mr voffset
     let δ = scale (project (P3 0 0 dz))
-    uncurryP2 lr (δ - voffset * if not horizontal then 2 else 1)
+    uncurryP2 lr (δ - voffset * if dx /= 0 || dy /= 0 then 1 else 2)
     -- FIXME: invert when the edge goes up
     uncurryP2 mr (P2 (-4.47213595499958) (-8.94427190999916) :: P2 Float)
     uncurryP2 lr (P2 4.47213595499958 8.94427190999916 :: P2 Float)
