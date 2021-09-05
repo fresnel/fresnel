@@ -35,8 +35,8 @@ renderVertex :: Vertex -> (Svg, Svg)
 renderVertex Vertex{ kind, name, coords = coords@P3{ x }, labelPos = P2 ex ey, outEdges } = (do
   let p = scale (project coords)
   g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryP2 translate p) $ do
-    for_ outEdges $ \ Vertex{ name = dname, coords = dcoords } ->
-      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords))
+    for_ outEdges $ \ (Dest offset Vertex{ name = dname, coords = dcoords }) ->
+      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords)) !? maybe (False, mempty) ((,) True . A.transform . uncurryP2 translate) offset
     circle ! A.r "2.5"
     path ! A.class_ "label" ! A.d (mkPath labelEdge)
     text_ ! A.transform (uncurryP2 translate labelOffset) $ toMarkup name, defs)
@@ -54,7 +54,7 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x }, labelPos = P2 ex ey, o
     Just Max -> 1
   defs = case kind of
     Optic -> foldMap edge outEdges where
-      edge Vertex{ name = dname, coords = P3{ x = dx } } =
+      edge (Dest _ Vertex{ name = dname, coords = P3{ x = dx } }) =
         let x1 = if dx > x then "100%" else "0%"
             x2 = if dx > x then "0%" else "100%"
             y1 = "0%"
@@ -114,7 +114,7 @@ data Vertex = Vertex
   , name     :: String
   , coords   :: P3 Int
   , labelPos :: P2 (Maybe Extent)
-  , outEdges :: [Vertex]
+  , outEdges :: [Dest]
   }
 
 data VertexKind
@@ -157,28 +157,36 @@ instance Num a => Num (P2 a) where
 uncurryP2 :: (a -> a -> b) -> (P2 a -> b)
 uncurryP2 f (P2 x y) = f x y
 
+data Dest = Dest (Maybe (P2 Float)) Vertex
+
+dest :: Vertex -> Dest
+dest = Dest Nothing
+
+offset :: P2 Float -> Vertex -> Dest
+offset = Dest . Just
+
 graph :: Diagram Vertex
 graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, strong, cochoice, choice, costrong, closed, traversing, mapping } -> Diagram
-  { iso             = Vertex Optic "Iso"             (P3 0 0 0) (P2 (Just Max) (Just Min)) [lens, prism]
-  , lens            = Vertex Optic "Lens"            (P3 1 0 0) (P2 (Just Min) (Just Min)) [optional, getter]
-  , getter          = Vertex Optic "Getter"          (P3 2 0 0) (P2 (Just Min) (Just Max)) [affineFold]
-  , prism           = Vertex Optic "Prism"           (P3 0 1 0) (P2 (Just Max) (Just Min)) [optional, review]
+  { iso             = Vertex Optic "Iso"             (P3 0 0 0) (P2 (Just Max) (Just Min)) [dest lens, dest prism]
+  , lens            = Vertex Optic "Lens"            (P3 1 0 0) (P2 (Just Min) (Just Min)) [dest optional, dest getter]
+  , getter          = Vertex Optic "Getter"          (P3 2 0 0) (P2 (Just Min) (Just Max)) [dest affineFold]
+  , prism           = Vertex Optic "Prism"           (P3 0 1 0) (P2 (Just Max) (Just Min)) [dest optional, dest review]
   , review          = Vertex Optic "Review"          (P3 0 2 0) (P2 (Just Max) (Just Min)) []
-  , optional        = Vertex Optic "Optional"        (P3 1 1 0) (P2 (Just Min) Nothing)    [affineFold, traversal]
-  , affineFold      = Vertex Optic "AffineFold"      (P3 2 1 0) (P2 (Just Min) (Just Max)) [fold]
-  , traversal       = Vertex Optic "Traversal"       (P3 1 2 0) (P2 (Just Max) (Just Min)) [fold, setter]
+  , optional        = Vertex Optic "Optional"        (P3 1 1 0) (P2 (Just Min) Nothing)    [dest affineFold, dest traversal]
+  , affineFold      = Vertex Optic "AffineFold"      (P3 2 1 0) (P2 (Just Min) (Just Max)) [dest fold]
+  , traversal       = Vertex Optic "Traversal"       (P3 1 2 0) (P2 (Just Max) (Just Min)) [dest fold, dest setter]
   , fold            = Vertex Optic "Fold"            (P3 2 2 0) (P2 (Just Min) (Just Max)) []
   , setter          = Vertex Optic "Setter"          (P3 1 3 0) (P2 (Just Max) (Just Max)) []
-  , profunctor      = Vertex Class "Profunctor"      (P3 0 0 1) (P2 (Just Max) (Just Min)) [iso, strong, choice, cochoice, costrong, closed]
-  , strong          = Vertex Class "Strong"          (P3 1 0 1) (P2 (Just Min) (Just Min)) [lens, traversing]
-  , cochoice        = Vertex Class "Cochoice"        (P3 2 0 1) (P2 (Just Min) (Just Min)) [getter]
-  , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) (P2 (Just Min) (Just Min)) [getter]
-  , choice          = Vertex Class "Choice"          (P3 0 1 1) (P2 (Just Max) (Just Min)) [prism, traversing]
-  , costrong        = Vertex Class "Costrong"        (P3 0 2 1) (P2 (Just Max) (Just Min)) [review]
-  , bifunctor       = Vertex Class "Bifunctor"       (P3 0 2 2) (P2 (Just Max) (Just Min)) [review]
-  , closed          = Vertex Class "Closed"          (P3 0 3 1) (P2 (Just Max) (Just Min)) [mapping]
-  , traversing      = Vertex Class "Traversing"      (P3 1 2 1) (P2 (Just Min) (Just Max)) [traversal, mapping]
-  , mapping         = Vertex Class "Mapping"         (P3 1 3 1) (P2 (Just Max) (Just Max)) [setter]
+  , profunctor      = Vertex Class "Profunctor"      (P3 0 0 1) (P2 (Just Max) (Just Min)) [dest iso, offset (P2 (-5) (-2.5)) strong, offset (P2 (-10) 5) choice, offset (P2 5 2.5) cochoice, dest costrong, offset (P2 10 (-5)) closed]
+  , strong          = Vertex Class "Strong"          (P3 1 0 1) (P2 (Just Min) (Just Min)) [dest lens, dest traversing]
+  , cochoice        = Vertex Class "Cochoice"        (P3 2 0 1) (P2 (Just Min) (Just Min)) [offset (P2 (-5) 2.5) getter]
+  , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) (P2 (Just Min) (Just Min)) [offset (P2 5 (-2.5)) getter]
+  , choice          = Vertex Class "Choice"          (P3 0 1 1) (P2 (Just Max) (Just Min)) [dest prism, offset (P2 5 (-5)) traversing]
+  , costrong        = Vertex Class "Costrong"        (P3 0 2 1) (P2 (Just Max) (Just Min)) [offset (P2 5 2.5) review]
+  , bifunctor       = Vertex Class "Bifunctor"       (P3 0 2 2) (P2 (Just Max) (Just Min)) [offset (P2 (-5) (-2.5)) review]
+  , closed          = Vertex Class "Closed"          (P3 0 3 1) (P2 (Just Max) (Just Min)) [dest mapping]
+  , traversing      = Vertex Class "Traversing"      (P3 1 2 1) (P2 (Just Min) (Just Max)) [dest traversal, dest mapping]
+  , mapping         = Vertex Class "Mapping"         (P3 1 3 1) (P2 (Just Max) (Just Max)) [dest setter]
   }
 
 data Diagram a = Diagram
