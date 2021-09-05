@@ -8,6 +8,7 @@ module Main
 ( main
 ) where
 
+import           Control.Monad (join)
 import           Data.Foldable (for_)
 import           Data.Function (fix)
 import           System.Environment (getArgs)
@@ -54,6 +55,10 @@ data P3 a = P3 a a a
 
 data P2 a = P2 a a
   deriving (Functor)
+
+instance Applicative P2 where
+  pure = join P2
+  P2 f1 f2 <*> P2 a1 a2 = P2 (f1 a1) (f2 a2)
 
 graph :: Diagram Vertex
 graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, strong, cochoice, choice, costrong, closed, traversing, mapping } -> Diagram
