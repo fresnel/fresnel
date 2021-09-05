@@ -13,7 +13,7 @@ module Main
 
 import           Control.Applicative (liftA2)
 import           Control.Monad (join)
-import           Data.Foldable (for_)
+import           Data.Foldable as Foldable (fold, for_)
 import           Data.Function (fix)
 import           System.Environment (getArgs)
 import           Text.Blaze.Svg.Renderer.Pretty
@@ -24,17 +24,19 @@ main :: IO ()
 main = do
   let rendered = renderSvg $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -50 1300 650" $ do
         S.style (toMarkup ("@import url(./optics.css);" :: String))
-        for_ graph renderVertex
+        let (vertices, gradients) = traverse renderVertex graph
+        defs (Foldable.fold gradients)
+        vertices
   getArgs >>= \case
     []     -> putStrLn rendered
     path:_ -> writeFile path rendered
 
-renderVertex :: Vertex -> Svg
-renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = do
+renderVertex :: Vertex -> (Svg, Svg)
+renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = (do
   let p = scale (project coords)
   g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryP2 translate p) $ do
     for_ outEdges $ \ Vertex{ name = dname, coords = dcoords@P3{ x = dx, y = dy} } ->
-      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (show kind)) ! A.d (mkPath (do
+      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords [show kind, name, dname])) ! A.d (mkPath (do
         let δ = scale (project (dcoords - coords))
             sδ = signum δ
         if x == dx && y == dy then do
@@ -53,12 +55,23 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = do
           uncurryP2 lr (sδ * P2 (-10) 0)
         ))
     circle ! A.r "2.5"
-    text_ (toMarkup name)
+    text_ (toMarkup name), defs)
   where
   hoffset = P2 10 5
   voffset = P2 0 10
   project (P3 x y z) = P2 (negate x + y) (x + y - z)
   scale (P2 x y) = P2 (x * 200) (y * 100)
+  defs = case kind of
+    Optic -> foldMap edge outEdges where
+      edge Vertex{ name = dname, coords = P3{ x = dx } } =
+        let x1 = if dx > x then "100%" else "0%"
+            x2 = if dx > x then "0%" else "100%"
+            y1 = "0%"
+            y2 = "100%"
+        in lineargradient ! A.id_ (stringValue ("gradient-" <> name <> "-" <> dname)) ! A.x1 x1 ! A.y1 y1 ! A.x2 x2 ! A.y2 y2 $ do
+          stop ! A.class_ (stringValue name) ! A.offset "0%"
+          stop ! A.class_ (stringValue dname) ! A.offset "100%"
+    Class -> mempty
 
 xmlns = customAttribute "xmlns"
 
