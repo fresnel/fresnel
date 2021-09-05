@@ -36,7 +36,7 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, labelPos = P2 ex ey
   let p = scale (project coords)
   g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryP2 translate p) $ do
     for_ outEdges $ \ Vertex{ name = dname, coords = dcoords@P3{ x = dx, y = dy} } ->
-      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords [show kind, name, dname])) ! A.d (mkPath (do
+      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (do
         let δ = scale (project (dcoords - coords))
             sδ = signum δ
         if x == dx && y == dy then do
