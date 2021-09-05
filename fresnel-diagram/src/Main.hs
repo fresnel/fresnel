@@ -28,13 +28,14 @@ main = do
 
 renderVertex :: Vertex -> Svg
 renderVertex Vertex{ kind, name = n, coords, outEdges } = do
-  let P2 h v = project coords
+  let P2 h v = scale (project coords)
   g ! A.id_ (stringValue n) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
     for_ outEdges $ \ dest -> S.path ! A.id_ (stringValue (n <> "-" <> name dest))
     circle ! A.r "2.5"
     text_ (toMarkup n)
   where
-  project (P3 x y z) = P2 (x * negate 200 + y * 200) ((x + y) * 100 - z * 100)
+  project (P3 x y z) = P2 (negate x + y) (x + y - z)
+  scale (P2 x y) = P2 (x * 200) (y * 100)
 
 xmlns = customAttribute "xmlns"
 
