@@ -56,27 +56,27 @@ data P2 a = P2 a a
   deriving (Functor)
 
 graph :: [Vertex]
-graph = fix $ \case
-  ~[iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, _profunctor, strong, cochoice, _bicontravariant, choice, costrong, _bifunctor, closed, traversing, mapping] ->
-    [ Vertex Optic "Iso" (P3 0 0 0) [lens, prism]
-    , Vertex Optic "Lens" (P3 1 0 0) [optional, getter]
-    , Vertex Optic "Getter" (P3 2 0 0) [affineFold]
-    , Vertex Optic "Prism" (P3 0 1 0) [optional, review]
-    , Vertex Optic "Review" (P3 0 2 0) []
-    , Vertex Optic "Optional" (P3 1 1 0) [affineFold, traversal]
-    , Vertex Optic "AffineFold" (P3 2 1 0) [fold]
-    , Vertex Optic "Traversal" (P3 1 2 0) [fold, setter]
-    , Vertex Optic "Fold" (P3 2 2 0) []
-    , Vertex Optic "Setter" (P3 1 3 0) []
-    , Vertex Class "Profunctor" (P3 0 0 1) [iso, strong, choice, cochoice, costrong, closed]
-    , Vertex Class "Strong" (P3 1 0 1) [lens, traversing]
-    , Vertex Class "Cochoice" (P3 2 0 1) [getter]
-    , Vertex Class "Bicontravariant" (P3 2 0 2) [getter]
-    , Vertex Class "Choice" (P3 0 1 1) [prism, traversing]
-    , Vertex Class "Costrong" (P3 0 2 1) [review]
-    , Vertex Class "Bifunctor" (P3 0 2 2) [review]
-    , Vertex Class "Closed" (P3 0 3 1) [mapping]
-    , Vertex Class "Traversing" (P3 1 2 1) [traversal, mapping]
-    , Vertex Class "Mapping" (P3 1 3 1) [setter]
-    ]
-  _ -> error "not enough vertices, or too many. either way, it’s bad."
+graph = [iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping] where
+  (iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping)
+    = fix $ \ ~(iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, _profunctor, strong, cochoice, _bicontravariant, choice, costrong, _bifunctor, closed, traversing, mapping) ->
+      ( Vertex Optic "Iso" (P3 0 0 0) [lens, prism]
+      , Vertex Optic "Lens" (P3 1 0 0) [optional, getter]
+      , Vertex Optic "Getter" (P3 2 0 0) [affineFold]
+      , Vertex Optic "Prism" (P3 0 1 0) [optional, review]
+      , Vertex Optic "Review" (P3 0 2 0) []
+      , Vertex Optic "Optional" (P3 1 1 0) [affineFold, traversal]
+      , Vertex Optic "AffineFold" (P3 2 1 0) [fold]
+      , Vertex Optic "Traversal" (P3 1 2 0) [fold, setter]
+      , Vertex Optic "Fold" (P3 2 2 0) []
+      , Vertex Optic "Setter" (P3 1 3 0) []
+      , Vertex Class "Profunctor" (P3 0 0 1) [iso, strong, choice, cochoice, costrong, closed]
+      , Vertex Class "Strong" (P3 1 0 1) [lens, traversing]
+      , Vertex Class "Cochoice" (P3 2 0 1) [getter]
+      , Vertex Class "Bicontravariant" (P3 2 0 2) [getter]
+      , Vertex Class "Choice" (P3 0 1 1) [prism, traversing]
+      , Vertex Class "Costrong" (P3 0 2 1) [review]
+      , Vertex Class "Bifunctor" (P3 0 2 2) [review]
+      , Vertex Class "Closed" (P3 0 3 1) [mapping]
+      , Vertex Class "Traversing" (P3 1 2 1) [traversal, mapping]
+      , Vertex Class "Mapping" (P3 1 3 1) [setter]
+      )
