@@ -1,11 +1,14 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 module Main
 ( main
+, P2(..)
+, P3(..)
 ) where
 
 import           Control.Applicative (liftA2)
@@ -20,20 +23,31 @@ import qualified Text.Blaze.Svg11.Attributes as A
 main :: IO ()
 main = do
   let rendered = renderSvg $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -50 1300 650" $ do
-        S.style (toMarkup ("@import url(https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css);" :: String))
+        S.style (toMarkup ("@import url(./optics.css);" :: String))
         for_ graph renderVertex
   getArgs >>= \case
     []     -> putStrLn rendered
     path:_ -> writeFile path rendered
 
 renderVertex :: Vertex -> Svg
-renderVertex Vertex{ kind, name = n, coords, outEdges } = do
-  let P2 h v = scale (project coords)
-  g ! A.id_ (stringValue n) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (translate h v) $ do
-    for_ outEdges $ \ dest -> S.path ! A.id_ (stringValue (n <> "-" <> name dest))
+renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = do
+  let p = scale (project coords)
+  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryP2 translate p) $ do
+    for_ outEdges $ \ Vertex{ name = dname, coords = dcoords@P3{ x = dx, y = dy} } ->
+      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (show kind)) ! A.d (mkPath (do
+        let δ = scale (project (dcoords - coords))
+        if x == dx && y == dy then do
+          uncurryP2 mr (signum δ * voffset)
+          uncurryP2 lr (δ - voffset * 2)
+        else do
+          uncurryP2 mr (signum δ * hoffset)
+          uncurryP2 lr (δ - signum δ * hoffset * 2)
+        ))
     circle ! A.r "2.5"
-    text_ (toMarkup n)
+    text_ (toMarkup name)
   where
+  hoffset = P2 10 5
+  voffset = P2 0 10
   project (P3 x y z) = P2 (negate x + y) (x + y - z)
   scale (P2 x y) = P2 (x * 200) (y * 100)
 
@@ -52,10 +66,22 @@ data VertexKind
   | Class
   deriving (Eq, Ord, Show)
 
-data P3 a = P3 a a a
+data P3 a = P3 { x :: a, y :: a, z :: a }
   deriving (Functor)
 
-data P2 a = P2 a a
+instance Applicative P3 where
+  pure = join (join P3)
+  P3 f1 f2 f3 <*> P3 a1 a2 a3 = P3 (f1 a1) (f2 a2) (f3 a3)
+
+instance Num a => Num (P3 a) where
+  (+) = liftA2 (+)
+  (*) = liftA2 (*)
+  (-) = liftA2 (-)
+  abs = fmap abs
+  signum = fmap signum
+  fromInteger = pure . fromInteger
+
+data P2 a = P2 { x :: a, y :: a }
   deriving (Functor)
 
 instance Applicative P2 where
@@ -69,6 +95,9 @@ instance Num a => Num (P2 a) where
   abs = fmap abs
   signum = fmap signum
   fromInteger = pure . fromInteger
+
+uncurryP2 :: (a -> a -> b) -> (P2 a -> b)
+uncurryP2 f (P2 x y) = f x y
 
 graph :: Diagram Vertex
 graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, strong, cochoice, choice, costrong, closed, traversing, mapping } -> Diagram
