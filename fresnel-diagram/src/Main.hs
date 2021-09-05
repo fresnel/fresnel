@@ -36,12 +36,13 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = do
     for_ outEdges $ \ Vertex{ name = dname, coords = dcoords@P3{ x = dx, y = dy} } ->
       S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (show kind)) ! A.d (mkPath (do
         let δ = scale (project (dcoords - coords))
+            sδ = signum δ
         if x == dx && y == dy then do
-          uncurryP2 mr (signum δ * voffset)
+          uncurryP2 mr (sδ * voffset)
           uncurryP2 lr (δ - voffset * 2)
         else do
-          uncurryP2 mr (signum δ * hoffset)
-          uncurryP2 lr (δ - signum δ * hoffset * 2)
+          uncurryP2 mr (sδ * hoffset)
+          uncurryP2 lr (δ - sδ * hoffset * 2)
         ))
     circle ! A.r "2.5"
     text_ (toMarkup name)
