@@ -55,7 +55,11 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, outEdges } = (do
           uncurryP2 lr (sδ * P2 (-10) 0)
         ))
     circle ! A.r "2.5"
-    text_ (toMarkup name), defs)
+    path ! A.class_ "label" ! A.d (mkPath (do
+      uncurryP2 mr (0 :: P2 Int)
+      uncurryP2 lr (P2 (-30) 15 :: P2 Int)
+      hr (-50 :: Int)))
+    text_ ! A.transform (uncurryP2 translate (P2 (-80) (30 :: Int))) $ toMarkup name, defs)
   where
   hoffset = P2 10 5
   voffset = P2 0 10
