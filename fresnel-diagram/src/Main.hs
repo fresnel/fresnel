@@ -36,24 +36,7 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, labelPos = P2 ex ey
   let p = scale (project coords)
   g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryP2 translate p) $ do
     for_ outEdges $ \ Vertex{ name = dname, coords = dcoords@P3{ x = dx, y = dy} } ->
-      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (do
-        let δ = scale (project (dcoords - coords))
-            sδ = signum δ
-        if x == dx && y == dy then do
-          uncurryP2 mr (sδ * voffset)
-          uncurryP2 lr (δ - voffset * 2)
-          -- FIXME: invert when the edge goes up
-          uncurryP2 mr (P2 (-4.47213595499958) (-8.94427190999916) :: P2 Float)
-          uncurryP2 lr (P2 4.47213595499958 8.94427190999916 :: P2 Float)
-          uncurryP2 lr (P2 4.47213595499958 (-8.94427190999916) :: P2 Float)
-        else do
-          -- FIXME: draw axis-aligned edges
-          uncurryP2 mr (sδ * hoffset)
-          uncurryP2 lr (δ - sδ * hoffset * 2)
-          uncurryP2 mr (sδ * P2 (-6) (-8))
-          uncurryP2 lr (sδ * P2 6 8)
-          uncurryP2 lr (sδ * P2 (-10) 0)
-        ))
+      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords))
     circle ! A.r "2.5"
     path ! A.class_ "label" ! A.d (mkPath labelEdge)
     text_ ! A.transform (uncurryP2 translate labelOffset) $ toMarkup name, defs)
@@ -85,6 +68,39 @@ renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, labelPos = P2 ex ey
 
 xmlns = customAttribute "xmlns"
 
+edge :: P3 Int -> P3 Int -> Path
+edge s e =
+  if not horizontal then do
+    uncurryP2 mr (sδ * voffset)
+    edgeV
+  else do
+    let δ = scale (project (P3 dx dy 0))
+        sδ = signum δ
+    uncurryP2 mr (sδ * hoffset)
+    uncurryP2 lr (δ - sδ * hoffset * if not vertical then 2 else 1)
+    if not vertical then do
+      uncurryP2 mr (sδ * P2 (-6) (-8))
+      uncurryP2 lr (sδ * P2 6 8)
+      uncurryP2 lr (sδ * P2 (-10) 0)
+    else
+      edgeV
+  where
+  horizontal = dx /= 0 || dy /= 0
+  vertical = dz /= 0
+  d@(P3 dx dy dz) = e - s
+  δ = scale (project d)
+  sδ = signum δ
+  hoffset = P2 10 5
+  voffset = P2 0 10
+  project (P3 x y z) = P2 (negate x + y) (x + y - z)
+  scale (P2 x y) = P2 (x * 200) (y * 100)
+  edgeV = do
+    let δ = scale (project (P3 0 0 dz))
+    uncurryP2 lr (δ - voffset * if not horizontal then 2 else 1)
+    -- FIXME: invert when the edge goes up
+    uncurryP2 mr (P2 (-4.47213595499958) (-8.94427190999916) :: P2 Float)
+    uncurryP2 lr (P2 4.47213595499958 8.94427190999916 :: P2 Float)
+    uncurryP2 lr (P2 4.47213595499958 (-8.94427190999916) :: P2 Float)
 
 data Vertex = Vertex
   { kind     :: VertexKind
