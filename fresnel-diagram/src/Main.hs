@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -55,28 +55,50 @@ data P3 a = P3 a a a
 data P2 a = P2 a a
   deriving (Functor)
 
-graph :: [Vertex]
-graph = [iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping] where
-  (iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping)
-    = fix $ \ ~(iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, _profunctor, strong, cochoice, _bicontravariant, choice, costrong, _bifunctor, closed, traversing, mapping) ->
-      ( Vertex Optic "Iso" (P3 0 0 0) [lens, prism]
-      , Vertex Optic "Lens" (P3 1 0 0) [optional, getter]
-      , Vertex Optic "Getter" (P3 2 0 0) [affineFold]
-      , Vertex Optic "Prism" (P3 0 1 0) [optional, review]
-      , Vertex Optic "Review" (P3 0 2 0) []
-      , Vertex Optic "Optional" (P3 1 1 0) [affineFold, traversal]
-      , Vertex Optic "AffineFold" (P3 2 1 0) [fold]
-      , Vertex Optic "Traversal" (P3 1 2 0) [fold, setter]
-      , Vertex Optic "Fold" (P3 2 2 0) []
-      , Vertex Optic "Setter" (P3 1 3 0) []
-      , Vertex Class "Profunctor" (P3 0 0 1) [iso, strong, choice, cochoice, costrong, closed]
-      , Vertex Class "Strong" (P3 1 0 1) [lens, traversing]
-      , Vertex Class "Cochoice" (P3 2 0 1) [getter]
-      , Vertex Class "Bicontravariant" (P3 2 0 2) [getter]
-      , Vertex Class "Choice" (P3 0 1 1) [prism, traversing]
-      , Vertex Class "Costrong" (P3 0 2 1) [review]
-      , Vertex Class "Bifunctor" (P3 0 2 2) [review]
-      , Vertex Class "Closed" (P3 0 3 1) [mapping]
-      , Vertex Class "Traversing" (P3 1 2 1) [traversal, mapping]
-      , Vertex Class "Mapping" (P3 1 3 1) [setter]
-      )
+graph :: Diagram Vertex
+graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, strong, cochoice, choice, costrong, closed, traversing, mapping } -> Diagram
+      { iso             = Vertex Optic "Iso" (P3 0 0 0) [lens, prism]
+      , lens            = Vertex Optic "Lens" (P3 1 0 0) [optional, getter]
+      , getter          = Vertex Optic "Getter" (P3 2 0 0) [affineFold]
+      , prism           = Vertex Optic "Prism" (P3 0 1 0) [optional, review]
+      , review          = Vertex Optic "Review" (P3 0 2 0) []
+      , optional        = Vertex Optic "Optional" (P3 1 1 0) [affineFold, traversal]
+      , affineFold      = Vertex Optic "AffineFold" (P3 2 1 0) [fold]
+      , traversal       = Vertex Optic "Traversal" (P3 1 2 0) [fold, setter]
+      , fold            = Vertex Optic "Fold" (P3 2 2 0) []
+      , setter          = Vertex Optic "Setter" (P3 1 3 0) []
+      , profunctor      = Vertex Class "Profunctor" (P3 0 0 1) [iso, strong, choice, cochoice, costrong, closed]
+      , strong          = Vertex Class "Strong" (P3 1 0 1) [lens, traversing]
+      , cochoice        = Vertex Class "Cochoice" (P3 2 0 1) [getter]
+      , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) [getter]
+      , choice          = Vertex Class "Choice" (P3 0 1 1) [prism, traversing]
+      , costrong        = Vertex Class "Costrong" (P3 0 2 1) [review]
+      , bifunctor       = Vertex Class "Bifunctor" (P3 0 2 2) [review]
+      , closed          = Vertex Class "Closed" (P3 0 3 1) [mapping]
+      , traversing      = Vertex Class "Traversing" (P3 1 2 1) [traversal, mapping]
+      , mapping         = Vertex Class "Mapping" (P3 1 3 1) [setter]
+      }
+
+data Diagram a = Diagram
+  { iso             :: a
+  , lens            :: a
+  , getter          :: a
+  , prism           :: a
+  , review          :: a
+  , optional        :: a
+  , affineFold      :: a
+  , traversal       :: a
+  , fold            :: a
+  , setter          :: a
+  , profunctor      :: a
+  , strong          :: a
+  , cochoice        :: a
+  , bicontravariant :: a
+  , choice          :: a
+  , costrong        :: a
+  , bifunctor       :: a
+  , closed          :: a
+  , traversing      :: a
+  , mapping         :: a
+  }
+  deriving (Foldable, Functor, Traversable)
