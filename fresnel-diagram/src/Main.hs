@@ -32,17 +32,15 @@ main = do
     path:_ -> writeFile path rendered
 
 renderVertex :: Vertex -> (Svg, Svg)
-renderVertex Vertex{ kind, name, coords = coords@P3{ x, y }, labelPos = P2 ex ey, outEdges } = (do
+renderVertex Vertex{ kind, name, coords = coords@P3{ x }, labelPos = P2 ex ey, outEdges } = (do
   let p = scale (project coords)
   g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryP2 translate p) $ do
-    for_ outEdges $ \ Vertex{ name = dname, coords = dcoords@P3{ x = dx, y = dy} } ->
+    for_ outEdges $ \ Vertex{ name = dname, coords = dcoords } ->
       S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords))
     circle ! A.r "2.5"
     path ! A.class_ "label" ! A.d (mkPath labelEdge)
     text_ ! A.transform (uncurryP2 translate labelOffset) $ toMarkup name, defs)
   where
-  hoffset = P2 10 5
-  voffset = P2 0 10
   project (P3 x y z) = P2 (negate x + y) (x + y - z)
   scale (P2 x y) = P2 (x * 200) (y * 100)
   labelEdge = do
