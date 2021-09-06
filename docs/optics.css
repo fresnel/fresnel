@@ -134,10 +134,10 @@ stop {
 .vertex .ancestors {
   pointer-events: none;
 }
-.vertex:hover {
+.vertex.hover, .vertex:hover {
   --label-stroke-width: 1px;
 }
-.vertex:hover circle {
+.vertex.hover, .vertex:hover circle {
   stroke-width: 2px;
 }
 .edge.hover, .vertex:hover .ancestors {
