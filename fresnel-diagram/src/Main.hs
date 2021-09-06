@@ -12,6 +12,7 @@ module Main
 
 import           Control.Monad (guard, unless)
 import           Data.Foldable as Foldable (fold, for_)
+import qualified Data.Set as Set
 import           Linear.V2
 import           Linear.V3
 import           Linear.V4
@@ -56,15 +57,19 @@ renderDiagram diagram opts = do
       _    -> mempty) opts'
 
 renderVertex :: Vertex -> (Svg, Svg)
-renderVertex Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex ey, inEdges, outEdges } = (do
+renderVertex v@Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex ey, outEdges } = (do
   let p = scale (project coords)
-  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryV2 translate p) ! dataAttribute "ancestors" (stringValue (unwords (map ((`edgeId` name) . Main.name) inEdges))) $ do
+  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryV2 translate p) ! dataAttribute "ancestors" (stringValue (unwords (Set.toList (ancestors v)))) $ do
     for_ outEdges $ \ (Dest offset Vertex{ name = dname, coords = dcoords }) ->
       S.path ! A.id_ (stringValue (edgeId name dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords)) !? maybe (False, mempty) ((,) True . A.transform . uncurryV2 translate) offset
     circle ! A.r "2.5"
     path ! A.class_ "label" ! A.d (mkPath labelEdge)
     text_ ! A.transform (uncurryV2 translate labelOffset) $ toMarkup name, defs)
   where
+  ancestors u = go mempty u where
+    go visited u
+      | Set.member (Main.name u) visited = mempty
+      | otherwise                        = let visited' = Set.insert (Main.name u) visited in foldMap (\ v -> Set.insert (edgeId (Main.name v) (Main.name u)) (go visited' v)) (inEdges u)
   edgeId a b = a <> "-" <> b
   project (V3 x y z) = V2 (negate x + y) (x + y - z)
   scale (V2 x y) = V2 (x * 200) (y * 100)
