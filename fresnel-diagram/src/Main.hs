@@ -9,6 +9,7 @@ module Main
 ( main
 , P2(..)
 , P3(..)
+, P4(..)
 ) where
 
 import           Control.Applicative (liftA2)
@@ -148,6 +149,21 @@ data VertexKind
 
 data Extent = Min | Max
 
+data P4 a = P4 { x :: a, y :: a, z :: a, w :: a }
+  deriving (Functor)
+
+instance Applicative P4 where
+  pure = join (join (join P4))
+  P4 f1 f2 f3 f4 <*> P4 a1 a2 a3 a4 = P4 (f1 a1) (f2 a2) (f3 a3) (f4 a4)
+
+instance Num a => Num (P4 a) where
+  (+) = liftA2 (+)
+  (*) = liftA2 (*)
+  (-) = liftA2 (-)
+  abs = fmap abs
+  signum = fmap signum
+  fromInteger = pure . fromInteger
+
 data P3 a = P3 { x :: a, y :: a, z :: a }
   deriving (Functor)
 
@@ -164,7 +180,7 @@ instance Num a => Num (P3 a) where
   fromInteger = pure . fromInteger
 
 data P2 a = P2 { x :: a, y :: a }
-  deriving (Functor)
+  deriving (Functor, Show)
 
 instance Applicative P2 where
   pure = join P2
@@ -201,17 +217,19 @@ graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold
   , traversal       = Vertex Optic "Traversal"       (P3 1 2 0) (P2 (Just Max) (Just Min)) [dest fold, dest setter]
   , fold            = Vertex Optic "Fold"            (P3 2 2 0) (P2 (Just Min) (Just Max)) []
   , setter          = Vertex Optic "Setter"          (P3 1 3 0) (P2 (Just Max) (Just Max)) []
-  , profunctor      = Vertex Class "Profunctor"      (P3 0 0 1) (P2 (Just Max) (Just Min)) [dest iso, offset (P2 (-5) (-2.5)) strong, offset (P2 (-10) 5) choice, offset (P2 5 2.5) cochoice, dest costrong, offset (P2 10 (-5)) closed]
-  , strong          = Vertex Class "Strong"          (P3 1 0 1) (P2 (Just Min) (Just Min)) [dest lens, offset (P2 (-5) 2.5) traversing]
-  , cochoice        = Vertex Class "Cochoice"        (P3 2 0 1) (P2 (Just Min) (Just Min)) [offset (P2 (-5) 2.5) getter]
-  , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) (P2 (Just Min) (Just Min)) [offset (P2 5 (-2.5)) getter]
-  , choice          = Vertex Class "Choice"          (P3 0 1 1) (P2 (Just Max) (Just Min)) [dest prism, offset (P2 5 (-2.5)) traversing]
-  , costrong        = Vertex Class "Costrong"        (P3 0 2 1) (P2 (Just Max) (Just Min)) [offset (P2 5 2.5) review]
-  , bifunctor       = Vertex Class "Bifunctor"       (P3 0 2 2) (P2 (Just Max) (Just Min)) [offset (P2 (-5) (-2.5)) review]
+  , profunctor      = Vertex Class "Profunctor"      (P3 0 0 1) (P2 (Just Max) (Just Min)) [dest iso, offset lu strong, offset (ld * 2) choice, offset rd cochoice, dest costrong, offset (ru * 2) closed]
+  , strong          = Vertex Class "Strong"          (P3 1 0 1) (P2 (Just Min) (Just Min)) [dest lens, offset ld traversing]
+  , cochoice        = Vertex Class "Cochoice"        (P3 2 0 1) (P2 (Just Min) (Just Min)) [offset ld getter]
+  , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) (P2 (Just Min) (Just Min)) [offset ru getter]
+  , choice          = Vertex Class "Choice"          (P3 0 1 1) (P2 (Just Max) (Just Min)) [dest prism, offset ru traversing]
+  , costrong        = Vertex Class "Costrong"        (P3 0 2 1) (P2 (Just Max) (Just Min)) [offset rd review]
+  , bifunctor       = Vertex Class "Bifunctor"       (P3 0 2 2) (P2 (Just Max) (Just Min)) [offset lu review]
   , closed          = Vertex Class "Closed"          (P3 0 3 1) (P2 (Just Max) (Just Min)) [dest mapping]
   , traversing      = Vertex Class "Traversing"      (P3 1 2 1) (P2 (Just Min) (Just Max)) [dest traversal, dest mapping]
   , mapping         = Vertex Class "Mapping"         (P3 1 3 1) (P2 (Just Max) (Just Max)) [dest setter]
   }
+  where
+  P4 lu ld ru rd = (P2 5 2.5 *) <$> (P2 <$> P4 (-1) (-1) 1 1 <*> P4 (-1) 1 (-1) 1)
 
 data Diagram a = Diagram
   { iso             :: a
