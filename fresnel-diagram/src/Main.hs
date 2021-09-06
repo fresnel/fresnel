@@ -161,8 +161,9 @@ offset :: V2 Float -> Vertex -> Dest
 offset = Dest . Just
 
 graph :: Diagram Vertex
-graph = Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping }
+graph = diagram
   where
+  diagram = Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping }
   iso             = optic "Iso"             (V3 0 0 0) (V2 mx mn) [profunctor]                      [dest lens, dest prism]
   lens            = optic "Lens"            (V3 1 0 0) (V2 mn mn) [strong, iso]                     [dest optional, dest getter]
   getter          = optic "Getter"          (V3 2 0 0) (V2 mn mx) [cochoice, bicontravariant, lens] [dest affineFold]
