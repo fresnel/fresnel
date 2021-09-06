@@ -12,7 +12,6 @@ module Main
 
 import           Control.Monad (unless)
 import           Data.Foldable as Foldable (fold, for_)
-import           Data.Function (fix)
 import           Linear.V2
 import           Linear.V3
 import           Linear.V4
@@ -162,29 +161,28 @@ offset :: V2 Float -> Vertex -> Dest
 offset = Dest . Just
 
 graph :: Diagram Vertex
-graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping } -> Diagram
-  { iso             = optic "Iso"             (V3 0 0 0) (V2 (Just Max) (Just Min)) [profunctor]                      [dest lens, dest prism]
-  , lens            = optic "Lens"            (V3 1 0 0) (V2 (Just Min) (Just Min)) [strong, iso]                     [dest optional, dest getter]
-  , getter          = optic "Getter"          (V3 2 0 0) (V2 (Just Min) (Just Max)) [cochoice, bicontravariant, lens] [dest affineFold]
-  , prism           = optic "Prism"           (V3 0 1 0) (V2 (Just Max) (Just Min)) [iso]                             [dest optional, dest review]
-  , review          = optic "Review"          (V3 0 2 0) (V2 (Just Max) (Just Min)) [prism, costrong, bifunctor]      []
-  , optional        = optic "Optional"        (V3 1 1 0) (V2 (Just Min) Nothing)    [lens, prism]                     [dest affineFold, dest traversal]
-  , affineFold      = optic "AffineFold"      (V3 2 1 0) (V2 (Just Min) (Just Max)) [getter, optional]                [dest fold]
-  , traversal       = optic "Traversal"       (V3 1 2 0) (V2 (Just Max) (Just Min)) [optional, traversing]            [dest fold, dest setter]
-  , fold            = optic "Fold"            (V3 2 2 0) (V2 (Just Min) (Just Max)) [affineFold, traversal]           []
-  , setter          = optic "Setter"          (V3 1 3 0) (V2 (Just Max) (Just Max)) [traversal, mapping]              []
-  , profunctor      = klass "Profunctor"      (V3 0 0 1) (V2 (Just Max) (Just Min)) []                                [dest iso, offset ny strong, offset (px * 2) choice, offset py cochoice, dest costrong, offset (nx * 2) closed]
-  , strong          = klass "Strong"          (V3 1 0 1) (V2 (Just Min) (Just Min)) [profunctor]                      [dest lens, offset px traversing]
-  , cochoice        = klass "Cochoice"        (V3 2 0 1) (V2 (Just Min) (Just Min)) [profunctor]                      [offset px getter]
-  , bicontravariant = klass "Bicontravariant" (V3 2 0 2) (V2 (Just Min) (Just Min)) []                                [offset nx getter]
-  , choice          = klass "Choice"          (V3 0 1 1) (V2 (Just Max) (Just Min)) [profunctor]                      [dest prism, offset nx traversing]
-  , costrong        = klass "Costrong"        (V3 0 2 1) (V2 (Just Max) (Just Min)) [profunctor]                      [offset py review]
-  , bifunctor       = klass "Bifunctor"       (V3 0 2 2) (V2 (Just Max) (Just Min)) []                                [offset ny review]
-  , closed          = klass "Closed"          (V3 0 3 1) (V2 (Just Max) (Just Min)) [profunctor]                      [dest mapping]
-  , traversing      = klass "Traversing"      (V3 1 2 1) (V2 (Just Min) (Just Max)) [choice, strong]                  [dest traversal, dest mapping]
-  , mapping         = klass "Mapping"         (V3 1 3 1) (V2 (Just Max) (Just Max)) [traversing, closed]              [dest setter]
-  }
+graph = Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping }
   where
+  iso             = optic "Iso"             (V3 0 0 0) (V2 (Just Max) (Just Min)) [profunctor]                      [dest lens, dest prism]
+  lens            = optic "Lens"            (V3 1 0 0) (V2 (Just Min) (Just Min)) [strong, iso]                     [dest optional, dest getter]
+  getter          = optic "Getter"          (V3 2 0 0) (V2 (Just Min) (Just Max)) [cochoice, bicontravariant, lens] [dest affineFold]
+  prism           = optic "Prism"           (V3 0 1 0) (V2 (Just Max) (Just Min)) [iso]                             [dest optional, dest review]
+  review          = optic "Review"          (V3 0 2 0) (V2 (Just Max) (Just Min)) [prism, costrong, bifunctor]      []
+  optional        = optic "Optional"        (V3 1 1 0) (V2 (Just Min) Nothing)    [lens, prism]                     [dest affineFold, dest traversal]
+  affineFold      = optic "AffineFold"      (V3 2 1 0) (V2 (Just Min) (Just Max)) [getter, optional]                [dest fold]
+  traversal       = optic "Traversal"       (V3 1 2 0) (V2 (Just Max) (Just Min)) [optional, traversing]            [dest fold, dest setter]
+  fold            = optic "Fold"            (V3 2 2 0) (V2 (Just Min) (Just Max)) [affineFold, traversal]           []
+  setter          = optic "Setter"          (V3 1 3 0) (V2 (Just Max) (Just Max)) [traversal, mapping]              []
+  profunctor      = klass "Profunctor"      (V3 0 0 1) (V2 (Just Max) (Just Min)) []                                [dest iso, offset ny strong, offset (px * 2) choice, offset py cochoice, dest costrong, offset (nx * 2) closed]
+  strong          = klass "Strong"          (V3 1 0 1) (V2 (Just Min) (Just Min)) [profunctor]                      [dest lens, offset px traversing]
+  cochoice        = klass "Cochoice"        (V3 2 0 1) (V2 (Just Min) (Just Min)) [profunctor]                      [offset px getter]
+  bicontravariant = klass "Bicontravariant" (V3 2 0 2) (V2 (Just Min) (Just Min)) []                                [offset nx getter]
+  choice          = klass "Choice"          (V3 0 1 1) (V2 (Just Max) (Just Min)) [profunctor]                      [dest prism, offset nx traversing]
+  costrong        = klass "Costrong"        (V3 0 2 1) (V2 (Just Max) (Just Min)) [profunctor]                      [offset py review]
+  bifunctor       = klass "Bifunctor"       (V3 0 2 2) (V2 (Just Max) (Just Min)) []                                [offset ny review]
+  closed          = klass "Closed"          (V3 0 3 1) (V2 (Just Max) (Just Min)) [profunctor]                      [dest mapping]
+  traversing      = klass "Traversing"      (V3 1 2 1) (V2 (Just Min) (Just Max)) [choice, strong]                  [dest traversal, dest mapping]
+  mapping         = klass "Mapping"         (V3 1 3 1) (V2 (Just Max) (Just Max)) [traversing, closed]              [dest setter]
   optic = Vertex Optic
   klass = Vertex Class
   V4 ny px nx py = (V2 5 2.5 *) <$> (V2 <$> V4 (-1) (-1) 1 1 <*> V4 (-1) 1 (-1) 1)
