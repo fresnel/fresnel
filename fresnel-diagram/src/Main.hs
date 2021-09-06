@@ -58,13 +58,14 @@ renderDiagram diagram opts = do
 renderVertex :: Vertex -> (Svg, Svg)
 renderVertex Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex ey, inEdges, outEdges } = (do
   let p = scale (project coords)
-  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryV2 translate p) ! dataAttribute "ancestors" (stringValue (unwords (map Main.name inEdges))) $ do
+  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryV2 translate p) ! dataAttribute "ancestors" (stringValue (unwords (map ((`edgeId` name) . Main.name) inEdges))) $ do
     for_ outEdges $ \ (Dest offset Vertex{ name = dname, coords = dcoords }) ->
-      S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords)) !? maybe (False, mempty) ((,) True . A.transform . uncurryV2 translate) offset
+      S.path ! A.id_ (stringValue (edgeId name dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords)) !? maybe (False, mempty) ((,) True . A.transform . uncurryV2 translate) offset
     circle ! A.r "2.5"
     path ! A.class_ "label" ! A.d (mkPath labelEdge)
     text_ ! A.transform (uncurryV2 translate labelOffset) $ toMarkup name, defs)
   where
+  edgeId a b = a <> "-" <> b
   project (V3 x y z) = V2 (negate x + y) (x + y - z)
   scale (V2 x y) = V2 (x * 200) (y * 100)
   labelEdge = do
