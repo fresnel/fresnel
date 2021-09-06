@@ -22,14 +22,17 @@ import qualified Text.Blaze.Svg11.Attributes as A
 
 main :: IO ()
 main = do
-  let rendered = renderSvg $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -150 1300 650" $ do
-        S.style (toMarkup ("@import url(./optics.css);" :: String))
-        let (vertices, gradients) = traverse renderVertex graph
-        defs (Foldable.fold gradients)
-        vertices
+  let rendered = renderSvg (renderDiagram graph)
   getArgs >>= \case
     []     -> putStrLn rendered
     path:_ -> writeFile path rendered
+
+renderDiagram :: Diagram Vertex -> Svg
+renderDiagram diagram = svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -150 1300 650" $ do
+  S.style (toMarkup ("@import url(./optics.css);" :: String))
+  let (vertices, gradients) = traverse renderVertex diagram
+  defs (Foldable.fold gradients)
+  vertices
 
 renderVertex :: Vertex -> (Svg, Svg)
 renderVertex Vertex{ kind, name, coords = coords@P3{ x }, labelPos = P2 ex ey, outEdges } = (do
