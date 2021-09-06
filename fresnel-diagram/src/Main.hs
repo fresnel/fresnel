@@ -10,7 +10,7 @@ module Main
 , Vertex(..)
 ) where
 
-import           Control.Monad (unless)
+import           Control.Monad (guard, unless)
 import           Data.Foldable as Foldable (fold, for_)
 import           Linear.V2
 import           Linear.V3
@@ -164,28 +164,29 @@ graph :: Diagram Vertex
 graph = diagram
   where
   diagram = Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping }
-  iso             = optic "Iso"             (V3 0 0 0) (V2 mx mn) [profunctor]                      [dest lens, dest prism]
-  lens            = optic "Lens"            (V3 1 0 0) (V2 mn mn) [strong, iso]                     [dest optional, dest getter]
-  getter          = optic "Getter"          (V3 2 0 0) (V2 mn mx) [cochoice, bicontravariant, lens] [dest affineFold]
-  prism           = optic "Prism"           (V3 0 1 0) (V2 mx mn) [iso]                             [dest optional, dest review]
-  review          = optic "Review"          (V3 0 2 0) (V2 mx mn) [prism, costrong, bifunctor]      []
-  optional        = optic "Optional"        (V3 1 1 0) (V2 mn no) [lens, prism]                     [dest affineFold, dest traversal]
-  affineFold      = optic "AffineFold"      (V3 2 1 0) (V2 mn mx) [getter, optional]                [dest fold]
-  traversal       = optic "Traversal"       (V3 1 2 0) (V2 mx mn) [optional, traversing]            [dest fold, dest setter]
-  fold            = optic "Fold"            (V3 2 2 0) (V2 mn mx) [affineFold, traversal]           []
-  setter          = optic "Setter"          (V3 1 3 0) (V2 mx mx) [traversal, mapping]              []
-  profunctor      = klass "Profunctor"      (V3 0 0 1) (V2 mx mn) []                                [dest iso, offset ny strong, offset (px * 2) choice, offset py cochoice, dest costrong, offset (nx * 2) closed]
-  strong          = klass "Strong"          (V3 1 0 1) (V2 mn mn) [profunctor]                      [dest lens, offset px traversing]
-  cochoice        = klass "Cochoice"        (V3 2 0 1) (V2 mn mn) [profunctor]                      [offset px getter]
-  bicontravariant = klass "Bicontravariant" (V3 2 0 2) (V2 mn mn) []                                [offset nx getter]
-  choice          = klass "Choice"          (V3 0 1 1) (V2 mx mn) [profunctor]                      [dest prism, offset nx traversing]
-  costrong        = klass "Costrong"        (V3 0 2 1) (V2 mx mn) [profunctor]                      [offset py review]
-  bifunctor       = klass "Bifunctor"       (V3 0 2 2) (V2 mx mn) []                                [offset ny review]
-  closed          = klass "Closed"          (V3 0 3 1) (V2 mx mn) [profunctor]                      [dest mapping]
-  traversing      = klass "Traversing"      (V3 1 2 1) (V2 mn mx) [choice, strong]                  [dest traversal, dest mapping]
-  mapping         = klass "Mapping"         (V3 1 3 1) (V2 mx mx) [traversing, closed]              [dest setter]
-  optic = Vertex Optic
-  klass = Vertex Class
+  iso             = optic "Iso"             (V3 0 0 0) (V2 mx mn) [dest lens, dest prism]
+  lens            = optic "Lens"            (V3 1 0 0) (V2 mn mn) [dest optional, dest getter]
+  getter          = optic "Getter"          (V3 2 0 0) (V2 mn mx) [dest affineFold]
+  prism           = optic "Prism"           (V3 0 1 0) (V2 mx mn) [dest optional, dest review]
+  review          = optic "Review"          (V3 0 2 0) (V2 mx mn) []
+  optional        = optic "Optional"        (V3 1 1 0) (V2 mn no) [dest affineFold, dest traversal]
+  affineFold      = optic "AffineFold"      (V3 2 1 0) (V2 mn mx) [dest fold]
+  traversal       = optic "Traversal"       (V3 1 2 0) (V2 mx mn) [dest fold, dest setter]
+  fold            = optic "Fold"            (V3 2 2 0) (V2 mn mx) []
+  setter          = optic "Setter"          (V3 1 3 0) (V2 mx mx) []
+  profunctor      = klass "Profunctor"      (V3 0 0 1) (V2 mx mn) [dest iso, offset ny strong, offset (px * 2) choice, offset py cochoice, dest costrong, offset (nx * 2) closed]
+  strong          = klass "Strong"          (V3 1 0 1) (V2 mn mn) [dest lens, offset px traversing]
+  cochoice        = klass "Cochoice"        (V3 2 0 1) (V2 mn mn) [offset px getter]
+  bicontravariant = klass "Bicontravariant" (V3 2 0 2) (V2 mn mn) [offset nx getter]
+  choice          = klass "Choice"          (V3 0 1 1) (V2 mx mn) [dest prism, offset nx traversing]
+  costrong        = klass "Costrong"        (V3 0 2 1) (V2 mx mn) [offset py review]
+  bifunctor       = klass "Bifunctor"       (V3 0 2 2) (V2 mx mn) [offset ny review]
+  closed          = klass "Closed"          (V3 0 3 1) (V2 mx mn) [dest mapping]
+  traversing      = klass "Traversing"      (V3 1 2 1) (V2 mn mx) [dest traversal, dest mapping]
+  mapping         = klass "Mapping"         (V3 1 3 1) (V2 mx mx) [dest setter]
+  optic name p l = Vertex Optic name p l (parents name)
+  klass name p l = Vertex Class name p l (parents name)
+  parents n = foldMap (\ Vertex{ outEdges } -> foldMap (\ (Dest _ v@Vertex{ name }) -> v <$ guard (name == n)) outEdges) diagram
   mn = Just Min
   mx = Just Max
   no = Nothing
