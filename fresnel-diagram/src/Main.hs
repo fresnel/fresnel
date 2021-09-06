@@ -15,6 +15,8 @@ import           Control.Applicative (liftA2)
 import           Control.Monad (join, unless)
 import           Data.Foldable as Foldable (fold, for_)
 import           Data.Function (fix)
+import           Data.Monoid (First(..))
+import           System.Console.GetOpt
 import           System.Environment (getArgs)
 import           Text.Blaze.Svg.Renderer.Pretty
 import           Text.Blaze.Svg11 as S hiding (z)
@@ -22,10 +24,18 @@ import qualified Text.Blaze.Svg11.Attributes as A
 
 main :: IO ()
 main = do
-  rendered <- renderSvg <$> renderDiagram graph (Just "./docs/optics.css")
-  getArgs >>= \case
+  let opts = [Option ['c'] ["css"] (ReqArg id "FILE") "path to CSS source to embed"]
+  (vals, out, errs) <- getOpt RequireOrder opts <$> getArgs
+  case errs of
+    [] -> pure ()
+    _  -> ioError (userError (concat errs ++ usageInfo header opts))
+  let css = getFirst (foldMap (First . Just) vals)
+  rendered <- renderSvg <$> renderDiagram graph css
+  case out of
     []     -> putStrLn rendered
     path:_ -> writeFile path rendered
+  where
+  header = "Usage: fresnel-diagram [-c FILE|--css FILE] [FILE]"
 
 renderDiagram :: Diagram Vertex -> Maybe FilePath -> IO Svg
 renderDiagram diagram stylePath = do
