@@ -4,3 +4,5 @@ cradle:
       component: "lib:fresnel"
     - path: "./fresnel/test"
       component: "test:test"
+    - path: "./fresnel-diagram/src"
+      component: "exe:fresnel-diagram"
