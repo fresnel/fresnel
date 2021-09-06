@@ -139,7 +139,7 @@ data Vertex = Vertex
   , name     :: String
   , coords   :: V3 Int
   , labelPos :: V2 (Maybe Extent)
-  , inEdges  :: [Dest]
+  , inEdges  :: [Vertex]
   , outEdges :: [Dest]
   }
 
