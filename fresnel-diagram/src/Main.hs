@@ -15,7 +15,6 @@ import           Control.Applicative (liftA2)
 import           Control.Monad (join, unless)
 import           Data.Foldable as Foldable (fold, for_)
 import           Data.Function (fix)
-import           Data.Monoid (First(..))
 import           System.Console.GetOpt
 import           System.Environment (getArgs)
 import           Text.Blaze.Svg.Renderer.Pretty
@@ -24,27 +23,37 @@ import qualified Text.Blaze.Svg11.Attributes as A
 
 main :: IO ()
 main = do
-  let opts = [Option ['c'] ["css"] (ReqArg id "FILE") "path to CSS source to embed"]
+  let opts =
+        [ Option ['c'] ["css"] (ReqArg CSS "FILE") "path to CSS source to embed"
+        , Option ['j'] ["js"] (ReqArg JS "FILE") "path to JS source to embed"
+        ]
   (vals, out, errs) <- getOpt RequireOrder opts <$> getArgs
   case errs of
     [] -> pure ()
     _  -> ioError (userError (concat errs ++ usageInfo header opts))
-  let css = getFirst (foldMap (First . Just) vals)
-  rendered <- renderSvg <$> renderDiagram graph css
+  rendered <- renderSvg <$> renderDiagram graph vals
   case out of
     []     -> putStrLn rendered
     path:_ -> writeFile path rendered
   where
   header = "Usage: fresnel-diagram [-c FILE|--css FILE] [FILE]"
 
-renderDiagram :: Diagram Vertex -> Maybe FilePath -> IO Svg
-renderDiagram diagram stylePath = do
-  styleContents <- traverse readFile stylePath
+data Opt a = CSS a | JS a
+  deriving (Foldable, Functor, Traversable)
+
+renderDiagram :: Diagram Vertex -> [Opt FilePath] -> IO Svg
+renderDiagram diagram opts = do
+  opts' <- traverse (traverse readFile) opts
   pure $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -150 1300 650" $ do
-    foldMap (S.style . toMarkup) styleContents
+    foldMap (\case
+      CSS s -> S.style (toMarkup s)
+      _     -> mempty) opts'
     let (vertices, gradients) = traverse renderVertex diagram
     defs (Foldable.fold gradients)
     vertices
+    foldMap (\case
+      JS s -> S.script (toMarkup s)
+      _    -> mempty) opts'
 
 renderVertex :: Vertex -> (Svg, Svg)
 renderVertex Vertex{ kind, name, coords = coords@P3{ x }, labelPos = P2 ex ey, outEdges } = (do
