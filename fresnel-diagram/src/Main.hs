@@ -162,27 +162,27 @@ offset :: V2 Float -> Vertex -> Dest
 offset = Dest . Just
 
 graph :: Diagram Vertex
-graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, strong, cochoice, choice, costrong, closed, traversing, mapping } -> Diagram
-  { iso             = Vertex Optic "Iso"             (V3 0 0 0) (V2 (Just Max) (Just Min)) [] [dest lens, dest prism]
-  , lens            = Vertex Optic "Lens"            (V3 1 0 0) (V2 (Just Min) (Just Min)) [] [dest optional, dest getter]
-  , getter          = Vertex Optic "Getter"          (V3 2 0 0) (V2 (Just Min) (Just Max)) [] [dest affineFold]
-  , prism           = Vertex Optic "Prism"           (V3 0 1 0) (V2 (Just Max) (Just Min)) [] [dest optional, dest review]
-  , review          = Vertex Optic "Review"          (V3 0 2 0) (V2 (Just Max) (Just Min)) [] []
-  , optional        = Vertex Optic "Optional"        (V3 1 1 0) (V2 (Just Min) Nothing)    [] [dest affineFold, dest traversal]
-  , affineFold      = Vertex Optic "AffineFold"      (V3 2 1 0) (V2 (Just Min) (Just Max)) [] [dest fold]
-  , traversal       = Vertex Optic "Traversal"       (V3 1 2 0) (V2 (Just Max) (Just Min)) [] [dest fold, dest setter]
-  , fold            = Vertex Optic "Fold"            (V3 2 2 0) (V2 (Just Min) (Just Max)) [] []
-  , setter          = Vertex Optic "Setter"          (V3 1 3 0) (V2 (Just Max) (Just Max)) [] []
-  , profunctor      = Vertex Class "Profunctor"      (V3 0 0 1) (V2 (Just Max) (Just Min)) [] [dest iso, offset ny strong, offset (px * 2) choice, offset py cochoice, dest costrong, offset (nx * 2) closed]
-  , strong          = Vertex Class "Strong"          (V3 1 0 1) (V2 (Just Min) (Just Min)) [] [dest lens, offset px traversing]
-  , cochoice        = Vertex Class "Cochoice"        (V3 2 0 1) (V2 (Just Min) (Just Min)) [] [offset px getter]
-  , bicontravariant = Vertex Class "Bicontravariant" (V3 2 0 2) (V2 (Just Min) (Just Min)) [] [offset nx getter]
-  , choice          = Vertex Class "Choice"          (V3 0 1 1) (V2 (Just Max) (Just Min)) [] [dest prism, offset nx traversing]
-  , costrong        = Vertex Class "Costrong"        (V3 0 2 1) (V2 (Just Max) (Just Min)) [] [offset py review]
-  , bifunctor       = Vertex Class "Bifunctor"       (V3 0 2 2) (V2 (Just Max) (Just Min)) [] [offset ny review]
-  , closed          = Vertex Class "Closed"          (V3 0 3 1) (V2 (Just Max) (Just Min)) [] [dest mapping]
-  , traversing      = Vertex Class "Traversing"      (V3 1 2 1) (V2 (Just Min) (Just Max)) [] [dest traversal, dest mapping]
-  , mapping         = Vertex Class "Mapping"         (V3 1 3 1) (V2 (Just Max) (Just Max)) [] [dest setter]
+graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping } -> Diagram
+  { iso             = Vertex Optic "Iso"             (V3 0 0 0) (V2 (Just Max) (Just Min)) [profunctor]                      [dest lens, dest prism]
+  , lens            = Vertex Optic "Lens"            (V3 1 0 0) (V2 (Just Min) (Just Min)) [strong, iso]                     [dest optional, dest getter]
+  , getter          = Vertex Optic "Getter"          (V3 2 0 0) (V2 (Just Min) (Just Max)) [cochoice, bicontravariant, lens] [dest affineFold]
+  , prism           = Vertex Optic "Prism"           (V3 0 1 0) (V2 (Just Max) (Just Min)) [iso]                             [dest optional, dest review]
+  , review          = Vertex Optic "Review"          (V3 0 2 0) (V2 (Just Max) (Just Min)) [prism, costrong, bifunctor]      []
+  , optional        = Vertex Optic "Optional"        (V3 1 1 0) (V2 (Just Min) Nothing)    [lens, prism]                     [dest affineFold, dest traversal]
+  , affineFold      = Vertex Optic "AffineFold"      (V3 2 1 0) (V2 (Just Min) (Just Max)) [getter, optional]                [dest fold]
+  , traversal       = Vertex Optic "Traversal"       (V3 1 2 0) (V2 (Just Max) (Just Min)) [optional, traversing]            [dest fold, dest setter]
+  , fold            = Vertex Optic "Fold"            (V3 2 2 0) (V2 (Just Min) (Just Max)) [affineFold, traversal]           []
+  , setter          = Vertex Optic "Setter"          (V3 1 3 0) (V2 (Just Max) (Just Max)) [traversal, mapping]              []
+  , profunctor      = Vertex Class "Profunctor"      (V3 0 0 1) (V2 (Just Max) (Just Min)) []                                [dest iso, offset ny strong, offset (px * 2) choice, offset py cochoice, dest costrong, offset (nx * 2) closed]
+  , strong          = Vertex Class "Strong"          (V3 1 0 1) (V2 (Just Min) (Just Min)) [profunctor]                      [dest lens, offset px traversing]
+  , cochoice        = Vertex Class "Cochoice"        (V3 2 0 1) (V2 (Just Min) (Just Min)) [profunctor]                      [offset px getter]
+  , bicontravariant = Vertex Class "Bicontravariant" (V3 2 0 2) (V2 (Just Min) (Just Min)) []                                [offset nx getter]
+  , choice          = Vertex Class "Choice"          (V3 0 1 1) (V2 (Just Max) (Just Min)) [profunctor]                      [dest prism, offset nx traversing]
+  , costrong        = Vertex Class "Costrong"        (V3 0 2 1) (V2 (Just Max) (Just Min)) [profunctor]                      [offset py review]
+  , bifunctor       = Vertex Class "Bifunctor"       (V3 0 2 2) (V2 (Just Max) (Just Min)) []                                [offset ny review]
+  , closed          = Vertex Class "Closed"          (V3 0 3 1) (V2 (Just Max) (Just Min)) [profunctor]                      [dest mapping]
+  , traversing      = Vertex Class "Traversing"      (V3 1 2 1) (V2 (Just Min) (Just Max)) [choice, strong]                  [dest traversal, dest mapping]
+  , mapping         = Vertex Class "Mapping"         (V3 1 3 1) (V2 (Just Max) (Just Max)) [traversing, closed]              [dest setter]
   }
   where
   V4 ny px nx py = (V2 5 2.5 *) <$> (V2 <$> V4 (-1) (-1) 1 1 <*> V4 (-1) 1 (-1) 1)
