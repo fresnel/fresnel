@@ -1,21 +1,13 @@
 @font-face {
 	font-family: 'Computer Modern Serif';
-	src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.eot');
-	src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.eot?#iefix') format('embedded-opentype'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.woff') format('woff'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.ttf') format('truetype'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.svg#cmunrm') format('svg');
+	src: url('./font/Serif/cmunrm.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
 }
 
 @font-face {
 	font-family: 'Computer Modern Serif';
-	src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.eot');
-	src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.eot?#iefix') format('embedded-opentype'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.woff') format('woff'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.ttf') format('truetype'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.svg#cmunti') format('svg');
+	src: url('/font/Serif/cmunti.woff') format('woff');
 	font-weight: normal;
 	font-style: italic;
 }
