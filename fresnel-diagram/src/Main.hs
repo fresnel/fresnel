@@ -186,7 +186,7 @@ graph = diagram
   mapping         = klass "Mapping"         (V3 1 3 1) (V2 mx mx) [dest setter]
   optic name p l = Vertex Optic name p l (parents name)
   klass name p l = Vertex Class name p l (parents name)
-  parents n = foldMap (\ Vertex{ outEdges } -> foldMap (\ (Dest _ v@Vertex{ name }) -> v <$ guard (name == n)) outEdges) diagram
+  parents n = foldMap (\ v@Vertex{ outEdges } -> foldMap (\ (Dest _ Vertex{ name }) -> v <$ guard (name == n)) outEdges) diagram
   mn = Just Min
   mx = Just Max
   no = Nothing
