@@ -56,9 +56,9 @@ renderDiagram diagram opts = do
       _    -> mempty) opts'
 
 renderVertex :: Vertex -> (Svg, Svg)
-renderVertex Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex ey, outEdges } = (do
+renderVertex Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex ey, inEdges, outEdges } = (do
   let p = scale (project coords)
-  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryV2 translate p) $ do
+  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryV2 translate p) ! dataAttribute "ancestors" (stringValue (unwords (map Main.name inEdges))) $ do
     for_ outEdges $ \ (Dest offset Vertex{ name = dname, coords = dcoords }) ->
       S.path ! A.id_ (stringValue (name <> "-" <> dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords)) !? maybe (False, mempty) ((,) True . A.transform . uncurryV2 translate) offset
     circle ! A.r "2.5"
