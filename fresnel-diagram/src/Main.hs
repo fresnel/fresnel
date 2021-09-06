@@ -217,19 +217,19 @@ graph = fix $ \ ~Diagram{ iso, lens, getter, prism, review, optional, affineFold
   , traversal       = Vertex Optic "Traversal"       (P3 1 2 0) (P2 (Just Max) (Just Min)) [dest fold, dest setter]
   , fold            = Vertex Optic "Fold"            (P3 2 2 0) (P2 (Just Min) (Just Max)) []
   , setter          = Vertex Optic "Setter"          (P3 1 3 0) (P2 (Just Max) (Just Max)) []
-  , profunctor      = Vertex Class "Profunctor"      (P3 0 0 1) (P2 (Just Max) (Just Min)) [dest iso, offset lu strong, offset (ld * 2) choice, offset rd cochoice, dest costrong, offset (ru * 2) closed]
-  , strong          = Vertex Class "Strong"          (P3 1 0 1) (P2 (Just Min) (Just Min)) [dest lens, offset ld traversing]
-  , cochoice        = Vertex Class "Cochoice"        (P3 2 0 1) (P2 (Just Min) (Just Min)) [offset ld getter]
-  , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) (P2 (Just Min) (Just Min)) [offset ru getter]
-  , choice          = Vertex Class "Choice"          (P3 0 1 1) (P2 (Just Max) (Just Min)) [dest prism, offset ru traversing]
-  , costrong        = Vertex Class "Costrong"        (P3 0 2 1) (P2 (Just Max) (Just Min)) [offset rd review]
-  , bifunctor       = Vertex Class "Bifunctor"       (P3 0 2 2) (P2 (Just Max) (Just Min)) [offset lu review]
+  , profunctor      = Vertex Class "Profunctor"      (P3 0 0 1) (P2 (Just Max) (Just Min)) [dest iso, offset ny strong, offset (px * 2) choice, offset py cochoice, dest costrong, offset (nx * 2) closed]
+  , strong          = Vertex Class "Strong"          (P3 1 0 1) (P2 (Just Min) (Just Min)) [dest lens, offset px traversing]
+  , cochoice        = Vertex Class "Cochoice"        (P3 2 0 1) (P2 (Just Min) (Just Min)) [offset px getter]
+  , bicontravariant = Vertex Class "Bicontravariant" (P3 2 0 2) (P2 (Just Min) (Just Min)) [offset nx getter]
+  , choice          = Vertex Class "Choice"          (P3 0 1 1) (P2 (Just Max) (Just Min)) [dest prism, offset nx traversing]
+  , costrong        = Vertex Class "Costrong"        (P3 0 2 1) (P2 (Just Max) (Just Min)) [offset py review]
+  , bifunctor       = Vertex Class "Bifunctor"       (P3 0 2 2) (P2 (Just Max) (Just Min)) [offset ny review]
   , closed          = Vertex Class "Closed"          (P3 0 3 1) (P2 (Just Max) (Just Min)) [dest mapping]
   , traversing      = Vertex Class "Traversing"      (P3 1 2 1) (P2 (Just Min) (Just Max)) [dest traversal, dest mapping]
   , mapping         = Vertex Class "Mapping"         (P3 1 3 1) (P2 (Just Max) (Just Max)) [dest setter]
   }
   where
-  P4 lu ld ru rd = (P2 5 2.5 *) <$> (P2 <$> P4 (-1) (-1) 1 1 <*> P4 (-1) 1 (-1) 1)
+  P4 ny px nx py = (P2 5 2.5 *) <$> (P2 <$> P4 (-1) (-1) 1 1 <*> P4 (-1) 1 (-1) 1)
 
 data Diagram a = Diagram
   { iso             :: a
