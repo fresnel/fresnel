@@ -68,7 +68,7 @@ renderVertex v@Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex 
   ancestors u = go mempty u where
     go visited u
       | Set.member (Main.name u) visited = mempty
-      | otherwise                        = let visited' = Set.insert (Main.name u) visited in foldMap (\ v -> Set.insert (edgeId (Main.name v) (Main.name u)) (go visited' v)) (inEdges u)
+      | otherwise                        = let visited' = Set.insert (Main.name u) visited in foldMap (\ v -> Set.insert (edgeId v u) (go visited' v)) (inEdges u)
   project (V3 x y z) = V2 (negate x + y) (x + y - z)
   scale (V2 x y) = V2 (x * 200) (y * 100)
   labelEdge = do
@@ -93,10 +93,10 @@ renderVertex v@Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex 
     Class -> mempty
 
 edgeElement :: Vertex -> Dest -> Svg
-edgeElement Vertex{ kind, name, coords } (Dest offset Vertex{ name = dname, coords = dcoords }) = S.path ! A.id_ (stringValue (edgeId name dname)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords)) !? maybe (False, mempty) ((,) True . A.transform . uncurryV2 translate) offset
+edgeElement u@Vertex{ kind, name, coords } (Dest offset v@Vertex{ name = dname, coords = dcoords }) = S.path ! A.id_ (stringValue (edgeId u v)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords)) !? maybe (False, mempty) ((,) True . A.transform . uncurryV2 translate) offset
 
-edgeId :: String -> String -> String
-edgeId a b = a <> "-" <> b
+edgeId :: Vertex -> Vertex -> String
+edgeId Vertex{ name = a } Vertex{ name = b } = a <> "-" <> b
 
 xmlns = customAttribute "xmlns"
 
