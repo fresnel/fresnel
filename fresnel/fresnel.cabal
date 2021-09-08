@@ -3,8 +3,8 @@ name:               fresnel
 version:            0.0.0.0
 synopsis:           high-powered optics in a small package
 description:        fresnel offers (non-indexed) profunctor optics composed with the lowly . operator.
-homepage:           https://github.com/robrix/fresnel
-bug-reports:        https://github.com/robrix/fresnel/issues
+homepage:           https://github.com/fresnel/fresnel
+bug-reports:        https://github.com/fresnel/fresnel/issues
 license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Rob Rix
@@ -86,5 +86,5 @@ test-suite test
 
 source-repository head
   type:     git
-  location: https://github.com/robrix/fresnel
+  location: https://github.com/fresnel/fresnel
   subdir:   fresnel
