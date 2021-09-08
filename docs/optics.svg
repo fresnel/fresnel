@@ -161,7 +161,7 @@ stop {
 .vertex:hover {
   --label-stroke-width: 1px;
 }
-.vertex.hover, .vertex:hover circle {
+.vertex:hover circle {
   stroke-width: 2px;
 }
 .vertex:hover .ancestors {
