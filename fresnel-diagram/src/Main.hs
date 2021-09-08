@@ -5,6 +5,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TupleSections #-}
 module Main
 ( main
 , Vertex(..)
@@ -12,7 +13,7 @@ module Main
 
 import           Control.Monad (guard, unless)
 import           Data.Foldable as Foldable (fold, for_)
-import qualified Data.Set as Set
+import qualified Data.Map as Map
 import           Linear.V2
 import           Linear.V3
 import           Linear.V4
@@ -59,16 +60,15 @@ renderDiagram diagram opts = do
 renderVertex :: Vertex -> (Svg, Svg)
 renderVertex v@Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex ey, outEdges } = (do
   let p = scale (project coords)
-  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryV2 translate p) ! dataAttribute "ancestors" (stringValue (unwords (Set.toList (ancestors v)))) $ do
+  g ! A.id_ (stringValue name) ! A.class_ (stringValue ("vertex " <> show kind)) ! A.transform (uncurryV2 translate p) $ do
     for_ outEdges (edgeElement v)
     circle ! A.r "2.5"
     path ! A.class_ "label" ! A.d (mkPath labelEdge)
-    text_ ! A.transform (uncurryV2 translate labelOffset) $ toMarkup name, defs)
+    text_ ! A.transform (uncurryV2 translate labelOffset) $ toMarkup name
+    g ! A.class_ "ancestors" $ do
+      Foldable.fold (ancestors v)
+  , defs)
   where
-  ancestors u = go mempty u where
-    go visited u
-      | Set.member (Main.name u) visited = mempty
-      | otherwise                        = let visited' = Set.insert (Main.name u) visited in foldMap (\ v -> Set.insert (edgeId v u) (go visited' v)) (inEdges u)
   project (V3 x y z) = V2 (negate x + y) (x + y - z)
   scale (V2 x y) = V2 (x * 200) (y * 100)
   labelEdge = do
@@ -92,16 +92,35 @@ renderVertex v@Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex 
           stop ! A.class_ (stringValue dname) ! A.offset "100%"
     Class -> mempty
 
+ancestors :: Vertex -> Map.Map String Svg
+ancestors u = go Map.empty u where
+  go :: Map.Map String Svg -> Vertex -> Map.Map String Svg
+  go accum u = case Map.lookup (Main.name u) accum of
+    Just _  -> mempty
+    Nothing -> foldMap (\ v -> let id' = edgeId v u in Map.insert id' (use ! href (stringValue ('#':id')) ! A.class_ (edgeClass v u) ! A.transform (uncurryV2 translate (negate (edgeOffset (coords v) (coords u))))) (go accum' v)) (inEdges u) where
+      accum' = Map.insert (Main.name u) mempty accum
+
 edgeElement :: Vertex -> Dest -> Svg
-edgeElement u@Vertex{ kind, name, coords } (Dest offset v@Vertex{ name = dname, coords = dcoords }) = S.path ! A.id_ (stringValue (edgeId u v)) ! A.class_ (stringValue (unwords ["edge", show kind, name, dname])) ! A.d (mkPath (edge coords dcoords)) !? maybe (False, mempty) ((,) True . A.transform . uncurryV2 translate) offset
+edgeElement u (Dest offset v) = S.path
+  ! A.id_ (stringValue (edgeId u v))
+  ! A.class_ (edgeClass u v)
+  ! A.d (mkPath (edgePath (coords u) (coords v)))
+  !?? (A.transform . uncurryV2 translate <$> offset)
 
 edgeId :: Vertex -> Vertex -> String
 edgeId Vertex{ name = a } Vertex{ name = b } = a <> "-" <> b
 
-xmlns = customAttribute "xmlns"
+edgeClass :: Vertex -> Vertex -> AttributeValue
+edgeClass u v = stringValue (unwords ["edge", show (kind u), name u, name v])
 
-edge :: V3 Int -> V3 Int -> Path
-edge s e = edgeX
+xmlns = customAttribute "xmlns"
+href = customAttribute "href"
+
+(!??) :: Svg -> Maybe Attribute -> Svg
+s !?? a = s !? maybe (False, mempty) (True,) a
+
+edgePath :: V3 Int -> V3 Int -> Path
+edgePath s e = edgeX
   where
   V3 dx dy dz = e - s
   voffset = V2 0 10
@@ -139,9 +158,17 @@ edge s e = edgeX
     let δ = scale (project (V3 0 0 dz))
     uncurryV2 lr (δ - voffset * if dx /= 0 || dy /= 0 then 1 else 2)
     -- FIXME: invert when the edge goes up
+    -- FIXME: calculate these from the arrowhead geometry
     uncurryV2 mr (V2 (-4.47213595499958) (-8.94427190999916) :: V2 Float)
     uncurryV2 lr (V2 4.47213595499958 8.94427190999916 :: V2 Float)
     uncurryV2 lr (V2 4.47213595499958 (-8.94427190999916) :: V2 Float)
+
+edgeOffset :: V3 Int -> V3 Int -> V2 Float
+edgeOffset s e = realToFrac <$> scale (project (e - s))
+  where
+  project (V3 x y z) = V2 (negate x + y) (x + y - z)
+  scale (V2 x y) = V2 (x * 200) (y * 100)
+
 
 data Vertex = Vertex
   { kind     :: VertexKind
