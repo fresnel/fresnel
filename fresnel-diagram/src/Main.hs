@@ -97,7 +97,7 @@ ancestors u = go Map.empty u where
   go :: Map.Map String Svg -> Vertex -> Map.Map String Svg
   go accum u = case Map.lookup (Main.name u) accum of
     Just _  -> mempty
-    Nothing -> foldMap (\ v -> let id' = edgeId v u in Map.insert id' (use ! href (stringValue ('#':id')) ! A.class_ (edgeClass v u) ! A.transform (uncurryV2 translate (negate (edgeOffset (coords v) (coords u))))) (go accum' v)) (inEdges u) where
+    Nothing -> foldMap (\ (v, _) -> let id' = edgeId v u in Map.insert id' (use ! href (stringValue ('#':id')) ! A.class_ (edgeClass v u) ! A.transform (uncurryV2 translate (negate (edgeOffset (coords v) (coords u))))) (go accum' v)) (inEdges u) where
       accum' = Map.insert (Main.name u) mempty accum
 
 edgeElement :: Vertex -> (Maybe (V2 Float), Vertex) -> Svg
@@ -175,7 +175,7 @@ data Vertex = Vertex
   , name     :: String
   , coords   :: V3 Int
   , labelPos :: V2 (Maybe Extent)
-  , inEdges  :: [Vertex]
+  , inEdges  :: [(Vertex, Maybe (V2 Float))]
   , outEdges :: [(Maybe (V2 Float), Vertex)]
   }
 
@@ -221,7 +221,7 @@ graph = diagram
   mapping         = klass "Mapping"         (V3 1 3 1) (V2 mx mx) [dest setter]
   optic name p l = Vertex Optic name p l (parents name)
   klass name p l = Vertex Class name p l (parents name)
-  parents n = foldMap (\ v@Vertex{ outEdges } -> foldMap (\ (_, Vertex{ name }) -> v <$ guard (name == n)) outEdges) diagram
+  parents n = foldMap (\ v@Vertex{ outEdges } -> foldMap (\ (o, Vertex{ name }) -> (v, o) <$ guard (name == n)) outEdges) diagram
   mn = Just Min
   mx = Just Max
   no = Nothing
