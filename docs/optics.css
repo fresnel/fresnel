@@ -154,6 +154,7 @@ stop {
 .vertex .ancestors {
   pointer-events: none;
   visibility: hidden;
+  --edge-stroke-width: 1.25px;
 }
 .vertex:hover {
   --label-stroke-width: 1px;
@@ -163,7 +164,6 @@ stop {
 }
 .vertex:hover .ancestors {
   visibility: visible;
-  --edge-stroke-width: 1.25px;
 }
 .edge {
   pointer-events: none;
