@@ -53,7 +53,6 @@ library
     Fresnel.OptionalFold
     Fresnel.Prism
     Fresnel.Profunctor.Coexp
-    Fresnel.Profunctor.Optical
     Fresnel.Profunctor.OptionalStar
     Fresnel.Profunctor.Recall
     Fresnel.Review
