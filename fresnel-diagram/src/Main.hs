@@ -103,7 +103,8 @@ ancestors u = go 0 Map.empty u where
         use' = use
           ! href (stringValue ('#':id'))
           ! A.class_ (edgeClass v u)
-          ! A.transform (uncurryV2 translate (negate (edgeOffset (coords v) (coords u))))
+          ! A.transform (uncurryV2 translate offset')
+        offset' = negate (edgeOffset (coords v) (coords u))
       accum' = Map.insert (Main.name u) mempty accum
 
 edgeElement :: Vertex -> (Maybe (V2 Float), Vertex) -> Svg
