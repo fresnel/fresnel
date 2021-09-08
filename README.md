@@ -1,14 +1,14 @@
 # `fresnel`: high-powered optics in a small package
 
-[![CI status badge](https://github.com/robrix/fresnel/actions/workflows/ci.yml/badge.svg)][CI status] [![hackage](https://img.shields.io/hackage/v/fresnel.svg?color=blue&style=popout)][hackage]
+[![CI status badge](https://github.com/fresnel/fresnel/actions/workflows/ci.yml/badge.svg)][CI status] [![hackage](https://img.shields.io/hackage/v/fresnel.svg?color=blue&style=popout)][hackage]
 
 `fresnel` is yet another optics (aka functional references) package for Haskell.
 
-[CI status]: https://github.com/robrix/fresnel/actions
+[CI status]: https://github.com/fresnel/fresnel/actions
 [hackage]: http://hackage.haskell.org/package/fresnel
 
 
-[![diagram of the optical and profunctor hierarchies and their relationships to one another](https://raw.githubusercontent.com/robrix/fresnel/main/docs/optics.svg)](https://antitypical.com/fresnel/index.html)
+[![diagram of the optical and profunctor hierarchies and their relationships to one another](https://raw.githubusercontent.com/fresnel/fresnel/main/docs/optics.svg)](http://fresnel.github.io/fresnel/index.html)
 
 _The above image is interactive. Click to open it, and then hover over labels to highlight everything they include._
 

@@ -3,8 +3,8 @@ name:               fresnel-diagram
 version:            0.0.0.0
 synopsis:           Diagram fresnel’s optics/typeclass hierarchy.
 description:        Diagram fresnel’s optics/typeclass hierarchy as SVG.
-homepage:           https://github.com/robrix/fresnel
-bug-reports:        https://github.com/robrix/fresnel/issues
+homepage:           https://github.com/fresnel/fresnel
+bug-reports:        https://github.com/fresnel/fresnel/issues
 license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Rob Rix
@@ -46,5 +46,5 @@ executable fresnel-diagram
 
 source-repository head
   type:     git
-  location: https://github.com/robrix/fresnel
+  location: https://github.com/fresnel/fresnel
   subdir:   fresnel-diagram
