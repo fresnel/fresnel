@@ -97,7 +97,13 @@ ancestors u = go Map.empty u where
   go :: Map.Map String Svg -> Vertex -> Map.Map String Svg
   go accum u = case Map.lookup (Main.name u) accum of
     Just _  -> mempty
-    Nothing -> foldMap (\ (v, _) -> let id' = edgeId v u in Map.insert id' (use ! href (stringValue ('#':id')) ! A.class_ (edgeClass v u) ! A.transform (uncurryV2 translate (negate (edgeOffset (coords v) (coords u))))) (go accum' v)) (inEdges u) where
+    Nothing -> foldMap inEdge (inEdges u) where
+      inEdge (v, _) = Map.insert id' use' (go accum' v) where
+        id' = edgeId v u
+        use' = use
+          ! href (stringValue ('#':id'))
+          ! A.class_ (edgeClass v u)
+          ! A.transform (uncurryV2 translate (negate (edgeOffset (coords v) (coords u))))
       accum' = Map.insert (Main.name u) mempty accum
 
 edgeElement :: Vertex -> (Maybe (V2 Float), Vertex) -> Svg
