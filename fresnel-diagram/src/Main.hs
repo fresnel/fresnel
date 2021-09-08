@@ -93,12 +93,12 @@ renderVertex v@Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex 
     Class -> mempty
 
 ancestors :: Vertex -> Map.Map String Svg
-ancestors u = go Map.empty u where
-  go :: Map.Map String Svg -> Vertex -> Map.Map String Svg
-  go accum u = case Map.lookup (Main.name u) accum of
+ancestors u = go 0 Map.empty u where
+  go :: V2 Float -> Map.Map String Svg -> Vertex -> Map.Map String Svg
+  go offset accum u = case Map.lookup (Main.name u) accum of
     Just _  -> mempty
     Nothing -> foldMap inEdge (inEdges u) where
-      inEdge (v, _) = Map.insert id' use' (go accum' v) where
+      inEdge (v, _) = Map.insert id' use' (go offset accum' v) where
         id' = edgeId v u
         use' = use
           ! href (stringValue ('#':id'))
