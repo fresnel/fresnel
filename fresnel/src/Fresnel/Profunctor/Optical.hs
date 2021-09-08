@@ -1,6 +1,5 @@
 module Fresnel.Profunctor.Optical
 ( IsIso
-, IsLens
 ) where
 
 
@@ -20,12 +19,3 @@ instance Functor f => IsIso (Star f)
 instance Functor f => IsIso (Costar f)
 instance Functor f => IsIso (OptionalStar f)
 instance IsIso (Coexp s t)
-
-
-class (IsIso p, Strong p) => IsLens p
-
-instance IsLens (->)
-instance Monad m => IsLens (Kleisli m)
-instance IsLens (Forget r)
-instance Functor f => IsLens (Star f)
-instance Functor f => IsLens (OptionalStar f)

@@ -15,16 +15,25 @@ module Fresnel.Lens
 , unpackedLens
 ) where
 
-import Control.Arrow ((&&&), (***))
+import Control.Arrow (Kleisli, (&&&), (***))
 import Data.Profunctor
 import Fresnel.Optic
 import Fresnel.Profunctor.Optical
+import Fresnel.Profunctor.OptionalStar (OptionalStar)
 
 -- Lenses
 
 type Lens s t a b = forall p . IsLens p => Optic p s t a b
 
 type Lens' s a = Lens s s a a
+
+class (IsIso p, Strong p) => IsLens p
+
+instance IsLens (->)
+instance Monad m => IsLens (Kleisli m)
+instance IsLens (Forget r)
+instance Functor f => IsLens (Star f)
+instance Functor f => IsLens (OptionalStar f)
 
 
 -- Construction
