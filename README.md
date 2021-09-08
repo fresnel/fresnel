@@ -8,7 +8,7 @@
 [hackage]: http://hackage.haskell.org/package/fresnel
 
 
-![diagram of the optical and profunctor hierarchies and their relationships to one another](https://raw.githubusercontent.com/robrix/fresnel/main/docs/optics.svg)
+[![diagram of the optical and profunctor hierarchies and their relationships to one another](https://raw.githubusercontent.com/robrix/fresnel/main/docs/optics.svg)](https://antitypical.com/fresnel/index.html)
 
 _The above image is interactive. Click to open it, and then hover over labels to highlight everything they include._
 
