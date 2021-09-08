@@ -12,15 +12,23 @@ module Fresnel.Getter
 , (^.)
 ) where
 
+import Data.Functor.Contravariant (Contravariant)
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
 import Fresnel.Profunctor.Optical
+import Fresnel.Profunctor.OptionalStar (OptionalStar)
 
 -- Getters
 
 type Getter s a = forall p . IsGetter p => Optic' p s a
+
+class (IsLens p, Bicontravariant p, Cochoice p) => IsGetter p
+
+instance IsGetter (Forget r)
+instance (Contravariant f, Traversable f) => IsGetter (Star f)
+instance (Contravariant f, Traversable f) => IsGetter (OptionalStar f)
 
 
 -- Construction

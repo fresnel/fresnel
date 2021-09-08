@@ -20,9 +20,9 @@ import Data.Maybe (isJust)
 import Data.Monoid (First(..))
 import Data.Profunctor
 import Fresnel.Bifunctor.Contravariant
+import Fresnel.Getter (IsGetter)
 import Fresnel.Optic
 import Fresnel.Optional (IsOptional)
-import Fresnel.Profunctor.Optical
 import Fresnel.Profunctor.OptionalStar (OptionalStar)
 
 -- Optional folds

@@ -1,14 +1,11 @@
 module Fresnel.Profunctor.Optical
 ( IsIso
 , IsLens
-, IsGetter
 ) where
 
 
 import Control.Arrow
-import Data.Functor.Contravariant
 import Data.Profunctor
-import Fresnel.Bifunctor.Contravariant
 import Fresnel.Profunctor.Coexp
 import Fresnel.Profunctor.OptionalStar
 import Fresnel.Profunctor.Recall
@@ -32,10 +29,3 @@ instance Monad m => IsLens (Kleisli m)
 instance IsLens (Forget r)
 instance Functor f => IsLens (Star f)
 instance Functor f => IsLens (OptionalStar f)
-
-
-class (IsLens p, Bicontravariant p, Cochoice p) => IsGetter p
-
-instance IsGetter (Forget r)
-instance (Contravariant f, Traversable f) => IsGetter (Star f)
-instance (Contravariant f, Traversable f) => IsGetter (OptionalStar f)
