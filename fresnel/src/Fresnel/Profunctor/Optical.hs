@@ -7,7 +7,6 @@ module Fresnel.Profunctor.Optical
 , IsOptional
 , IsTraversal
 , IsOptionalFold
-, IsFold
 ) where
 
 
@@ -86,8 +85,3 @@ instance IsTraversal (->)
 instance Monad m => IsTraversal (Kleisli m)
 instance Monoid r => IsTraversal (Forget r)
 instance Applicative f => IsTraversal (Star f)
-
-
-class (IsOptionalFold p, IsTraversal p) => IsFold p
-
-instance Monoid r => IsFold (Forget r)

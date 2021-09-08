@@ -24,6 +24,10 @@ import Fresnel.Profunctor.Optical
 
 type Fold s a = forall p . IsFold p => Optic' p s a
 
+class (IsOptionalFold p, IsTraversal p) => IsFold p
+
+instance Monoid r => IsFold (Forget r)
+
 
 -- Construction
 
