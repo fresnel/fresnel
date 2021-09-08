@@ -2,7 +2,6 @@ module Fresnel.Profunctor.Optical
 ( IsIso
 , IsLens
 , IsGetter
-, IsPrism
 ) where
 
 
@@ -40,13 +39,3 @@ class (IsLens p, Bicontravariant p, Cochoice p) => IsGetter p
 instance IsGetter (Forget r)
 instance (Contravariant f, Traversable f) => IsGetter (Star f)
 instance (Contravariant f, Traversable f) => IsGetter (OptionalStar f)
-
-
-class (IsIso p, Choice p) => IsPrism p
-
-instance IsPrism (->)
-instance Monad m => IsPrism (Kleisli m)
-instance Monoid r => IsPrism (Forget r)
-instance IsPrism (Recall e)
-instance Applicative f => IsPrism (Star f)
-instance Functor f => IsPrism (OptionalStar f)

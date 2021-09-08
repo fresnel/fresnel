@@ -20,17 +20,29 @@ module Fresnel.Prism
 , unpackedPrism
 ) where
 
+import Control.Arrow (Kleisli)
 import Control.Monad (guard)
 import Data.Bifunctor (bimap)
 import Data.Profunctor
 import Fresnel.Optic
 import Fresnel.Profunctor.Optical
+import Fresnel.Profunctor.OptionalStar (OptionalStar)
+import Fresnel.Profunctor.Recall (Recall)
 
 -- Prisms
 
 type Prism s t a b = forall p . IsPrism p => Optic p s t a b
 
 type Prism' s a = Prism s s a a
+
+class (IsIso p, Choice p) => IsPrism p
+
+instance IsPrism (->)
+instance Monad m => IsPrism (Kleisli m)
+instance Monoid r => IsPrism (Forget r)
+instance IsPrism (Recall e)
+instance Applicative f => IsPrism (Star f)
+instance Functor f => IsPrism (OptionalStar f)
 
 
 -- Construction
