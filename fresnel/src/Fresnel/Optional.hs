@@ -11,7 +11,7 @@ module Fresnel.Optional
   -- * Elimination
 , matching
 , withOptional
-, otraverseOf
+, traverseOf
   -- * Unpacked
 , UnpackedOptional(..)
 , unpackedOptional
@@ -50,8 +50,8 @@ matching o = withOptional o const
 withOptional :: Optional s t a b -> (((s -> Either t a) -> (s -> b -> t) -> r) -> r)
 withOptional o = withUnpackedOptional (o (unpackedOptional Right (const id)))
 
-otraverseOf :: Functor f => Optional s t a b -> (forall r . r -> f r) -> (a -> f b) -> (s -> f t)
-otraverseOf o point = runOptionalStar . o . optionalStar point
+traverseOf :: Functor f => Optional s t a b -> (forall r . r -> f r) -> (a -> f b) -> (s -> f t)
+traverseOf o point = runOptionalStar . o . optionalStar point
 
 
 -- Unpacked
