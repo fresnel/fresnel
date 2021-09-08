@@ -3,7 +3,6 @@ module Fresnel.Profunctor.Optical
 , IsLens
 , IsGetter
 , IsPrism
-, IsReview
 , IsOptional
 , IsTraversal
 , IsOptionalFold
@@ -11,7 +10,6 @@ module Fresnel.Profunctor.Optical
 
 
 import Control.Arrow
-import Data.Bifunctor
 import Data.Functor.Contravariant
 import Data.Profunctor
 import Data.Profunctor.Traversing
@@ -56,11 +54,6 @@ instance Monoid r => IsPrism (Forget r)
 instance IsPrism (Recall e)
 instance Applicative f => IsPrism (Star f)
 instance Functor f => IsPrism (OptionalStar f)
-
-
-class (IsPrism p, Bifunctor p, Costrong p) => IsReview p
-
-instance IsReview (Recall e)
 
 
 class (IsLens p, IsPrism p) => IsOptional p where

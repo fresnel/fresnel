@@ -19,12 +19,16 @@ import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Void
 import Fresnel.Optic
-import Fresnel.Profunctor.Recall
 import Fresnel.Profunctor.Optical
+import Fresnel.Profunctor.Recall
 
 -- Reviews
 
 type Review t b = forall p . IsReview p => Optic' p t b
+
+class (IsPrism p, Bifunctor p, Costrong p) => IsReview p
+
+instance IsReview (Recall e)
 
 
 -- Construction
