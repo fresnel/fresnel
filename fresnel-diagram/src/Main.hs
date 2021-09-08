@@ -82,7 +82,7 @@ renderVertex v@Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex 
     Just Max -> 1
   defs = case kind of
     Optic -> foldMap edge outEdges where
-      edge (Dest _ Vertex{ name = dname, coords = V3 dx _ _ }) =
+      edge (_, Vertex{ name = dname, coords = V3 dx _ _ }) =
         let x1 = if dx > x then "100%" else "0%"
             x2 = if dx > x then "0%" else "100%"
             y1 = "0%"
@@ -100,8 +100,8 @@ ancestors u = go Map.empty u where
     Nothing -> foldMap (\ v -> let id' = edgeId v u in Map.insert id' (use ! href (stringValue ('#':id')) ! A.class_ (edgeClass v u) ! A.transform (uncurryV2 translate (negate (edgeOffset (coords v) (coords u))))) (go accum' v)) (inEdges u) where
       accum' = Map.insert (Main.name u) mempty accum
 
-edgeElement :: Vertex -> Dest -> Svg
-edgeElement u (Dest offset v) = S.path
+edgeElement :: Vertex -> (Maybe (V2 Float), Vertex) -> Svg
+edgeElement u (offset, v) = S.path
   ! A.id_ (stringValue (edgeId u v))
   ! A.class_ (edgeClass u v)
   ! A.d (mkPath (edgePath (coords u) (coords v)))
@@ -176,7 +176,7 @@ data Vertex = Vertex
   , coords   :: V3 Int
   , labelPos :: V2 (Maybe Extent)
   , inEdges  :: [Vertex]
-  , outEdges :: [Dest]
+  , outEdges :: [(Maybe (V2 Float), Vertex)]
   }
 
 data VertexKind
@@ -189,13 +189,11 @@ data Extent = Min | Max
 uncurryV2 :: (a -> a -> b) -> (V2 a -> b)
 uncurryV2 f (V2 x y) = f x y
 
-data Dest = Dest (Maybe (V2 Float)) Vertex
+dest :: Vertex -> (Maybe (V2 Float), Vertex)
+dest = (Nothing,)
 
-dest :: Vertex -> Dest
-dest = Dest Nothing
-
-offset :: V2 Float -> Vertex -> Dest
-offset = Dest . Just
+offset :: V2 Float -> Vertex -> (Maybe (V2 Float), Vertex)
+offset = (,) . Just
 
 graph :: Diagram Vertex
 graph = diagram
@@ -223,7 +221,7 @@ graph = diagram
   mapping         = klass "Mapping"         (V3 1 3 1) (V2 mx mx) [dest setter]
   optic name p l = Vertex Optic name p l (parents name)
   klass name p l = Vertex Class name p l (parents name)
-  parents n = foldMap (\ v@Vertex{ outEdges } -> foldMap (\ (Dest _ Vertex{ name }) -> v <$ guard (name == n)) outEdges) diagram
+  parents n = foldMap (\ v@Vertex{ outEdges } -> foldMap (\ (_, Vertex{ name }) -> v <$ guard (name == n)) outEdges) diagram
   mn = Just Min
   mx = Just Max
   no = Nothing
