@@ -4,7 +4,7 @@ module Fresnel.OptionalFold
   OptionalFold
 , IsOptionalFold
   -- * Construction
-, ofolding
+, folding
 , filtered
   -- * Elimination
 , previews
@@ -29,11 +29,11 @@ type OptionalFold s a = forall p . IsOptionalFold p => Optic' p s a
 
 -- Construction
 
-ofolding :: (s -> Maybe a) -> OptionalFold s a
-ofolding f = contrabimap ((`maybe` Right) . Left <*> f) Left . right'
+folding :: (s -> Maybe a) -> OptionalFold s a
+folding f = contrabimap ((`maybe` Right) . Left <*> f) Left . right'
 
 filtered :: (a -> Bool) -> OptionalFold a a
-filtered p = ofolding (\ a -> if p a then Just a else Nothing)
+filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 
 -- Elimination
@@ -56,4 +56,4 @@ isn't o = isJust . preview o
 newtype Failover s a = Failover { getFailover :: OptionalFold s a }
 
 instance Semigroup (Failover s a) where
-  Failover a1 <> Failover a2 = Failover (ofolding (\ s -> preview a1 s <|> preview a2 s))
+  Failover a1 <> Failover a2 = Failover (folding (\ s -> preview a1 s <|> preview a2 s))
