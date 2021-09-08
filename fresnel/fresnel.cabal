@@ -52,9 +52,9 @@ library
     Fresnel.Optional
     Fresnel.OptionalFold
     Fresnel.Prism
-    Fresnel.Profunctor.AffineStar
     Fresnel.Profunctor.Coexp
     Fresnel.Profunctor.Optical
+    Fresnel.Profunctor.OptionalStar
     Fresnel.Profunctor.Recall
     Fresnel.Review
     Fresnel.Setter

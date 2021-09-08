@@ -32,7 +32,7 @@
   --traversal-colour: hsl(135, 50%, 50%);
   --setter-colour: hsl(135, 50%, 75%);
   --fold-colour: hsl(180, 50%, 50%);
-  --affine-fold-colour: hsl(225, 50%, 50%);
+  --optional-fold-colour: hsl(225, 50%, 50%);
   --getter-colour: hsl(270, 50%, 50%);
   --lens-colour: hsl(315, 50%, 50%);
   --optional-colour: hsl(0, 0%, 60%);
@@ -102,7 +102,7 @@ use.Class {
   text-anchor: end;
 }
 #OptionalFold, .OptionalFold {
-  color: var(--affine-fold-colour);
+  color: var(--optional-fold-colour);
 }
 #Traversal, .Traversal {
   color: var(--traversal-colour);

@@ -20,8 +20,8 @@ module Fresnel.Optional
 import Data.Bifunctor
 import Data.Profunctor
 import Fresnel.Optic
-import Fresnel.Profunctor.AffineStar
 import Fresnel.Profunctor.Optical
+import Fresnel.Profunctor.OptionalStar
 
 -- Optional traversals
 
@@ -51,7 +51,7 @@ withOptional :: Optional s t a b -> (((s -> Either t a) -> (s -> b -> t) -> r) -
 withOptional o = withUnpackedOptional (o (unpackedOptional Right (const id)))
 
 optionalTraverseOf :: Functor f => Optional s t a b -> (forall r . r -> f r) -> (a -> f b) -> (s -> f t)
-optionalTraverseOf o point = runAffineStar . o . affineStar point
+optionalTraverseOf o point = runOptionalStar . o . optionalStar point
 
 
 -- Unpacked
