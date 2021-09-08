@@ -225,7 +225,7 @@ stop {
             Iso
         </text>
         <g class="ancestors">
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(0.0 -100.0)" />
         </g>
     </g>
     <g id="Lens" class="vertex Optic" transform="translate(-200 100)">
@@ -238,9 +238,9 @@ stop {
         </text>
         <g class="ancestors">
             <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -100.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
-            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-0.0 -100.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(200.0 -200.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -200.0)" />
+            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(0.0 -100.0)" />
         </g>
     </g>
     <g id="Getter" class="vertex Optic" transform="translate(-400 200)">
@@ -251,14 +251,14 @@ stop {
             Getter
         </text>
         <g class="ancestors">
-            <use href="#Bicontravariant-Getter" class="edge Class Bicontravariant Getter" transform="translate(-0.0 -200.0)" />
-            <use href="#Cochoice-Getter" class="edge Class Cochoice Getter" transform="translate(-0.0 -100.0)" />
-            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -100.0)" />
+            <use href="#Bicontravariant-Getter" class="edge Class Bicontravariant Getter" transform="translate(0.0 -200.0)" />
+            <use href="#Cochoice-Getter" class="edge Class Cochoice Getter" transform="translate(0.0 -100.0)" />
+            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(400.0 -200.0)" />
             <use href="#Lens-Getter" class="edge Optic Lens Getter" transform="translate(200.0 -100.0)" />
-            <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(400.0 -200.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
-            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-0.0 -100.0)" />
+            <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(400.0 -300.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(400.0 -300.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(400.0 -300.0)" />
+            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(200.0 -200.0)" />
         </g>
     </g>
     <g id="Prism" class="vertex Optic" transform="translate(200 100)">
@@ -270,10 +270,10 @@ stop {
             Prism
         </text>
         <g class="ancestors">
-            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-0.0 -100.0)" />
+            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(0.0 -100.0)" />
             <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -200.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-200.0 -200.0)" />
         </g>
     </g>
     <g id="Review" class="vertex Optic" transform="translate(400 200)">
@@ -283,14 +283,14 @@ stop {
             Review
         </text>
         <g class="ancestors">
-            <use href="#Bifunctor-Review" class="edge Class Bifunctor Review" transform="translate(-0.0 -200.0)" />
-            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-0.0 -100.0)" />
-            <use href="#Costrong-Review" class="edge Class Costrong Review" transform="translate(-0.0 -100.0)" />
-            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-200.0 -100.0)" />
+            <use href="#Bifunctor-Review" class="edge Class Bifunctor Review" transform="translate(0.0 -200.0)" />
+            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-200.0 -200.0)" />
+            <use href="#Costrong-Review" class="edge Class Costrong Review" transform="translate(0.0 -100.0)" />
+            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-400.0 -200.0)" />
             <use href="#Prism-Review" class="edge Optic Prism Review" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Costrong" class="edge Class Profunctor Costrong" transform="translate(-400.0 -200.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-400.0 -300.0)" />
+            <use href="#Profunctor-Costrong" class="edge Class Profunctor Costrong" transform="translate(-400.0 -300.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-400.0 -300.0)" />
         </g>
     </g>
     <g id="Optional" class="vertex Optic" transform="translate(0 200)">
@@ -302,15 +302,15 @@ stop {
             Optional
         </text>
         <g class="ancestors">
-            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-0.0 -100.0)" />
-            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -100.0)" />
-            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-200.0 -100.0)" />
+            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(200.0 -200.0)" />
+            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(0.0 -200.0)" />
+            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(0.0 -200.0)" />
             <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-200.0 -100.0)" />
             <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(200.0 -100.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
-            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-0.0 -100.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(0.0 -300.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(0.0 -300.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(0.0 -300.0)" />
+            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-200.0 -200.0)" />
         </g>
     </g>
     <g id="AffineFold" class="vertex Optic" transform="translate(-200 300)">
@@ -321,21 +321,21 @@ stop {
             AffineFold
         </text>
         <g class="ancestors">
-            <use href="#Bicontravariant-Getter" class="edge Class Bicontravariant Getter" transform="translate(-0.0 -200.0)" />
-            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-0.0 -100.0)" />
-            <use href="#Cochoice-Getter" class="edge Class Cochoice Getter" transform="translate(-0.0 -100.0)" />
+            <use href="#Bicontravariant-Getter" class="edge Class Bicontravariant Getter" transform="translate(-200.0 -300.0)" />
+            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(400.0 -300.0)" />
+            <use href="#Cochoice-Getter" class="edge Class Cochoice Getter" transform="translate(-200.0 -200.0)" />
             <use href="#Getter-AffineFold" class="edge Optic Getter AffineFold" transform="translate(-200.0 -100.0)" />
-            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -100.0)" />
-            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-200.0 -100.0)" />
-            <use href="#Lens-Getter" class="edge Optic Lens Getter" transform="translate(200.0 -100.0)" />
-            <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-200.0 -100.0)" />
+            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -300.0)" />
+            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(200.0 -300.0)" />
+            <use href="#Lens-Getter" class="edge Optic Lens Getter" transform="translate(0.0 -200.0)" />
+            <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(0.0 -200.0)" />
             <use href="#Optional-AffineFold" class="edge Optic Optional AffineFold" transform="translate(200.0 -100.0)" />
-            <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(200.0 -100.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(400.0 -200.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
-            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-0.0 -100.0)" />
+            <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(400.0 -200.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(200.0 -400.0)" />
+            <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(200.0 -400.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(200.0 -400.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -400.0)" />
+            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(0.0 -300.0)" />
         </g>
     </g>
     <g id="Traversal" class="vertex Optic" transform="translate(200 300)">
@@ -347,19 +347,19 @@ stop {
             Traversal
         </text>
         <g class="ancestors">
-            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-0.0 -100.0)" />
-            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(-0.0 -200.0)" />
-            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -100.0)" />
-            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-200.0 -100.0)" />
-            <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-200.0 -100.0)" />
+            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(0.0 -300.0)" />
+            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(0.0 -300.0)" />
+            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(-200.0 -300.0)" />
+            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-200.0 -300.0)" />
+            <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-400.0 -200.0)" />
             <use href="#Optional-Traversal" class="edge Optic Optional Traversal" transform="translate(-200.0 -100.0)" />
-            <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(200.0 -100.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
-            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-0.0 -100.0)" />
-            <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-400.0 -200.0)" />
-            <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(-0.0 -100.0)" />
+            <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(0.0 -200.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -400.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-200.0 -400.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(-200.0 -400.0)" />
+            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-400.0 -300.0)" />
+            <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-400.0 -300.0)" />
+            <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(0.0 -100.0)" />
         </g>
     </g>
     <g id="Fold" class="vertex Optic" transform="translate(0 400)">
@@ -370,26 +370,26 @@ stop {
         </text>
         <g class="ancestors">
             <use href="#AffineFold-Fold" class="edge Optic AffineFold Fold" transform="translate(-200.0 -100.0)" />
-            <use href="#Bicontravariant-Getter" class="edge Class Bicontravariant Getter" transform="translate(-0.0 -200.0)" />
-            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-0.0 -100.0)" />
-            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(-0.0 -200.0)" />
-            <use href="#Cochoice-Getter" class="edge Class Cochoice Getter" transform="translate(-0.0 -100.0)" />
-            <use href="#Getter-AffineFold" class="edge Optic Getter AffineFold" transform="translate(-200.0 -100.0)" />
-            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -100.0)" />
-            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-200.0 -100.0)" />
-            <use href="#Lens-Getter" class="edge Optic Lens Getter" transform="translate(200.0 -100.0)" />
-            <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-200.0 -100.0)" />
-            <use href="#Optional-AffineFold" class="edge Optic Optional AffineFold" transform="translate(200.0 -100.0)" />
-            <use href="#Optional-Traversal" class="edge Optic Optional Traversal" transform="translate(-200.0 -100.0)" />
-            <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(200.0 -100.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(400.0 -200.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
-            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-0.0 -100.0)" />
-            <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-400.0 -200.0)" />
+            <use href="#Bicontravariant-Getter" class="edge Class Bicontravariant Getter" transform="translate(-400.0 -400.0)" />
+            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(200.0 -400.0)" />
+            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(200.0 -400.0)" />
+            <use href="#Cochoice-Getter" class="edge Class Cochoice Getter" transform="translate(-400.0 -300.0)" />
+            <use href="#Getter-AffineFold" class="edge Optic Getter AffineFold" transform="translate(-400.0 -200.0)" />
+            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(0.0 -400.0)" />
+            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(0.0 -400.0)" />
+            <use href="#Lens-Getter" class="edge Optic Lens Getter" transform="translate(-200.0 -300.0)" />
+            <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-200.0 -300.0)" />
+            <use href="#Optional-AffineFold" class="edge Optic Optional AffineFold" transform="translate(0.0 -200.0)" />
+            <use href="#Optional-Traversal" class="edge Optic Optional Traversal" transform="translate(0.0 -200.0)" />
+            <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(200.0 -300.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(0.0 -500.0)" />
+            <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(0.0 -500.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(0.0 -500.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(0.0 -500.0)" />
+            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-200.0 -400.0)" />
+            <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-200.0 -400.0)" />
             <use href="#Traversal-Fold" class="edge Optic Traversal Fold" transform="translate(200.0 -100.0)" />
-            <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(-0.0 -100.0)" />
+            <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(200.0 -200.0)" />
         </g>
     </g>
     <g id="Setter" class="vertex Optic" transform="translate(400 400)">
@@ -399,24 +399,24 @@ stop {
             Setter
         </text>
         <g class="ancestors">
-            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-0.0 -100.0)" />
-            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(-0.0 -200.0)" />
-            <use href="#Closed-Mapping" class="edge Class Closed Mapping" transform="translate(200.0 -100.0)" />
-            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -100.0)" />
-            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-200.0 -100.0)" />
-            <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-200.0 -100.0)" />
-            <use href="#Mapping-Setter" class="edge Class Mapping Setter" transform="translate(-0.0 -100.0)" />
-            <use href="#Optional-Traversal" class="edge Optic Optional Traversal" transform="translate(-200.0 -100.0)" />
-            <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(200.0 -100.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Closed" class="edge Class Profunctor Closed" transform="translate(-600.0 -300.0)" />
-            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-0.0 -100.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
-            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-0.0 -100.0)" />
-            <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-400.0 -200.0)" />
+            <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(-200.0 -400.0)" />
+            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(-200.0 -400.0)" />
+            <use href="#Closed-Mapping" class="edge Class Closed Mapping" transform="translate(200.0 -200.0)" />
+            <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(-400.0 -400.0)" />
+            <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(-400.0 -400.0)" />
+            <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-600.0 -300.0)" />
+            <use href="#Mapping-Setter" class="edge Class Mapping Setter" transform="translate(0.0 -100.0)" />
+            <use href="#Optional-Traversal" class="edge Optic Optional Traversal" transform="translate(-400.0 -200.0)" />
+            <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(-200.0 -300.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-400.0 -500.0)" />
+            <use href="#Profunctor-Closed" class="edge Class Profunctor Closed" transform="translate(-400.0 -500.0)" />
+            <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-400.0 -500.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(-400.0 -500.0)" />
+            <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-600.0 -400.0)" />
+            <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-600.0 -400.0)" />
             <use href="#Traversal-Setter" class="edge Optic Traversal Setter" transform="translate(-200.0 -100.0)" />
-            <use href="#Traversing-Mapping" class="edge Class Traversing Mapping" transform="translate(-200.0 -100.0)" />
-            <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(-0.0 -100.0)" />
+            <use href="#Traversing-Mapping" class="edge Class Traversing Mapping" transform="translate(-200.0 -200.0)" />
+            <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(-200.0 -200.0)" />
         </g>
     </g>
     <g id="Profunctor" class="vertex Class" transform="translate(0 -100)">
@@ -520,9 +520,9 @@ stop {
             Traversing
         </text>
         <g class="ancestors">
-            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(-0.0 -200.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
+            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(0.0 -200.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -300.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(-200.0 -300.0)" />
             <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-400.0 -200.0)" />
         </g>
     </g>
@@ -534,12 +534,12 @@ stop {
             Mapping
         </text>
         <g class="ancestors">
-            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(-0.0 -200.0)" />
+            <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(-200.0 -300.0)" />
             <use href="#Closed-Mapping" class="edge Class Closed Mapping" transform="translate(200.0 -100.0)" />
-            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
-            <use href="#Profunctor-Closed" class="edge Class Profunctor Closed" transform="translate(-600.0 -300.0)" />
-            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
-            <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-400.0 -200.0)" />
+            <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-400.0 -400.0)" />
+            <use href="#Profunctor-Closed" class="edge Class Profunctor Closed" transform="translate(-400.0 -400.0)" />
+            <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(-400.0 -400.0)" />
+            <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-600.0 -300.0)" />
             <use href="#Traversing-Mapping" class="edge Class Traversing Mapping" transform="translate(-200.0 -100.0)" />
         </g>
     </g>

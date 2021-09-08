@@ -98,13 +98,13 @@ ancestors u = go 0 Map.empty u where
   go offset accum u = case Map.lookup (Main.name u) accum of
     Just _  -> mempty
     Nothing -> foldMap inEdge (inEdges u) where
-      inEdge (v, _) = Map.insert id' use' (go offset accum' v) where
+      inEdge (v, _) = Map.insert id' use' (go offset' accum' v) where
         id' = edgeId v u
         use' = use
           ! href (stringValue ('#':id'))
           ! A.class_ (edgeClass v u)
           ! A.transform (uncurryV2 translate offset')
-        offset' = negate (edgeOffset (coords v) (coords u))
+        offset' = offset - edgeOffset (coords v) (coords u)
       accum' = Map.insert (Main.name u) mempty accum
 
 edgeElement :: Vertex -> (Maybe (V2 Float), Vertex) -> Svg
