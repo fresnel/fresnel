@@ -23,6 +23,10 @@ type Setter s t a b = forall p . IsSetter p => Optic p s t a b
 
 type Setter' s a = Setter s s a a
 
+class (IsTraversal p, Mapping p) => IsSetter p
+
+instance IsSetter (->)
+
 
 -- Construction
 
