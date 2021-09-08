@@ -54,10 +54,10 @@ import Data.Profunctor
 import Data.Profunctor.Rep hiding (cotabulated)
 import Data.Profunctor.Sieve
 import Data.Tuple (swap)
+import Fresnel.Iso.Internal
 import Fresnel.Optic
 import Fresnel.Prism
 import Fresnel.Profunctor.Coexp
-import Fresnel.Profunctor.Optical
 import Fresnel.Review (review)
 
 -- Isos

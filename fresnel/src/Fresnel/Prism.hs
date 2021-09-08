@@ -24,8 +24,8 @@ import Control.Arrow (Kleisli)
 import Control.Monad (guard)
 import Data.Bifunctor (bimap)
 import Data.Profunctor
+import Fresnel.Iso.Internal (IsIso)
 import Fresnel.Optic
-import Fresnel.Profunctor.Optical
 import Fresnel.Profunctor.OptionalStar (OptionalStar)
 import Fresnel.Profunctor.Recall (Recall)
 

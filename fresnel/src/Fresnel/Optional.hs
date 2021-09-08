@@ -20,10 +20,10 @@ module Fresnel.Optional
 import Control.Arrow (Kleisli)
 import Data.Bifunctor
 import Data.Profunctor
+import Fresnel.Iso (IsIso)
 import Fresnel.Lens (IsLens)
 import Fresnel.Optic
 import Fresnel.Prism (IsPrism)
-import Fresnel.Profunctor.Optical
 import Fresnel.Profunctor.OptionalStar
 
 -- Optional traversals

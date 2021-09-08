@@ -17,8 +17,8 @@ module Fresnel.Lens
 
 import Control.Arrow (Kleisli, (&&&), (***))
 import Data.Profunctor
+import Fresnel.Iso (IsIso)
 import Fresnel.Optic
-import Fresnel.Profunctor.Optical
 import Fresnel.Profunctor.OptionalStar (OptionalStar)
 
 -- Lenses
