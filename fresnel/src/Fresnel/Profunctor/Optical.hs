@@ -6,7 +6,7 @@ module Fresnel.Profunctor.Optical
 , IsReview
 , IsOptional
 , IsTraversal
-, IsAffineFold
+, IsOptionalFold
 , IsFold
 , IsSetter
 ) where
@@ -74,11 +74,11 @@ instance Applicative f => IsOptional (Star f)
 instance Functor f => IsOptional (AffineStar f)
 
 
-class (IsOptional p, IsGetter p) => IsAffineFold p
+class (IsOptional p, IsGetter p) => IsOptionalFold p
 
-instance Monoid r => IsAffineFold (Forget r)
-instance (Applicative f, Traversable f, Contravariant f) => IsAffineFold (Star f)
-instance (Traversable f, Contravariant f) => IsAffineFold (AffineStar f)
+instance Monoid r => IsOptionalFold (Forget r)
+instance (Applicative f, Traversable f, Contravariant f) => IsOptionalFold (Star f)
+instance (Traversable f, Contravariant f) => IsOptionalFold (AffineStar f)
 
 
 class (IsOptional p, Traversing p) => IsTraversal p
@@ -89,7 +89,7 @@ instance Monoid r => IsTraversal (Forget r)
 instance Applicative f => IsTraversal (Star f)
 
 
-class (IsAffineFold p, IsTraversal p) => IsFold p
+class (IsOptionalFold p, IsTraversal p) => IsFold p
 
 instance Monoid r => IsFold (Forget r)
 

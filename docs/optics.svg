@@ -101,7 +101,7 @@ use.Class {
   color: var(--optional-colour);
   text-anchor: end;
 }
-#AffineFold, .AffineFold {
+#OptionalFold, .OptionalFold {
   color: var(--affine-fold-colour);
 }
 #Traversal, .Traversal {
@@ -131,14 +131,14 @@ use.Class {
 .Prism.Review {
   stroke: url(#gradient-Prism-Review);
 }
-.Getter.AffineFold {
-  stroke: url(#gradient-Getter-AffineFold);
+.Getter.OptionalFold {
+  stroke: url(#gradient-Getter-OptionalFold);
 }
-.Optional.AffineFold {
-  stroke: url(#gradient-Optional-AffineFold);
+.Optional.OptionalFold {
+  stroke: url(#gradient-Optional-OptionalFold);
 }
-.AffineFold.Fold {
-  stroke: url(#gradient-AffineFold-Fold);
+.OptionalFold.Fold {
+  stroke: url(#gradient-OptionalFold-Fold);
 }
 .Optional.Traversal {
   stroke: url(#gradient-Optional-Traversal);
@@ -196,9 +196,9 @@ stop {
             <stop class="Lens" offset="0%" />
             <stop class="Getter" offset="100%" />
         </linearGradient>
-        <linearGradient id="gradient-Getter-AffineFold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="gradient-Getter-OptionalFold" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop class="Getter" offset="0%" />
-            <stop class="AffineFold" offset="100%" />
+            <stop class="OptionalFold" offset="100%" />
         </linearGradient>
         <linearGradient id="gradient-Prism-Optional" x1="100%" y1="0%" x2="0%" y2="100%">
             <stop class="Prism" offset="0%" />
@@ -208,16 +208,16 @@ stop {
             <stop class="Prism" offset="0%" />
             <stop class="Review" offset="100%" />
         </linearGradient>
-        <linearGradient id="gradient-Optional-AffineFold" x1="100%" y1="0%" x2="0%" y2="100%">
+        <linearGradient id="gradient-Optional-OptionalFold" x1="100%" y1="0%" x2="0%" y2="100%">
             <stop class="Optional" offset="0%" />
-            <stop class="AffineFold" offset="100%" />
+            <stop class="OptionalFold" offset="100%" />
         </linearGradient>
         <linearGradient id="gradient-Optional-Traversal" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop class="Optional" offset="0%" />
             <stop class="Traversal" offset="100%" />
         </linearGradient>
-        <linearGradient id="gradient-AffineFold-Fold" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop class="AffineFold" offset="0%" />
+        <linearGradient id="gradient-OptionalFold-Fold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop class="OptionalFold" offset="0%" />
             <stop class="Fold" offset="100%" />
         </linearGradient>
         <linearGradient id="gradient-Traversal-Fold" x1="100%" y1="0%" x2="0%" y2="100%">
@@ -257,7 +257,7 @@ stop {
         </g>
     </g>
     <g id="Getter" class="vertex Optic" transform="translate(-400 200)">
-        <path id="Getter-AffineFold" class="edge Optic Getter AffineFold" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+        <path id="Getter-OptionalFold" class="edge Optic Getter OptionalFold" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,15 h -50 " />
         <text transform="translate(-80 30)">
@@ -307,7 +307,7 @@ stop {
         </g>
     </g>
     <g id="Optional" class="vertex Optic" transform="translate(0 200)">
-        <path id="Optional-AffineFold" class="edge Optic Optional AffineFold" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " />
+        <path id="Optional-OptionalFold" class="edge Optic Optional OptionalFold" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " />
         <path id="Optional-Traversal" class="edge Optic Optional Traversal" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,0 h -50 " />
@@ -326,23 +326,23 @@ stop {
             <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-200.0 -200.0)" />
         </g>
     </g>
-    <g id="AffineFold" class="vertex Optic" transform="translate(-200 300)">
-        <path id="AffineFold-Fold" class="edge Optic AffineFold Fold" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+    <g id="OptionalFold" class="vertex Optic" transform="translate(-200 300)">
+        <path id="OptionalFold-Fold" class="edge Optic OptionalFold Fold" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,15 h -50 " />
         <text transform="translate(-80 30)">
-            AffineFold
+            OptionalFold
         </text>
         <g class="ancestors">
             <use href="#Bicontravariant-Getter" class="edge Class Bicontravariant Getter" transform="translate(-200.0 -300.0)" />
             <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(400.0 -300.0)" />
             <use href="#Cochoice-Getter" class="edge Class Cochoice Getter" transform="translate(-200.0 -200.0)" />
-            <use href="#Getter-AffineFold" class="edge Optic Getter AffineFold" transform="translate(-200.0 -100.0)" />
+            <use href="#Getter-OptionalFold" class="edge Optic Getter OptionalFold" transform="translate(-200.0 -100.0)" />
             <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(200.0 -300.0)" />
             <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(200.0 -300.0)" />
             <use href="#Lens-Getter" class="edge Optic Lens Getter" transform="translate(0.0 -200.0)" />
             <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(0.0 -200.0)" />
-            <use href="#Optional-AffineFold" class="edge Optic Optional AffineFold" transform="translate(200.0 -100.0)" />
+            <use href="#Optional-OptionalFold" class="edge Optic Optional OptionalFold" transform="translate(200.0 -100.0)" />
             <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(400.0 -200.0)" />
             <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(200.0 -400.0)" />
             <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(200.0 -400.0)" />
@@ -382,18 +382,18 @@ stop {
             Fold
         </text>
         <g class="ancestors">
-            <use href="#AffineFold-Fold" class="edge Optic AffineFold Fold" transform="translate(-200.0 -100.0)" />
             <use href="#Bicontravariant-Getter" class="edge Class Bicontravariant Getter" transform="translate(-400.0 -400.0)" />
             <use href="#Choice-Prism" class="edge Class Choice Prism" transform="translate(200.0 -400.0)" />
             <use href="#Choice-Traversing" class="edge Class Choice Traversing" transform="translate(200.0 -400.0)" />
             <use href="#Cochoice-Getter" class="edge Class Cochoice Getter" transform="translate(-400.0 -300.0)" />
-            <use href="#Getter-AffineFold" class="edge Optic Getter AffineFold" transform="translate(-400.0 -200.0)" />
+            <use href="#Getter-OptionalFold" class="edge Optic Getter OptionalFold" transform="translate(-400.0 -200.0)" />
             <use href="#Iso-Lens" class="edge Optic Iso Lens" transform="translate(0.0 -400.0)" />
             <use href="#Iso-Prism" class="edge Optic Iso Prism" transform="translate(0.0 -400.0)" />
             <use href="#Lens-Getter" class="edge Optic Lens Getter" transform="translate(-200.0 -300.0)" />
             <use href="#Lens-Optional" class="edge Optic Lens Optional" transform="translate(-200.0 -300.0)" />
-            <use href="#Optional-AffineFold" class="edge Optic Optional AffineFold" transform="translate(0.0 -200.0)" />
+            <use href="#Optional-OptionalFold" class="edge Optic Optional OptionalFold" transform="translate(0.0 -200.0)" />
             <use href="#Optional-Traversal" class="edge Optic Optional Traversal" transform="translate(0.0 -200.0)" />
+            <use href="#OptionalFold-Fold" class="edge Optic OptionalFold Fold" transform="translate(-200.0 -100.0)" />
             <use href="#Prism-Optional" class="edge Optic Prism Optional" transform="translate(200.0 -300.0)" />
             <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(0.0 -500.0)" />
             <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(0.0 -500.0)" />

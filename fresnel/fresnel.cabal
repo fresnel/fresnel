@@ -38,7 +38,6 @@ common common
 library
   import: common
   exposed-modules:
-    Fresnel.AffineFold
     Fresnel.At
     Fresnel.Bifunctor.Contravariant
     Fresnel.Either
@@ -51,6 +50,7 @@ library
     Fresnel.Maybe
     Fresnel.Optic
     Fresnel.Optional
+    Fresnel.OptionalFold
     Fresnel.Prism
     Fresnel.Profunctor.AffineStar
     Fresnel.Profunctor.Coexp
