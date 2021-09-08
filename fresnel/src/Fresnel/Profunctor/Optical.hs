@@ -3,7 +3,6 @@ module Fresnel.Profunctor.Optical
 , IsLens
 , IsGetter
 , IsPrism
-, IsOptional
 ) where
 
 
@@ -51,12 +50,3 @@ instance Monoid r => IsPrism (Forget r)
 instance IsPrism (Recall e)
 instance Applicative f => IsPrism (Star f)
 instance Functor f => IsPrism (OptionalStar f)
-
-
-class (IsLens p, IsPrism p) => IsOptional p where
-
-instance IsOptional (->)
-instance Monad m => IsOptional (Kleisli m)
-instance Monoid r => IsOptional (Forget r)
-instance Applicative f => IsOptional (Star f)
-instance Functor f => IsOptional (OptionalStar f)

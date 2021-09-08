@@ -17,6 +17,7 @@ module Fresnel.Optional
 , unpackedOptional
 ) where
 
+import Control.Arrow (Kleisli)
 import Data.Bifunctor
 import Data.Profunctor
 import Fresnel.Optic
@@ -28,6 +29,14 @@ import Fresnel.Profunctor.OptionalStar
 type Optional s t a b = forall p . IsOptional p => Optic p s t a b
 
 type Optional' s a = Optional s s a a
+
+class (IsLens p, IsPrism p) => IsOptional p where
+
+instance IsOptional (->)
+instance Monad m => IsOptional (Kleisli m)
+instance Monoid r => IsOptional (Forget r)
+instance Applicative f => IsOptional (Star f)
+instance Functor f => IsOptional (OptionalStar f)
 
 
 -- Construction

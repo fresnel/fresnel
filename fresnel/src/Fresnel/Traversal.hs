@@ -16,7 +16,7 @@ import Control.Arrow (Kleisli)
 import Data.Profunctor
 import Data.Profunctor.Traversing (Traversing(..))
 import Fresnel.Optic
-import Fresnel.Profunctor.Optical
+import Fresnel.Optional (IsOptional)
 
 -- Traversals
 
