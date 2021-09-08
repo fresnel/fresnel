@@ -168,7 +168,6 @@ stop {
   visibility: visible;
 }
 .edge {
-  pointer-events: none;
   stroke-width: var(--edge-stroke-width, 0.5px);
 }
 
