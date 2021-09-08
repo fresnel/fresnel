@@ -148,7 +148,7 @@ stop {
   pointer-events: none;
   --edge-stroke-width: 0.5px;
 }
-.vertex text {
+.vertex text, .vertex circle, .vertex .label {
   pointer-events: all;
 }
 .vertex .ancestors {
