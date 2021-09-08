@@ -10,8 +10,10 @@ module Fresnel.AffineFold
 , previews
 , preview
 , (^?)
+, isn't
 ) where
 
+import Data.Maybe (isJust)
 import Data.Monoid (First(..))
 import Data.Profunctor
 import Fresnel.Bifunctor.Contravariant
@@ -44,3 +46,6 @@ preview o = previews o id
 s ^? o = preview o s
 
 infixl 8 ^?
+
+isn't :: AffineFold s a -> s -> Bool
+isn't o = isJust . preview o
