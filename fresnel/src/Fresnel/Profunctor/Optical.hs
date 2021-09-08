@@ -4,7 +4,6 @@ module Fresnel.Profunctor.Optical
 , IsGetter
 , IsPrism
 , IsOptional
-, IsOptionalFold
 ) where
 
 
@@ -61,10 +60,3 @@ instance Monad m => IsOptional (Kleisli m)
 instance Monoid r => IsOptional (Forget r)
 instance Applicative f => IsOptional (Star f)
 instance Functor f => IsOptional (OptionalStar f)
-
-
-class (IsOptional p, IsGetter p) => IsOptionalFold p
-
-instance Monoid r => IsOptionalFold (Forget r)
-instance (Applicative f, Traversable f, Contravariant f) => IsOptionalFold (Star f)
-instance (Traversable f, Contravariant f) => IsOptionalFold (OptionalStar f)
