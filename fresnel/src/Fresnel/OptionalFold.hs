@@ -11,8 +11,10 @@ module Fresnel.OptionalFold
 , preview
 , (^?)
 , isn't
+, Failover(..)
 ) where
 
+import Control.Applicative ((<|>))
 import Data.Maybe (isJust)
 import Data.Monoid (First(..))
 import Data.Profunctor
@@ -49,3 +51,9 @@ infixl 8 ^?
 
 isn't :: OptionalFold s a -> s -> Bool
 isn't o = isJust . preview o
+
+
+newtype Failover s a = Failover { getFailover :: OptionalFold s a }
+
+instance Semigroup (Failover s a) where
+  Failover a1 <> Failover a2 = Failover (ofolding (\ s -> preview a1 s <|> preview a2 s))
