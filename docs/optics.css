@@ -52,6 +52,12 @@ text {
   color: var(--Class-colour);
   stroke-dasharray: 1px 1px;
 }
+.vertex.Class {
+  visibility: hidden;
+}
+.show-profunctors .vertex.Class {
+  visibility: visible;
+}
 .Class text {
   font-style: italic;
 }
@@ -162,7 +168,8 @@ stop {
 .vertex:hover circle {
   stroke-width: 2px;
 }
-.vertex:hover .ancestors {
+.show-profunctors .vertex:hover .ancestors,
+.vertex.Optic:hover .ancestors .edge.Optic {
   visibility: visible;
 }
 .edge {

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <title>fresnel</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css">
+  <style>
+  :root {
+    --main: #083d3f;
+  }
+  body {
+    padding: 0;
+    margin: 0 2rem;
+    font-family: "Computer Modern Serif";
+  }
+  main {
+    margin: 0 auto;
+    padding: 0 4rem;
+    border: 0.00001px solid white;
+    background: white;
+  }
+  main h1, main p {
+    width: 48rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #figure-1 {
+    background: white;
+    width: 100%;
+    padding-top: 2rem;
+    box-sizing: border-box;
+  }
+
+  #diagram .Class {
+    visibility: hidden;
+  }
+  #diagram.show-profunctors .Class {
+    visibility: visible;
+  }
+
+  figcaption {
+    border-top: 1px solid #ccc;
+    padding-top: 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+  }
+  figcaption p {
+    font-size: 1.25rem;
+  }
+
+  fieldset {
+    border: 0;
+    text-align: start;
+    padding: 0;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Computer Modern Bright";
+  }
+  h1 {
+    font-size: 3rem;
+  }
+
+  p {
+    font-size: 1.5rem;
+  }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Fresnel</h1>
+
+    <p><code>fresnel</code> is a Haskell library implementing a selection of <em>optics</em> illustrated in <a href="#figure-1">Figure 1</a>.</p>
+
+    <figure id="figure-1" class="diagram">
+      <object id="diagram" class="show-profunctors" type="image/svg+xml" data="optics.svg"></object>
+      <figcaption>
+        <p><strong>Figure 1.</strong> the optical hierarchy of <code>fresnel</code>.</p>
+        <fieldset>
+          <p>
+            <label><input type="checkbox" id="show-profunctors" checked>Show profunctors.</label>
+          </p>
+        </fieldset>
+      </figcaption>
+    </figure>
+
+    <script type="text/javascript">
+    const showProfunctors = document.getElementById('show-profunctors');
+    showProfunctors.onchange = event => {
+      const diagram = document.getElementById('diagram');
+      const svg = diagram.contentDocument.querySelector('svg');
+      if (showProfunctors.checked) {
+        svg.classList.add('show-profunctors');
+      } else {
+        svg.classList.remove('show-profunctors');
+      }
+    };
+    </script>
+  </main>
+</body>
+</html>
