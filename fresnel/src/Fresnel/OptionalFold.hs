@@ -20,7 +20,7 @@ import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
 import Fresnel.Profunctor.Optical
 
--- Affine folds
+-- Optional folds
 
 type OptionalFold s a = forall p . IsOptionalFold p => Optic' p s a
 

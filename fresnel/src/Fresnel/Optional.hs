@@ -23,7 +23,7 @@ import Fresnel.Optic
 import Fresnel.Profunctor.AffineStar
 import Fresnel.Profunctor.Optical
 
--- Affine traversals
+-- Optional traversals
 
 type Optional s t a b = forall p . IsOptional p => Optic p s t a b
 
