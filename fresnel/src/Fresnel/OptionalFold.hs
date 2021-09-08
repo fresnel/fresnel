@@ -4,7 +4,7 @@ module Fresnel.OptionalFold
   OptionalFold
 , IsOptionalFold
   -- * Construction
-, afolding
+, ofolding
 , filtered
   -- * Elimination
 , previews
@@ -27,11 +27,11 @@ type OptionalFold s a = forall p . IsOptionalFold p => Optic' p s a
 
 -- Construction
 
-afolding :: (s -> Maybe a) -> OptionalFold s a
-afolding f = contrabimap ((`maybe` Right) . Left <*> f) Left . right'
+ofolding :: (s -> Maybe a) -> OptionalFold s a
+ofolding f = contrabimap ((`maybe` Right) . Left <*> f) Left . right'
 
 filtered :: (a -> Bool) -> OptionalFold a a
-filtered p = afolding (\ a -> if p a then Just a else Nothing)
+filtered p = ofolding (\ a -> if p a then Just a else Nothing)
 
 
 -- Elimination
