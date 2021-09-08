@@ -4,7 +4,6 @@ module Fresnel.Profunctor.Optical
 , IsGetter
 , IsPrism
 , IsOptional
-, IsTraversal
 , IsOptionalFold
 ) where
 
@@ -12,7 +11,6 @@ module Fresnel.Profunctor.Optical
 import Control.Arrow
 import Data.Functor.Contravariant
 import Data.Profunctor
-import Data.Profunctor.Traversing
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Profunctor.Coexp
 import Fresnel.Profunctor.OptionalStar
@@ -70,11 +68,3 @@ class (IsOptional p, IsGetter p) => IsOptionalFold p
 instance Monoid r => IsOptionalFold (Forget r)
 instance (Applicative f, Traversable f, Contravariant f) => IsOptionalFold (Star f)
 instance (Traversable f, Contravariant f) => IsOptionalFold (OptionalStar f)
-
-
-class (IsOptional p, Traversing p) => IsTraversal p
-
-instance IsTraversal (->)
-instance Monad m => IsTraversal (Kleisli m)
-instance Monoid r => IsTraversal (Forget r)
-instance Applicative f => IsTraversal (Star f)

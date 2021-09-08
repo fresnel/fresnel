@@ -19,6 +19,7 @@ import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Optic
 import Fresnel.Profunctor.Optical
+import Fresnel.Traversal (IsTraversal)
 
 -- Folds
 
