@@ -146,13 +146,13 @@ stop {
 .vertex .ancestors {
   pointer-events: none;
 }
-.vertex.hover, .vertex:hover {
+.vertex:hover {
   --label-stroke-width: 1px;
 }
 .vertex.hover, .vertex:hover circle {
   stroke-width: 2px;
 }
-.edge.hover, .vertex:hover .ancestors {
+.vertex:hover .ancestors {
   --edge-stroke-width: 1.25px;
 }
 .edge {
