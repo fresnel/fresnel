@@ -5,6 +5,7 @@ module Fresnel.Fold
 , IsFold
   -- * Construction
 , folded
+, folding
   -- * Elimination
 , foldMapOf
 , foldOf
@@ -34,6 +35,9 @@ instance Monoid r => IsFold (Forget r)
 
 folded :: Foldable f => Fold (f a) a
 folded = rphantom . wander traverse_
+
+folding :: Foldable f => (s -> f a) -> Fold s a
+folding f = contrabimap f (const ()) . rmap (const ()) . wander traverse_
 
 
 -- Elimination
