@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE RankNTypes #-}
 module Fresnel.Fold
 ( -- * Folds
@@ -65,6 +66,7 @@ infixl 8 ^?
 
 
 newtype Traversed f a = Traversed (f a)
+  deriving (Applicative, Functor)
 
 runTraversed :: Functor f => Traversed f a -> f ()
 runTraversed (Traversed fa) = void fa
@@ -74,11 +76,3 @@ instance Applicative f => Semigroup (Traversed f a) where
 
 instance Applicative f => Monoid (Traversed f a) where
   mempty = Traversed (pure (error "Traversed.mempty: value used"))
-
-instance Functor f => Functor (Traversed f) where
-  fmap f (Traversed fa) = Traversed (fmap f fa)
-
-instance Applicative f => Applicative (Traversed f) where
-  pure = Traversed . pure
-
-  Traversed f <*> Traversed a = Traversed (f <*> a)
