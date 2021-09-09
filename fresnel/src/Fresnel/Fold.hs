@@ -5,6 +5,7 @@ module Fresnel.Fold
 , IsFold
   -- * Construction
 , folded
+, unfolded
 , folding
 , foldring
   -- * Elimination
@@ -36,6 +37,9 @@ instance Monoid r => IsFold (Forget r)
 
 folded :: Foldable f => Fold (f a) a
 folded = rphantom . wander traverse_
+
+unfolded :: (s -> Maybe (a, s)) -> Fold s a
+unfolded coalg = rphantom . wander (\ f -> let loop = maybe (pure ()) (\ (a, s) -> f a *> loop s) . coalg in loop)
 
 folding :: Foldable f => (s -> f a) -> Fold s a
 folding f = contrabimap f (const ()) . rmap (const ()) . wander traverse_
