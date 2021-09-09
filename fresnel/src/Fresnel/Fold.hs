@@ -15,6 +15,7 @@ module Fresnel.Fold
 ) where
 
 import Data.Foldable (traverse_)
+import Data.Functor (void)
 import Data.Monoid
 import Data.Profunctor
 import Data.Profunctor.Traversing
@@ -45,8 +46,7 @@ folding :: Foldable f => (s -> f a) -> Fold s a
 folding f = contrabimap f (const ()) . rmap (const ()) . wander traverse_
 
 foldring :: (forall f . Applicative f => (a -> f u -> f u) -> f v -> s -> f w) -> Fold s a
-foldring fr = rphantom . wander (\ f -> fr (\ a -> (f a *>)) (pure v)) where
-  v = error "foldring: value used"
+foldring fr = rphantom . wander (\ f -> runTraversed . fr (\ a -> (Traversed (f a) *>)) mempty)
 
 
 -- Elimination
@@ -62,3 +62,23 @@ foldOf o = runForget (o (Forget id))
 s ^? l = getFirst (foldMapOf l (First #. Just) s)
 
 infixl 8 ^?
+
+
+newtype Traversed f a = Traversed (f a)
+
+runTraversed :: Functor f => Traversed f a -> f ()
+runTraversed (Traversed fa) = void fa
+
+instance Applicative f => Semigroup (Traversed f a) where
+  Traversed a1 <> Traversed a2 = Traversed (a1 *> a2)
+
+instance Applicative f => Monoid (Traversed f a) where
+  mempty = Traversed (pure (error "Traversed.mempty: value used"))
+
+instance Functor f => Functor (Traversed f) where
+  fmap f (Traversed fa) = Traversed (fmap f fa)
+
+instance Applicative f => Applicative (Traversed f) where
+  pure = Traversed . pure
+
+  Traversed f <*> Traversed a = Traversed (f <*> a)
