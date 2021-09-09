@@ -6,6 +6,7 @@ module Fresnel.Fold
   -- * Construction
 , folded
 , folding
+, foldring
   -- * Elimination
 , foldMapOf
 , foldOf
@@ -38,6 +39,10 @@ folded = rphantom . wander traverse_
 
 folding :: Foldable f => (s -> f a) -> Fold s a
 folding f = contrabimap f (const ()) . rmap (const ()) . wander traverse_
+
+foldring :: (forall f . Applicative f => (a -> f u -> f u) -> f v -> s -> f w) -> Fold s a
+foldring fr = rphantom . wander (\ f -> fr (\ a -> (f a *>)) (pure v)) where
+  v = error "foldring: value used"
 
 
 -- Elimination
