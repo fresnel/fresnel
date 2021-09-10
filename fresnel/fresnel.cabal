@@ -49,6 +49,7 @@ library
     Fresnel.Lens
     Fresnel.List.NonEmpty
     Fresnel.Maybe
+    Fresnel.Monoid.Cons
     Fresnel.Optic
     Fresnel.Optional
     Fresnel.OptionalFold
