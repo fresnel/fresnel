@@ -1,2 +1,5 @@
 module Fresnel.Monoid.Fork
-() where
+( Fork(..)
+) where
+
+newtype Fork r a = Fork { runFork :: (r -> r -> r) -> (a -> r) -> r -> r }
