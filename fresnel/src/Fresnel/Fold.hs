@@ -13,6 +13,8 @@ module Fresnel.Fold
 , foldMapOf
 , foldOf
 , traverseOf_
+, previews
+, preview
 , (^?)
 , Union(..)
 ) where
@@ -66,6 +68,12 @@ foldOf o = foldMapOf o id
 traverseOf_ :: Applicative f => Fold s a -> ((a -> f r) -> (s -> f ()))
 traverseOf_ o f = runTraversed . foldMapOf o (Traversed #. f)
 
+
+previews :: Fold s a -> (a -> r) -> (s -> Maybe r)
+previews o f = getFirst #. foldMapOf o (First #. Just . f)
+
+preview :: Fold s a -> s -> Maybe a
+preview o = previews o id
 
 (^?) :: s -> Fold s a -> Maybe a
 s ^? l = getFirst (foldMapOf l (First #. Just) s)
