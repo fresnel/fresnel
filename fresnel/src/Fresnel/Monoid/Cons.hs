@@ -1,2 +1,5 @@
 module Fresnel.Monoid.Cons
-() where
+( Cons(..)
+) where
+
+newtype Cons r a = Cons { runCons :: (a -> r -> r) -> r -> r }
