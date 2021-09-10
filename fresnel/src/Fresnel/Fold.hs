@@ -18,13 +18,13 @@ module Fresnel.Fold
 ) where
 
 import Data.Foldable (traverse_)
-import Data.Functor (void)
 import Data.Functor.Contravariant
 import Data.Monoid
 import Data.Profunctor
 import Data.Profunctor.Traversing
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
+import Fresnel.Functor.Traversed
 import Fresnel.Optic
 import Fresnel.OptionalFold (IsOptionalFold)
 import Fresnel.Traversal (IsTraversal)
@@ -76,16 +76,3 @@ newtype Union s a = Union { getUnion :: Fold s a }
 
 instance Semigroup (Union s a) where
   Union a1 <> Union a2 = Union (rphantom . wander (\ f s -> traverseOf_ a1 f s *> traverseOf_ a2 f s) . rphantom)
-
-
-newtype Traversed f a = Traversed (f a)
-  deriving (Applicative, Functor)
-
-runTraversed :: Functor f => Traversed f a -> f ()
-runTraversed (Traversed fa) = void fa
-
-instance Applicative f => Semigroup (Traversed f a) where
-  Traversed a1 <> Traversed a2 = Traversed (a1 *> a2)
-
-instance Applicative f => Monoid (Traversed f a) where
-  mempty = Traversed (pure (error "Traversed.mempty: value used"))
