@@ -11,6 +11,7 @@ module Fresnel.Fold
 , foldring
   -- * Elimination
 , foldMapOf
+, foldrOf
 , foldOf
 , traverseOf_
 , previews
@@ -61,6 +62,9 @@ foldring fr = rphantom . wander (\ f -> fr (\ a -> (f a *>)) (pure v)) where
 
 foldMapOf :: Monoid m => Fold s a -> ((a -> m) -> (s -> m))
 foldMapOf o = runForget #. o .# Forget
+
+foldrOf :: Fold s a -> ((a -> r -> r) -> r -> s -> r)
+foldrOf o cons nil s = runForget (o (Forget cons)) s nil
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = foldMapOf o id
