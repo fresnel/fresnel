@@ -12,6 +12,7 @@ module Fresnel.Fold
   -- * Elimination
 , foldMapOf
 , foldOf
+, traverseOf_
 , (^?)
 , Union(..)
 ) where
