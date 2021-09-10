@@ -7,9 +7,6 @@ module Fresnel.OptionalFold
 , folding
 , filtered
   -- * Elimination
-, previews
-, preview
-, (^?)
 , isn't
 , traverseOf_
 , Failover(..)
@@ -18,10 +15,9 @@ module Fresnel.OptionalFold
 import Control.Applicative ((<|>))
 import Data.Functor (void)
 import Data.Maybe (isJust)
-import Data.Monoid (First(..))
 import Data.Profunctor
-import Data.Profunctor.Unsafe
 import Fresnel.Bifunctor.Contravariant
+import Fresnel.Fold (preview)
 import Fresnel.Optic
 import Fresnel.OptionalFold.Internal
 
@@ -40,17 +36,6 @@ filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 
 -- Elimination
-
-previews :: OptionalFold s a -> (a -> r) -> (s -> Maybe r)
-previews o f = getFirst #. runForget (o (Forget (First #. Just . f)))
-
-preview :: OptionalFold s a -> s -> Maybe a
-preview o = previews o id
-
-(^?) :: s -> OptionalFold s a -> Maybe a
-s ^? o = preview o s
-
-infixl 8 ^?
 
 isn't :: OptionalFold s a -> s -> Bool
 isn't o = isJust . preview o
