@@ -59,7 +59,7 @@ foldMapOf o = runForget #. o .# Forget
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = runForget (o (Forget id))
 
-traverseOf_ :: Applicative f => Fold s a -> (a -> f r) -> (s -> f ())
+traverseOf_ :: Applicative f => Fold s a -> ((a -> f r) -> (s -> f ()))
 traverseOf_ o f = runTraversed . foldMapOf o (Traversed #. f)
 
 
