@@ -50,6 +50,7 @@ library
     Fresnel.List.NonEmpty
     Fresnel.Maybe
     Fresnel.Monoid.Cons
+    Fresnel.Monoid.Fork
     Fresnel.Optic
     Fresnel.Optional
     Fresnel.OptionalFold
