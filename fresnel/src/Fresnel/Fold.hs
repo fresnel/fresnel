@@ -13,6 +13,7 @@ module Fresnel.Fold
 , foldMapOf
 , foldOf
 , (^?)
+, Union(..)
 ) where
 
 import Data.Foldable (traverse_)
@@ -58,11 +59,20 @@ foldMapOf o = runForget #. o .# Forget
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = runForget (o (Forget id))
 
+traverseOf_ :: Applicative f => Fold s a -> (a -> f r) -> (s -> f ())
+traverseOf_ o f = runTraversed . foldMapOf o (Traversed #. f)
+
 
 (^?) :: s -> Fold s a -> Maybe a
 s ^? l = getFirst (foldMapOf l (First #. Just) s)
 
 infixl 8 ^?
+
+
+newtype Union s a = Union { getUnion :: Fold s a }
+
+instance Semigroup (Union s a) where
+  Union a1 <> Union a2 = Union (rphantom . wander (\ f s -> traverseOf_ a1 f s *> traverseOf_ a2 f s) . rphantom)
 
 
 newtype Traversed f a = Traversed (f a)
