@@ -11,10 +11,12 @@ module Fresnel.OptionalFold
 , preview
 , (^?)
 , isn't
+, traverseOf_
 , Failover(..)
 ) where
 
 import Control.Applicative ((<|>))
+import Data.Functor (void)
 import Data.Functor.Contravariant (Contravariant)
 import Data.Maybe (isJust)
 import Data.Monoid (First(..))
@@ -60,6 +62,9 @@ infixl 8 ^?
 
 isn't :: OptionalFold s a -> s -> Bool
 isn't o = isJust . preview o
+
+traverseOf_ :: Functor f => OptionalFold s a -> ((forall x . x -> f x) -> (a -> f u) -> (s -> f ()))
+traverseOf_ o point f s = maybe (point ()) (void . f) (preview o s)
 
 
 newtype Failover s a = Failover { getFailover :: OptionalFold s a }
