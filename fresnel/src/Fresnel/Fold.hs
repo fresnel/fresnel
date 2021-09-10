@@ -19,6 +19,7 @@ module Fresnel.Fold
 
 import Data.Foldable (traverse_)
 import Data.Functor (void)
+import Data.Functor.Contravariant
 import Data.Monoid
 import Data.Profunctor
 import Data.Profunctor.Traversing
@@ -35,6 +36,7 @@ type Fold s a = forall p . IsFold p => Optic' p s a
 class (IsOptionalFold p, IsTraversal p) => IsFold p
 
 instance Monoid r => IsFold (Forget r)
+instance (Applicative f, Traversable f, Contravariant f) => IsFold (Star f)
 
 
 -- Construction
