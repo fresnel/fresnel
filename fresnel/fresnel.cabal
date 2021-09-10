@@ -62,6 +62,7 @@ library
     Fresnel.Tuple
   other-modules:
     Fresnel.Iso.Internal
+    Fresnel.OptionalFold.Internal
   build-depends:
     , base >=4.14 && < 5
     , containers   >= 0.5 && < 0.7
