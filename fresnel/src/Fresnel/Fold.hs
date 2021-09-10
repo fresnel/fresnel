@@ -11,6 +11,7 @@ module Fresnel.Fold
 , foldring
   -- * Elimination
 , foldMapOf
+, foldMapByOf
 , foldrOf
 , foldOf
 , traverseOf_
@@ -29,6 +30,7 @@ import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Functor.Traversed
 import Fresnel.Monoid.Cons as Cons
+import Fresnel.Monoid.Fork as Fork
 import Fresnel.Optic
 import Fresnel.OptionalFold.Internal (IsOptionalFold)
 import Fresnel.Traversal (IsTraversal)
@@ -63,6 +65,9 @@ foldring fr = rphantom . wander (\ f -> fr (\ a -> (f a *>)) (pure v)) where
 
 foldMapOf :: Monoid m => Fold s a -> ((a -> m) -> (s -> m))
 foldMapOf o = runForget #. o .# Forget
+
+foldMapByOf :: Fold s a -> ((r -> r -> r) -> r -> (a -> r) -> (s -> r))
+foldMapByOf o fork nil leaf s = runFork (runForget (o (Forget Fork.fork)) s) fork leaf nil
 
 foldrOf :: Fold s a -> ((a -> r -> r) -> r -> s -> r)
 foldrOf o cons nil s = runCons (runForget (o (Forget Cons.cons)) s) cons nil
