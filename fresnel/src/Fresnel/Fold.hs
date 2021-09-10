@@ -86,7 +86,7 @@ preview :: Fold s a -> s -> Maybe a
 preview o = previews o id
 
 (^?) :: s -> Fold s a -> Maybe a
-s ^? l = getFirst (foldMapOf l (First #. Just) s)
+s ^? o = preview o s
 
 infixl 8 ^?
 
