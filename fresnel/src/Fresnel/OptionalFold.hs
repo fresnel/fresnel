@@ -17,26 +17,17 @@ module Fresnel.OptionalFold
 
 import Control.Applicative ((<|>))
 import Data.Functor (void)
-import Data.Functor.Contravariant (Contravariant)
 import Data.Maybe (isJust)
 import Data.Monoid (First(..))
 import Data.Profunctor
 import Data.Profunctor.Unsafe
 import Fresnel.Bifunctor.Contravariant
-import Fresnel.Getter (IsGetter)
 import Fresnel.Optic
-import Fresnel.Optional (IsOptional)
-import Fresnel.Profunctor.OptionalStar (OptionalStar)
+import Fresnel.OptionalFold.Internal
 
 -- Optional folds
 
 type OptionalFold s a = forall p . IsOptionalFold p => Optic' p s a
-
-class (IsOptional p, IsGetter p) => IsOptionalFold p
-
-instance Monoid r => IsOptionalFold (Forget r)
-instance (Applicative f, Traversable f, Contravariant f) => IsOptionalFold (Star f)
-instance (Traversable f, Contravariant f) => IsOptionalFold (OptionalStar f)
 
 
 -- Construction
