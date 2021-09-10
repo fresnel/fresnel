@@ -21,6 +21,7 @@ import Data.Functor.Contravariant (Contravariant)
 import Data.Maybe (isJust)
 import Data.Monoid (First(..))
 import Data.Profunctor
+import Data.Profunctor.Unsafe
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Getter (IsGetter)
 import Fresnel.Optic
@@ -50,7 +51,7 @@ filtered p = folding (\ a -> if p a then Just a else Nothing)
 -- Elimination
 
 previews :: OptionalFold s a -> (a -> r) -> (s -> Maybe r)
-previews o f = getFirst . runForget (o (Forget (First . Just . f)))
+previews o f = getFirst #. runForget (o (Forget (First #. Just . f)))
 
 preview :: OptionalFold s a -> s -> Maybe a
 preview o = previews o id
