@@ -28,6 +28,7 @@ import Data.Profunctor.Traversing
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Functor.Traversed
+import Fresnel.Monoid.Cons as Cons
 import Fresnel.Optic
 import Fresnel.OptionalFold.Internal (IsOptionalFold)
 import Fresnel.Traversal (IsTraversal)
@@ -64,7 +65,7 @@ foldMapOf :: Monoid m => Fold s a -> ((a -> m) -> (s -> m))
 foldMapOf o = runForget #. o .# Forget
 
 foldrOf :: Fold s a -> ((a -> r -> r) -> r -> s -> r)
-foldrOf o cons nil s = runForget (o (Forget cons)) s nil
+foldrOf o cons nil s = runCons (runForget (o (Forget Cons.cons)) s) cons nil
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = foldMapOf o id
