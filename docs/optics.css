@@ -22,7 +22,7 @@
 
 :root {
   --Optic-colour: #000;
-  --Class-colour: #bbb;
+  --Class-colour: hsl(0, 0%, 60%);
 
   --iso-colour: hsl(0, 50%, 50%);
   --prism-colour: hsl(45, 50%, 50%);
