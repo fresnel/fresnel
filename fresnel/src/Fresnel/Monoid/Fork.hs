@@ -16,6 +16,9 @@ instance Semigroup (Fork a) where
 instance Monoid (Fork a) where
   mempty = Fork (\ _ _ nil -> nil)
 
+instance Functor Fork where
+  fmap f (Fork r) = Fork (\ fork leaf -> r fork (leaf . f))
+
 
 -- Construction
 
