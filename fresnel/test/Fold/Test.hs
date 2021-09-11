@@ -19,6 +19,16 @@ prop_union_monoid_right_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Proper
 prop_union_monoid_right_identity (ArbFold a) as = foldMapOf (getUnion (Union a <> mempty)) (:[]) as === foldMapOf a (:[]) as
 
 
+prop_failover_semigroup_assoc :: (Eq a, Show a) => ArbFold a -> ArbFold a -> ArbFold a -> [a] -> Property
+prop_failover_semigroup_assoc (ArbFold a) (ArbFold b) (ArbFold c) as = foldMapOf (getFailover (Failover a <> (Failover b <> Failover c))) (:[]) as === foldMapOf (getFailover ((Failover a <> Failover b) <> Failover c)) (:[]) as
+
+prop_failover_monoid_left_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
+prop_failover_monoid_left_identity (ArbFold a) as = foldMapOf (getFailover (mempty <> Failover a)) (:[]) as === foldMapOf a (:[]) as
+
+prop_failover_monoid_right_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
+prop_failover_monoid_right_identity (ArbFold a) as = foldMapOf (getFailover (Failover a <> mempty)) (:[]) as === foldMapOf a (:[]) as
+
+
 newtype ArbFold a = ArbFold (Fold [a] a)
 
 instance Show a => Show (ArbFold a) where
