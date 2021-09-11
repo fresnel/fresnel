@@ -5,6 +5,7 @@ module Fresnel.Monoid.Snoc
   -- * Construction
 , singleton
 , snoc
+, nil
 ) where
 
 -- Snoc lists
@@ -19,3 +20,6 @@ singleton a = Snoc (\ snoc nil -> snoc nil a)
 
 snoc :: Snoc a -> a -> Snoc a
 snoc (Snoc as) a = Snoc (\ snoc nil -> snoc (as snoc nil) a)
+
+nil :: Snoc a
+nil = Snoc (\ _ nil -> nil)
