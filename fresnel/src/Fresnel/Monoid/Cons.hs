@@ -2,6 +2,7 @@ module Fresnel.Monoid.Cons
 ( singleton
 , Cons(..)
 , cons
+, nil
 ) where
 
 singleton :: a -> Cons r a
@@ -18,3 +19,6 @@ instance Monoid (Cons r a) where
 
 cons :: a -> Cons r a -> Cons r a
 cons a (Cons as) = Cons (\ cons -> cons a . as cons)
+
+nil :: Cons r a
+nil = Cons (\ _ nil -> nil)
