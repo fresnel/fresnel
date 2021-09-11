@@ -27,7 +27,7 @@ main = traverse (uncurry (runQuickCheckAll quickCheckResult))
   >>= bool exitFailure exitSuccess . and
 
 runQuickCheckAll :: (Property -> IO Result) -> String -> [(String, Property)] -> IO Bool
-runQuickCheckAll qc __FILE__ ps = and <$ setSGR [setBold, setRGB (hsl 300 1 0.75)] <* putStrLn __FILE__ <* setSGR [] <*> for ps (\ (xs, p) -> isSuccess <$ putStrLn ("=== " ++ xs ++ " ===") <*> qc p <* putStrLn "")
+runQuickCheckAll qc __FILE__ ps = and <$ setSGR [setBold, setRGB (hsl 300 1 0.75)] <* putStrLn __FILE__ <* setSGR [] <*> for ps (\ (xs, p) -> isSuccess <$ putStrLn xs <*> qc p <* putStrLn "")
 
 setRGB :: RGB Float -> SGR
 setRGB = SetRGBColor Foreground . uncurryRGB sRGB
