@@ -27,6 +27,10 @@ instance Foldable Fork where
 instance Functor Fork where
   fmap f (Fork r) = Fork (\ fork leaf -> r fork (leaf . f))
 
+instance Applicative Fork where
+  pure a = Fork (\ _ leaf _ -> leaf a)
+  Fork f <*> Fork a = Fork (\ fork leaf nil -> f fork (\ f' -> a fork (leaf . f') nil) nil)
+
 
 -- Construction
 
