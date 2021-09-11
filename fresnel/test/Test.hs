@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 module Main
 ( main
 ) where
@@ -35,7 +36,7 @@ runQuickCheckAll qc __FILE__ ps = do
     case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
       [propName, _, _, _, loc] -> do
         withSGR [setBold, setRGB (hsl 180 1 0.25)] $
-          putStr propName
+          putStr (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
         putStrLn (' ' : '(' : loc ++ ")")
       _ -> pure ()
     r <- qc p
@@ -58,3 +59,9 @@ breaks :: [a -> Bool] -> [a] -> [[a]]
 breaks ps as = case ps of
   []   -> [as]
   p:ps -> let (h, t) = break p as in h : breaks ps t
+
+breakAll :: (a -> Bool) -> [a] -> [[a]]
+breakAll p = go False where
+  go b = \case
+    [] -> []
+    as -> let (h, t) = break (if b then not . p else p) as in h : go (not b) t
