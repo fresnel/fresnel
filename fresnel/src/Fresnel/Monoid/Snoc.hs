@@ -15,6 +15,9 @@ newtype Snoc a = Snoc { runSnoc :: forall r . (r -> a -> r) -> r -> r }
 instance Semigroup (Snoc a) where
   Snoc a1 <> Snoc a2 = Snoc (\ snoc -> a1 snoc . a2 snoc)
 
+instance Monoid (Snoc a) where
+  mempty = nil
+
 
 -- Construction
 
