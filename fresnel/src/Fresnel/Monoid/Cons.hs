@@ -21,7 +21,7 @@ instance Semigroup (Cons a) where
   Cons a1 <> Cons a2 = Cons (\ cons -> a1 cons . a2 cons)
 
 instance Monoid (Cons a) where
-  mempty = Cons (\ _ nil -> nil)
+  mempty = nil
 
 instance Foldable Cons where
   foldMap f (Cons r) = r (mappend . f) mempty
