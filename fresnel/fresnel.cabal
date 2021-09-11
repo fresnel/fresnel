@@ -52,6 +52,7 @@ library
     Fresnel.Maybe
     Fresnel.Monoid.Cons
     Fresnel.Monoid.Fork
+    Fresnel.Monoid.Snoc
     Fresnel.Optic
     Fresnel.Optional
     Fresnel.OptionalFold
