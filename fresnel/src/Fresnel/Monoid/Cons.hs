@@ -1,6 +1,7 @@
 module Fresnel.Monoid.Cons
 ( singleton
 , Cons(..)
+, cons
 ) where
 
 singleton :: a -> Cons r a
@@ -13,3 +14,7 @@ instance Semigroup (Cons r a) where
 
 instance Monoid (Cons r a) where
   mempty = Cons (\ _ nil -> nil)
+
+
+cons :: a -> Cons r a -> Cons r a
+cons a (Cons as) = Cons (\ cons -> cons a . as cons)
