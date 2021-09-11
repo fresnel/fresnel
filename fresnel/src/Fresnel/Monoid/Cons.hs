@@ -1,10 +1,10 @@
 module Fresnel.Monoid.Cons
-( cons
+( singleton
 , Cons(..)
 ) where
 
-cons :: a -> Cons r a
-cons a = Cons (\ cons nil -> cons a nil)
+singleton :: a -> Cons r a
+singleton a = Cons (\ cons nil -> cons a nil)
 
 newtype Cons r a = Cons { runCons :: (a -> r -> r) -> r -> r }
 
