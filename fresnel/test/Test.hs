@@ -28,9 +28,8 @@ main = traverse (uncurry (runQuickCheckAll quickCheckResult))
 
 runQuickCheckAll :: (Property -> IO Result) -> String -> [(String, Property)] -> IO Bool
 runQuickCheckAll qc __FILE__ ps = do
-  setSGR [setBold, setRGB (hsl 300 1 0.75)]
-  putStrLn __FILE__
-  setSGR []
+  withSGR [setBold, setRGB (hsl 300 1 0.75)] $
+    putStrLn __FILE__
   rs <- for ps $ \ (xs, p) -> do
     putStrLn xs
     r <- qc p
@@ -43,3 +42,7 @@ setRGB = SetRGBColor Foreground . uncurryRGB sRGB
 
 setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
+
+
+withSGR :: [SGR] -> IO a -> IO a
+withSGR sgr io = setSGR sgr *> io <* setSGR []
