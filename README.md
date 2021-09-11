@@ -30,4 +30,4 @@ Unlike `lens`, it doesn’t define any typeclasses to abstract over optics’ so
 
 Unlike both `lens` _and_ `optics`, `fresnel` (currently) has no support for indexed optics, or certain other baroque optics. Some of these would be simpler additions than others, and are likely to be added in the fullness of time.
 
-Finally, and also unlike either, `fresnel` requires a reasonably small set of dependencies: `base`, `containers`, `profunctors`, `transformers`, and `unordered-containers`.
+Finally, and also unlike either, `fresnel` requires a reasonably small set of dependencies: `base`, `containers`, `profunctors`, and `unordered-containers`.
