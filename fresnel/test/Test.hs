@@ -3,6 +3,7 @@ module Main
 ) where
 
 import           Data.Bool (bool)
+import           Data.Char (isSpace)
 import           Data.Colour.RGBSpace
 import           Data.Colour.RGBSpace.HSL
 import           Data.Colour.SRGB
@@ -31,7 +32,11 @@ runQuickCheckAll qc __FILE__ ps = do
   withSGR [setBold, setRGB (hsl 300 1 0.75)] $
     putStrLn __FILE__
   rs <- for ps $ \ (xs, p) -> do
-    putStrLn xs
+    case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
+      [propName, _, _, _, loc] -> do
+        putStr propName
+        putStrLn (' ' : '(' : loc ++ ")")
+      _ -> pure ()
     r <- qc p
     putStrLn ""
     pure (isSuccess r)
@@ -46,3 +51,9 @@ setBold = SetConsoleIntensity BoldIntensity
 
 withSGR :: [SGR] -> IO a -> IO a
 withSGR sgr io = setSGR sgr *> io <* setSGR []
+
+
+breaks :: [a -> Bool] -> [a] -> [[a]]
+breaks ps as = case ps of
+  []   -> [as]
+  p:ps -> let (h, t) = break p as in h : breaks ps t
