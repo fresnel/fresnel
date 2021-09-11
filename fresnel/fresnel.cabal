@@ -84,6 +84,7 @@ test-suite test
     Fold.Test
     Getter.Test
     Iso.Test
+    Monoid.Fork.Test
     Profunctor.Coexp.Test
   build-depends:
     , base
