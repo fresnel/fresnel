@@ -80,6 +80,7 @@ test-suite test
   hs-source-dirs: test
   main-is: Test.hs
   other-modules:
+    Fold.Test
     Getter.Test
     Iso.Test
     Profunctor.Coexp.Test
