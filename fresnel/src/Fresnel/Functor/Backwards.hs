@@ -1,2 +1,5 @@
 module Fresnel.Functor.Backwards
-() where
+( Backwards(..)
+) where
+
+newtype Backwards f a = Backwards { forwards :: f a }
