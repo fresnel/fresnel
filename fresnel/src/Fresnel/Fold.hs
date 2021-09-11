@@ -15,6 +15,7 @@ module Fresnel.Fold
 , foldMapByOf
 , foldrOf
 , foldOf
+, sequenceOf_
 , traverseOf_
 , forOf_
 , toListOf
@@ -81,6 +82,9 @@ foldrOf o cons nil s = runCons (runForget (o (Forget Cons.singleton)) s) cons ni
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = foldMapOf o id
+
+sequenceOf_ :: Applicative f => Fold s (f a) -> (s -> f ())
+sequenceOf_ o = runTraversed . foldMapOf o Traversed
 
 traverseOf_ :: Applicative f => Fold s a -> ((a -> f r) -> (s -> f ()))
 traverseOf_ o f = runTraversed . foldMapOf o (Traversed #. f)
