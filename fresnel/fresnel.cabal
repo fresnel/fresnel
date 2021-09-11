@@ -42,6 +42,7 @@ library
     Fresnel.Bifunctor.Contravariant
     Fresnel.Either
     Fresnel.Fold
+    Fresnel.Functor.Backwards
     Fresnel.Functor.Traversed
     Fresnel.Getter
     Fresnel.Iso
