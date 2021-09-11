@@ -1,2 +1,11 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Fold.Test
-() where
+( test
+) where
+
+import Test.QuickCheck
+
+pure []
+
+test :: IO Bool
+test = $quickCheckAll
