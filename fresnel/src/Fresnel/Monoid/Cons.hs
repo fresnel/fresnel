@@ -22,6 +22,9 @@ instance Foldable Cons where
   foldMap f (Cons r) = r (mappend . f) mempty
   foldr f z (Cons r) = r f z
 
+instance Functor Cons where
+  fmap f (Cons r) = Cons (\ cons -> r (cons . f))
+
 
 -- Construction
 
