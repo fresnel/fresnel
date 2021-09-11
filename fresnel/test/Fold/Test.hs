@@ -10,29 +10,29 @@ import Fresnel.Ixed
 import Test.QuickCheck
 
 prop_union_semigroup_assoc :: (Eq a, Show a) => ArbFold a -> ArbFold a -> ArbFold a -> [a] -> Property
-prop_union_semigroup_assoc (ArbFold a) (ArbFold b) (ArbFold c) as = foldMapOf (getUnion (a <> (b <> c))) (:[]) as === foldMapOf (getUnion ((a <> b) <> c)) (:[]) as
+prop_union_semigroup_assoc (ArbFold a) (ArbFold b) (ArbFold c) as = foldMapOf (getUnion (Union a <> (Union b <> Union c))) (:[]) as === foldMapOf (getUnion ((Union a <> Union b) <> Union c)) (:[]) as
 
 prop_union_monoid_left_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
-prop_union_monoid_left_identity (ArbFold a) as = foldMapOf (getUnion (mempty <> a)) (:[]) as === foldMapOf (getUnion a) (:[]) as
+prop_union_monoid_left_identity (ArbFold a) as = foldMapOf (getUnion (mempty <> Union a)) (:[]) as === foldMapOf a (:[]) as
 
 prop_union_monoid_right_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
-prop_union_monoid_right_identity (ArbFold a) as = foldMapOf (getUnion (a <> mempty)) (:[]) as === foldMapOf (getUnion a) (:[]) as
+prop_union_monoid_right_identity (ArbFold a) as = foldMapOf (getUnion (Union a <> mempty)) (:[]) as === foldMapOf a (:[]) as
 
 
-newtype ArbFold a = ArbFold (Union [a] a)
+newtype ArbFold a = ArbFold (Fold [a] a)
 
 instance Show a => Show (ArbFold a) where
-  showsPrec _ (ArbFold (Union fold)) = showList (foldMapOf fold (:[]) []) -- FIXME: this is a bad instance
+  showsPrec _ (ArbFold fold) = showList (foldMapOf fold (:[]) []) -- FIXME: this is a bad instance
 
 instance Arbitrary a => Arbitrary (ArbFold a) where
   arbitrary = oneof
-    [ pure (ArbFold (Union folded))
-    , pure (ArbFold (Union ignored))
-    , ArbFold . ixed <$> arbitrary
+    [ pure (ArbFold folded)
+    , pure (ArbFold ignored)
+    , ixed <$> arbitrary
     ]
     where
-    ixed :: Int -> Union [a] a
-    ixed i = Union (ix i)
+    ixed :: Int -> ArbFold a
+    ixed i = ArbFold (ix i)
 
 
 pure []
