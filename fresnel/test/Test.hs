@@ -35,7 +35,7 @@ runQuickCheckAll qc __FILE__ ps = do
   rs <- for ps $ \ (xs, p) -> do
     case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
       [propName, _, _, _, loc] -> do
-        withSGR [setBold, setRGB (hsl 180 1 0.25)] $
+        withSGR [setBold, setRGB (hsl 180 1 0.35)] $
           putStr (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
         putStrLn (' ' : '(' : loc ++ ")")
       _ -> pure ()
