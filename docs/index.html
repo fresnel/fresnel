@@ -8,16 +8,30 @@
   :root {
     --main: #083d3f;
   }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background-colour: rgb(13, 17, 23);
+      --foreground-colour: rgb(201, 209, 217);
+      --border-colour: hsl(0, 0%, 60%);
+    }
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --background-colour: white;
+      --foreground-colour: black;
+      --border-colour: #ccc;
+    }
+  }
   body {
     padding: 0;
     margin: 0 2rem;
     font-family: "Computer Modern Serif";
+    color: var(--foreground-colour);
+    background-color: var(--background-colour);
   }
   main {
     margin: 0 auto;
     padding: 0 4rem;
-    border: 0.00001px solid white;
-    background: white;
   }
   main h1, main p {
     width: 48rem;
@@ -25,8 +39,19 @@
     margin-right: auto;
   }
 
+  :link {
+    color: hsl(315, 50%, 50%)
+  }
+
+  :visited {
+    color: hsl(315, 50%, 40%)
+  }
+
+  strong, code {
+    color: var(--border-colour);
+  }
+
   #figure-1 {
-    background: white;
     width: 100%;
     padding-top: 2rem;
     box-sizing: border-box;
@@ -40,7 +65,7 @@
   }
 
   figcaption {
-    border-top: 1px solid #ccc;
+    border-top: 1px dotted var(--border-colour);
     padding-top: 1rem;
     text-align: center;
     display: flex;
