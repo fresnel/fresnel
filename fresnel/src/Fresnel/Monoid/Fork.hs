@@ -1,11 +1,12 @@
 {-# LANGUAGE RankNTypes #-}
 module Fresnel.Monoid.Fork
-( singleton
-, Fork(..)
+( -- * Binary trees
+  Fork(..)
+  -- * Construction
+, singleton
 ) where
 
-singleton :: a -> Fork a
-singleton a = Fork (\ _ leaf _ -> leaf a)
+-- Binary trees
 
 newtype Fork a = Fork { runFork :: forall r . (r -> r -> r) -> (a -> r) -> r -> r }
 
@@ -14,3 +15,9 @@ instance Semigroup (Fork a) where
 
 instance Monoid (Fork a) where
   mempty = Fork (\ _ _ nil -> nil)
+
+
+-- Construction
+
+singleton :: a -> Fork a
+singleton a = Fork (\ _ leaf _ -> leaf a)
