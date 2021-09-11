@@ -32,6 +32,7 @@ runQuickCheckAll :: (Property -> IO Result) -> String -> [(String, Property)] ->
 runQuickCheckAll qc __FILE__ ps = do
   withSGR [setBold, setRGB (hsl 300 1 0.75)] $
     putStrLn __FILE__
+  putStrLn ""
   rs <- for ps $ \ (xs, p) -> do
     case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
       [propName, _, _, _, loc] -> do
