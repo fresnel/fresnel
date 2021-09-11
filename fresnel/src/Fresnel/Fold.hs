@@ -15,6 +15,7 @@ module Fresnel.Fold
 , foldMapOf
 , foldMapByOf
 , foldrOf
+, foldlOf'
 , foldOf
 , sequenceOf_
 , traverseOf_
@@ -38,6 +39,7 @@ import Fresnel.Functor.Backwards (Backwards(..))
 import Fresnel.Functor.Traversed
 import Fresnel.Monoid.Cons as Cons
 import Fresnel.Monoid.Fork as Fork
+import Fresnel.Monoid.Snoc as Snoc
 import Fresnel.Optic
 import Fresnel.OptionalFold.Internal (IsOptionalFold)
 import Fresnel.Traversal (IsTraversal)
@@ -84,6 +86,9 @@ foldMapByOf o fork nil leaf s = runFork (runForget (o (Forget Fork.singleton)) s
 
 foldrOf :: Fold s a -> ((a -> r -> r) -> r -> s -> r)
 foldrOf o cons nil s = runCons (runForget (o (Forget Cons.singleton)) s) cons nil
+
+foldlOf' :: Fold s a -> ((r -> a -> r) -> r -> s -> r)
+foldlOf' o snoc nil s = runSnoc (runForget (o (Forget Snoc.singleton)) s) snoc nil
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = foldMapOf o id
