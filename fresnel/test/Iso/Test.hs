@@ -1,10 +1,11 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Iso.Test
 ( validIso
 , invalidIso
 , withRoundtrips
-, test
+, tests
 ) where
 
 import Fresnel.Getter
@@ -38,5 +39,5 @@ prop_involuted_invalidity = invalidIso (involuted (+ (1 :: Integer)))
 
 pure []
 
-test :: IO Bool
-test = $quickCheckAll
+tests :: (String, [(String, Property)])
+tests = (__FILE__, $allProperties)

@@ -1,6 +1,7 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Profunctor.Coexp.Test
-( test
+( tests
 ) where
 
 import Fresnel.Profunctor.Coexp
@@ -32,5 +33,5 @@ appCoexp c e a = withCoexp c $ \ recall forget -> (recall e, forget a)
 
 pure []
 
-test :: IO Bool
-test = $quickCheckAll
+tests :: (String, [(String, Property)])
+tests = (__FILE__, $allProperties)

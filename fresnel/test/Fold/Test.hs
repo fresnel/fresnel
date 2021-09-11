@@ -1,8 +1,9 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Fold.Test
-( test
+( tests
 ) where
 
 import Fresnel.Fold
@@ -47,5 +48,5 @@ instance Arbitrary a => Arbitrary (ArbFold a) where
 
 pure []
 
-test :: IO Bool
-test = $quickCheckAll
+tests :: (String, [(String, Property)])
+tests = (__FILE__, $allProperties)

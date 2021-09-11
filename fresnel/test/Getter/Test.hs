@@ -1,6 +1,7 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Getter.Test
-( test
+( tests
 ) where
 
 import Fresnel.Getter
@@ -11,5 +12,5 @@ prop_view_to_involution f x = view (to (applyFun f)) x === applyFun f x
 
 pure []
 
-test :: IO Bool
-test = $quickCheckAll
+tests :: (String, [(String, Property)])
+tests = (__FILE__, $allProperties)

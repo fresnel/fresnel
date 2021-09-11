@@ -1,11 +1,12 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Monoid.Fork.Test
-( test
+( tests
 ) where
 
 import Test.QuickCheck
 
 pure []
 
-test :: IO Bool
-test = $quickCheckAll
+tests :: (String, [(String, Property)])
+tests = (__FILE__, $allProperties)
