@@ -87,7 +87,9 @@ test-suite test
     Monoid.Fork.Test
     Profunctor.Coexp.Test
   build-depends:
+    , ansi-terminal ^>= 0.11
     , base
+    , colour ^>= 2.3
     , fresnel
     , QuickCheck ^>= 2.14
 
