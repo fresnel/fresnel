@@ -16,6 +16,7 @@ module Fresnel.Fold
 , foldrOf
 , foldOf
 , traverseOf_
+, forOf_
 , toListOf
 , previews
 , preview
@@ -83,6 +84,9 @@ foldOf o = foldMapOf o id
 
 traverseOf_ :: Applicative f => Fold s a -> ((a -> f r) -> (s -> f ()))
 traverseOf_ o f = runTraversed . foldMapOf o (Traversed #. f)
+
+forOf_ :: Applicative f => Fold s a -> (s -> (a -> f r) -> f ())
+forOf_ o = flip (traverseOf_ o)
 
 toListOf :: Fold s a -> s -> [a]
 toListOf o = foldrOf o (:) []
