@@ -10,6 +10,7 @@ module Fresnel.Fold
 , folding
 , foldring
 , ignored
+, backwards
   -- * Elimination
 , foldMapOf
 , foldMapByOf
@@ -33,6 +34,7 @@ import Data.Profunctor
 import Data.Profunctor.Traversing
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
+import Fresnel.Functor.Backwards (Backwards(..))
 import Fresnel.Functor.Traversed
 import Fresnel.Monoid.Cons as Cons
 import Fresnel.Monoid.Fork as Fork
@@ -67,6 +69,9 @@ foldring fr = rphantom . wander (\ f -> fr (\ a -> (f a *>)) (pure v)) where
 
 ignored :: Fold s a
 ignored = foldring (\ _ nil _ -> nil)
+
+backwards :: Fold s a -> Fold s a
+backwards o = rphantom . wander (\ f -> forwards . traverseOf_ o (Backwards #. f))
 
 
 -- Elimination
