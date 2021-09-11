@@ -8,9 +8,14 @@ module Fresnel.Monoid.Cons
 , nil
 ) where
 
+import Data.Foldable (toList)
+
 -- Cons lists
 
 newtype Cons a = Cons { runCons :: forall r . (a -> r -> r) -> r -> r }
+
+instance Show a => Show (Cons a) where
+  showsPrec _ = showList . toList
 
 instance Semigroup (Cons a) where
   Cons a1 <> Cons a2 = Cons (\ cons -> a1 cons . a2 cons)
