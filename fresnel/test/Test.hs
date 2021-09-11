@@ -19,7 +19,7 @@ import           System.Exit (exitFailure, exitSuccess)
 import           Test.QuickCheck
 
 main :: IO ()
-main = traverse (uncurry (runQuickCheckAll quickCheckResult))
+main = traverse (uncurry (runQuickCheckAll (quickCheckWithResult stdArgs{ maxSuccess = 250 })))
   [ Fold.Test.tests
   , Getter.Test.tests
   , Iso.Test.tests
