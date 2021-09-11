@@ -67,7 +67,7 @@ foldMapOf :: Monoid m => Fold s a -> ((a -> m) -> (s -> m))
 foldMapOf o = runForget #. o .# Forget
 
 foldMapByOf :: Fold s a -> ((r -> r -> r) -> r -> (a -> r) -> (s -> r))
-foldMapByOf o fork nil leaf s = runFork (runForget (o (Forget Fork.fork)) s) fork leaf nil
+foldMapByOf o fork nil leaf s = runFork (runForget (o (Forget Fork.singleton)) s) fork leaf nil
 
 foldrOf :: Fold s a -> ((a -> r -> r) -> r -> s -> r)
 foldrOf o cons nil s = runCons (runForget (o (Forget Cons.singleton)) s) cons nil
