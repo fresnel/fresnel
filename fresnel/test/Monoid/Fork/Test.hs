@@ -1,2 +1,6 @@
 module Monoid.Fork.Test
-() where
+( test
+) where
+
+test :: IO Bool
+test = pure True
