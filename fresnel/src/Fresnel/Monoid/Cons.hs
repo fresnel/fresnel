@@ -28,7 +28,7 @@ instance Foldable Cons where
   foldr f z (Cons r) = r f z
 
 instance Functor Cons where
-  fmap f (Cons r) = Cons (\ cons -> r (cons . f))
+  fmap f (Cons r) = r (cons . f) nil
 
 
 -- Construction

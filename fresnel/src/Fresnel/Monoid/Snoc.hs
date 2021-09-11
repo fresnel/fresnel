@@ -27,7 +27,7 @@ instance Foldable Snoc where
   foldMap f (Snoc r) = r (const <> const f) mempty
 
 instance Functor Snoc where
-  fmap f (Snoc r) = r (\ r -> snoc r . f) nil
+  fmap f (Snoc r) = r ((. f) . snoc) nil
 
 
 -- Construction
