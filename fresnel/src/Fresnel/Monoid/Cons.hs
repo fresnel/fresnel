@@ -18,6 +18,10 @@ instance Semigroup (Cons a) where
 instance Monoid (Cons a) where
   mempty = Cons (\ _ nil -> nil)
 
+instance Foldable Cons where
+  foldMap f (Cons r) = r (mappend . f) mempty
+  foldr f z (Cons r) = r f z
+
 
 -- Construction
 
