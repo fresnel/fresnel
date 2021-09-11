@@ -15,6 +15,9 @@ prop_union_semigroup_assoc (ArbUnion a) (ArbUnion b) (ArbUnion c) as = foldMapOf
 prop_union_monoid_left_identity :: (Eq a, Show a) => ArbUnion a -> [a] -> Property
 prop_union_monoid_left_identity (ArbUnion a) as = foldMapOf (getUnion (mempty <> a)) (:[]) as === foldMapOf (getUnion a) (:[]) as
 
+prop_union_monoid_right_identity :: (Eq a, Show a) => ArbUnion a -> [a] -> Property
+prop_union_monoid_right_identity (ArbUnion a) as = foldMapOf (getUnion (a <> mempty)) (:[]) as === foldMapOf (getUnion a) (:[]) as
+
 
 newtype ArbUnion a = ArbUnion (Union [a] a)
 
