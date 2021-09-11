@@ -19,6 +19,7 @@ module Fresnel.Fold
 , previews
 , preview
 , (^?)
+, Failover(..)
 , Union(..)
 ) where
 
@@ -93,6 +94,12 @@ preview o = previews o id
 s ^? o = preview o s
 
 infixl 8 ^?
+
+
+newtype Failover s a = Failover { getFailover :: Fold s a }
+
+instance Semigroup (Failover s a) where
+  Failover a1 <> Failover a2 = Failover (folding (\ s -> Cons (\ cons nil -> maybe (foldrOf a2 cons nil s) (uncurry cons) (foldrOf a1 (\ a -> Just . (,) a . maybe nil (uncurry cons)) Nothing s))))
 
 
 newtype Union s a = Union { getUnion :: Fold s a }
