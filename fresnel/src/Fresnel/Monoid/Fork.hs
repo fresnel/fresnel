@@ -6,9 +6,14 @@ module Fresnel.Monoid.Fork
 , singleton
 ) where
 
+import Data.Foldable (toList)
+
 -- Binary trees
 
 newtype Fork a = Fork { runFork :: forall r . (r -> r -> r) -> (a -> r) -> r -> r }
+
+instance Show a => Show (Fork a) where
+  showsPrec _ = showList . toList
 
 instance Semigroup (Fork a) where
   Fork a1 <> Fork a2 = Fork (\ fork leaf nil -> a1 fork leaf nil `fork` a2 fork leaf nil)
