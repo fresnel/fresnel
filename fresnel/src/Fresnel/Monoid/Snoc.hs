@@ -18,6 +18,9 @@ instance Semigroup (Snoc a) where
 instance Monoid (Snoc a) where
   mempty = nil
 
+instance Foldable Snoc where
+  foldMap f (Snoc r) = r (const <> const f) mempty
+
 
 -- Construction
 
