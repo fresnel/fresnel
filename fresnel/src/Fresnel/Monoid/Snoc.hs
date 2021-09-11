@@ -8,9 +8,14 @@ module Fresnel.Monoid.Snoc
 , nil
 ) where
 
+import Data.Foldable (toList)
+
 -- Snoc lists
 
 newtype Snoc a = Snoc { runSnoc :: forall r . (r -> a -> r) -> r -> r }
+
+instance Show a => Show (Snoc a) where
+  showsPrec _ = showList . toList
 
 instance Semigroup (Snoc a) where
   Snoc a1 <> Snoc a2 = Snoc (\ snoc -> a1 snoc . a2 snoc)
