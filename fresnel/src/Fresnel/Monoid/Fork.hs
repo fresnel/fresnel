@@ -6,6 +6,7 @@ module Fresnel.Monoid.Fork
 , singleton
 ) where
 
+import Control.Applicative (Alternative(..))
 import Data.Foldable (toList)
 
 -- Binary trees
@@ -30,6 +31,10 @@ instance Functor Fork where
 instance Applicative Fork where
   pure a = Fork (\ _ leaf _ -> leaf a)
   Fork f <*> Fork a = Fork (\ fork leaf nil -> f fork (\ f' -> a fork (leaf . f') nil) nil)
+
+instance Alternative Fork where
+  empty = mempty
+  (<|>) = (<>)
 
 
 -- Construction
