@@ -106,3 +106,6 @@ newtype Union s a = Union { getUnion :: Fold s a }
 
 instance Semigroup (Union s a) where
   Union a1 <> Union a2 = Union (rphantom . wander (\ f s -> traverseOf_ a1 f s *> traverseOf_ a2 f s) . rphantom)
+
+instance Monoid (Union s a) where
+  mempty = Union ignored
