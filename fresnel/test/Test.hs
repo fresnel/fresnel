@@ -34,13 +34,22 @@ runQuickCheckAll qc __FILE__ ps = do
     putStrLn __FILE__
   putStrLn ""
   rs <- for ps $ \ (xs, p) -> do
-    case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
-      [propName, _, _, _, loc] -> do
-        withSGR [setBold, setRGB (hsl 180 1 0.35)] $
-          putStr (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
-        putStrLn (' ' : '(' : loc ++ ")")
-      _ -> pure ()
+    pos <- getCursorPosition
+    let header colour = case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
+          [propName, _, _, _, loc] -> do
+            withSGR [setBold, setRGB colour] $
+              putStr (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
+            putStrLn (' ' : '(' : loc ++ ")")
+          _ -> pure ()
+    header (hsl 180 1 0.35)
     r <- qc p
+    if isSuccess r then
+      pure ()
+    else do
+      saveCursor
+      maybe (pure ()) (uncurry setCursorPosition) pos
+      header (hsl 0 1 0.5)
+      restoreCursor
     putStrLn ""
     pure (isSuccess r)
   pure (and rs)
