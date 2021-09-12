@@ -15,6 +15,9 @@ prop_semigroup_assoc (ArbFork a) (ArbFork b) (ArbFork c) =
 prop_monoid_left_identity :: (Eq a, Show a) => ArbFork a -> Property
 prop_monoid_left_identity (ArbFork a) = toList (mempty <> a) === toList a
 
+prop_monoid_right_identity :: (Eq a, Show a) => ArbFork a -> Property
+prop_monoid_right_identity (ArbFork a) = toList (a <> mempty) === toList a
+
 
 newtype ArbFork a = ArbFork (Fork a)
   deriving (Show)
