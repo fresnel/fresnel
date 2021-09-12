@@ -65,14 +65,14 @@ runQuickCheckAll qc __FILE__ ps = do
   if hasSuccesses then
     success $ do
       putStr (show successes)
-      putStr " successes"
+      putStr (if successes == 1 then " success"  else" successes")
   else
     putStr "0 successes"
   putStr ", "
   if hasFailures then
     failure $ do
       putStr (show failures)
-      putStr " failures"
+      putStr (if failures == 1 then " failure" else " failures")
   else
     putStr "0 failures"
   putStrLn ""
