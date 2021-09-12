@@ -81,6 +81,7 @@ tally rs = do
   else
     putStr "0 failures"
   putStrLn ""
+  putStrLn ""
   pure (not hasFailures)
 
 setRGB :: RGB Float -> SGR
