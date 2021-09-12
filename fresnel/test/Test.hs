@@ -26,10 +26,10 @@ main = traverse (uncurry (runQuickCheckAll (quickCheckWithResult stdArgs{ maxSuc
   , Monoid.Fork.Test.tests
   , Profunctor.Coexp.Test.tests
   ]
-  >>= tally
-  >>= bool exitFailure exitSuccess
+  >>= tally . foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0)
+  >>= bool exitFailure exitSuccess . (== 0) . snd
 
-runQuickCheckAll :: (Property -> IO Result) -> String -> [(String, Property)] -> IO Bool
+runQuickCheckAll :: (Property -> IO Result) -> String -> [(String, Property)] -> IO (Int, Int)
 runQuickCheckAll qc __FILE__ ps = do
   withSGR [setBold, setRGB (hsl 300 1 0.75)] $
     putStrLn __FILE__
@@ -54,13 +54,11 @@ runQuickCheckAll qc __FILE__ ps = do
     putStrLn ""
     pure (isSuccess r)
 
-  tally rs
+  tally (length (filter id rs), length (filter not rs))
 
-tally :: [Bool] -> IO Bool
-tally rs = do
-  let successes = length (filter id rs)
-      hasSuccesses = successes /= 0
-      failures = length (filter not rs)
+tally :: (Int, Int) -> IO (Int, Int)
+tally (successes, failures) = do
+  let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
   if hasFailures then
     failure $ putStr "Failed:"
@@ -82,7 +80,7 @@ tally rs = do
     putStr "0 failures"
   putStrLn ""
   putStrLn ""
-  pure (not hasFailures)
+  pure (successes, failures)
 
 setRGB :: RGB Float -> SGR
 setRGB = SetRGBColor Foreground . uncurryRGB sRGB
