@@ -21,9 +21,6 @@ prop_monoid_identity (ArbFork a) = label (summarize a) $ toList (mempty <> a) ==
 newtype ArbFork a = ArbFork (Fork a)
   deriving (Show)
 
-data Kind = Nil | Leaf | Fork
-  deriving (Eq, Show)
-
 instance Arbitrary a => Arbitrary (ArbFork a) where
   arbitrary = ArbFork <$> sized go where
     go 0 = pure mempty
