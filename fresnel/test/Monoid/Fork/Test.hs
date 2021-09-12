@@ -5,8 +5,9 @@ module Monoid.Fork.Test
 ) where
 
 import Data.Foldable (toList)
+import Data.Ratio
 import Fresnel.Monoid.Fork (Fork(runFork), singleton)
-import Test.QuickCheck
+import Test.QuickCheck hiding (total)
 
 prop_semigroup_assoc :: (Eq a, Show a) => ArbFork a -> ArbFork a -> ArbFork a -> Property
 prop_semigroup_assoc (ArbFork a) (ArbFork b) (ArbFork c) =
@@ -34,7 +35,37 @@ instance Arbitrary a => Arbitrary (ArbFork a) where
 
 
 summarize :: Fork a -> String
-summarize r = runFork r (\ _ _ -> "fork") (const "leaf") "nil"
+summarize r
+  | total' == nils     = "nil"
+  | ratio nils > 0.4   = "nil-heavy"
+  | total' == leaves   = "leaf"
+  | ratio leaves > 0.4 = "leaf-heavy"
+  | ratio forks > 0.4  = "fork-heavy"
+  | otherwise          = "fork"
+  where
+  (total', Counts forks leaves nils) = (,) . total <*> id $ runFork r (\ l r -> fork <> l <> r) (const leaf) nil
+  ratio a = realToFrac  (a % total') :: Double
+
+data Counts = Counts
+  { forks  :: {-# UNPACK #-} !Int
+  , leaves :: {-# UNPACK #-} !Int
+  , nils   :: {-# UNPACK #-} !Int
+  }
+
+instance Semigroup Counts where
+  c1 <> c2 = Counts (forks c1 + forks c2) (leaves c1 + leaves c2) (nils c1 + nils c2)
+
+fork :: Counts
+fork = Counts 1 0 0
+
+leaf :: Counts
+leaf = Counts 0 1 0
+
+nil :: Counts
+nil = Counts 0 0 1
+
+total :: Counts -> Int
+total (Counts f l n) = f + l + n
 
 
 pure []
