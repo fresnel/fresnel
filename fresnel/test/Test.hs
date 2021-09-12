@@ -80,7 +80,7 @@ tally rs = do
   else
     putStr "0 failures"
   putStrLn ""
-  pure hasFailures
+  pure (not hasFailures)
 
 setRGB :: RGB Float -> SGR
 setRGB = SetRGBColor Foreground . uncurryRGB sRGB
