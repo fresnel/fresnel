@@ -26,7 +26,8 @@ main = traverse (uncurry (runQuickCheckAll (quickCheckWithResult stdArgs{ maxSuc
   , Monoid.Fork.Test.tests
   , Profunctor.Coexp.Test.tests
   ]
-  >>= bool exitFailure exitSuccess . and
+  >>= tally
+  >>= bool exitFailure exitSuccess
 
 runQuickCheckAll :: (Property -> IO Result) -> String -> [(String, Property)] -> IO Bool
 runQuickCheckAll qc __FILE__ ps = do
