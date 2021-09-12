@@ -3,7 +3,6 @@ module Main
 ( main
 ) where
 
-import           Control.Monad (when)
 import           Data.Bool (bool)
 import           Data.Char (isSpace)
 import           Data.Colour.RGBSpace
@@ -63,13 +62,19 @@ runQuickCheckAll qc __FILE__ ps = do
   else
     success $ putStr "Succeeded:"
   putStr " "
-  when hasSuccesses . success $ do
-    putStr (show successes)
-    putStr " successes"
-  when (hasSuccesses && hasFailures) $ putStr ", "
-  when hasFailures . failure $ do
-    putStr (show failures)
-    putStr " failures"
+  if hasSuccesses then
+    success $ do
+      putStr (show successes)
+      putStr " successes"
+  else
+    putStr "0 successes"
+  putStr ", "
+  if hasFailures then
+    failure $ do
+      putStr (show failures)
+      putStr " failures"
+  else
+    putStr "0 failures"
   putStrLn ""
   pure hasFailures
 
