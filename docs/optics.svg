@@ -22,9 +22,20 @@
 	font-style: italic;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --Class-colour: hsl(216, 27.8%, 60%);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --Class-colour: hsl(0, 0%, 60%);
+  }
+}
+
 :root {
   --Optic-colour: #000;
-  --Class-colour: hsl(0, 0%, 60%);
 
   --iso-colour: hsl(0, 50%, 50%);
   --prism-colour: hsl(45, 50%, 50%);
