@@ -3,6 +3,7 @@ module Main
 ( main
 ) where
 
+import           Control.Monad (when)
 import           Data.Bool (bool)
 import           Data.Char (isSpace)
 import           Data.Colour.RGBSpace
@@ -52,7 +53,25 @@ runQuickCheckAll qc __FILE__ ps = do
       restoreCursor
     putStrLn ""
     pure (isSuccess r)
-  pure (and rs)
+
+  let successes = length (filter id rs)
+      hasSuccesses = successes /= 0
+      failures = length (filter not rs)
+      hasFailures = failures /= 0
+  if hasFailures then
+    failure $ putStr "Failed:"
+  else
+    success $ putStr "Succeeded:"
+  putStr " "
+  when hasSuccesses . success $ do
+    putStr (show successes)
+    putStr " successes"
+  when (hasSuccesses && hasFailures) $ putStr ", "
+  when hasFailures . failure $ do
+    putStr (show failures)
+    putStr " failures"
+  putStrLn ""
+  pure hasFailures
 
 setRGB :: RGB Float -> SGR
 setRGB = SetRGBColor Foreground . uncurryRGB sRGB
@@ -61,8 +80,23 @@ setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
 
 
+red :: RGB Float
+red = hsl 0 1 0.5
+
+green :: RGB Float
+green = hsl 120 1 0.5
+
+
 withSGR :: [SGR] -> IO a -> IO a
 withSGR sgr io = setSGR sgr *> io <* setSGR []
+
+colour :: RGB Float -> IO a -> IO a
+colour c = withSGR [setRGB c]
+
+success, failure :: IO a -> IO a
+
+success = colour green
+failure = colour red
 
 
 breaks :: [a -> Bool] -> [a] -> [[a]]
