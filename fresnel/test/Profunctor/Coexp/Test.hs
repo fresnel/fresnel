@@ -11,11 +11,8 @@ prop_semigroup_assoc :: (Eq b, Eq a, Show b, Show a) => ArbCoexp b a a b -> ArbC
 prop_semigroup_assoc a b c x y =
   appCoexp (toCoexp a <> (toCoexp b <> toCoexp c)) x y === appCoexp ((toCoexp a <> toCoexp b) <> toCoexp c) x y
 
-prop_monoid_left_identity :: (Eq b, Show b) => ArbCoexp b a a b -> b -> Property
-prop_monoid_left_identity a x = recall (mempty <> toCoexp a) x === recall (toCoexp a) x
-
-prop_monoid_right_identity :: (Eq b, Show b) => ArbCoexp b a a b -> b -> Property
-prop_monoid_right_identity a x = recall (toCoexp a <> mempty) x === recall (toCoexp a) x
+prop_monoid_identity :: (Eq b, Show b) => ArbCoexp b a a b -> b -> Property
+prop_monoid_identity a x = recall (mempty <> toCoexp a) x === recall (toCoexp a) x .&&. recall (toCoexp a <> mempty) x === recall (toCoexp a) x
 
 
 data ArbCoexp e r a b = ArbCoexp (Fun e b) (Fun a r)
