@@ -53,6 +53,10 @@ runQuickCheckAll qc __FILE__ ps = do
     putStrLn ""
     pure (isSuccess r)
 
+  tally rs
+
+tally :: [Bool] -> IO Bool
+tally rs = do
   let successes = length (filter id rs)
       hasSuccesses = successes /= 0
       failures = length (filter not rs)
