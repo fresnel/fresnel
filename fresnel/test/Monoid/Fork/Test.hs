@@ -4,12 +4,13 @@ module Monoid.Fork.Test
 ( tests
 ) where
 
+import Data.Foldable (toList)
 import Fresnel.Monoid.Fork
 import Test.QuickCheck
 
 prop_semigroup_assoc :: (Eq a, Show a) => ArbFork a -> ArbFork a -> ArbFork a -> Property
 prop_semigroup_assoc (ArbFork a) (ArbFork b) (ArbFork c) =
-  runFork (a <> (b <> c)) (++) (:[]) [] === runFork ((a <> b) <> c) (++) (:[]) []
+  toList (a <> (b <> c)) === toList ((a <> b) <> c)
 
 
 newtype ArbFork a = ArbFork (Fork a)
