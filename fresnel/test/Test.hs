@@ -71,14 +71,14 @@ result :: Maybe String -> Result -> IO ()
 result loc = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     success $ putStr "OK "
-    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
+    parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     putStrLn ""
     Main.labels numTests labels
     Main.classes numTests classes
     Main.tables numTests tables
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "FAIL "
-    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
+    parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     putStrLn ""
     Main.labels numTests labels
     Main.classes numTests classes
@@ -86,7 +86,7 @@ result loc = \case
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     maybe (pure ()) putStrLn loc
     failure $ putStr "FAIL "
-    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+    parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     putStrLn ":"
     putStrLn ""
     putStrLn reason
@@ -99,7 +99,7 @@ result loc = \case
     unless (null failingClasses) $ putStrLn ("Classes: " ++ intercalate ", " (toList failingClasses))
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "FAIL "
-    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
+    parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     putStrLn ""
     Main.labels numTests labels
     Main.classes numTests classes
@@ -109,13 +109,6 @@ data Stats = Stats
   { numTests     :: Int
   , numDiscarded :: Int
   , numShrinks   :: Int
-  }
-
-emptyStats :: Stats
-emptyStats = Stats
-  { numTests       = 0
-  , numDiscarded   = 0
-  , numShrinks     = 0
   }
 
 stats :: Stats -> IO ()
