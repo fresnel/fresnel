@@ -1,4 +1,5 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 module Main
@@ -26,7 +27,7 @@ import           System.Exit (exitFailure, exitSuccess)
 import           Test.QuickCheck
 
 main :: IO ()
-main = traverse (uncurry (runQuickCheckAll (quickCheckWithResult stdArgs{ maxSuccess = 250, chatty = False })))
+main = traverse (runQuickCheckAll (quickCheckWithResult stdArgs{ maxSuccess = 250, chatty = False }) . uncurry Group . fmap (map (uncurry Case)))
   [ Fold.Test.tests
   , Getter.Test.tests
   , Iso.Test.tests
@@ -36,12 +37,22 @@ main = traverse (uncurry (runQuickCheckAll (quickCheckWithResult stdArgs{ maxSuc
   >>= tally . foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0)
   >>= bool exitFailure exitSuccess . (== 0) . snd
 
-runQuickCheckAll :: (Property -> IO Result) -> String -> [(String, Property)] -> IO (Int, Int)
-runQuickCheckAll qc __FILE__ ps = do
+data Group = Group
+  { name  :: String
+  , cases :: [Case]
+  }
+
+data Case = Case
+  { name     :: String
+  , property :: Property
+  }
+
+runQuickCheckAll :: (Property -> IO Result) -> Group -> IO (Int, Int)
+runQuickCheckAll qc Group{ name = __FILE__, cases = ps } = do
   withSGR [setBold, setRGB (hsl 300 1 0.75)] $
     putStrLn __FILE__
   putStrLn ""
-  rs <- for ps $ \ (xs, p) -> do
+  rs <- for ps $ \ Case{ name = xs, property = p } -> do
     loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
       [propName, _, _, _, loc] -> do
         withSGR [setBold] $
