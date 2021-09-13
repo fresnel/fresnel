@@ -127,8 +127,10 @@ data Classification = Classification
   }
 
 classification :: Int -> Classification -> IO ()
-classification n Classification{ labels } = do
+classification n Classification{ labels, classes } = do
   traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
+
+  traverse_ (\ (label, n') -> let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStrLn (showFFloatAlt (Just 1) percentage ('%':' ':label))) (Map.toList classes)
   where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
