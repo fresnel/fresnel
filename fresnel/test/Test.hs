@@ -8,14 +8,16 @@ module Main
 import           Control.Monad (unless)
 import           Data.Bool (bool)
 import           Data.Char (isSpace)
-import           Data.Foldable (toList, traverse_)
-import           Data.List (intercalate, intersperse)
+import           Data.Foldable (for_, toList, traverse_)
+import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
+import           Data.Ord (comparing)
 import qualified Fold.Test
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
 import qualified Iso.Test
 import qualified Monoid.Fork.Test
+import           Numeric (showFFloatAlt)
 import qualified Profunctor.Coexp.Test
 import           System.Console.ANSI
 import           System.Exit (exitFailure, exitSuccess)
@@ -70,12 +72,12 @@ result loc = \case
     success $ putStr "OK "
     parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
-    classification $ Classification{ Main.labels, Main.classes, Main.tables }
+    classification numTests $ Classification{ Main.labels, Main.classes, Main.tables }
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "FAIL "
     parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
-    classification $ Classification{ Main.labels, Main.classes, Main.tables }
+    classification numTests $ Classification{ Main.labels, Main.classes, Main.tables }
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     maybe (pure ()) putStrLn loc
     failure $ putStr "FAIL "
@@ -94,7 +96,7 @@ result loc = \case
     failure $ putStr "FAIL "
     parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
-    classification $ Classification{ Main.labels, Main.classes, Main.tables }
+    classification numTests $ Classification{ Main.labels, Main.classes, Main.tables }
 
 data Stats = Stats
   { numTests     :: Int
@@ -123,8 +125,20 @@ data Classification = Classification
   , tables  :: Map.Map String (Map.Map String Int)
   }
 
-classification :: Classification -> IO ()
-classification Classification{} = pure ()
+classification :: Int -> Classification -> IO ()
+classification n Classification{ labels } = do
+  traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (Map.elems numberedLabels)
+  where
+  numberedLabels = Map.fromListWith (Map.unionWith (+)) $
+    [ (i, Map.singleton l n)
+    | (labels, n) <- Map.toList labels,
+      (i, l) <- zip [(0 :: Int)..] labels
+    ]
+  table k m = do
+    for_ m $ \ (key, v) -> do
+      let percentage = fromIntegral v / fromIntegral k * 100 :: Double
+      putStrLn $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
+    putStrLn ""
 
 
 data Plural
