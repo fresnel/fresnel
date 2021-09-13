@@ -121,7 +121,7 @@ stats Stats{ numTests, numDiscarded, numShrinks } = do
 
 
 labels :: Int -> Map.Map [String] Int -> IO ()
-labels n labels = traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels) where
+labels n labels = unless (null labels) (putStrLn "") *> traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels) where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
     | (labels, n) <- Map.toList labels,
