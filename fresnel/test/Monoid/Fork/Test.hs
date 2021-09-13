@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Monoid.Fork.Test
 ( tests
@@ -7,6 +6,8 @@ module Monoid.Fork.Test
 import Data.Foldable (toList)
 import Data.Ratio
 import Fresnel.Monoid.Fork (Fork(runFork), singleton)
+import Language.Haskell.TH.Lib
+import Language.Haskell.TH.Syntax
 import Test.QuickCheck hiding (total)
 
 prop_semigroup_assoc :: (Eq a, Show a) => ArbFork a -> ArbFork a -> ArbFork a -> Property
@@ -68,4 +69,4 @@ total (Counts f l n) = f + l + n
 pure []
 
 tests :: (String, [(String, Property)])
-tests = (__FILE__, $allProperties)
+tests = ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)

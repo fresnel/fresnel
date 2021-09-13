@@ -1,10 +1,11 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Profunctor.Coexp.Test
 ( tests
 ) where
 
 import Fresnel.Profunctor.Coexp
+import Language.Haskell.TH.Lib
+import Language.Haskell.TH.Syntax
 import Test.QuickCheck
 
 prop_semigroup_assoc :: (Eq b, Eq a, Show b, Show a) => ArbCoexp b a a b -> ArbCoexp b a a b -> ArbCoexp b a a b -> b -> a -> Property
@@ -31,4 +32,4 @@ appCoexp c e a = withCoexp c $ \ recall forget -> (recall e, forget a)
 pure []
 
 tests :: (String, [(String, Property)])
-tests = (__FILE__, $allProperties)
+tests = ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)

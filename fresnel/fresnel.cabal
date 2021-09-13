@@ -91,6 +91,7 @@ test-suite test
     , base
     , colour ^>= 2.3
     , fresnel
+    , template-haskell ^>= 2
     , QuickCheck ^>= 2.14
 
 

@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Iso.Test
@@ -11,6 +10,8 @@ module Iso.Test
 import Fresnel.Getter
 import Fresnel.Iso
 import Fresnel.Review
+import Language.Haskell.TH.Lib
+import Language.Haskell.TH.Syntax
 import Test.QuickCheck
 
 validIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
@@ -40,4 +41,4 @@ prop_involuted_invalidity = invalidIso (involuted (+ (1 :: Integer)))
 pure []
 
 tests :: (String, [(String, Property)])
-tests = (__FILE__, $allProperties)
+tests = ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
