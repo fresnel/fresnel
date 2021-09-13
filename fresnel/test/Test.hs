@@ -70,18 +70,19 @@ runCase args Case{ caseName, property } = do
 result :: Maybe String -> Result -> IO ()
 result loc = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
-    success $ putStr "OK "
-    parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-    putStrLn ""
-    Main.labels numTests labels
+    success $ putStr "Success."
+    putStr " "
+    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
+    putStrLn "."
+    Main.labels numTests labels
     Main.tables numTests tables
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "FAIL "
     parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-    putStrLn ""
-    Main.labels numTests labels
     Main.classes numTests classes
+    putStrLn "."
+    Main.labels numTests labels
     Main.tables numTests tables
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     maybe (pure ()) putStrLn loc
@@ -100,9 +101,9 @@ result loc = \case
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "FAIL "
     parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-    putStrLn ""
-    Main.labels numTests labels
     Main.classes numTests classes
+    putStrLn "."
+    Main.labels numTests labels
     Main.tables numTests tables
 
 data Stats = Stats
@@ -133,7 +134,12 @@ labels n labels = traverse_ (table n . sortBy (flip (comparing snd) <> flip (com
     putStrLn ""
 
 classes :: Int -> Map.Map String Int -> IO ()
-classes n classes = traverse_ (\ (label, n') -> let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStrLn (showFFloatAlt (Just 1) percentage ('%':' ':label))) (Map.toList classes)
+classes n classes = unless (null classes) $ do
+  putStr " "
+  parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ n)) (Map.toList classes)))
+
+class_ :: Int -> String -> Int -> IO ()
+class_ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStr (showFFloatAlt (Just 1) percentage ('%':' ':label))
 
 tables :: Int -> Map.Map String (Map.Map String Int) -> IO ()
 tables _ _ = pure ()
