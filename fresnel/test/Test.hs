@@ -26,7 +26,7 @@ import           System.Exit (exitFailure, exitSuccess)
 import           Test.QuickCheck
 
 main :: IO ()
-main = traverse (runGroup (quickCheckWithResult stdArgs{ maxSuccess = 250, chatty = False }) . uncurry Group . fmap (map (uncurry Case)))
+main = traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } . uncurry Group . fmap (map (uncurry Case)))
   [ Fold.Test.tests
   , Getter.Test.tests
   , Iso.Test.tests
@@ -46,8 +46,8 @@ data Case = Case
   , property :: Property
   }
 
-runGroup :: (Property -> IO Result) -> Group -> IO (Int, Int)
-runGroup qc Group{ groupName, cases } = do
+runGroup :: Args -> Group -> IO (Int, Int)
+runGroup args Group{ groupName, cases } = do
   withSGR [setBold, setRGB (hsl 300 1 0.75)] $
     putStrLn groupName
   putStrLn ""
@@ -58,7 +58,7 @@ runGroup qc Group{ groupName, cases } = do
           putStrLn (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
         pure (Just loc)
       _ -> pure Nothing
-    r <- qc property
+    r <- quickCheckWithResult args property
     result loc r
     putStrLn ""
     pure (isSuccess r)
