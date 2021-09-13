@@ -9,6 +9,7 @@ import           Control.Monad (unless)
 import           Data.Bool (bool)
 import           Data.Char (isSpace)
 import           Data.Foldable (for_, toList, traverse_)
+import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
 import           Data.Ord (comparing)
@@ -127,9 +128,9 @@ data Classification = Classification
 
 classification :: Int -> Classification -> IO ()
 classification n Classification{ labels } = do
-  traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (Map.elems numberedLabels)
+  traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
   where
-  numberedLabels = Map.fromListWith (Map.unionWith (+)) $
+  numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
     | (labels, n) <- Map.toList labels,
       (i, l) <- zip [(0 :: Int)..] labels
