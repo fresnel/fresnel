@@ -78,16 +78,18 @@ result loc = \case
     Main.labels numTests labels
     Main.tables numTests tables
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-    failure $ putStr "FAIL "
-    parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    failure $ putStr "Failure."
+    putStr " "
+    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn "."
     Main.labels numTests labels
     Main.tables numTests tables
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     maybe (pure ()) putStrLn loc
-    failure $ putStr "FAIL "
-    parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+    failure $ putStr "Failure."
+    putStr " "
+    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     putStrLn ":"
     putStrLn ""
     putStrLn reason
@@ -99,8 +101,8 @@ result loc = \case
     unless (null failingLabels) $ putStrLn ("Labels: " ++ intercalate ", " failingLabels)
     unless (null failingClasses) $ putStrLn ("Classes: " ++ intercalate ", " (toList failingClasses))
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-    failure $ putStr "FAIL "
-    parens $ stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    failure $ putStr "Failure."
+    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn "."
     Main.labels numTests labels
