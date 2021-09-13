@@ -14,7 +14,6 @@ import           Data.Colour.SRGB
 import           Data.Foldable (toList, traverse_)
 import           Data.List (intercalate, intersperse)
 import qualified Data.Map as Map
-import           Data.Traversable (for)
 import qualified Fold.Test
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
@@ -51,19 +50,22 @@ runGroup args Group{ groupName, cases } = do
   withSGR [setBold, setRGB (hsl 300 1 0.75)] $
     putStrLn groupName
   putStrLn ""
-  rs <- for cases $ \ Case{ caseName, property } -> do
-    loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
-      [propName, _, _, _, loc] -> do
-        withSGR [setBold] $
-          putStrLn (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
-        pure (Just loc)
-      _ -> pure Nothing
-    r <- quickCheckWithResult args property
-    result loc r
-    putStrLn ""
-    pure (isSuccess r)
+  rs <- traverse (runCase args) cases
 
   tally (length (filter id rs), length (filter not rs))
+
+runCase :: Args -> Case -> IO Bool
+runCase args Case{ caseName, property } = do
+  loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
+    [propName, _, _, _, loc] -> do
+      withSGR [setBold] $
+        putStrLn (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
+      pure (Just loc)
+    _ -> pure Nothing
+  r <- quickCheckWithResult args property
+  result loc r
+  putStrLn ""
+  pure (isSuccess r)
 
 result :: Maybe String -> Result -> IO ()
 result loc = \case
