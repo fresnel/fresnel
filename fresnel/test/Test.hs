@@ -73,12 +73,16 @@ result loc = \case
     success $ putStr "OK "
     parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
-    classification numTests $ Classification{ Main.labels, Main.classes, Main.tables }
+    Main.labels numTests labels
+    Main.classes numTests classes
+    Main.tables numTests tables
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "FAIL "
     parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
-    classification numTests $ Classification{ Main.labels, Main.classes, Main.tables }
+    Main.labels numTests labels
+    Main.classes numTests classes
+    Main.tables numTests tables
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     maybe (pure ()) putStrLn loc
     failure $ putStr "FAIL "
@@ -97,7 +101,9 @@ result loc = \case
     failure $ putStr "FAIL "
     parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
-    classification numTests $ Classification{ Main.labels, Main.classes, Main.tables }
+    Main.labels numTests labels
+    Main.classes numTests classes
+    Main.tables numTests tables
 
 data Stats = Stats
   { numTests     :: Int
@@ -120,18 +126,8 @@ stats Stats{ numTests, numDiscarded, numShrinks } = do
     ++ toList (stat (S "shrink") numShrinks)
 
 
-data Classification = Classification
-  { labels  :: Map.Map [String] Int
-  , classes :: Map.Map String Int
-  , tables  :: Map.Map String (Map.Map String Int)
-  }
-
-classification :: Int -> Classification -> IO ()
-classification n Classification{ labels, classes } = do
-  traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
-
-  traverse_ (\ (label, n') -> let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStrLn (showFFloatAlt (Just 1) percentage ('%':' ':label))) (Map.toList classes)
-  where
+labels :: Int -> Map.Map [String] Int -> IO ()
+labels n labels = traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels) where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
     | (labels, n) <- Map.toList labels,
@@ -142,6 +138,12 @@ classification n Classification{ labels, classes } = do
       let percentage = fromIntegral v / fromIntegral k * 100 :: Double
       putStrLn $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
     putStrLn ""
+
+classes :: Int -> Map.Map String Int -> IO ()
+classes n classes = traverse_ (\ (label, n') -> let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStrLn (showFFloatAlt (Just 1) percentage ('%':' ':label))) (Map.toList classes)
+
+tables :: Int -> Map.Map String (Map.Map String Int) -> IO ()
+tables _ _ = pure ()
 
 
 data Plural
