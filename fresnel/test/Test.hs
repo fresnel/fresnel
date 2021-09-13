@@ -68,12 +68,14 @@ result :: Maybe String -> Result -> IO ()
 result loc = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     success $ putStr "OK "
-    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded, Main.labels, Main.classes, Main.tables }
+    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
+    classification $ Classification{ Main.labels, Main.classes, Main.tables }
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "FAIL "
-    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded, Main.labels, Main.classes, Main.tables }
+    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
+    classification $ Classification{ Main.labels, Main.classes, Main.tables }
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     maybe (pure ()) putStrLn loc
     failure $ putStr "FAIL "
@@ -90,16 +92,14 @@ result loc = \case
     unless (null failingClasses) $ putStrLn ("Classes: " ++ intercalate ", " (toList failingClasses))
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "FAIL "
-    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded, Main.labels, Main.classes, Main.tables }
+    parens $ stats $ emptyStats{ Main.numTests, Main.numDiscarded }
     putStrLn ""
+    classification $ Classification{ Main.labels, Main.classes, Main.tables }
 
 data Stats = Stats
   { numTests     :: Int
   , numDiscarded :: Int
   , numShrinks   :: Int
-  , labels       :: Map.Map [String] Int
-  , classes      :: Map.Map String Int
-  , tables       :: Map.Map String (Map.Map String Int)
   }
 
 emptyStats :: Stats
@@ -107,9 +107,6 @@ emptyStats = Stats
   { numTests       = 0
   , numDiscarded   = 0
   , numShrinks     = 0
-  , labels         = Map.empty
-  , classes        = Map.empty
-  , tables         = Map.empty
   }
 
 stats :: Stats -> IO ()
@@ -118,6 +115,17 @@ stats Stats{ numTests, numDiscarded, numShrinks } = do
     $  toList (stat (S "test") numTests)
     ++ toList (stat (S "discard") numDiscarded)
     ++ toList (stat (S "shrink") numShrinks)
+
+
+data Classification = Classification
+  { labels  :: Map.Map [String] Int
+  , classes :: Map.Map String Int
+  , tables  :: Map.Map String (Map.Map String Int)
+  }
+
+classification :: Classification -> IO ()
+classification Classification{} = pure ()
+
 
 data Plural
   = S String
