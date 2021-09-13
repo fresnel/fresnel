@@ -89,7 +89,6 @@ test-suite test
   build-depends:
     , ansi-terminal ^>= 0.11
     , base
-    , colour ^>= 2.3
     , containers
     , fresnel
     , template-haskell

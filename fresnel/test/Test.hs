@@ -8,9 +8,6 @@ module Main
 import           Control.Monad (unless)
 import           Data.Bool (bool)
 import           Data.Char (isSpace)
-import           Data.Colour.RGBSpace
-import           Data.Colour.RGBSpace.HSL
-import           Data.Colour.SRGB
 import           Data.Foldable (toList, traverse_)
 import           Data.List (intercalate, intersperse)
 import qualified Data.Map as Map
@@ -47,7 +44,7 @@ data Case = Case
 
 runGroup :: Args -> Group -> IO (Int, Int)
 runGroup args Group{ groupName, cases } = do
-  withSGR [setBold, setRGB (hsl 300 1 0.75)] $
+  withSGR [setBold, setColour Magenta] $
     putStrLn groupName
   putStrLn ""
   rs <- traverse (runCase args) cases
@@ -167,8 +164,8 @@ tally (successes, failures) = do
   putStrLn ""
   pure (successes, failures)
 
-setRGB :: RGB Float -> SGR
-setRGB = SetRGBColor Foreground . uncurryRGB sRGB
+setColour :: Color -> SGR
+setColour = SetColor Foreground Vivid
 
 setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
@@ -181,23 +178,16 @@ parens m = do
   a <$ putStr ")"
 
 
-red :: RGB Float
-red = hsl 0 1 0.5
-
-green :: RGB Float
-green = hsl 120 1 0.5
-
-
 withSGR :: [SGR] -> IO a -> IO a
 withSGR sgr io = setSGR sgr *> io <* setSGR []
 
-colour :: RGB Float -> IO a -> IO a
-colour c = withSGR [setRGB c]
+colour :: Color -> IO a -> IO a
+colour c = withSGR [setColour c]
 
 success, failure :: IO a -> IO a
 
-success = colour green
-failure = colour red
+success = colour Green
+failure = colour Red
 
 
 breaks :: [a -> Bool] -> [a] -> [[a]]
