@@ -1,5 +1,4 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 module Main
@@ -38,21 +37,21 @@ main = traverse (runQuickCheckAll (quickCheckWithResult stdArgs{ maxSuccess = 25
   >>= bool exitFailure exitSuccess . (== 0) . snd
 
 data Group = Group
-  { name  :: String
-  , cases :: [Case]
+  { groupName :: String
+  , cases     :: [Case]
   }
 
 data Case = Case
-  { name     :: String
+  { caseName :: String
   , property :: Property
   }
 
 runQuickCheckAll :: (Property -> IO Result) -> Group -> IO (Int, Int)
-runQuickCheckAll qc Group{ name = __FILE__, cases = ps } = do
+runQuickCheckAll qc Group{ groupName = __FILE__, cases = ps } = do
   withSGR [setBold, setRGB (hsl 300 1 0.75)] $
     putStrLn __FILE__
   putStrLn ""
-  rs <- for ps $ \ Case{ name = xs, property = p } -> do
+  rs <- for ps $ \ Case{ caseName = xs, property = p } -> do
     loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
       [propName, _, _, _, loc] -> do
         withSGR [setBold] $
