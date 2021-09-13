@@ -47,18 +47,18 @@ data Case = Case
   }
 
 runQuickCheckAll :: (Property -> IO Result) -> Group -> IO (Int, Int)
-runQuickCheckAll qc Group{ groupName = __FILE__, cases = ps } = do
+runQuickCheckAll qc Group{ groupName, cases } = do
   withSGR [setBold, setRGB (hsl 300 1 0.75)] $
-    putStrLn __FILE__
+    putStrLn groupName
   putStrLn ""
-  rs <- for ps $ \ Case{ caseName = xs, property = p } -> do
-    loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] xs of
+  rs <- for cases $ \ Case{ caseName, property } -> do
+    loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
       [propName, _, _, _, loc] -> do
         withSGR [setBold] $
           putStrLn (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
         pure (Just loc)
       _ -> pure Nothing
-    r <- qc p
+    r <- qc property
     result loc r
     putStrLn ""
     pure (isSuccess r)
