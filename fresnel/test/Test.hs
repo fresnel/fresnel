@@ -67,8 +67,8 @@ runGroup :: Args -> Indent -> Group -> IO (Int, Int)
 runGroup args indent Group{ groupName, cases } = do
   withSGR [setBold, setColour Magenta] $
     putStrLn groupName
-  withSGR [setColour Magenta] $ putStrLn ("┌─" ++ replicate (length groupName - 2) '─')
-  let indent' = push (withSGR [setColour Magenta] (putStr "│ ") *>) indent
+  putStrLn ("┌─" ++ replicate (length groupName - 2) '─')
+  let indent' = push (putStr "│ " *>) indent
   rs <- catMaybes <$> sequence (intersperse (Nothing <$ putIndentStrLn indent' "") (map (fmap Just <$> runCase args indent') cases))
   putStrLn ""
   tally (length (filter id rs), length (filter not rs))
@@ -85,7 +85,7 @@ runCase args indent Case{ caseName, property } = do
 result :: Indent -> String -> FilePath -> Result -> IO ()
 result indent name path = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
-    withSGR [setColour Magenta] $ putStr "├─"
+    putStr "├─"
     header
     success $ putStr "Success."
     putStr " "
@@ -95,7 +95,7 @@ result indent name path = \case
     body Green numTests labels tables
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-    withSGR [setColour Magenta] $ putStr "├─"
+    putStr "├─"
     header
     failure $ putStr "Failure."
     putStr " "
@@ -105,7 +105,7 @@ result indent name path = \case
     body Red numTests labels tables
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-    withSGR [setColour Magenta] $ putStr "├─"
+    putStr "├─"
     header
     failure $ putStr "Failure."
     putStr " "
@@ -124,7 +124,7 @@ result indent name path = \case
       unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-    withSGR [setColour Magenta] $ putStr "├─"
+    putStr "├─"
     header
     failure $ putStr "Failure."
     putStr " "
