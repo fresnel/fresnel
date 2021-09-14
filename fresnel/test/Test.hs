@@ -102,10 +102,7 @@ result indent name path = \case
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn ":"
-    let labels' = intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels)
-    unless (null labels') $ withSGR [setColour Cyan] $ putIndentStrLn indent ("┌─" ++ replicate (length name - 2) '─')
-    sequence_ labels'
-    Main.tables indent numTests tables
+    body Cyan numTests labels tables
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     withSGR [setColour Magenta] $ putStr "├─"
@@ -132,11 +129,8 @@ result indent name path = \case
     putStr " "
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
-    putStr ":"
-    let labels' = intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels)
-    unless (null labels') $ withSGR [setColour Cyan] $ putIndentStrLn indent ("┌─" ++ replicate (length name - 2) '─')
-    sequence_ labels'
-    Main.tables indent numTests tables
+    putStrLn ":"
+    body Cyan numTests labels tables
   where
   header = do
     withSGR [setBold] (putStr name)
