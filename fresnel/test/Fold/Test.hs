@@ -16,8 +16,7 @@ prop_union_semigroup_assoc (ArbFold a) (ArbFold b) (ArbFold c) as = toListOf (ge
 
 prop_union_monoid_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
 prop_union_monoid_identity (ArbFold a) as =
-  classify (null as) "empty" .
-  classify (length as == 1) "singleton" $
+  classifyList as $
   toListOf (getUnion (mempty <> Union a)) as === toListOf a as .&&. toListOf (getUnion (Union a <> mempty)) as === toListOf a as
 
 
@@ -26,6 +25,10 @@ prop_failover_semigroup_assoc (ArbFold a) (ArbFold b) (ArbFold c) as = toListOf 
 
 prop_failover_monoid_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
 prop_failover_monoid_identity (ArbFold a) as = toListOf (getFailover (mempty <> Failover a)) as === toListOf a as .&&. toListOf (getFailover (Failover a <> mempty)) as === toListOf a as
+
+
+classifyList :: Testable prop => [a] -> prop -> Property
+classifyList as = classify (null as) "empty" . classify (length as == 1) "singleton"
 
 
 newtype ArbFold a = ArbFold (Fold [a] a)
