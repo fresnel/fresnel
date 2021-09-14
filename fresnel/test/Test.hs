@@ -63,7 +63,6 @@ runGroup :: Args -> Indent -> Group -> IO (Int, Int)
 runGroup args indent Group{ groupName, cases } = do
   withSGR [setBold, setColour Magenta] $
     putStrLn groupName
-  -- putStrLn ""
   withSGR [setColour Magenta] $ putStrLn ("┌─" ++ replicate (length groupName - 2) '─')
   rs <- traverse (runCase args (push (withSGR [setColour Magenta] (putStr "│ ") *>) indent)) cases
 
@@ -89,7 +88,6 @@ result indent ident = \case
       stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
       Main.classes numTests classes
       putStrLn "."
-    -- withSGR [setColour Magenta] $ putStr ("┌─" ++ replicate (maybe 0 (length . fst) ident) '─')
     Main.labels indent numTests labels
     Main.tables indent numTests tables
 
