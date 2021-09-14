@@ -158,8 +158,8 @@ labels indent n labels
   where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
-    | (labels, n) <- Map.toList labels,
-      (i, l) <- zip [(0 :: Int)..] labels
+    | (labels, n) <- Map.toList labels
+    , (i, l) <- zip [(0 :: Int)..] labels
     ]
   table k m = do
     for_ m $ \ (key, v) -> do
