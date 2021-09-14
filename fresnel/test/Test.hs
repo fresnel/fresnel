@@ -78,9 +78,8 @@ runCase :: Args -> Indent -> Case -> IO Bool
 runCase args indent Case{ caseName, property } = do
   loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
     [propName, _, _, _, loc] -> do
-      putIndent indent
       withSGR [setBold] $
-        putStrLn (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
+        putIndentStrLn indent (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
       pure (Just loc)
     _ -> pure Nothing
   r <- quickCheckWithResult args property
