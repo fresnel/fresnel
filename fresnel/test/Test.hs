@@ -100,31 +100,19 @@ runCase args indent width Case{ name, path, property } = do
 result :: Indent -> Int -> String -> FilePath -> Result -> IO ()
 result indent width name path = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
-    putStr "├─"
-    header
-    success $ putStr "Success."
-    putStr " "
-    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    header True $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn "."
     body Green numTests labels tables
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-    putStr "├─"
-    header
-    failure $ putStr "Failure."
-    putStr " "
-    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    header False $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn ":"
     body Red numTests labels tables
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-    putStr "├─"
-    header
-    failure $ putStr "Failure."
-    putStr " "
-    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+    header False $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putStrLn ":"
     putIndentStrLn indent path
@@ -139,19 +127,21 @@ result indent width name path = \case
       unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-    putStr "├─"
-    header
-    failure $ putStr "Failure."
-    putStr " "
-    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    header False $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn ":"
     body Red numTests labels tables
   where
-  header = do
+  header succeeded sub = do
+    putStr "├─"
     let δ = width - length name
     withSGR [setBold] (putStr name *> when (width > 0) (putStr (replicate δ ' ')))
     putStr "   "
+    if succeeded then
+      success $ putStrLn "Success."
+    else
+      failure $ putStrLn "Failure."
+    indenting indent sub
 
   body colour numTests labels tables = do
     unless (null (fold (Map.keysSet labels))) $ indenting indent $ withSGR [setColour colour] $ putStrLn ("┌─" ++ replicate (length name - 2) '─')
