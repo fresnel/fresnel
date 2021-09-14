@@ -76,21 +76,19 @@ runGroup args indent Group{ groupName, cases } = do
 
 runCase :: Args -> Indent -> Case -> IO Bool
 runCase args indent Case{ caseName, property } = do
-  loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
-    [propName, _, _, _, loc] -> do
-      withSGR [setBold] $
-        putIndentStrLn indent (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
-      pure (Just loc)
-    _ -> pure Nothing
+  let ident = case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
+        [propName, _, _, _, loc] -> Just (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)), loc)
+        _                        -> Nothing
   r <- quickCheckWithResult args property
-  result indent loc r
+  result indent ident r
   putStrLn ""
   pure (isSuccess r)
 
-result :: Indent -> Maybe String -> Result -> IO ()
-result indent loc = \case
+result :: Indent -> Maybe (String, String) -> Result -> IO ()
+result indent ident = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     indenting indent $ do
+      header
       success $ putStr "Success."
       putStr " "
       stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
@@ -101,38 +99,47 @@ result indent loc = \case
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     indenting indent $ do
+      header
       failure $ putStr "Failure."
       putStr " "
       stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
       Main.classes numTests classes
-      putStrLn "."
+      putStrLn ":"
     Main.labels indent numTests labels
     Main.tables indent numTests tables
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-    maybe (pure ()) (putIndentStrLn indent) loc
     indenting indent $ do
+      header
       failure $ putStr "Failure."
       putStr " "
       stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
       putStrLn ":"
-    putIndentStrLn indent ""
+    for_ ident (putIndentStrLn indent . snd)
+    putStrLn ""
     putIndentStrLn indent reason
-    maybe (pure ()) (putIndentStrLn indent . displayException) theException
-    traverse_ (putIndentStrLn indent) failingTestCase
-    putIndentStrLn indent ""
+    for_ theException (putIndentStrLn indent . displayException)
+    for_ failingTestCase (putIndentStrLn indent)
+    putStrLn ""
     putIndentStrLn indent ("Seed: " ++ show usedSeed)
     putIndentStrLn indent ("Size: " ++ show usedSize)
     unless (null failingLabels)  $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
     unless (null failingClasses) $ putIndentStrLn indent ("Classes: " ++ intercalate ", " (toList failingClasses))
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-    failure $ putStr "Failure."
-    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-    Main.classes numTests classes
-    putStrLn "."
+    indenting indent $ do
+      header
+      failure $ putStr "Failure."
+      putStr " "
+      stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+      Main.classes numTests classes
+      putStr ":"
     Main.labels indent numTests labels
     Main.tables indent numTests tables
+  where
+  header = for_ ident $ \ (name, _) -> do
+    withSGR [setBold] (putStr name)
+    putStr " … "
 
 data Stats = Stats
   { numTests     :: Int
