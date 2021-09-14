@@ -15,7 +15,10 @@ prop_union_semigroup_assoc :: (Eq a, Show a) => ArbFold a -> ArbFold a -> ArbFol
 prop_union_semigroup_assoc (ArbFold a) (ArbFold b) (ArbFold c) as = toListOf (getUnion (Union a <> (Union b <> Union c))) as === toListOf (getUnion ((Union a <> Union b) <> Union c)) as
 
 prop_union_monoid_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
-prop_union_monoid_identity (ArbFold a) as = toListOf (getUnion (mempty <> Union a)) as === toListOf a as .&&. toListOf (getUnion (Union a <> mempty)) as === toListOf a as
+prop_union_monoid_identity (ArbFold a) as =
+  classify (null as) "empty" .
+  classify (length as == 1) "singleton" $
+  toListOf (getUnion (mempty <> Union a)) as === toListOf a as .&&. toListOf (getUnion (Union a <> mempty)) as === toListOf a as
 
 
 prop_failover_semigroup_assoc :: (Eq a, Show a) => ArbFold a -> ArbFold a -> ArbFold a -> [a] -> Property
