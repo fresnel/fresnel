@@ -6,7 +6,7 @@ module Main
 , breaks
 ) where
 
-import           Control.Monad (unless)
+import           Control.Monad (unless, when)
 import           Data.Char (isSpace)
 import           Data.Foldable (fold, for_, toList)
 import qualified Data.IntMap as IntMap
@@ -27,13 +27,15 @@ import           Test.QuickCheck (Args(..), Property, Result(..), isSuccess, qui
 
 main :: IO ()
 main = do
-  res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent . mkGroup)
-    [ Fold.Test.tests
-    , Getter.Test.tests
-    , Iso.Test.tests
-    , Monoid.Fork.Test.tests
-    , Profunctor.Coexp.Test.tests
-    ]
+  let groups = map mkGroup
+        [ Fold.Test.tests
+        , Getter.Test.tests
+        , Iso.Test.tests
+        , Monoid.Fork.Test.tests
+        , Profunctor.Coexp.Test.tests
+        ]
+      width = maximum [ length (name c) | g <- groups, c <- cases g ]
+  res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent width) groups
   (_, success) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   if success == 0 then
     exitSuccess
@@ -79,24 +81,24 @@ putIndentStrLn i = indenting i . putStrLn
 indenting :: Indent -> IO () -> IO ()
 indenting i = foldr (.) id (reverse (getIndent i))
 
-runGroup :: Args -> Indent -> Group -> IO (Int, Int)
-runGroup args indent Group{ groupName, cases } = do
+runGroup :: Args -> Indent -> Int -> Group -> IO (Int, Int)
+runGroup args indent width Group{ groupName, cases } = do
   withSGR [setBold, setColour Magenta] $
     putStrLn groupName
   putStrLn ("┌─" ++ replicate (length groupName - 2) '─')
   let indent' = push (putStr "│ " *>) indent
-  rs <- catMaybes <$> sequence (intersperse (Nothing <$ putIndentStrLn indent' "") (map (fmap Just <$> runCase args indent') cases))
+  rs <- catMaybes <$> sequence (intersperse (Nothing <$ putIndentStrLn indent' "") (map (fmap Just <$> runCase args indent' width) cases))
   putStrLn ""
   tally (length (filter id rs), length (filter not rs))
 
-runCase :: Args -> Indent -> Case -> IO Bool
-runCase args indent Case{ name, path, property } = do
+runCase :: Args -> Indent -> Int -> Case -> IO Bool
+runCase args indent width Case{ name, path, property } = do
   r <- quickCheckWithResult args property
-  result indent name path r
+  result indent width name path r
   pure (isSuccess r)
 
-result :: Indent -> String -> FilePath -> Result -> IO ()
-result indent name path = \case
+result :: Indent -> Int -> String -> FilePath -> Result -> IO ()
+result indent width name path = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     putStr "├─"
     header
@@ -147,8 +149,9 @@ result indent name path = \case
     body Red numTests labels tables
   where
   header = do
-    withSGR [setBold] (putStr name)
-    putStr " … "
+    let δ = width - length name
+    withSGR [setBold] (putStr name *> when (width > 0) (putStr (replicate δ ' ')))
+    putStr "   "
 
   body colour numTests labels tables = do
     unless (null (fold (Map.keysSet labels))) $ indenting indent $ withSGR [setColour colour] $ putStrLn ("┌─" ++ replicate (length name - 2) '─')
