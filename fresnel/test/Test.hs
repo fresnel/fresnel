@@ -3,6 +3,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 module Main
 ( main
+, breaks
 ) where
 
 import           Control.Monad (unless)
@@ -19,14 +20,14 @@ import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
 import qualified Iso.Test
 import qualified Monoid.Fork.Test
-import           Numeric (showFFloatAlt)
+import           Numeric (readDec, showFFloatAlt)
 import qualified Profunctor.Coexp.Test
 import           System.Console.ANSI
 import           System.Exit (exitFailure, exitSuccess)
-import           Test.QuickCheck
+import           Test.QuickCheck (Args(..), Property, Result(..), isSuccess, quickCheckWithResult, stdArgs)
 
 main :: IO ()
-main = traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent . uncurry Group . fmap (map (uncurry Case)))
+main = traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent . uncurry Group . fmap (map (uncurry mkCase)))
   [ Fold.Test.tests
   , Getter.Test.tests
   , Iso.Test.tests
@@ -42,9 +43,18 @@ data Group = Group
   }
 
 data Case = Case
-  { caseName :: String
+  { name     :: String
+  , path     :: FilePath
+  , line     :: Int
   , property :: Property
   }
+
+mkCase :: String -> Property -> Case
+mkCase s property = Case{ name, path, line, property }
+  where
+  (name, path, line) = case breaks [isSpace, not . isSpace, isSpace, not . isSpace, (== ':'), (/= ':')] s of
+    [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
+    _                     -> ("", "", 0)
 
 newtype Indent = Indent { getIndent :: [IO () -> IO ()] }
 
@@ -74,10 +84,7 @@ runGroup args indent Group{ groupName, cases } = do
   tally (length (filter id rs), length (filter not rs))
 
 runCase :: Args -> Indent -> Case -> IO Bool
-runCase args indent Case{ caseName, property } = do
-  let (name, path) = case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
-        [propName, _, _, _, loc] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)), loc)
-        _                        -> ("", "")
+runCase args indent Case{ name, path, property } = do
   r <- quickCheckWithResult args property
   result indent name path r
   pure (isSuccess r)
