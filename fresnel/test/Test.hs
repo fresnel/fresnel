@@ -25,7 +25,7 @@ import           System.Exit (exitFailure, exitSuccess)
 import           Test.QuickCheck
 
 main :: IO ()
-main = traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } . uncurry Group . fmap (map (uncurry Case)))
+main = traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent . uncurry Group . fmap (map (uncurry Case)))
   [ Fold.Test.tests
   , Getter.Test.tests
   , Iso.Test.tests
@@ -45,68 +45,96 @@ data Case = Case
   , property :: Property
   }
 
-runGroup :: Args -> Group -> IO (Int, Int)
-runGroup args Group{ groupName, cases } = do
+newtype Indent = Indent { getIndent :: Int }
+
+initialIndent :: Indent
+initialIndent = Indent 0
+
+incr :: Indent -> Indent
+incr (Indent i) = Indent (i + 1)
+
+padding :: Indent -> String
+padding i = replicate (getIndent i * 2) ' '
+
+putIndent :: Indent -> IO ()
+putIndent = putStr . padding
+
+putIndentStrLn :: Indent -> String -> IO ()
+putIndentStrLn i = indenting i . putStrLn
+
+indenting :: Indent -> IO a -> IO a
+indenting i = (putIndent i *>)
+
+runGroup :: Args -> Indent -> Group -> IO (Int, Int)
+runGroup args indent Group{ groupName, cases } = do
   withSGR [setBold, setColour Magenta] $
     putStrLn groupName
   putStrLn ""
-  rs <- traverse (runCase args) cases
+  rs <- traverse (runCase args (incr indent)) cases
 
   tally (length (filter id rs), length (filter not rs))
 
-runCase :: Args -> Case -> IO Bool
-runCase args Case{ caseName, property } = do
+runCase :: Args -> Indent -> Case -> IO Bool
+runCase args indent Case{ caseName, property } = do
   loc <- case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
     [propName, _, _, _, loc] -> do
+      putIndent indent
       withSGR [setBold] $
         putStrLn (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)))
       pure (Just loc)
     _ -> pure Nothing
   r <- quickCheckWithResult args property
-  result loc r
+  result indent loc r
   putStrLn ""
   pure (isSuccess r)
 
-result :: Maybe String -> Result -> IO ()
-result loc = \case
+result :: Indent -> Maybe String -> Result -> IO ()
+result indent loc = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
-    success $ putStr "Success."
-    putStr " "
-    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-    Main.classes numTests classes
-    putStrLn "."
-    Main.labels numTests labels
-    Main.tables numTests tables
+    indenting indent $ do
+      success $ putStr "Success."
+      putStr " "
+      stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+      Main.classes numTests classes
+      putStrLn "."
+    Main.labels indent numTests labels
+    Main.tables indent numTests tables
+
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-    failure $ putStr "Failure."
-    putStr " "
-    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-    Main.classes numTests classes
-    putStrLn "."
-    Main.labels numTests labels
-    Main.tables numTests tables
+    indenting indent $ do
+      failure $ putStr "Failure."
+      putStr " "
+      stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+      Main.classes numTests classes
+      putStrLn "."
+    Main.labels indent numTests labels
+    Main.tables indent numTests tables
+
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-    maybe (pure ()) putStrLn loc
-    failure $ putStr "Failure."
-    putStr " "
-    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
-    putStrLn ":"
-    putStrLn ""
-    putStrLn reason
-    maybe (pure ()) (putStrLn . displayException) theException
-    traverse_ putStrLn failingTestCase
-    putStrLn ""
-    putStrLn ("Seed: " ++ show usedSeed)
-    putStrLn ("Size: " ++ show usedSize)
-    unless (null failingLabels) $ putStrLn ("Labels: " ++ intercalate ", " failingLabels)
-    unless (null failingClasses) $ putStrLn ("Classes: " ++ intercalate ", " (toList failingClasses))
+    maybe (pure ()) (putIndentStrLn indent) loc
+    indenting indent $ do
+      failure $ putStr "Failure."
+      putStr " "
+      stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+      putStrLn ":"
+    putIndentStrLn indent ""
+    putIndentStrLn indent reason
+    maybe (pure ()) (putIndentStrLn indent . displayException) theException
+    traverse_ (putIndentStrLn indent) failingTestCase
+    putIndentStrLn indent ""
+    putIndentStrLn indent ("Seed: " ++ show usedSeed)
+    putIndentStrLn indent ("Size: " ++ show usedSize)
+    unless (null failingLabels)  $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
+    unless (null failingClasses) $ putIndentStrLn indent ("Classes: " ++ intercalate ", " (toList failingClasses))
+
+
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "Failure."
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn "."
-    Main.labels numTests labels
-    Main.tables numTests tables
+    Main.labels indent numTests labels
+    Main.tables indent numTests tables
 
 data Stats = Stats
   { numTests     :: Int
@@ -122,8 +150,8 @@ stats Stats{ numTests, numDiscarded, numShrinks } = do
     ++ toList (stat (S "shrink") numShrinks)
 
 
-labels :: Int -> Map.Map [String] Int -> IO ()
-labels n labels = unless (null labels) (putStrLn "") *> traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels) where
+labels :: Indent -> Int -> Map.Map [String] Int -> IO ()
+labels indent n labels = unless (null labels) (putStrLn "") *> traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels) where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
     | (labels, n) <- Map.toList labels,
@@ -132,7 +160,7 @@ labels n labels = unless (null labels) (putStrLn "") *> traverse_ (table n . sor
   table k m = do
     for_ m $ \ (key, v) -> do
       let percentage = fromIntegral v / fromIntegral k * 100 :: Double
-      putStrLn $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
+      putIndentStrLn indent $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
     putStrLn ""
 
 classes :: Int -> Map.Map String Int -> IO ()
@@ -143,8 +171,8 @@ classes n classes = unless (null classes) $ do
 class_ :: Int -> String -> Int -> IO ()
 class_ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStr (showFFloatAlt (Just 1) percentage ('%':' ':label))
 
-tables :: Int -> Map.Map String (Map.Map String Int) -> IO ()
-tables _ _ = pure ()
+tables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> IO ()
+tables _ _ _ = pure ()
 
 
 data Plural
