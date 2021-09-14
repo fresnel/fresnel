@@ -45,32 +45,26 @@ data Case = Case
   , property :: Property
   }
 
-newtype Indent = Indent { getIndent :: Int }
+newtype Indent = Indent { getIndent :: [IO () -> IO ()] }
 
 initialIndent :: Indent
-initialIndent = Indent 0
+initialIndent = Indent []
 
-incr :: Indent -> Indent
-incr (Indent i) = Indent (i + 1)
-
-padding :: Indent -> String
-padding i = replicate (getIndent i * 2) ' '
-
-putIndent :: Indent -> IO ()
-putIndent = putStr . padding
+push :: (IO () -> IO ()) -> Indent -> Indent
+push f (Indent fs) = Indent (f:fs)
 
 putIndentStrLn :: Indent -> String -> IO ()
 putIndentStrLn i = indenting i . putStrLn
 
-indenting :: Indent -> IO a -> IO a
-indenting i = (putIndent i *>)
+indenting :: Indent -> IO () -> IO ()
+indenting i = foldr (.) id (getIndent i)
 
 runGroup :: Args -> Indent -> Group -> IO (Int, Int)
 runGroup args indent Group{ groupName, cases } = do
   withSGR [setBold, setColour Magenta] $
     putStrLn groupName
   putStrLn ""
-  rs <- traverse (runCase args (incr indent)) cases
+  rs <- traverse (runCase args (push (withSGR [setColour Magenta] (putStr "│ ") *>) indent)) cases
 
   tally (length (filter id rs), length (filter not rs))
 
