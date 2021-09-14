@@ -8,7 +8,7 @@ module Main
 import           Control.Monad (unless)
 import           Data.Bool (bool)
 import           Data.Char (isSpace)
-import           Data.Foldable (for_, toList, traverse_)
+import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
@@ -88,7 +88,7 @@ result indent ident = \case
       stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
       Main.classes numTests classes
       putStrLn "."
-    Main.labels indent numTests labels
+    sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
     Main.tables indent numTests tables
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
@@ -99,7 +99,7 @@ result indent ident = \case
       stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
       Main.classes numTests classes
       putStrLn ":"
-    Main.labels indent numTests labels
+    sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
     Main.tables indent numTests tables
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
@@ -128,7 +128,7 @@ result indent ident = \case
       stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
       Main.classes numTests classes
       putStr ":"
-    Main.labels indent numTests labels
+    sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
     Main.tables indent numTests tables
   where
   header = for_ ident $ \ (name, _) -> do
@@ -149,21 +149,19 @@ stats Stats{ numTests, numDiscarded, numShrinks } = do
     ++ toList (stat (S "shrink") numShrinks)
 
 
-labels :: Indent -> Int -> Map.Map [String] Int -> IO ()
+labels :: Indent -> Int -> Map.Map [String] Int -> [IO ()]
 labels indent n labels
-  | null labels = pure ()
-  | otherwise   = traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
+  | null labels = []
+  | otherwise   = map (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
   where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
     | (labels, n) <- Map.toList labels
     , (i, l) <- zip [(0 :: Int)..] labels
     ]
-  table k m = do
-    for_ m $ \ (key, v) -> do
-      let percentage = fromIntegral v / fromIntegral k * 100 :: Double
-      putIndentStrLn indent $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
-    putIndentStrLn indent ""
+  table k m = for_ m $ \ (key, v) -> do
+    let percentage = fromIntegral v / fromIntegral k * 100 :: Double
+    putIndentStrLn indent $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
 classes :: Int -> Map.Map String Int -> IO ()
 classes n classes = unless (null classes) $ do
