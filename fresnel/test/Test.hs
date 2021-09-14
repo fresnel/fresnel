@@ -52,13 +52,14 @@ mkGroup = uncurry Group . fmap (map (uncurry mkCase))
 
 data Case = Case
   { name     :: String
-  , path     :: FilePath
-  , line     :: Int
+  , loc      :: Loc
   , property :: Property
   }
 
+data Loc = Loc { path :: FilePath, line :: Int }
+
 mkCase :: String -> Property -> Case
-mkCase s property = Case{ name, path, line, property }
+mkCase s property = Case{ name, loc = Loc{ path, line }, property }
   where
   (name, path, line) = case breaks [isSpace, not . isSpace, isSpace, not . isSpace, (== ':'), (/= ':')] s of
     [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
@@ -89,13 +90,13 @@ runGroup args indent width Group{ groupName, cases } = do
   tally (length (filter id rs), length (filter not rs))
 
 runCase :: Args -> Indent -> Int -> Case -> IO Bool
-runCase args indent width Case{ name, path, property } = do
+runCase args indent width Case{ name, loc, property } = do
   r <- quickCheckWithResult args property
-  result indent width name path r
+  result indent width name loc r
   pure (isSuccess r)
 
-result :: Indent -> Int -> String -> FilePath -> Result -> IO ()
-result indent width name path = \case
+result :: Indent -> Int -> String -> Loc -> Result -> IO ()
+result indent width name Loc{ path } = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     header True
     Main.classes numTests classes
