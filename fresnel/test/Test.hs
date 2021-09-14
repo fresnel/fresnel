@@ -8,7 +8,7 @@ module Main
 
 import           Control.Monad (unless, when)
 import           Data.Char (isSpace)
-import           Data.Foldable (fold, for_, toList)
+import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
@@ -72,9 +72,6 @@ initialIndent = Indent []
 push :: (IO () -> IO ()) -> Indent -> Indent
 push f (Indent fs) = Indent (f:fs)
 
-pushing :: (IO () -> IO ()) -> Indent -> (Indent -> IO a) -> IO a
-pushing f i with = with (push f i)
-
 putIndentStrLn :: Indent -> String -> IO ()
 putIndentStrLn i = indenting i . putStrLn
 
@@ -85,8 +82,8 @@ runGroup :: Args -> Indent -> Int -> Group -> IO (Int, Int)
 runGroup args indent width Group{ groupName, cases } = do
   withSGR [setBold] $
     putStrLn groupName
-  putStrLn ("┌─" ++ replicate (length groupName - 2) '─')
-  let indent' = push (putStr "│ " *>) indent
+  putStrLn (replicate (2 + fullWidth width) '━')
+  let indent' = push (putStr "  " *>) indent
   rs <- catMaybes <$> sequence (intersperse (Nothing <$ putIndentStrLn indent' "") (map (fmap Just <$> runCase args indent' width) cases))
   putStrLn ""
   tally (length (filter id rs), length (filter not rs))
@@ -100,40 +97,36 @@ runCase args indent width Case{ name, path, property } = do
 result :: Indent -> Int -> String -> FilePath -> Result -> IO ()
 result indent width name path = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
-    header True $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    header True
     Main.classes numTests classes
-    putStrLn "."
-    body Green numTests labels tables
+    body numTests labels tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-    header False $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    header False
     Main.classes numTests classes
-    putStrLn ":"
-    body Red numTests labels tables
+    body numTests labels tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-    header False $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+    header False
+    indenting indent $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putStrLn ":"
     putIndentStrLn indent path
-    indenting indent $ withSGR [setColour Red] $ putStrLn ("┌─" ++ replicate (length path - 2) '─')
-    pushing (withSGR [setColour Red] (putStr "│ ") *>) indent $ \ indent -> do
-      putIndentStrLn indent reason
-      for_ theException (putIndentStrLn indent . displayException)
-      for_ failingTestCase (putIndentStrLn indent)
-      putIndentStrLn indent ""
-      putIndentStrLn indent ("Seed: " ++ show usedSeed)
-      putIndentStrLn indent ("Size: " ++ show usedSize)
-      unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
+    putIndentStrLn indent reason
+    for_ theException (putIndentStrLn indent . displayException)
+    for_ failingTestCase (putIndentStrLn indent)
+    putIndentStrLn indent ""
+    putIndentStrLn indent ("Seed: " ++ show usedSeed)
+    putIndentStrLn indent ("Size: " ++ show usedSize)
+    unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-    header False $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    header False
     Main.classes numTests classes
-    putStrLn ":"
-    body Red numTests labels tables
+    body numTests labels tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
   where
-  header succeeded sub = do
-    putStr "├─"
+  header succeeded = do
+    putStr "❧ "
     let δ = width - length name
     withSGR [setBold] (putStr name *> when (width > 0) (putStr (replicate δ ' ')))
     putStr "   "
@@ -141,13 +134,12 @@ result indent width name path = \case
       success $ putStrLn "Success."
     else
       failure $ putStrLn "Failure."
-    indenting indent sub
 
-  body colour numTests labels tables = do
-    unless (null (fold (Map.keysSet labels))) $ indenting indent $ withSGR [setColour colour] $ putStrLn ("┌─" ++ replicate (length name - 2) '─')
-    pushing (withSGR [setColour colour] (putStr "│ ") *>) indent $ \ indent -> do
-      sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
-      Main.tables indent numTests tables
+    indenting indent $ withSGR [setColour (if succeeded then Green else Red)] $ putStrLn (replicate (fullWidth width) '─')
+
+  body numTests labels tables s t = do
+    sequence_ (intersperse (putIndentStrLn indent "") (indenting indent (stats s *> putStrLn t) : Main.labels indent numTests labels))
+    Main.tables indent numTests tables
 
 data Stats = Stats
   { numTests     :: Int
@@ -156,11 +148,10 @@ data Stats = Stats
   }
 
 stats :: Stats -> IO ()
-stats Stats{ numTests, numDiscarded, numShrinks } = do
-  sequence_ . intersperse (putStr ", ")
-    $  toList (stat (S "test") numTests)
-    ++ toList (stat (S "discard") numDiscarded)
-    ++ toList (stat (S "shrink") numShrinks)
+stats Stats{ numTests, numDiscarded, numShrinks } = sequence_ . intersperse (putStr ", ")
+  $  toList (stat (S "test") numTests)
+  ++ toList (stat (S "discard") numDiscarded)
+  ++ toList (stat (S "shrink") numShrinks)
 
 
 labels :: Indent -> Int -> Map.Map [String] Int -> [IO ()]
@@ -200,6 +191,9 @@ pluralize 1 = \case
 pluralize _ = \case
   S   s -> s ++ "s"
   C _ s -> s
+
+fullWidth :: Int -> Int
+fullWidth width = width + 3 + length "Success."
 
 stat :: Plural -> Int -> Maybe (IO ())
 stat _    0 = Nothing
