@@ -27,7 +27,7 @@ import           Test.QuickCheck (Args(..), Property, Result(..), isSuccess, qui
 
 main :: IO ()
 main = do
-  res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent . uncurry Group . fmap (map (uncurry mkCase)))
+  res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent . mkGroup)
     [ Fold.Test.tests
     , Getter.Test.tests
     , Iso.Test.tests
@@ -44,6 +44,9 @@ data Group = Group
   { groupName :: String
   , cases     :: [Case]
   }
+
+mkGroup :: (String, [(String, Property)]) -> Group
+mkGroup = uncurry Group . fmap (map (uncurry mkCase))
 
 data Case = Case
   { name     :: String
