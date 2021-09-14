@@ -150,7 +150,12 @@ stats Stats{ numTests, numDiscarded, numShrinks } = do
 
 
 labels :: Indent -> Int -> Map.Map [String] Int -> IO ()
-labels indent n labels = unless (null labels) (putIndentStrLn indent "") *> traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels) where
+labels indent n labels
+  | null labels = pure ()
+  | otherwise   = do
+    putIndentStrLn indent ""
+    traverse_ (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
+  where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
     | (labels, n) <- Map.toList labels,
