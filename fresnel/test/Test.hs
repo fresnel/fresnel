@@ -34,7 +34,7 @@ main = do
         , Monoid.Fork.Test.tests
         , Profunctor.Coexp.Test.tests
         ]
-      width = maximum [ length (name c) | g <- groups, c <- cases g ]
+      width = maximum [ length (name c) `max` length (groupName g) | g <- groups, c <- cases g ]
   res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent width) groups
   (_, success) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   if success == 0 then
