@@ -35,7 +35,7 @@ main = (`runIndentT` initialIndent) $ do
         , Profunctor.Coexp.Test.tests
         ]
       width = maximum [ length (name c) `max` length (groupName g) | g <- groups, c <- cases g ]
-  res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent width) groups
+  res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } width) groups
   (_, failures) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   lift $ if failures == 0 then
     exitSuccess
@@ -73,33 +73,35 @@ initialIndent = Indent []
 push :: String -> Indent -> Indent
 push f (Indent fs) = Indent (f:fs)
 
-putIndentStrLn :: Indent -> String -> IndentT IO ()
-putIndentStrLn i = indenting i . lift . putStrLn
+putIndentStrLn :: String -> IndentT IO ()
+putIndentStrLn = indenting . lift . putStrLn
 
-indenting :: Indent -> IndentT IO () -> IndentT IO ()
-indenting i = (lift (putStr (concat (reverse (getIndent i)))) *>)
+indenting :: IndentT IO a -> IndentT IO a
+indenting m = do
+  i <- asks (concat . reverse . getIndent)
+  lift (putStr i)
+  m
 
 newline :: IndentT IO ()
 newline = lift (putStrLn "")
 
-runGroup :: Args -> Indent -> Int -> Group -> IndentT IO (Int, Int)
-runGroup args indent width Group{ groupName, cases } = do
+runGroup :: Args -> Int -> Group -> IndentT IO (Int, Int)
+runGroup args width Group{ groupName, cases } = do
   withSGR [setBold] . lift $
     putStrLn groupName
   lift (putStrLn (replicate (2 + fullWidth width) '━'))
-  let indent' = push "  " indent
-  rs <- catMaybes <$> sequence (intersperse (Nothing <$ putIndentStrLn indent' "") (map (fmap Just <$> runCase args indent' width) cases))
+  rs <- catMaybes <$> local (push "  ") (sequence (intersperse (Nothing <$ putIndentStrLn "") (map (fmap Just <$> runCase args width) cases)))
   newline
   tally (length (filter id rs), length (filter not rs))
 
-runCase :: Args -> Indent -> Int -> Case -> IndentT IO Bool
-runCase args indent width Case{ name, loc, property } = do
+runCase :: Args -> Int -> Case -> IndentT IO Bool
+runCase args width Case{ name, loc, property } = do
   r <- lift (quickCheckWithResult args property)
-  result indent width name loc r
+  result width name loc r
   pure (isSuccess r)
 
-result :: Indent -> Int -> String -> Loc -> Result -> IndentT IO ()
-result indent width name Loc{ path } = \case
+result :: Int -> String -> Loc -> Result -> IndentT IO ()
+result width name Loc{ path } = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     header True
     Main.classes numTests classes
@@ -112,17 +114,17 @@ result indent width name Loc{ path } = \case
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     header False
-    stats indent Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+    stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ lift (putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")"))
     lift (putStrLn ":")
-    putIndentStrLn indent path
-    putIndentStrLn indent reason
-    for_ theException (putIndentStrLn indent . displayException)
-    for_ failingTestCase (putIndentStrLn indent)
-    putIndentStrLn indent ""
-    putIndentStrLn indent ("Seed: " ++ show usedSeed)
-    putIndentStrLn indent ("Size: " ++ show usedSize)
-    unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
+    putIndentStrLn path
+    putIndentStrLn reason
+    for_ theException (putIndentStrLn . displayException)
+    for_ failingTestCase putIndentStrLn
+    putIndentStrLn ""
+    putIndentStrLn ("Seed: " ++ show usedSeed)
+    putIndentStrLn ("Size: " ++ show usedSize)
+    unless (null failingLabels) $ putIndentStrLn ("Labels: "  ++ intercalate ", " failingLabels)
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     header False
@@ -139,11 +141,11 @@ result indent width name Loc{ path } = \case
     else
       failure . lift $ putStrLn "Failure."
 
-    indenting indent $ withSGR [setColour (if succeeded then Green else Red)] $ lift (putStrLn (replicate (fullWidth width) '─'))
+    indenting $ withSGR [setColour (if succeeded then Green else Red)] $ lift (putStrLn (replicate (fullWidth width) '─'))
 
   body numTests labels tables s t = do
-    sequence_ (intersperse (putIndentStrLn indent "") ((stats indent s *> lift (putStrLn t)) : Main.labels indent numTests labels))
-    Main.tables indent numTests tables
+    sequence_ (intersperse (putIndentStrLn "") ((stats s *> lift (putStrLn t)) : Main.labels numTests labels))
+    Main.tables numTests tables
 
 data Stats = Stats
   { numTests     :: Int
@@ -151,15 +153,15 @@ data Stats = Stats
   , numShrinks   :: Int
   }
 
-stats :: Indent -> Stats -> IndentT IO ()
-stats indent Stats{ numTests, numDiscarded, numShrinks } = indenting indent . sequence_ . intersperse (lift (putStr ", "))
+stats :: Stats -> IndentT IO ()
+stats Stats{ numTests, numDiscarded, numShrinks } = indenting . sequence_ . intersperse (lift (putStr ", "))
   $  toList (stat (S "test") numTests)
   ++ toList (stat (S "discard") numDiscarded)
   ++ toList (stat (S "shrink") numShrinks)
 
 
-labels :: Indent -> Int -> Map.Map [String] Int -> [IndentT IO ()]
-labels indent n labels
+labels :: Int -> Map.Map [String] Int -> [IndentT IO ()]
+labels n labels
   | null labels = []
   | otherwise   = map (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
   where
@@ -170,7 +172,7 @@ labels indent n labels
     ]
   table k m = for_ m $ \ (key, v) -> do
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
-    putIndentStrLn indent $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
+    putIndentStrLn $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
 classes :: Int -> Map.Map String Int -> IndentT IO ()
 classes n classes = unless (null classes) $ do
@@ -180,8 +182,8 @@ classes n classes = unless (null classes) $ do
 class_ :: Int -> String -> Int -> IndentT IO ()
 class_ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in lift (putStr (showFFloatAlt (Just 1) percentage ('%':' ':label)))
 
-tables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> IndentT IO ()
-tables _ _ _ = pure ()
+tables :: Int -> Map.Map String (Map.Map String Int) -> IndentT IO ()
+tables _ _ = pure ()
 
 
 data Plural
@@ -286,3 +288,9 @@ instance Monad m => Monad (IndentT m) where
 
 lift :: m a -> IndentT m a
 lift = IndentT . const
+
+asks :: Applicative m => (Indent -> a) -> IndentT m a
+asks = IndentT . fmap pure
+
+local :: (Indent -> Indent) -> (IndentT m a -> IndentT m a)
+local f m = IndentT (runIndentT m . f)
