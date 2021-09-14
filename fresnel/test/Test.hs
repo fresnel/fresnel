@@ -265,3 +265,18 @@ breakAll p = go False where
   go b = \case
     [] -> []
     as -> let (h, t) = break (if b then not . p else p) as in h : go (not b) t
+
+
+newtype IndentT m a = IndentT { runIndentT :: Indent -> m a }
+
+instance Functor m => Functor (IndentT m) where
+  fmap f = IndentT . fmap (fmap f) . runIndentT
+
+instance Applicative m => Applicative (IndentT m) where
+  pure = IndentT . const . pure
+  IndentT f <*> IndentT a = IndentT ((<*>) <$> f <*> a)
+
+instance Monad m => Monad (IndentT m) where
+  IndentT m >>= f = IndentT (\ i -> do
+    a <- m i
+    runIndentT (f a) i)
