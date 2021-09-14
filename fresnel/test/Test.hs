@@ -92,7 +92,7 @@ result indent name path = \case
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn "."
-    body Cyan numTests labels tables
+    body Green numTests labels tables
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     withSGR [setColour Magenta] $ putStr "├─"
@@ -102,7 +102,7 @@ result indent name path = \case
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn ":"
-    body Cyan numTests labels tables
+    body Red numTests labels tables
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     withSGR [setColour Magenta] $ putStr "├─"
@@ -130,7 +130,7 @@ result indent name path = \case
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn ":"
-    body Cyan numTests labels tables
+    body Red numTests labels tables
   where
   header = do
     withSGR [setBold] (putStr name)
