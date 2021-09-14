@@ -109,7 +109,7 @@ result indent width name Loc{ path } = \case
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     header False
-    indenting indent $ stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+    stats indent Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putStrLn ":"
     putIndentStrLn indent path
@@ -139,7 +139,7 @@ result indent width name Loc{ path } = \case
     indenting indent $ withSGR [setColour (if succeeded then Green else Red)] $ putStrLn (replicate (fullWidth width) '─')
 
   body numTests labels tables s t = do
-    sequence_ (intersperse (putIndentStrLn indent "") (indenting indent (stats s *> putStrLn t) : Main.labels indent numTests labels))
+    sequence_ (intersperse (putIndentStrLn indent "") ((stats indent s *> putStrLn t) : Main.labels indent numTests labels))
     Main.tables indent numTests tables
 
 data Stats = Stats
@@ -148,8 +148,8 @@ data Stats = Stats
   , numShrinks   :: Int
   }
 
-stats :: Stats -> IO ()
-stats Stats{ numTests, numDiscarded, numShrinks } = sequence_ . intersperse (putStr ", ")
+stats :: Indent -> Stats -> IO ()
+stats indent Stats{ numTests, numDiscarded, numShrinks } = indenting indent . sequence_ . intersperse (putStr ", ")
   $  toList (stat (S "test") numTests)
   ++ toList (stat (S "discard") numDiscarded)
   ++ toList (stat (S "shrink") numShrinks)
