@@ -12,6 +12,7 @@ import           Data.Foldable (for_, toList, traverse_)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
+import           Data.Maybe (catMaybes)
 import           Data.Ord (comparing)
 import qualified Fold.Test
 import           GHC.Exception.Type (Exception(displayException))
@@ -64,8 +65,8 @@ runGroup args indent Group{ groupName, cases } = do
   withSGR [setBold, setColour Magenta] $
     putStrLn groupName
   withSGR [setColour Magenta] $ putStrLn ("┌─" ++ replicate (length groupName - 2) '─')
-  rs <- traverse (runCase args (push (withSGR [setColour Magenta] (putStr "│ ") *>) indent)) cases
-
+  let indent' = push (withSGR [setColour Magenta] (putStr "│ ") *>) indent
+  rs <- catMaybes <$> sequence (intersperse (Nothing <$ putIndentStrLn indent' "") (map (fmap Just <$> runCase args indent') cases))
   tally (length (filter id rs), length (filter not rs))
 
 runCase :: Args -> Indent -> Case -> IO Bool
