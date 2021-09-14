@@ -72,15 +72,15 @@ runGroup args indent Group{ groupName, cases } = do
 
 runCase :: Args -> Indent -> Case -> IO Bool
 runCase args indent Case{ caseName, property } = do
-  let ident = case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
-        [propName, _, _, _, loc] -> Just (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)), loc)
-        _                        -> Nothing
+  let (name, path) = case breaks [isSpace, not . isSpace, isSpace, not . isSpace] caseName of
+        [propName, _, _, _, loc] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') propName)), loc)
+        _                        -> ("", "")
   r <- quickCheckWithResult args property
-  result indent ident r
+  result indent name path r
   pure (isSuccess r)
 
-result :: Indent -> Maybe (String, String) -> Result -> IO ()
-result indent ident = \case
+result :: Indent -> String -> FilePath -> Result -> IO ()
+result indent name path = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     withSGR [setColour Magenta] $ putStr "├─"
     header
@@ -111,7 +111,7 @@ result indent ident = \case
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putStrLn ":"
-    for_ ident (putIndentStrLn indent . snd)
+    putIndentStrLn indent path
     putIndentStrLn indent ""
     putIndentStrLn indent reason
     for_ theException (putIndentStrLn indent . displayException)
@@ -132,7 +132,7 @@ result indent ident = \case
     sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
     Main.tables indent numTests tables
   where
-  header = for_ ident $ \ (name, _) -> do
+  header = do
     withSGR [setBold] (putStr name)
     putStr " … "
 
