@@ -67,6 +67,7 @@ runGroup args indent Group{ groupName, cases } = do
   withSGR [setColour Magenta] $ putStrLn ("┌─" ++ replicate (length groupName - 2) '─')
   let indent' = push (withSGR [setColour Magenta] (putStr "│ ") *>) indent
   rs <- catMaybes <$> sequence (intersperse (Nothing <$ putIndentStrLn indent' "") (map (fmap Just <$> runCase args indent') cases))
+  putStrLn ""
   tally (length (filter id rs), length (filter not rs))
 
 runCase :: Args -> Indent -> Case -> IO Bool
