@@ -126,7 +126,6 @@ result indent loc = \case
     unless (null failingLabels)  $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
     unless (null failingClasses) $ putIndentStrLn indent ("Classes: " ++ intercalate ", " (toList failingClasses))
 
-
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     failure $ putStr "Failure."
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
