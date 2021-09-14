@@ -7,7 +7,6 @@ module Main
 ) where
 
 import           Control.Monad (unless)
-import           Data.Bool (bool)
 import           Data.Char (isSpace)
 import           Data.Foldable (fold, for_, toList)
 import qualified Data.IntMap as IntMap
@@ -27,15 +26,19 @@ import           System.Exit (exitFailure, exitSuccess)
 import           Test.QuickCheck (Args(..), Property, Result(..), isSuccess, quickCheckWithResult, stdArgs)
 
 main :: IO ()
-main = traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent . uncurry Group . fmap (map (uncurry mkCase)))
-  [ Fold.Test.tests
-  , Getter.Test.tests
-  , Iso.Test.tests
-  , Monoid.Fork.Test.tests
-  , Profunctor.Coexp.Test.tests
-  ]
-  >>= tally . foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0)
-  >>= bool exitFailure exitSuccess . (== 0) . snd
+main = do
+  res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent . uncurry Group . fmap (map (uncurry mkCase)))
+    [ Fold.Test.tests
+    , Getter.Test.tests
+    , Iso.Test.tests
+    , Monoid.Fork.Test.tests
+    , Profunctor.Coexp.Test.tests
+    ]
+  (_, success) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
+  if success == 0 then
+    exitSuccess
+  else
+    exitFailure
 
 data Group = Group
   { groupName :: String
