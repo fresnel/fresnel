@@ -160,7 +160,7 @@ labels indent n labels = unless (null labels) (putIndentStrLn indent "") *> trav
     for_ m $ \ (key, v) -> do
       let percentage = fromIntegral v / fromIntegral k * 100 :: Double
       putIndentStrLn indent $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
-    putStrLn ""
+    putIndentStrLn indent ""
 
 classes :: Int -> Map.Map String Int -> IO ()
 classes n classes = unless (null classes) $ do
