@@ -26,7 +26,7 @@ import           System.Exit (exitFailure, exitSuccess)
 import           Test.QuickCheck (Args(..), Property, Result(..), isSuccess, quickCheckWithResult, stdArgs)
 
 main :: IO ()
-main = do
+main = (`runIndentT` initialIndent) $ do
   let groups = map mkGroup
         [ Fold.Test.tests
         , Getter.Test.tests
@@ -37,7 +37,7 @@ main = do
       width = maximum [ length (name c) `max` length (groupName g) | g <- groups, c <- cases g ]
   res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent width) groups
   (_, failures) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
-  if failures == 0 then
+  lift $ if failures == 0 then
     exitSuccess
   else
     exitFailure
@@ -65,37 +65,40 @@ mkCase s property = Case{ name, loc = Loc{ path, line }, property }
     [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
     _                     -> ("", "", 0)
 
-newtype Indent = Indent { getIndent :: [IO () -> IO ()] }
+newtype Indent = Indent { getIndent :: [String] }
 
 initialIndent :: Indent
 initialIndent = Indent []
 
-push :: (IO () -> IO ()) -> Indent -> Indent
+push :: String -> Indent -> Indent
 push f (Indent fs) = Indent (f:fs)
 
-putIndentStrLn :: Indent -> String -> IO ()
-putIndentStrLn i = indenting i . putStrLn
+putIndentStrLn :: Indent -> String -> IndentT IO ()
+putIndentStrLn i = indenting i . lift . putStrLn
 
-indenting :: Indent -> IO () -> IO ()
-indenting i = foldr (.) id (reverse (getIndent i))
+indenting :: Indent -> IndentT IO () -> IndentT IO ()
+indenting i = (lift (putStr (concat (reverse (getIndent i)))) *>)
 
-runGroup :: Args -> Indent -> Int -> Group -> IO (Int, Int)
+newline :: IndentT IO ()
+newline = lift (putStrLn "")
+
+runGroup :: Args -> Indent -> Int -> Group -> IndentT IO (Int, Int)
 runGroup args indent width Group{ groupName, cases } = do
-  withSGR [setBold] $
+  withSGR [setBold] . lift $
     putStrLn groupName
-  putStrLn (replicate (2 + fullWidth width) '━')
-  let indent' = push (putStr "  " *>) indent
+  lift (putStrLn (replicate (2 + fullWidth width) '━'))
+  let indent' = push "  " indent
   rs <- catMaybes <$> sequence (intersperse (Nothing <$ putIndentStrLn indent' "") (map (fmap Just <$> runCase args indent' width) cases))
-  putStrLn ""
+  newline
   tally (length (filter id rs), length (filter not rs))
 
-runCase :: Args -> Indent -> Int -> Case -> IO Bool
+runCase :: Args -> Indent -> Int -> Case -> IndentT IO Bool
 runCase args indent width Case{ name, loc, property } = do
-  r <- quickCheckWithResult args property
+  r <- lift (quickCheckWithResult args property)
   result indent width name loc r
   pure (isSuccess r)
 
-result :: Indent -> Int -> String -> Loc -> Result -> IO ()
+result :: Indent -> Int -> String -> Loc -> Result -> IndentT IO ()
 result indent width name Loc{ path } = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     header True
@@ -110,8 +113,8 @@ result indent width name Loc{ path } = \case
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     header False
     stats indent Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
-    unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
-    putStrLn ":"
+    unless (null failingClasses) $ lift (putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")"))
+    lift (putStrLn ":")
     putIndentStrLn indent path
     putIndentStrLn indent reason
     for_ theException (putIndentStrLn indent . displayException)
@@ -127,19 +130,19 @@ result indent width name Loc{ path } = \case
     body numTests labels tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
   where
   header succeeded = do
-    putStr "❧ "
+    lift (putStr "❧ ")
     let δ = width - length name
-    withSGR [setBold] (putStr name *> when (width > 0) (putStr (replicate δ ' ')))
-    putStr "   "
+    withSGR [setBold] (lift (putStr name) *> when (width > 0) (lift (putStr (replicate δ ' '))))
+    lift (putStr "   ")
     if succeeded then
-      success $ putStrLn "Success."
+      success . lift $ putStrLn "Success."
     else
-      failure $ putStrLn "Failure."
+      failure . lift $ putStrLn "Failure."
 
-    indenting indent $ withSGR [setColour (if succeeded then Green else Red)] $ putStrLn (replicate (fullWidth width) '─')
+    indenting indent $ withSGR [setColour (if succeeded then Green else Red)] $ lift (putStrLn (replicate (fullWidth width) '─'))
 
   body numTests labels tables s t = do
-    sequence_ (intersperse (putIndentStrLn indent "") ((stats indent s *> putStrLn t) : Main.labels indent numTests labels))
+    sequence_ (intersperse (putIndentStrLn indent "") ((stats indent s *> lift (putStrLn t)) : Main.labels indent numTests labels))
     Main.tables indent numTests tables
 
 data Stats = Stats
@@ -148,14 +151,14 @@ data Stats = Stats
   , numShrinks   :: Int
   }
 
-stats :: Indent -> Stats -> IO ()
-stats indent Stats{ numTests, numDiscarded, numShrinks } = indenting indent . sequence_ . intersperse (putStr ", ")
+stats :: Indent -> Stats -> IndentT IO ()
+stats indent Stats{ numTests, numDiscarded, numShrinks } = indenting indent . sequence_ . intersperse (lift (putStr ", "))
   $  toList (stat (S "test") numTests)
   ++ toList (stat (S "discard") numDiscarded)
   ++ toList (stat (S "shrink") numShrinks)
 
 
-labels :: Indent -> Int -> Map.Map [String] Int -> [IO ()]
+labels :: Indent -> Int -> Map.Map [String] Int -> [IndentT IO ()]
 labels indent n labels
   | null labels = []
   | otherwise   = map (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
@@ -169,15 +172,15 @@ labels indent n labels
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
     putIndentStrLn indent $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
-classes :: Int -> Map.Map String Int -> IO ()
+classes :: Int -> Map.Map String Int -> IndentT IO ()
 classes n classes = unless (null classes) $ do
-  putStr " "
-  parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ n)) (Map.toList classes)))
+  lift (putStr " ")
+  parens $ sequence_ (intersperse (lift (putStr ", ")) (map (uncurry (class_ n)) (Map.toList classes)))
 
-class_ :: Int -> String -> Int -> IO ()
-class_ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStr (showFFloatAlt (Just 1) percentage ('%':' ':label))
+class_ :: Int -> String -> Int -> IndentT IO ()
+class_ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in lift (putStr (showFFloatAlt (Just 1) percentage ('%':' ':label)))
 
-tables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> IO ()
+tables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> IndentT IO ()
 tables _ _ _ = pure ()
 
 
@@ -196,37 +199,37 @@ pluralize _ = \case
 fullWidth :: Int -> Int
 fullWidth width = width + 3 + length "Success."
 
-stat :: Plural -> Int -> Maybe (IO ())
+stat :: Plural -> Int -> Maybe (IndentT IO ())
 stat _    0 = Nothing
-stat name n = Just $ do
+stat name n = Just . lift $ do
   putStr (show n)
   putStr " "
   putStr (pluralize n name)
 
-tally :: (Int, Int) -> IO (Int, Int)
+tally :: (Int, Int) -> IndentT IO (Int, Int)
 tally (successes, failures) = do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
   if hasFailures then
-    failure $ putStr "Failed:"
+    failure . lift $ putStr "Failed:"
   else
-    success $ putStr "Succeeded:"
-  putStr " "
+    success . lift $ putStr "Succeeded:"
+  lift (putStr " ")
   if hasSuccesses then
-    success $ do
+    success . lift $ do
       putStr (show successes)
       putStr (if successes == 1 then " success"  else" successes")
   else
-    putStr "0 successes"
-  putStr ", "
+    lift (putStr "0 successes")
+  lift (putStr ", ")
   if hasFailures then
-    failure $ do
+    failure . lift $ do
       putStr (show failures)
       putStr (if failures == 1 then " failure" else " failures")
   else
-    putStr "0 failures"
-  putStrLn ""
-  putStrLn ""
+    lift (putStr "0 failures")
+  newline
+  newline
   pure (successes, failures)
 
 setColour :: Color -> SGR
@@ -236,20 +239,20 @@ setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
 
 
-parens :: IO a -> IO a
+parens :: IndentT IO a -> IndentT IO a
 parens m = do
-  putStr "("
+  lift (putStr "(")
   a <- m
-  a <$ putStr ")"
+  a <$ lift (putStr ")")
 
 
-withSGR :: [SGR] -> IO a -> IO a
-withSGR sgr io = setSGR sgr *> io <* setSGR []
+withSGR :: [SGR] -> IndentT IO a -> IndentT IO a
+withSGR sgr io = lift (setSGR sgr) *> io <* lift (setSGR [])
 
-colour :: Color -> IO a -> IO a
+colour :: Color -> IndentT IO a -> IndentT IO a
 colour c = withSGR [setColour c]
 
-success, failure :: IO a -> IO a
+success, failure :: IndentT IO a -> IndentT IO a
 
 success = colour Green
 failure = colour Red
@@ -273,10 +276,13 @@ instance Functor m => Functor (IndentT m) where
   fmap f = IndentT . fmap (fmap f) . runIndentT
 
 instance Applicative m => Applicative (IndentT m) where
-  pure = IndentT . const . pure
+  pure = lift . pure
   IndentT f <*> IndentT a = IndentT ((<*>) <$> f <*> a)
 
 instance Monad m => Monad (IndentT m) where
   IndentT m >>= f = IndentT (\ i -> do
     a <- m i
     runIndentT (f a) i)
+
+lift :: m a -> IndentT m a
+lift = IndentT . const
