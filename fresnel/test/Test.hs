@@ -112,11 +112,11 @@ result indent ident = \case
       unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
       putStrLn ":"
     for_ ident (putIndentStrLn indent . snd)
-    putStrLn ""
+    putIndentStrLn indent ""
     putIndentStrLn indent reason
     for_ theException (putIndentStrLn indent . displayException)
     for_ failingTestCase (putIndentStrLn indent)
-    putStrLn ""
+    putIndentStrLn indent ""
     putIndentStrLn indent ("Seed: " ++ show usedSeed)
     putIndentStrLn indent ("Size: " ++ show usedSize)
     unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
