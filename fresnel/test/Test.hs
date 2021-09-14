@@ -36,8 +36,8 @@ main = do
         ]
       width = maximum [ length (name c) `max` length (groupName g) | g <- groups, c <- cases g ]
   res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } initialIndent width) groups
-  (_, success) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
-  if success == 0 then
+  (_, failures) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
+  if failures == 0 then
     exitSuccess
   else
     exitFailure
