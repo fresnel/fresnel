@@ -8,7 +8,7 @@ module Main
 import           Control.Monad (unless)
 import           Data.Bool (bool)
 import           Data.Char (isSpace)
-import           Data.Foldable (for_, toList)
+import           Data.Foldable (fold, for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
@@ -54,11 +54,14 @@ initialIndent = Indent []
 push :: (IO () -> IO ()) -> Indent -> Indent
 push f (Indent fs) = Indent (f:fs)
 
+pushing :: (IO () -> IO ()) -> Indent -> (Indent -> IO a) -> IO a
+pushing f i with = with (push f i)
+
 putIndentStrLn :: Indent -> String -> IO ()
 putIndentStrLn i = indenting i . putStrLn
 
 indenting :: Indent -> IO () -> IO ()
-indenting i = foldr (.) id (getIndent i)
+indenting i = foldr (.) id (reverse (getIndent i))
 
 runGroup :: Args -> Indent -> Group -> IO (Int, Int)
 runGroup args indent Group{ groupName, cases } = do
@@ -89,8 +92,7 @@ result indent name path = \case
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn "."
-    sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
-    Main.tables indent numTests tables
+    body Cyan numTests labels tables
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     withSGR [setColour Magenta] $ putStr "├─"
@@ -100,7 +102,9 @@ result indent name path = \case
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStrLn ":"
-    sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
+    let labels' = intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels)
+    unless (null labels') $ withSGR [setColour Cyan] $ putIndentStrLn indent ("┌─" ++ replicate (length name - 2) '─')
+    sequence_ labels'
     Main.tables indent numTests tables
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
@@ -129,12 +133,20 @@ result indent name path = \case
     stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
     Main.classes numTests classes
     putStr ":"
-    sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
+    let labels' = intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels)
+    unless (null labels') $ withSGR [setColour Cyan] $ putIndentStrLn indent ("┌─" ++ replicate (length name - 2) '─')
+    sequence_ labels'
     Main.tables indent numTests tables
   where
   header = do
     withSGR [setBold] (putStr name)
     putStr " … "
+
+  body colour numTests labels tables = do
+    unless (null (fold (Map.keysSet labels))) $ indenting indent $ withSGR [setColour colour] $ putStrLn ("┌─" ++ replicate (length name - 2) '─')
+    pushing (withSGR [setColour colour] (putStr "│ ") *>) indent $ \ indent -> do
+      sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
+      Main.tables indent numTests tables
 
 data Stats = Stats
   { numTests     :: Int
