@@ -76,7 +76,6 @@ runCase args indent Case{ caseName, property } = do
         _                        -> Nothing
   r <- quickCheckWithResult args property
   result indent ident r
-  putStrLn ""
   pure (isSuccess r)
 
 result :: Indent -> Maybe (String, String) -> Result -> IO ()
