@@ -109,6 +109,7 @@ result indent ident = \case
       failure $ putStr "Failure."
       putStr " "
       stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+      unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
       putStrLn ":"
     for_ ident (putIndentStrLn indent . snd)
     putStrLn ""
@@ -118,8 +119,7 @@ result indent ident = \case
     putStrLn ""
     putIndentStrLn indent ("Seed: " ++ show usedSeed)
     putIndentStrLn indent ("Size: " ++ show usedSize)
-    unless (null failingLabels)  $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
-    unless (null failingClasses) $ putIndentStrLn indent ("Classes: " ++ intercalate ", " (toList failingClasses))
+    unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     indenting indent $ do
