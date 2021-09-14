@@ -82,35 +82,35 @@ runCase args indent Case{ caseName, property } = do
 result :: Indent -> Maybe (String, String) -> Result -> IO ()
 result indent ident = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
-    indenting indent $ do
-      header
-      success $ putStr "Success."
-      putStr " "
-      stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-      Main.classes numTests classes
-      putStrLn "."
+    withSGR [setColour Magenta] $ putStr "├─"
+    header
+    success $ putStr "Success."
+    putStr " "
+    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    Main.classes numTests classes
+    putStrLn "."
     sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
     Main.tables indent numTests tables
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-    indenting indent $ do
-      header
-      failure $ putStr "Failure."
-      putStr " "
-      stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-      Main.classes numTests classes
-      putStrLn ":"
+    withSGR [setColour Magenta] $ putStr "├─"
+    header
+    failure $ putStr "Failure."
+    putStr " "
+    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    Main.classes numTests classes
+    putStrLn ":"
     sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
     Main.tables indent numTests tables
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-    indenting indent $ do
-      header
-      failure $ putStr "Failure."
-      putStr " "
-      stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
-      unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
-      putStrLn ":"
+    withSGR [setColour Magenta] $ putStr "├─"
+    header
+    failure $ putStr "Failure."
+    putStr " "
+    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+    unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
+    putStrLn ":"
     for_ ident (putIndentStrLn indent . snd)
     putIndentStrLn indent ""
     putIndentStrLn indent reason
@@ -122,13 +122,13 @@ result indent ident = \case
     unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-    indenting indent $ do
-      header
-      failure $ putStr "Failure."
-      putStr " "
-      stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-      Main.classes numTests classes
-      putStr ":"
+    withSGR [setColour Magenta] $ putStr "├─"
+    header
+    failure $ putStr "Failure."
+    putStr " "
+    stats $ Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+    Main.classes numTests classes
+    putStr ":"
     sequence_ (intersperse (putIndentStrLn indent "") (Main.labels indent numTests labels))
     Main.tables indent numTests tables
   where
