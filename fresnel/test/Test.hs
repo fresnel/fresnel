@@ -113,14 +113,15 @@ result indent name path = \case
     unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putStrLn ":"
     putIndentStrLn indent path
-    putIndentStrLn indent ""
-    putIndentStrLn indent reason
-    for_ theException (putIndentStrLn indent . displayException)
-    for_ failingTestCase (putIndentStrLn indent)
-    putIndentStrLn indent ""
-    putIndentStrLn indent ("Seed: " ++ show usedSeed)
-    putIndentStrLn indent ("Size: " ++ show usedSize)
-    unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
+    indenting indent $ withSGR [setColour Red] $ putStrLn ("┌─" ++ replicate (length path - 2) '─')
+    pushing (withSGR [setColour Red] (putStr "│ ") *>) indent $ \ indent -> do
+      putIndentStrLn indent reason
+      for_ theException (putIndentStrLn indent . displayException)
+      for_ failingTestCase (putIndentStrLn indent)
+      putIndentStrLn indent ""
+      putIndentStrLn indent ("Seed: " ++ show usedSeed)
+      putIndentStrLn indent ("Size: " ++ show usedSize)
+      unless (null failingLabels) $ putIndentStrLn indent ("Labels: "  ++ intercalate ", " failingLabels)
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     withSGR [setColour Magenta] $ putStr "├─"
