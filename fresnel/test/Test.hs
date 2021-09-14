@@ -83,7 +83,7 @@ indenting i = foldr (.) id (reverse (getIndent i))
 
 runGroup :: Args -> Indent -> Int -> Group -> IO (Int, Int)
 runGroup args indent width Group{ groupName, cases } = do
-  withSGR [setBold, setColour Magenta] $
+  withSGR [setBold] $
     putStrLn groupName
   putStrLn ("┌─" ++ replicate (length groupName - 2) '─')
   let indent' = push (putStr "│ " *>) indent
