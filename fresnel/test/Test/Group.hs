@@ -9,6 +9,7 @@ module Test.Group
 , Loc(..)
 , zero
 , Semiring(..)
+, Unital(..)
 , Tropical(..)
 , H(..)
 , V(..)
@@ -57,10 +58,12 @@ breakAll p = go False where
 zero :: Monoid s => s
 zero = mempty
 
-class Monoid s => Semiring s where
-  one :: s
+class Semigroup s => Semiring s where
   (><) :: s -> s -> s
   infixr 7 ><
+
+class (Monoid s, Semiring s) => Unital s where
+  one :: s
 
 
 data Tropical
@@ -75,10 +78,12 @@ instance Monoid Tropical where
   mempty = NegInfinity
 
 instance Semiring Tropical where
-  one = Finite 0
   NegInfinity >< _           = NegInfinity
   _           >< NegInfinity = NegInfinity
   Finite a    >< Finite b    = Finite (a + b)
+
+instance Unital Tropical where
+  one = Finite 0
 
 
 newtype H a = H { getH :: [a] }
