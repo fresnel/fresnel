@@ -1,4 +1,5 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 module Test.Group
@@ -11,9 +12,9 @@ module Test.Group
 , Semiring(..)
 , Unital(..)
 , Tropical(..)
-, toInt
 , H(..)
 , V(..)
+, Width(..)
 ) where
 
 import Data.Char (isSpace)
@@ -67,42 +68,45 @@ class (Monoid s, Semiring s) => Unital s where
   one :: s
 
 
-newtype Tropical = Tropical { getTropical :: Maybe Int }
+newtype Tropical a = Tropical { getTropical :: Maybe a }
   deriving (Eq, Ord, Show)
 
-instance Semigroup Tropical where
+instance Ord a => Semigroup (Tropical a) where
   (<>) = max
 
-instance Monoid Tropical where
+instance Ord a => Monoid (Tropical a) where
   mempty = Tropical Nothing
 
-instance Semiring Tropical where
-  Tropical Nothing  >< _                 = Tropical Nothing
-  _                 >< Tropical Nothing  = Tropical Nothing
-  Tropical (Just a) >< Tropical (Just b) = Tropical (Just (a + b))
+instance (Num a, Ord a) => Semiring (Tropical a) where
+  Tropical a1 >< Tropical a2 = Tropical ((+) <$> a1 <*> a2)
 
-instance Unital Tropical where
+instance (Num a, Ord a) => Unital (Tropical a) where
   one = Tropical (Just 0)
-
-toInt :: Tropical -> Int
-toInt = \case
-  Tropical Nothing  -> minBound
-  Tropical (Just i) -> i
 
 
 newtype H a = H { getH :: [a] }
 
-instance Semigroup (H a) where
-  H a1 <> H a2 = H (a1 <> a2)
-
-instance Monoid (H a) where
-  mempty = H []
-
 
 newtype V a = V { getV :: [a] }
 
-instance Semigroup (V a) where
-  V a1 <> V a2 = V (a1 <> a2)
 
-instance Monoid (V a) where
-  mempty = V []
+class Width t where
+  width :: t -> Tropical Int
+
+instance Width a => Width (H a) where
+  width = foldr ((><) . width) one . getH
+
+instance Width a => Width (V a) where
+  width = foldr ((<>) . width) zero . getV
+
+instance Width Char where
+  width _ = Tropical (Just 1)
+
+instance Width String where
+  width = Tropical . Just . length
+
+instance Width Group where
+  width Group{ groupName, cases } = width groupName <> width (V cases)
+
+instance Width Case where
+  width Case{ name } = width name
