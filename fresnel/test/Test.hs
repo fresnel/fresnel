@@ -60,6 +60,9 @@ line m = do
   put (concat (replicate i "  "))
   m
 
+lineStr :: String -> IndentT IO ()
+lineStr s = line $ put s *> newline
+
 heading :: IndentT IO a -> IndentT IO a
 heading m = do
   i <- asks getIndent
@@ -71,8 +74,8 @@ newline = lift (putStrLn "")
 
 runGroup :: Args -> Int -> Group -> IndentT IO (Int, Int)
 runGroup args width Group{ groupName, cases } = do
-  withSGR [setBold] . line $ putNewline groupName
-  line $ putNewline (replicate (2 + fullWidth width) '━')
+  withSGR [setBold] $ lineStr groupName
+  lineStr (replicate (2 + fullWidth width) '━')
   rs <- catMaybes <$> local incr (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
   newline
   tally (length (filter id rs)) (length (filter not rs))
@@ -98,13 +101,13 @@ result width name Loc{ path, lineNumber } = \case
     stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ put (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putNewline ":"
-    line $ putNewline (path ++ ":" ++ show lineNumber)
-    line $ putNewline reason
+    lineStr (path ++ ":" ++ show lineNumber)
+    lineStr reason
     for_ theException (line . putNewline . displayException)
     for_ failingTestCase (line . putNewline)
-    line $ putNewline ""
-    line $ putNewline ("Seed: " ++ show usedSeed)
-    line $ putNewline ("Size: " ++ show usedSize)
+    lineStr ""
+    lineStr ("Seed: " ++ show usedSeed)
+    lineStr ("Size: " ++ show usedSize)
     unless (null failingLabels) . line . putNewline $ "Labels: "  ++ intercalate ", " failingLabels
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
