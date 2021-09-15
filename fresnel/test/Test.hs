@@ -212,20 +212,14 @@ tally :: (Int, Int) -> IndentT IO (Int, Int)
 tally (successes, failures) = do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
-  if hasSuccesses then
-    success . lift $ do
-      putStr (show successes)
-      putStr (' ' : pluralize successes (C "success" "successes"))
-  else
-    lift (putStr "0 successes")
-  lift (putStr ", ")
-  if hasFailures then
-    failure . lift $ do
-      putStr (show failures)
-      putStr (' ' : pluralize failures (S "failure"))
-  else
-    lift (putStr "0 failures")
-  newline
+  when hasSuccesses . success . lift $ do
+    putStr (show successes)
+    putStr (' ' : pluralize successes (C "success" "successes"))
+  when (hasSuccesses && hasFailures) $ lift (putStr ", ")
+  when hasFailures . failure . lift $ do
+    putStr (show failures)
+    putStr (' ' : pluralize failures (S "failure"))
+  when (hasSuccesses || hasFailures) (lift (putStrLn "."))
   newline
   pure (successes, failures)
 
