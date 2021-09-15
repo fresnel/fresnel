@@ -42,7 +42,7 @@ main = (`runIndentT` Indent 0) $ do
     , Profunctor.Coexp.Test.tests
     , tropical
     ]
-  w = fromMaybe 0 (getTropical (width (V groups)))
+  w = fromMaybe 0 (getTropical (maxWidths groups))
 
 
 newtype Indent = Indent { getIndent :: Int }

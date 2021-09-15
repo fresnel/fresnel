@@ -13,8 +13,10 @@ module Test.Group
 , Unital(..)
 , Tropical(..)
 , finite
-, H(..)
-, V(..)
+, horizontal
+, sumWidths
+, vertical
+, maxWidths
 , Width(..)
 ) where
 
@@ -94,26 +96,26 @@ instance (Num a, Ord a) => Unital (Tropical a) where
 finite :: a -> Tropical a
 finite = Tropical . Just
 
+horizontal :: (Foldable t, Unital r) => (a -> r) -> t a -> r
+horizontal f = foldr ((><) . f) one
 
-newtype H a = H { getH :: [a] }
+sumWidths :: (Foldable t, Width a) => t a -> Tropical Int
+sumWidths = horizontal width
 
-newtype V a = V { getV :: [a] }
+vertical :: (Foldable t, Semiring r, Monoid r) => (a -> r) -> t a -> r
+vertical f = foldr ((<>) . f) zero
+maxWidths :: (Foldable t, Width a) => t a -> Tropical Int
+maxWidths = vertical width
 
 
 class Width t where
   width :: t -> Tropical Int
 
-instance Width a => Width (H a) where
-  width = foldr ((><) . width) one . getH
-
-instance Width a => Width (V a) where
-  width = foldr ((<>) . width) zero . getV
-
 instance Width Char where
   width _ = finite 1
 
 instance Width Group where
-  width Group{ groupName, cases } = width (H groupName) <> width (V cases)
+  width Group{ groupName, cases } = sumWidths groupName <> maxWidths cases
 
 instance Width Case where
-  width Case{ name } = width (H name)
+  width Case{ name } = sumWidths name
