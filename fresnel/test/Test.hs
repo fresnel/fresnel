@@ -121,7 +121,14 @@ result width name Loc{ path, lineNumber } res = case res of
       else
         failure $ putNewline "Failure."
 
-    local (incr "  ") . line $ withSGR [setColour (if succeeded then Green else Red)] $ putNewline (replicate (fullWidth width) '─')
+    let colour
+          | succeeded = Green
+          | otherwise = Red
+        gutter
+          | succeeded = "  "
+          | otherwise = "╭─"
+    local (incr gutter) . line $
+      withSGR [setColour colour] $ putNewline (replicate (fullWidth width) '─')
 
   body numTests labels classes tables s t = local (incr "  ") $ do
     sequence_ (intersperse (lineStr "") ((stats s *> Main.classes numTests classes *> putNewline t) : Main.labels numTests labels))
