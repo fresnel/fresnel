@@ -3,11 +3,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 module Main
 ( main
-, breaks
 ) where
 
 import           Control.Monad (unless, when)
-import           Data.Char (isSpace)
 import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
@@ -19,11 +17,12 @@ import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
 import qualified Iso.Test
 import qualified Monoid.Fork.Test
-import           Numeric (readDec, showFFloatAlt)
+import           Numeric (showFFloatAlt)
 import qualified Profunctor.Coexp.Test
 import           System.Console.ANSI
 import           System.Exit (exitFailure, exitSuccess)
-import           Test.QuickCheck (Args(..), Property, Result(..), isSuccess, quickCheckWithResult, stdArgs)
+import           Test.Group
+import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWithResult, stdArgs)
 
 main :: IO ()
 main = (`runIndentT` Indent 0) $ do
@@ -42,28 +41,6 @@ main = (`runIndentT` Indent 0) $ do
   else
     exitFailure
 
-data Group = Group
-  { groupName :: String
-  , cases     :: [Case]
-  }
-
-mkGroup :: (String, [(String, Property)]) -> Group
-mkGroup = uncurry Group . fmap (map (uncurry mkCase))
-
-data Case = Case
-  { name     :: String
-  , loc      :: Loc
-  , property :: Property
-  }
-
-data Loc = Loc { path :: FilePath, lineNumber :: Int }
-
-mkCase :: String -> Property -> Case
-mkCase s property = Case{ name, loc = Loc{ path, lineNumber }, property }
-  where
-  (name, path, lineNumber) = case breaks [isSpace, not . isSpace, isSpace, not . isSpace, (== ':'), (/= ':')] s of
-    [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
-    _                     -> ("", "", 0)
 
 newtype Indent = Indent { getIndent :: Int }
 
@@ -249,18 +226,6 @@ success, failure :: IndentT IO a -> IndentT IO a
 
 success = colour Green
 failure = colour Red
-
-
-breaks :: [a -> Bool] -> [a] -> [[a]]
-breaks ps as = case ps of
-  []   -> [as]
-  p:ps -> let (h, t) = break p as in h : breaks ps t
-
-breakAll :: (a -> Bool) -> [a] -> [[a]]
-breakAll p = go False where
-  go b = \case
-    [] -> []
-    as -> let (h, t) = break (if b then not . p else p) as in h : go (not b) t
 
 
 newtype IndentT m a = IndentT { runIndentT :: Indent -> m a }
