@@ -39,6 +39,7 @@ main = (`runIndentT` Indent 0) $ do
     , Iso.Test.tests
     , Monoid.Fork.Test.tests
     , Profunctor.Coexp.Test.tests
+    , tropical
     ]
   w = fromMaybe 0 (getTropical (width (V groups)))
 
@@ -254,3 +255,7 @@ asks = IndentT . fmap pure
 
 local :: (Indent -> Indent) -> (IndentT m a -> IndentT m a)
 local f m = IndentT (runIndentT m . f)
+
+
+tropical :: Group
+tropical = Group{ groupName = "Test.Group.Tropical", cases = [] }
