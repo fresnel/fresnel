@@ -6,7 +6,7 @@ module Main
 ) where
 
 import           Control.Monad (unless, when)
-import           Data.Foldable (for_, toList)
+import           Data.Foldable (foldl', for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
@@ -27,7 +27,7 @@ import qualified Test.QuickCheck as QC
 
 main :: IO ()
 main = do
-  let i = Indent ["  "]
+  let i = Indent [putting "  "]
   res <- traverse (runGroup i stdArgs{ maxSuccess = 250, chatty = False } w) groups
   (_, failures) <- uncurry (tally i) (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   if failures == 0 then
@@ -46,19 +46,19 @@ main = do
   w = fromMaybe 0 (getTropical (maxWidths groups))
 
 
-newtype Indent = Indent { getIndent :: [String] }
+newtype Indent = Indent { getIndent :: [IO () -> IO ()] }
 
-incr :: String -> Indent -> Indent
+incr :: (IO () -> IO ()) -> Indent -> Indent
 incr i = Indent . (i:) . getIndent
 
 putNewline :: String -> IO ()
 putNewline s = putStr s *> newline
 
-line :: Indent -> IO a -> IO a
-line is m = do
-  let i = concat (reverse (getIndent is))
-  putStr i
-  m
+putting :: String -> IO a -> IO a
+putting s = (putStr s *>)
+
+line :: Indent -> IO () -> IO ()
+line is = foldl' (flip (.)) id (getIndent is)
 
 lineStr :: Indent -> String -> IO ()
 lineStr i s = line i $ putStr s *> newline
@@ -92,7 +92,7 @@ result i width name Loc{ path, lineNumber } res = case res of
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     header
-    i <- pure (incr "│ " i)
+    i <- pure (incr (putting "│ ") i)
     stats i Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putNewline ":"
@@ -125,11 +125,11 @@ result i width name Loc{ path, lineNumber } res = case res of
         gutter
           | succeeded = "  "
           | otherwise = "╭─"
-    i <- pure (incr gutter i)
+    i <- pure (incr (putting gutter) i)
     line i $ withSGR [setColour colour] $ putNewline (replicate (fullWidth width) '─')
 
   body numTests labels classes tables s t = do
-    i <- pure (incr "  " i)
+    i <- pure (incr (putting "  ") i)
     sequence_ (intersperse (lineStr i "") ((stats i s *> Main.classes i numTests classes *> putNewline t) : Main.labels i numTests labels))
     Main.tables i numTests tables
 
@@ -199,7 +199,7 @@ stat name n = Just $ do
   putStr (pluralize n name)
 
 tally :: Indent -> Int -> Int -> IO (Int, Int)
-tally i successes failures = line i $ do
+tally i successes failures = ((successes, failures) <$) . line i $ do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
   when hasSuccesses . success $ do
@@ -211,7 +211,6 @@ tally i successes failures = line i $ do
     putStr (' ' : pluralize failures (S "failure"))
   when (hasSuccesses || hasFailures) (putNewline ".")
   newline
-  pure (successes, failures)
 
 setColour :: Color -> SGR
 setColour = SetColor Foreground Vivid
