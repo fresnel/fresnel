@@ -22,7 +22,7 @@ import qualified Profunctor.Coexp.Test
 import           System.Console.ANSI
 import           System.Exit (exitFailure, exitSuccess)
 import           Test.Group
-import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWithResult, stdArgs, (===))
+import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWithResult, stdArgs, (.&&.), (===))
 import qualified Test.QuickCheck as QC
 
 main :: IO ()
@@ -263,10 +263,12 @@ tropical = Group
   { groupName = "Test.Group.Tropical"
   , cases =
     [ semigroupAssoc
+    , monoidIdentity
     ]
   }
   where
   semigroupAssoc = Case{ name = "semigroup assoc", loc = here, property = QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c) }
+  monoidIdentity = Case{ name = "monoid identity", loc = here, property = QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)}
 
 newtype ArbTropical = ArbTropical (Tropical Int)
   deriving (Eq, Ord, Show)
