@@ -10,7 +10,7 @@ import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
-import           Data.Maybe (catMaybes)
+import           Data.Maybe (catMaybes, fromMaybe)
 import           Data.Ord (comparing)
 import qualified Fold.Test
 import           GHC.Exception.Type (Exception(displayException))
@@ -33,8 +33,8 @@ main = (`runIndentT` Indent 0) $ do
         , Monoid.Fork.Test.tests
         , Profunctor.Coexp.Test.tests
         ]
-      width = maximum [ length (name c) `max` length (groupName g) | g <- groups, c <- cases g ]
-  res <- traverse (local incr . runGroup stdArgs{ maxSuccess = 250, chatty = False } width) groups
+      w = fromMaybe 0 (getTropical (width (V groups)))
+  res <- traverse (local incr . runGroup stdArgs{ maxSuccess = 250, chatty = False } w) groups
   (_, failures) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   lift $ if failures == 0 then
     exitSuccess
