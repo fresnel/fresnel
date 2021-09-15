@@ -73,8 +73,8 @@ initialIndent = Indent []
 push :: String -> Indent -> Indent
 push f (Indent fs) = Indent (f:fs)
 
-putIndentStrLn :: String -> IndentT IO ()
-putIndentStrLn = indenting . lift . putStrLn
+lineI :: String -> IndentT IO ()
+lineI = indenting . lift . putStrLn
 
 indenting :: IndentT IO a -> IndentT IO a
 indenting m = do
@@ -90,7 +90,7 @@ runGroup args width Group{ groupName, cases } = do
   withSGR [setBold] . lift $
     putStrLn groupName
   lift (putStrLn (replicate (2 + fullWidth width) '━'))
-  rs <- catMaybes <$> local (push "  ") (sequence (intersperse (Nothing <$ putIndentStrLn "") (map (fmap Just <$> runCase args width) cases)))
+  rs <- catMaybes <$> local (push "  ") (sequence (intersperse (Nothing <$ lineI "") (map (fmap Just <$> runCase args width) cases)))
   newline
   tally (length (filter id rs), length (filter not rs))
 
@@ -117,14 +117,14 @@ result width name Loc{ path } = \case
     stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ lift (putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")"))
     lift (putStrLn ":")
-    putIndentStrLn path
-    putIndentStrLn reason
-    for_ theException (putIndentStrLn . displayException)
-    for_ failingTestCase putIndentStrLn
-    putIndentStrLn ""
-    putIndentStrLn ("Seed: " ++ show usedSeed)
-    putIndentStrLn ("Size: " ++ show usedSize)
-    unless (null failingLabels) $ putIndentStrLn ("Labels: "  ++ intercalate ", " failingLabels)
+    lineI path
+    lineI reason
+    for_ theException (lineI . displayException)
+    for_ failingTestCase lineI
+    lineI ""
+    lineI ("Seed: " ++ show usedSeed)
+    lineI ("Size: " ++ show usedSize)
+    unless (null failingLabels) $ lineI ("Labels: "  ++ intercalate ", " failingLabels)
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     header False
@@ -144,7 +144,7 @@ result width name Loc{ path } = \case
     indenting $ withSGR [setColour (if succeeded then Green else Red)] $ lift (putStrLn (replicate (fullWidth width) '─'))
 
   body numTests labels tables s t = do
-    sequence_ (intersperse (putIndentStrLn "") ((stats s *> lift (putStrLn t)) : Main.labels numTests labels))
+    sequence_ (intersperse (lineI "") ((stats s *> lift (putStrLn t)) : Main.labels numTests labels))
     Main.tables numTests tables
 
 data Stats = Stats
@@ -172,7 +172,7 @@ labels n labels
     ]
   table k m = for_ m $ \ (key, v) -> do
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
-    putIndentStrLn $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
+    lineI $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
 classes :: Int -> Map.Map String Int -> IndentT IO ()
 classes n classes = unless (null classes) $ do
