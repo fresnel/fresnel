@@ -1,5 +1,4 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 module Test.Group
@@ -113,11 +112,8 @@ instance Width a => Width (V a) where
 instance Width Char where
   width _ = Tropical (Just 1)
 
-instance Width String where
-  width = Tropical . Just . length
-
 instance Width Group where
-  width Group{ groupName, cases } = width groupName <> width (V cases)
+  width Group{ groupName, cases } = width (H groupName) <> width (V cases)
 
 instance Width Case where
-  width Case{ name } = width name
+  width Case{ name } = width (H name)
