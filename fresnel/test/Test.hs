@@ -74,12 +74,18 @@ push :: String -> Indent -> Indent
 push f (Indent fs) = Indent (f:fs)
 
 lineI :: String -> IndentT IO ()
-lineI = line . lift . putStrLn
+lineI = line . putNewline
+
+put :: String -> IndentT IO ()
+put = lift . putStr
+
+putNewline :: String -> IndentT IO ()
+putNewline s = put s *> newline
 
 line :: IndentT IO a -> IndentT IO a
 line m = do
   i <- asks (concat . reverse . getIndent)
-  lift (putStr i)
+  put i
   m
 
 newline :: IndentT IO ()
@@ -87,9 +93,8 @@ newline = lift (putStrLn "")
 
 runGroup :: Args -> Int -> Group -> IndentT IO (Int, Int)
 runGroup args width Group{ groupName, cases } = do
-  withSGR [setBold] . lift $
-    putStrLn groupName
-  lift (putStrLn (replicate (2 + fullWidth width) '━'))
+  withSGR [setBold] $ putNewline groupName
+  putNewline (replicate (2 + fullWidth width) '━')
   rs <- catMaybes <$> local (push "  ") (sequence (intersperse (Nothing <$ lineI "") (map (fmap Just <$> runCase args width) cases)))
   newline
   tally (length (filter id rs), length (filter not rs))
@@ -115,8 +120,8 @@ result width name Loc{ path } = \case
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     header False
     stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
-    unless (null failingClasses) $ lift (putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")"))
-    lift (putStrLn ":")
+    unless (null failingClasses) $ put (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
+    putNewline ":"
     lineI path
     lineI reason
     for_ theException (lineI . displayException)
@@ -132,19 +137,19 @@ result width name Loc{ path } = \case
     body numTests labels tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
   where
   header succeeded = do
-    lift (putStr "❧ ")
+    put "❧ "
     let δ = width - length name
-    withSGR [setBold] (lift (putStr name) *> when (width > 0) (lift (putStr (replicate δ ' '))))
-    lift (putStr "   ")
+    withSGR [setBold] (put name *> when (width > 0) (put (replicate δ ' ')))
+    put "   "
     if succeeded then
-      success . lift $ putStrLn "Success."
+      success $ putNewline "Success."
     else
-      failure . lift $ putStrLn "Failure."
+      failure $ putNewline "Failure."
 
-    line $ withSGR [setColour (if succeeded then Green else Red)] $ lift (putStrLn (replicate (fullWidth width) '─'))
+    line $ withSGR [setColour (if succeeded then Green else Red)] $ putNewline (replicate (fullWidth width) '─')
 
   body numTests labels tables s t = do
-    sequence_ (intersperse (lineI "") ((stats s *> lift (putStrLn t)) : Main.labels numTests labels))
+    sequence_ (intersperse (lineI "") ((stats s *> putNewline t) : Main.labels numTests labels))
     Main.tables numTests tables
 
 data Stats = Stats
@@ -154,7 +159,7 @@ data Stats = Stats
   }
 
 stats :: Stats -> IndentT IO ()
-stats Stats{ numTests, numDiscarded, numShrinks } = line . sequence_ . intersperse (lift (putStr ", "))
+stats Stats{ numTests, numDiscarded, numShrinks } = line . sequence_ . intersperse (put ", ")
   $  toList (stat (S "test") numTests)
   ++ toList (stat (S "discard") numDiscarded)
   ++ toList (stat (S "shrink") numShrinks)
@@ -176,11 +181,11 @@ labels n labels
 
 classes :: Int -> Map.Map String Int -> IndentT IO ()
 classes n classes = unless (null classes) $ do
-  lift (putStr " ")
-  parens $ sequence_ (intersperse (lift (putStr ", ")) (map (uncurry (class_ n)) (Map.toList classes)))
+  put " "
+  parens $ sequence_ (intersperse (put ", ") (map (uncurry (class_ n)) (Map.toList classes)))
 
 class_ :: Int -> String -> Int -> IndentT IO ()
-class_ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in lift (putStr (showFFloatAlt (Just 1) percentage ('%':' ':label)))
+class_ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in put (showFFloatAlt (Just 1) percentage ('%':' ':label))
 
 tables :: Int -> Map.Map String (Map.Map String Int) -> IndentT IO ()
 tables _ _ = pure ()
@@ -203,23 +208,23 @@ fullWidth width = width + 3 + length "Success."
 
 stat :: Plural -> Int -> Maybe (IndentT IO ())
 stat _    0 = Nothing
-stat name n = Just . lift $ do
-  putStr (show n)
-  putStr " "
-  putStr (pluralize n name)
+stat name n = Just $ do
+  put (show n)
+  put " "
+  put (pluralize n name)
 
 tally :: (Int, Int) -> IndentT IO (Int, Int)
 tally (successes, failures) = withSGR [setBold] $ do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
-  when hasSuccesses . success . lift $ do
-    putStr (show successes)
-    putStr (' ' : pluralize successes (C "success" "successes"))
-  when (hasSuccesses && hasFailures) $ lift (putStr ", ")
-  when hasFailures . failure . lift $ do
-    putStr (show failures)
-    putStr (' ' : pluralize failures (S "failure"))
-  when (hasSuccesses || hasFailures) (lift (putStrLn "."))
+  when hasSuccesses . success $ do
+    put (show successes)
+    put (' ' : pluralize successes (C "success" "successes"))
+  when (hasSuccesses && hasFailures) $ put ", "
+  when hasFailures . failure $ do
+    put (show failures)
+    put (' ' : pluralize failures (S "failure"))
+  when (hasSuccesses || hasFailures) (putNewline ".")
   newline
   pure (successes, failures)
 
@@ -232,9 +237,9 @@ setBold = SetConsoleIntensity BoldIntensity
 
 parens :: IndentT IO a -> IndentT IO a
 parens m = do
-  lift (putStr "(")
+  put "("
   a <- m
-  a <$ lift (putStr ")")
+  a <$ put ")"
 
 
 withSGR :: [SGR] -> IndentT IO a -> IndentT IO a
