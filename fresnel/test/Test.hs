@@ -123,7 +123,7 @@ result width name Loc{ path, lineNumber } res = case res of
     local (incr "  ") . line $ withSGR [setColour (if succeeded then Green else Red)] $ putNewline (replicate (fullWidth width) '─')
 
   body numTests labels classes tables s t = local (incr "  ") $ do
-    sequence_ (intersperse (line (putNewline "")) ((stats s *> Main.classes numTests classes *> putNewline t) : Main.labels numTests labels))
+    sequence_ (intersperse (lineStr "") ((stats s *> Main.classes numTests classes *> putNewline t) : Main.labels numTests labels))
     Main.tables numTests tables
 
   succeeded = case res of
