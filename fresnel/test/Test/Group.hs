@@ -10,6 +10,8 @@ module Test.Group
 , zero
 , Semiring(..)
 , Tropical(..)
+, H(..)
+, V(..)
 ) where
 
 import Data.Char (isSpace)
@@ -77,3 +79,21 @@ instance Semiring Tropical where
   NegInfinity >< _           = NegInfinity
   _           >< NegInfinity = NegInfinity
   Finite a    >< Finite b    = Finite (a + b)
+
+
+newtype H a = H { getH :: [a] }
+
+instance Semigroup (H a) where
+  H a1 <> H a2 = H (a1 <> a2)
+
+instance Monoid (H a) where
+  mempty = H []
+
+
+newtype V a = V { getV :: [a] }
+
+instance Semigroup (V a) where
+  V a1 <> V a2 = V (a1 <> a2)
+
+instance Monoid (V a) where
+  mempty = V []
