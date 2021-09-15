@@ -74,10 +74,10 @@ push :: String -> Indent -> Indent
 push f (Indent fs) = Indent (f:fs)
 
 lineI :: String -> IndentT IO ()
-lineI = indenting . lift . putStrLn
+lineI = line . lift . putStrLn
 
-indenting :: IndentT IO a -> IndentT IO a
-indenting m = do
+line :: IndentT IO a -> IndentT IO a
+line m = do
   i <- asks (concat . reverse . getIndent)
   lift (putStr i)
   m
@@ -141,7 +141,7 @@ result width name Loc{ path } = \case
     else
       failure . lift $ putStrLn "Failure."
 
-    indenting $ withSGR [setColour (if succeeded then Green else Red)] $ lift (putStrLn (replicate (fullWidth width) '─'))
+    line $ withSGR [setColour (if succeeded then Green else Red)] $ lift (putStrLn (replicate (fullWidth width) '─'))
 
   body numTests labels tables s t = do
     sequence_ (intersperse (lineI "") ((stats s *> lift (putStrLn t)) : Main.labels numTests labels))
@@ -154,7 +154,7 @@ data Stats = Stats
   }
 
 stats :: Stats -> IndentT IO ()
-stats Stats{ numTests, numDiscarded, numShrinks } = indenting . sequence_ . intersperse (lift (putStr ", "))
+stats Stats{ numTests, numDiscarded, numShrinks } = line . sequence_ . intersperse (lift (putStr ", "))
   $  toList (stat (S "test") numTests)
   ++ toList (stat (S "discard") numDiscarded)
   ++ toList (stat (S "shrink") numShrinks)
