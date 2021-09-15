@@ -26,20 +26,21 @@ import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWit
 
 main :: IO ()
 main = (`runIndentT` Indent 0) $ do
-  let groups =
-        [ Fold.Test.tests
-        , Getter.Test.tests
-        , Iso.Test.tests
-        , Monoid.Fork.Test.tests
-        , Profunctor.Coexp.Test.tests
-        ]
-      w = fromMaybe 0 (getTropical (width (V groups)))
   res <- traverse (local incr . runGroup stdArgs{ maxSuccess = 250, chatty = False } w) groups
   (_, failures) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   lift $ if failures == 0 then
     exitSuccess
   else
     exitFailure
+  where
+  groups =
+    [ Fold.Test.tests
+    , Getter.Test.tests
+    , Iso.Test.tests
+    , Monoid.Fork.Test.tests
+    , Profunctor.Coexp.Test.tests
+    ]
+  w = fromMaybe 0 (getTropical (width (V groups)))
 
 
 newtype Indent = Indent { getIndent :: Int }
