@@ -83,7 +83,7 @@ runCase args width Case{ name, loc, property } = do
   pure (isSuccess r)
 
 result :: Int -> String -> Loc -> Result -> IndentT IO ()
-result width name Loc{ path } = \case
+result width name Loc{ path, lineNumber } = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     header True
     body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
@@ -97,7 +97,7 @@ result width name Loc{ path } = \case
     stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ put (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putNewline ":"
-    line $ putNewline path
+    line $ putNewline (path ++ ":" ++ show lineNumber)
     line $ putNewline reason
     for_ theException (line . putNewline . displayException)
     for_ failingTestCase (line . putNewline)
