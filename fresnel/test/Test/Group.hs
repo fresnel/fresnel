@@ -7,6 +7,8 @@ module Test.Group
 , Case(..)
 , mkCase
 , Loc(..)
+, zero
+, Semiring(..)
 ) where
 
 import Data.Char (isSpace)
@@ -47,3 +49,12 @@ breakAll p = go False where
   go b = \case
     [] -> []
     as -> let (h, t) = break (if b then not . p else p) as in h : go (not b) t
+
+
+zero :: Monoid s => s
+zero = mempty
+
+class Monoid s => Semiring s where
+  one :: s
+  (><) :: s -> s -> s
+  infixr 7 ><
