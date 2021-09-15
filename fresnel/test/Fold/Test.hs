@@ -9,6 +9,7 @@ import Fresnel.Fold
 import Fresnel.Ixed
 import Language.Haskell.TH.Lib
 import Language.Haskell.TH.Syntax
+import Test.Group
 import Test.QuickCheck
 
 prop_union_semigroup_assoc :: (Eq a, Show a) => ArbFold a -> ArbFold a -> ArbFold a -> [a] -> Property
@@ -49,5 +50,5 @@ instance Arbitrary a => Arbitrary (ArbFold a) where
 
 pure []
 
-tests :: (String, [(String, Property)])
-tests = ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
+tests :: Group
+tests = mkGroup ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)

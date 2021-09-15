@@ -12,6 +12,7 @@ import Fresnel.Iso
 import Fresnel.Review
 import Language.Haskell.TH.Lib
 import Language.Haskell.TH.Syntax
+import Test.Group
 import Test.QuickCheck
 
 validIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
@@ -40,5 +41,5 @@ prop_involuted_invalidity = invalidIso (involuted (+ (1 :: Integer)))
 
 pure []
 
-tests :: (String, [(String, Property)])
-tests = ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
+tests :: Group
+tests = mkGroup ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)

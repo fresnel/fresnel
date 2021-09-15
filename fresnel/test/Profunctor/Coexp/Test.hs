@@ -6,6 +6,7 @@ module Profunctor.Coexp.Test
 import Fresnel.Profunctor.Coexp
 import Language.Haskell.TH.Lib
 import Language.Haskell.TH.Syntax
+import Test.Group
 import Test.QuickCheck
 
 prop_semigroup_assoc :: (Eq b, Eq a, Show b, Show a) => ArbCoexp b a a b -> ArbCoexp b a a b -> ArbCoexp b a a b -> b -> a -> Property
@@ -31,5 +32,5 @@ appCoexp c e a = withCoexp c $ \ recall forget -> (recall e, forget a)
 
 pure []
 
-tests :: (String, [(String, Property)])
-tests = ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
+tests :: Group
+tests = mkGroup ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)

@@ -8,6 +8,7 @@ import Data.Ratio
 import Fresnel.Monoid.Fork (Fork(runFork), singleton)
 import Language.Haskell.TH.Lib
 import Language.Haskell.TH.Syntax
+import Test.Group
 import Test.QuickCheck hiding (total)
 
 prop_semigroup_assoc :: (Eq a, Show a) => ArbFork a -> ArbFork a -> ArbFork a -> Property
@@ -68,5 +69,5 @@ total (Counts f l n) = f + l + n
 
 pure []
 
-tests :: (String, [(String, Property)])
-tests = ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
+tests :: Group
+tests = mkGroup ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)

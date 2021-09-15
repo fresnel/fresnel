@@ -26,7 +26,7 @@ import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWit
 
 main :: IO ()
 main = (`runIndentT` Indent 0) $ do
-  let groups = map mkGroup
+  let groups =
         [ Fold.Test.tests
         , Getter.Test.tests
         , Iso.Test.tests
