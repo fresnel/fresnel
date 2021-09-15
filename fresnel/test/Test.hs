@@ -106,13 +106,11 @@ result :: Int -> String -> Loc -> Result -> IndentT IO ()
 result width name Loc{ path } = \case
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
     header True
-    Main.classes numTests classes
-    body numTests labels tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
+    body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
     header False
-    Main.classes numTests classes
-    body numTests labels tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
+    body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     header False
@@ -130,8 +128,7 @@ result width name Loc{ path } = \case
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     header False
-    Main.classes numTests classes
-    body numTests labels tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
+    body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
   where
   header succeeded = do
     put "❧ "
@@ -145,8 +142,8 @@ result width name Loc{ path } = \case
 
     line $ withSGR [setColour (if succeeded then Green else Red)] $ putNewline (replicate (fullWidth width) '─')
 
-  body numTests labels tables s t = do
-    sequence_ (intersperse (line (putNewline "")) ((stats s *> putNewline t) : Main.labels numTests labels))
+  body numTests labels classes tables s t = do
+    sequence_ (intersperse (line (putNewline "")) ((stats s *> Main.classes numTests classes *> putNewline t) : Main.labels numTests labels))
     Main.tables numTests tables
 
 data Stats = Stats
