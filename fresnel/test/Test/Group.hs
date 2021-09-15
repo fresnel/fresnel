@@ -8,6 +8,7 @@ module Test.Group
 , Case(..)
 , mkCase
 , Loc(..)
+, here
 , zero
 , Semiring(..)
 , Unital(..)
@@ -18,6 +19,7 @@ module Test.Group
 ) where
 
 import Data.Char (isSpace)
+import GHC.Stack
 import Numeric (readDec)
 import Test.QuickCheck (Property)
 
@@ -44,6 +46,11 @@ mkCase s property = Case{ name, loc = Loc{ path, lineNumber }, property }
 
 
 data Loc = Loc { path :: FilePath, lineNumber :: Int }
+
+here :: HasCallStack => Loc
+here = Loc{ path = srcLocFile srcLoc, lineNumber = srcLocStartLine srcLoc }
+  where
+  (_, srcLoc) = head (getCallStack callStack)
 
 
 breaks :: [a -> Bool] -> [a] -> [[a]]
