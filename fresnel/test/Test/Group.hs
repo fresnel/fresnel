@@ -94,7 +94,6 @@ instance (Num a, Ord a) => Unital (Tropical a) where
 
 newtype H a = H { getH :: [a] }
 
-
 newtype V a = V { getV :: [a] }
 
 
