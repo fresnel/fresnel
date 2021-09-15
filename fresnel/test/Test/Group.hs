@@ -9,6 +9,7 @@ module Test.Group
 , Loc(..)
 , zero
 , Semiring(..)
+, Tropical(..)
 ) where
 
 import Data.Char (isSpace)
@@ -58,3 +59,21 @@ class Monoid s => Semiring s where
   one :: s
   (><) :: s -> s -> s
   infixr 7 ><
+
+
+data Tropical
+  = NegInfinity
+  | Finite Int
+  deriving (Eq, Ord, Show)
+
+instance Semigroup Tropical where
+  (<>) = max
+
+instance Monoid Tropical where
+  mempty = NegInfinity
+
+instance Semiring Tropical where
+  one = Finite 0
+  NegInfinity >< _           = NegInfinity
+  _           >< NegInfinity = NegInfinity
+  Finite a    >< Finite b    = Finite (a + b)
