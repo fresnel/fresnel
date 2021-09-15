@@ -215,14 +215,14 @@ tally (successes, failures) = do
   if hasSuccesses then
     success . lift $ do
       putStr (show successes)
-      putStr (if successes == 1 then " success"  else" successes")
+      putStr (' ' : pluralize successes (C "success" "successes"))
   else
     lift (putStr "0 successes")
   lift (putStr ", ")
   if hasFailures then
     failure . lift $ do
       putStr (show failures)
-      putStr (if failures == 1 then " failure" else " failures")
+      putStr (' ' : pluralize failures (S "failure"))
   else
     lift (putStr "0 failures")
   newline
