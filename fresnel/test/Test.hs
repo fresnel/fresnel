@@ -26,8 +26,8 @@ import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWit
 import qualified Test.QuickCheck as QC
 
 main :: IO ()
-main = (`runIndentT` Indent 0) $ do
-  res <- traverse (local incr . runGroup stdArgs{ maxSuccess = 250, chatty = False } w) groups
+main = (`runIndentT` Indent []) $ do
+  res <- traverse (local (incr "  ") . runGroup stdArgs{ maxSuccess = 250, chatty = False } w) groups
   (_, failures) <- uncurry tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   lift $ if failures == 0 then
     exitSuccess
@@ -45,10 +45,10 @@ main = (`runIndentT` Indent 0) $ do
   w = fromMaybe 0 (getTropical (maxWidths groups))
 
 
-newtype Indent = Indent { getIndent :: Int }
+newtype Indent = Indent { getIndent :: [String] }
 
-incr :: Indent -> Indent
-incr = Indent . (+ 1) . getIndent
+incr :: String -> Indent -> Indent
+incr i = Indent . (i:) . getIndent
 
 put :: String -> IndentT IO ()
 put = lift . putStr
@@ -58,18 +58,12 @@ putNewline s = put s *> newline
 
 line :: IndentT IO a -> IndentT IO a
 line m = do
-  i <- asks getIndent
-  put (concat (replicate i "  "))
+  i <- asks (concat . getIndent)
+  put i
   m
 
 lineStr :: String -> IndentT IO ()
 lineStr s = line $ put s *> newline
-
-heading :: IndentT IO a -> IndentT IO a
-heading m = do
-  i <- asks getIndent
-  put (concat (replicate (pred i) "  ") ++ "❧ ")
-  m
 
 newline :: IndentT IO ()
 newline = lift (putStrLn "")
@@ -78,7 +72,7 @@ runGroup :: Args -> Int -> Group -> IndentT IO (Int, Int)
 runGroup args width Group{ groupName, cases } = do
   withSGR [setBold] $ lineStr groupName
   lineStr (replicate (2 + fullWidth width) '━')
-  rs <- catMaybes <$> local incr (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
+  rs <- catMaybes <$> sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases))
   newline
   tally (length (filter id rs)) (length (filter not rs))
 
@@ -89,17 +83,17 @@ runCase args width Case{ name, loc, property } = do
   pure (isSuccess r)
 
 result :: Int -> String -> Loc -> Result -> IndentT IO ()
-result width name Loc{ path, lineNumber } = \case
+result width name Loc{ path, lineNumber } res = case res of
   Success{ numTests, numDiscarded, labels, classes, tables } -> do
-    header True
+    header
     body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
 
   GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-    header False
+    header
     body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-    header False
+    header
     stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
     unless (null failingClasses) $ put (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
     putNewline ":"
@@ -113,24 +107,28 @@ result width name Loc{ path, lineNumber } = \case
     unless (null failingLabels) . line . putNewline $ "Labels: "  ++ intercalate ", " failingLabels
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-    header False
+    header
     body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
   where
-  header succeeded = do
-    heading $ do
+  header = do
+    line $ do
       let δ = width - length name
-      withSGR [setBold] (put name *> when (width > 0) (put (replicate δ ' ')))
+      withSGR [setBold] (put "❧ " *> put name *> when (width > 0) (put (replicate δ ' ')))
       put "   "
       if succeeded then
         success $ putNewline "Success."
       else
         failure $ putNewline "Failure."
 
-    line $ withSGR [setColour (if succeeded then Green else Red)] $ putNewline (replicate (fullWidth width) '─')
+    local (incr "  ") . line $ withSGR [setColour (if succeeded then Green else Red)] $ putNewline (replicate (fullWidth width) '─')
 
-  body numTests labels classes tables s t = do
+  body numTests labels classes tables s t = local (incr "  ") $ do
     sequence_ (intersperse (line (putNewline "")) ((stats s *> Main.classes numTests classes *> putNewline t) : Main.labels numTests labels))
     Main.tables numTests tables
+
+  succeeded = case res of
+    Success{} -> True
+    _         -> False
 
 data Stats = Stats
   { numTests     :: Int
