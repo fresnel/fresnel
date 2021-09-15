@@ -26,7 +26,7 @@ import           System.Exit (exitFailure, exitSuccess)
 import           Test.QuickCheck (Args(..), Property, Result(..), isSuccess, quickCheckWithResult, stdArgs)
 
 main :: IO ()
-main = (`runIndentT` initialIndent) $ do
+main = (`runIndentT` []) $ do
   let groups = map mkGroup
         [ Fold.Test.tests
         , Getter.Test.tests
@@ -65,13 +65,10 @@ mkCase s property = Case{ name, loc = Loc{ path, lineNumber }, property }
     [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
     _                     -> ("", "", 0)
 
-newtype Indent = Indent { getIndent :: [String] }
+newtype Indent = Indent { getIndent :: String }
 
-initialIndent :: Indent
-initialIndent = Indent []
-
-push :: String -> Indent -> Indent
-push f (Indent fs) = Indent (f:fs)
+push :: String -> [Indent] -> [Indent]
+push f fs = Indent f:fs
 
 put :: String -> IndentT IO ()
 put = lift . putStr
@@ -81,7 +78,7 @@ putNewline s = put s *> newline
 
 line :: IndentT IO a -> IndentT IO a
 line m = do
-  i <- asks (concat . reverse . getIndent)
+  i <- asks (concatMap getIndent . reverse)
   put i
   m
 
@@ -260,7 +257,7 @@ breakAll p = go False where
     as -> let (h, t) = break (if b then not . p else p) as in h : go (not b) t
 
 
-newtype IndentT m a = IndentT { runIndentT :: Indent -> m a }
+newtype IndentT m a = IndentT { runIndentT :: [Indent] -> m a }
 
 instance Functor m => Functor (IndentT m) where
   fmap f = IndentT . fmap (fmap f) . runIndentT
@@ -277,8 +274,8 @@ instance Monad m => Monad (IndentT m) where
 lift :: m a -> IndentT m a
 lift = IndentT . const
 
-asks :: Applicative m => (Indent -> a) -> IndentT m a
+asks :: Applicative m => ([Indent] -> a) -> IndentT m a
 asks = IndentT . fmap pure
 
-local :: (Indent -> Indent) -> (IndentT m a -> IndentT m a)
+local :: ([Indent] -> [Indent]) -> (IndentT m a -> IndentT m a)
 local f m = IndentT (runIndentT m . f)
