@@ -193,7 +193,7 @@ stat name n = Just $ do
   put (pluralize n name)
 
 tally :: Int -> Int -> IndentT IO (Int, Int)
-tally successes failures = withSGR [setBold] . line $ do
+tally successes failures = line $ do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
   when hasSuccesses . success $ do
