@@ -35,7 +35,7 @@ main = (`runIndentT` []) $ do
         , Profunctor.Coexp.Test.tests
         ]
       width = maximum [ length (name c) `max` length (groupName g) | g <- groups, c <- cases g ]
-  res <- traverse (runGroup stdArgs{ maxSuccess = 250, chatty = False } width) groups
+  res <- traverse (local (Indent "  " "  ":) . runGroup stdArgs{ maxSuccess = 250, chatty = False } width) groups
   (_, failures) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   lift $ if failures == 0 then
     exitSuccess
@@ -90,8 +90,8 @@ newline = lift (putStrLn "")
 
 runGroup :: Args -> Int -> Group -> IndentT IO (Int, Int)
 runGroup args width Group{ groupName, cases } = do
-  withSGR [setBold] $ putNewline groupName
-  putNewline (replicate (2 + fullWidth width) '━')
+  withSGR [setBold] . line $ putNewline groupName
+  line $ putNewline (replicate (2 + fullWidth width) '━')
   rs <- catMaybes <$> local (Indent "❧ " "  ":) (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
   newline
   tally (length (filter id rs), length (filter not rs))
@@ -208,7 +208,7 @@ stat name n = Just $ do
   put (pluralize n name)
 
 tally :: (Int, Int) -> IndentT IO (Int, Int)
-tally (successes, failures) = withSGR [setBold] $ do
+tally (successes, failures) = withSGR [setBold] . line $ do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
   when hasSuccesses . success $ do
