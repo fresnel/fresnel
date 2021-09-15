@@ -22,7 +22,8 @@ import qualified Profunctor.Coexp.Test
 import           System.Console.ANSI
 import           System.Exit (exitFailure, exitSuccess)
 import           Test.Group
-import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWithResult, stdArgs)
+import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWithResult, stdArgs, (===))
+import qualified Test.QuickCheck as QC
 
 main :: IO ()
 main = (`runIndentT` Indent 0) $ do
@@ -258,4 +259,20 @@ local f m = IndentT (runIndentT m . f)
 
 
 tropical :: Group
-tropical = Group{ groupName = "Test.Group.Tropical", cases = [] }
+tropical = Group
+  { groupName = "Test.Group.Tropical"
+  , cases =
+    [ semigroupAssoc
+    ]
+  }
+  where
+  semigroupAssoc = Case{ name = "semigroup assoc", loc = here, property = QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c) }
+
+newtype ArbTropical = ArbTropical (Tropical Int)
+  deriving (Eq, Ord, Show)
+
+instance QC.Arbitrary ArbTropical where
+  arbitrary = QC.oneof
+    [ pure (ArbTropical (Tropical Nothing))
+    , ArbTropical . Tropical . Just <$> QC.arbitrary
+    ]
