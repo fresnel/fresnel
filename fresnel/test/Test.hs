@@ -26,7 +26,7 @@ import           System.Exit (exitFailure, exitSuccess)
 import           Test.QuickCheck (Args(..), Property, Result(..), isSuccess, quickCheckWithResult, stdArgs)
 
 main :: IO ()
-main = (`runIndentT` []) $ do
+main = (`runIndentT` Indent 0) $ do
   let groups = map mkGroup
         [ Fold.Test.tests
         , Getter.Test.tests
@@ -35,7 +35,7 @@ main = (`runIndentT` []) $ do
         , Profunctor.Coexp.Test.tests
         ]
       width = maximum [ length (name c) `max` length (groupName g) | g <- groups, c <- cases g ]
-  res <- traverse (local (Indent "  " "  ":) . runGroup stdArgs{ maxSuccess = 250, chatty = False } width) groups
+  res <- traverse (local incr . runGroup stdArgs{ maxSuccess = 250, chatty = False } width) groups
   (_, failures) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   lift $ if failures == 0 then
     exitSuccess
@@ -65,7 +65,10 @@ mkCase s property = Case{ name, loc = Loc{ path, lineNumber }, property }
     [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
     _                     -> ("", "", 0)
 
-data Indent = Indent { headingGutter :: String, getIndent :: String }
+newtype Indent = Indent { getIndent :: Int }
+
+incr :: Indent -> Indent
+incr = Indent . (+ 1) . getIndent
 
 put :: String -> IndentT IO ()
 put = lift . putStr
@@ -75,14 +78,14 @@ putNewline s = put s *> newline
 
 line :: IndentT IO a -> IndentT IO a
 line m = do
-  i <- asks (concatMap getIndent . reverse)
-  put i
+  i <- asks getIndent
+  put (concat (replicate i "  "))
   m
 
 heading :: IndentT IO a -> IndentT IO a
 heading m = do
-  i <- asks (concatMap headingGutter . reverse)
-  put i
+  i <- asks getIndent
+  put (concat (replicate (pred i) "  ") ++ "❧ ")
   m
 
 newline :: IndentT IO ()
@@ -92,7 +95,7 @@ runGroup :: Args -> Int -> Group -> IndentT IO (Int, Int)
 runGroup args width Group{ groupName, cases } = do
   withSGR [setBold] . line $ putNewline groupName
   line $ putNewline (replicate (2 + fullWidth width) '━')
-  rs <- catMaybes <$> local (Indent "❧ " "  ":) (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
+  rs <- catMaybes <$> local incr (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
   newline
   tally (length (filter id rs), length (filter not rs))
 
@@ -260,7 +263,7 @@ breakAll p = go False where
     as -> let (h, t) = break (if b then not . p else p) as in h : go (not b) t
 
 
-newtype IndentT m a = IndentT { runIndentT :: [Indent] -> m a }
+newtype IndentT m a = IndentT { runIndentT :: Indent -> m a }
 
 instance Functor m => Functor (IndentT m) where
   fmap f = IndentT . fmap (fmap f) . runIndentT
@@ -277,8 +280,8 @@ instance Monad m => Monad (IndentT m) where
 lift :: m a -> IndentT m a
 lift = IndentT . const
 
-asks :: Applicative m => ([Indent] -> a) -> IndentT m a
+asks :: Applicative m => (Indent -> a) -> IndentT m a
 asks = IndentT . fmap pure
 
-local :: ([Indent] -> [Indent]) -> (IndentT m a -> IndentT m a)
+local :: (Indent -> Indent) -> (IndentT m a -> IndentT m a)
 local f m = IndentT (runIndentT m . f)
