@@ -35,14 +35,15 @@ data Case = Case
   , property :: Property
   }
 
-data Loc = Loc { path :: FilePath, lineNumber :: Int }
-
 mkCase :: String -> Property -> Case
 mkCase s property = Case{ name, loc = Loc{ path, lineNumber }, property }
   where
   (name, path, lineNumber) = case breaks [isSpace, not . isSpace, isSpace, not . isSpace, (== ':'), (/= ':')] s of
     [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
     _                     -> ("", "", 0)
+
+
+data Loc = Loc { path :: FilePath, lineNumber :: Int }
 
 
 breaks :: [a -> Bool] -> [a] -> [[a]]
