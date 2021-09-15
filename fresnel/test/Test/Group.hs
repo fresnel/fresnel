@@ -110,7 +110,7 @@ instance Width a => Width (V a) where
   width = foldr ((<>) . width) zero . getV
 
 instance Width Char where
-  width _ = Tropical (Just 1)
+  width _ = finite 1
 
 instance Width Group where
   width Group{ groupName, cases } = width (H groupName) <> width (V cases)
