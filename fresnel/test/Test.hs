@@ -27,7 +27,7 @@ import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWit
 main :: IO ()
 main = (`runIndentT` Indent 0) $ do
   res <- traverse (local incr . runGroup stdArgs{ maxSuccess = 250, chatty = False } w) groups
-  (_, failures) <- tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
+  (_, failures) <- uncurry tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   lift $ if failures == 0 then
     exitSuccess
   else
@@ -75,7 +75,7 @@ runGroup args width Group{ groupName, cases } = do
   line $ putNewline (replicate (2 + fullWidth width) '━')
   rs <- catMaybes <$> local incr (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
   newline
-  tally (length (filter id rs), length (filter not rs))
+  tally (length (filter id rs)) (length (filter not rs))
 
 runCase :: Args -> Int -> Case -> IndentT IO Bool
 runCase args width Case{ name, loc, property } = do
@@ -188,8 +188,8 @@ stat name n = Just $ do
   put " "
   put (pluralize n name)
 
-tally :: (Int, Int) -> IndentT IO (Int, Int)
-tally (successes, failures) = withSGR [setBold] . line $ do
+tally :: Int -> Int -> IndentT IO (Int, Int)
+tally successes failures = withSGR [setBold] . line $ do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
   when hasSuccesses . success $ do
