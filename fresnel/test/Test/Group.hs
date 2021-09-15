@@ -67,29 +67,27 @@ class (Monoid s, Semiring s) => Unital s where
   one :: s
 
 
-data Tropical
-  = NegInfinity
-  | Finite Int
+newtype Tropical = Tropical { getTropical :: Maybe Int }
   deriving (Eq, Ord, Show)
 
 instance Semigroup Tropical where
   (<>) = max
 
 instance Monoid Tropical where
-  mempty = NegInfinity
+  mempty = Tropical Nothing
 
 instance Semiring Tropical where
-  NegInfinity >< _           = NegInfinity
-  _           >< NegInfinity = NegInfinity
-  Finite a    >< Finite b    = Finite (a + b)
+  Tropical Nothing  >< _                 = Tropical Nothing
+  _                 >< Tropical Nothing  = Tropical Nothing
+  Tropical (Just a) >< Tropical (Just b) = Tropical (Just (a + b))
 
 instance Unital Tropical where
-  one = Finite 0
+  one = Tropical (Just 0)
 
 toInt :: Tropical -> Int
 toInt = \case
-  NegInfinity -> minBound
-  Finite i    -> i
+  Tropical Nothing  -> minBound
+  Tropical (Just i) -> i
 
 
 newtype H a = H { getH :: [a] }
