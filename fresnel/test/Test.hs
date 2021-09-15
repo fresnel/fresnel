@@ -212,11 +212,6 @@ tally :: (Int, Int) -> IndentT IO (Int, Int)
 tally (successes, failures) = do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
-  if hasFailures then
-    failure . lift $ putStr "Failed:"
-  else
-    success . lift $ putStr "Succeeded:"
-  lift (putStr " ")
   if hasSuccesses then
     success . lift $ do
       putStr (show successes)
