@@ -58,7 +58,7 @@ putNewline s = put s *> newline
 
 line :: IndentT IO a -> IndentT IO a
 line m = do
-  i <- asks (concat . getIndent)
+  i <- asks (concat . reverse . getIndent)
   put i
   m
 
@@ -94,17 +94,18 @@ result width name Loc{ path, lineNumber } res = case res of
 
   Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
     header
-    stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
-    unless (null failingClasses) $ put (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
-    putNewline ":"
-    lineStr (path ++ ":" ++ show lineNumber)
-    lineStr reason
-    for_ theException (line . putNewline . displayException)
-    for_ failingTestCase (line . putNewline)
-    lineStr ""
-    lineStr ("Seed: " ++ show usedSeed)
-    lineStr ("Size: " ++ show usedSize)
-    unless (null failingLabels) . line . putNewline $ "Labels: "  ++ intercalate ", " failingLabels
+    local (incr "│ ") $ do
+      stats Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+      unless (null failingClasses) $ put (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
+      putNewline ":"
+      lineStr (path ++ ":" ++ show lineNumber)
+      lineStr reason
+      for_ theException (line . putNewline . displayException)
+      for_ failingTestCase (line . putNewline)
+      lineStr ""
+      lineStr ("Seed: " ++ show usedSeed)
+      lineStr ("Size: " ++ show usedSize)
+      unless (null failingLabels) . line . putNewline $ "Labels: "  ++ intercalate ", " failingLabels
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
     header
