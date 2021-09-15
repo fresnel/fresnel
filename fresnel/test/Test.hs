@@ -65,7 +65,7 @@ mkCase s property = Case{ name, loc = Loc{ path, lineNumber }, property }
     [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
     _                     -> ("", "", 0)
 
-newtype Indent = Indent { getIndent :: String }
+data Indent = Indent { headingGutter :: String, getIndent :: String }
 
 put :: String -> IndentT IO ()
 put = lift . putStr
@@ -79,6 +79,12 @@ line m = do
   put i
   m
 
+heading :: IndentT IO a -> IndentT IO a
+heading m = do
+  i <- asks (concatMap headingGutter . reverse)
+  put i
+  m
+
 newline :: IndentT IO ()
 newline = lift (putStrLn "")
 
@@ -86,7 +92,7 @@ runGroup :: Args -> Int -> Group -> IndentT IO (Int, Int)
 runGroup args width Group{ groupName, cases } = do
   withSGR [setBold] $ putNewline groupName
   putNewline (replicate (2 + fullWidth width) '━')
-  rs <- catMaybes <$> local (Indent "  ":) (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
+  rs <- catMaybes <$> local (Indent "❧ " "  ":) (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
   newline
   tally (length (filter id rs), length (filter not rs))
 
@@ -125,14 +131,14 @@ result width name Loc{ path } = \case
     body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
   where
   header succeeded = do
-    put "❧ "
-    let δ = width - length name
-    withSGR [setBold] (put name *> when (width > 0) (put (replicate δ ' ')))
-    put "   "
-    if succeeded then
-      success $ putNewline "Success."
-    else
-      failure $ putNewline "Failure."
+    heading $ do
+      let δ = width - length name
+      withSGR [setBold] (put name *> when (width > 0) (put (replicate δ ' ')))
+      put "   "
+      if succeeded then
+        success $ putNewline "Success."
+      else
+        failure $ putNewline "Failure."
 
     line $ withSGR [setColour (if succeeded then Green else Red)] $ putNewline (replicate (fullWidth width) '─')
 
