@@ -67,9 +67,6 @@ mkCase s property = Case{ name, loc = Loc{ path, lineNumber }, property }
 
 newtype Indent = Indent { getIndent :: String }
 
-push :: String -> [Indent] -> [Indent]
-push f fs = Indent f:fs
-
 put :: String -> IndentT IO ()
 put = lift . putStr
 
@@ -89,7 +86,7 @@ runGroup :: Args -> Int -> Group -> IndentT IO (Int, Int)
 runGroup args width Group{ groupName, cases } = do
   withSGR [setBold] $ putNewline groupName
   putNewline (replicate (2 + fullWidth width) '━')
-  rs <- catMaybes <$> local (push "  ") (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
+  rs <- catMaybes <$> local (Indent "  ":) (sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase args width) cases)))
   newline
   tally (length (filter id rs), length (filter not rs))
 
