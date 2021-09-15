@@ -13,6 +13,7 @@ module Test.Group
 , Semiring(..)
 , Unital(..)
 , Tropical(..)
+, finite
 , H(..)
 , V(..)
 , Width(..)
@@ -89,7 +90,10 @@ instance (Num a, Ord a) => Semiring (Tropical a) where
   Tropical a1 >< Tropical a2 = Tropical ((+) <$> a1 <*> a2)
 
 instance (Num a, Ord a) => Unital (Tropical a) where
-  one = Tropical (Just 0)
+  one = finite 0
+
+finite :: a -> Tropical a
+finite = Tropical . Just
 
 
 newtype H a = H { getH :: [a] }
