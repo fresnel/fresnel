@@ -11,6 +11,7 @@ module Test.Group
 , Semiring(..)
 , Unital(..)
 , Tropical(..)
+, toInt
 , H(..)
 , V(..)
 ) where
@@ -84,6 +85,11 @@ instance Semiring Tropical where
 
 instance Unital Tropical where
   one = Finite 0
+
+toInt :: Tropical -> Int
+toInt = \case
+  NegInfinity -> minBound
+  Finite i    -> i
 
 
 newtype H a = H { getH :: [a] }
