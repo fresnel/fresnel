@@ -102,7 +102,7 @@ incr i = Indent . (i:) . getIndent
 putNewline :: String -> IO ()
 putNewline s = putStr s *> newline
 
-line :: Indent -> IO () -> IO ()
+line :: Indent -> IO a -> IO a
 line is = foldr (\ each into m -> into (each *> m)) id (getIndent is)
 
 lineStr :: Indent -> String -> IO ()
