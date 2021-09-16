@@ -120,64 +120,54 @@ runGroup i args width Group{ groupName, cases } = do
   tally i (length (filter id rs)) (length (filter not rs))
 
 runCase :: Indent -> Args -> Int -> Case -> IO Bool
-runCase i args width Case{ name, loc, property } = do
-  r <- quickCheckWithResult args property
-  result i width name loc r
-  pure (isSuccess r)
+runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
+  res <- quickCheckWithResult args property
+  let succeeded f t = if isSuccess res then t else f
+      status = if isSuccess res then success else failure
+      gutter = succeeded (status (putStr "╭─")) (putStr "  ")
 
-result :: Indent -> Int -> String -> Loc -> Result -> IO ()
-result i width name Loc{ path, lineNumber } res = case res of
-  Success{ numTests, numDiscarded, labels, classes, tables } -> do
-    header
-    body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
+      header = do
+        line i $ do
+          let δ = width - length name
+          withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
+          putStr "   "
+          status . putNewline $ succeeded "Failure." "Success."
 
-  GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-    header
-    body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
+        i <- pure (incr gutter i)
+        line i . status $ putNewline (replicate (fullWidth width) '─')
 
-  Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-    header
-    i <- pure (incr (failure (putStr "│ ")) i)
-    stats i Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
-    unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
-    putNewline ":"
-    lineStr i (path ++ ":" ++ show lineNumber)
-    lineStr i reason
-    for_ theException (lineStr i . displayException)
-    for_ failingTestCase (lineStr i)
-    lineStr i ""
-    lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
-    unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
+  case res of
+    Success{ numTests, numDiscarded, labels, classes, tables } -> do
+      header
+      body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
 
-  NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-    header
-    body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
+    GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
+      header
+      body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
+
+    Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
+      header
+      i <- pure (incr (failure (putStr "│ ")) i)
+      stats i Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+      unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
+      putNewline ":"
+      lineStr i (path ++ ":" ++ show lineNumber)
+      lineStr i reason
+      for_ theException (lineStr i . displayException)
+      for_ failingTestCase (lineStr i)
+      lineStr i ""
+      lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
+      unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
+
+    NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
+      header
+      body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
+  pure (isSuccess res)
   where
-  header = do
-    line i $ do
-      let δ = width - length name
-      withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
-      putStr "   "
-      status . putNewline $ if succeeded then "Success." else "Failure."
-
-    let gutter
-          | succeeded = putStr "  "
-          | otherwise = status (putStr "╭─")
-    i <- pure (incr gutter i)
-    line i . status $ putNewline (replicate (fullWidth width) '─')
-
   body numTests labels classes tables s t = do
     i <- pure (incr (putStr "  ") i)
     sequence_ (intersperse (lineStr i "") ((stats i s *> Main.classes i numTests classes *> putNewline t) : Main.labels i numTests labels))
     Main.tables i numTests tables
-
-  succeeded = case res of
-    Success{} -> True
-    _         -> False
-
-  status
-    | succeeded = success
-    | otherwise = failure
 
 data Stats = Stats
   { numTests     :: Int
