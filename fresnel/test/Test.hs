@@ -135,15 +135,15 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   line (incr gutter i) . succeeded failure success $ putNewline (replicate (fullWidth width) '─')
 
   case res of
-    Success{ numTests, numDiscarded, labels, classes, tables } -> do
-      body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
+    Success{ numTests, labels, classes, tables } -> do
+      body numTests labels classes tables (resultStats res) "."
 
-    GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-      body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
+    GaveUp{ numTests, labels, classes, tables } -> do
+      body numTests labels classes tables (resultStats res) ":"
 
-    Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
+    Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
       i <- pure (incr (failure (putStr "│ ")) i)
-      stats i Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+      stats i (resultStats res)
       unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
       putNewline ":"
       lineStr i (path ++ ":" ++ show lineNumber)
@@ -154,8 +154,8 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
 
-    NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-      body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
+    NoExpectedFailure{ numTests, labels, classes, tables } -> do
+      body numTests labels classes tables (resultStats res) ":"
   pure (isSuccess res)
   where
   body numTests labels classes tables s t = do
@@ -168,6 +168,13 @@ data Stats = Stats
   , numDiscarded :: Int
   , numShrinks   :: Int
   }
+
+resultStats :: Result -> Stats
+resultStats = \case
+  Success{ numTests, numDiscarded }             -> Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+  GaveUp{ numTests, numDiscarded }              -> Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+  Failure{ numTests, numDiscarded, numShrinks } -> Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+  NoExpectedFailure{ numTests, numDiscarded }   -> Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
 
 stats :: Indent -> Stats -> IO ()
 stats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . intersperse (putStr ", ")
