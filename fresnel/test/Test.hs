@@ -123,17 +123,16 @@ runCase :: Indent -> Args -> Int -> Case -> IO Bool
 runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   res <- quickCheckWithResult args property
   let succeeded f t = if isSuccess res then t else f
-      status = if isSuccess res then success else failure
-      gutter = succeeded (status (putStr "╭─")) (putStr "  ")
 
   line i $ do
     let δ = width - length name
     withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
     putStr "   "
     hFlush stdout
-    status . putNewline $ succeeded "Failure." "Success."
+    succeeded failure success . putNewline $ succeeded "Failure." "Success."
 
-  line (incr gutter i) . status $ putNewline (replicate (fullWidth width) '─')
+  let gutter = succeeded (succeeded failure success (putStr "╭─")) (putStr "  ")
+  line (incr gutter i) . succeeded failure success $ putNewline (replicate (fullWidth width) '─')
 
   case res of
     Success{ numTests, numDiscarded, labels, classes, tables } -> do
