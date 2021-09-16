@@ -126,27 +126,22 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       status = if isSuccess res then success else failure
       gutter = succeeded (status (putStr "╭─")) (putStr "  ")
 
-      header = do
-        line i $ do
-          let δ = width - length name
-          withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
-          putStr "   "
-          status . putNewline $ succeeded "Failure." "Success."
+  line i $ do
+    let δ = width - length name
+    withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
+    putStr "   "
+    status . putNewline $ succeeded "Failure." "Success."
 
-        i <- pure (incr gutter i)
-        line i . status $ putNewline (replicate (fullWidth width) '─')
+  line (incr gutter i) . status $ putNewline (replicate (fullWidth width) '─')
 
   case res of
     Success{ numTests, numDiscarded, labels, classes, tables } -> do
-      header
       body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } "."
 
     GaveUp{ numTests, numDiscarded, labels, classes, tables } -> do
-      header
       body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
 
     Failure{ numTests, numDiscarded, numShrinks, usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
-      header
       i <- pure (incr (failure (putStr "│ ")) i)
       stats i Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
       unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
@@ -160,7 +155,6 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
 
     NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
-      header
       body numTests labels classes tables Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 } ":"
   pure (isSuccess res)
   where
