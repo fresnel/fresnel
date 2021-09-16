@@ -33,9 +33,9 @@ import qualified Test.QuickCheck as QC
 main :: IO ()
 main = do
   let opts =
-        [ Option "n" ["successes"] (ReqArg (set maxSuccess_ . int) "N") "require N successful tests before concluding the property passes"
-        , Option "z" ["size"]      (ReqArg (set maxSize_    . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
-        , Option "s" ["shrinks"]   (ReqArg (set maxShrinks_ . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
+        [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_) . int) "N") "require N successful tests before concluding the property passes"
+        , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)    . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
+        , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_) . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
         ]
       i = Indent [putStr "  "]
   (mods, other, errs) <- getOpt RequireOrder opts <$> getArgs
@@ -44,8 +44,10 @@ main = do
     _  -> do
       name <- getProgName
       for_ (errs ++ [usageInfo (header name) opts]) (hPutStrLn stderr)
-  let args = foldr ($) stdArgs{ maxSuccess = 250, chatty = False } mods
-  res <- traverse (runGroup i args w) groups
+  let Options gs _ args = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
+      matching _ [] = id
+      matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
+  res <- traverse (runGroup i args w) (matching ((==) . groupName) gs groups)
   (_, failures) <- uncurry (tally i) (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   if failures == 0 then
     exitSuccess
@@ -72,6 +74,15 @@ maxSize_ = lens maxSize (\ a maxSize -> a{ maxSize })
 
 maxShrinks_ :: Lens' Args Int
 maxShrinks_ = lens maxShrinks (\ a maxShrinks -> a{ maxShrinks })
+
+data Options = Options
+  { groups :: [String]
+  , cases  :: [String]
+  , args   :: Args
+  }
+
+args_ :: Lens' Options Args
+args_ = lens args (\ o args -> o{ args })
 
 
 newtype Indent = Indent { getIndent :: [IO ()] }
