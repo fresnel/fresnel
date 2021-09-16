@@ -29,14 +29,16 @@ import           System.IO
 import           Test.Group
 import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWithResult, stdArgs, (.&&.), (===))
 import qualified Test.QuickCheck as QC
+import           Test.QuickCheck.Random (QCGen)
 
 main :: IO ()
 main = do
   let opts =
-        [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_) . int) "N") "require N successful tests before concluding the property passes"
-        , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)    . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
-        , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_) . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
-        , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))     "NAME") "include the named group; can be used multiple times to include multiple groups"
+        [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_)        . int) "N") "require N successful tests before concluding the property passes"
+        , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)           . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
+        , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_)        . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
+        , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))            "NAME") "include the named group; can be used multiple times to include multiple groups"
+        , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
         ]
       i = Indent [putStr "  "]
   (mods, other, errs) <- getOpt RequireOrder opts <$> getArgs
@@ -75,6 +77,9 @@ maxSize_ = lens maxSize (\ a maxSize -> a{ maxSize })
 
 maxShrinks_ :: Lens' Args Int
 maxShrinks_ = lens maxShrinks (\ a maxShrinks -> a{ maxShrinks })
+
+replay_ :: Lens' Args (Maybe (QCGen, Int))
+replay_ = lens replay (\ a replay -> a{ replay })
 
 data Options = Options
   { groups :: [String]
@@ -141,8 +146,7 @@ result i width name Loc{ path, lineNumber } res = case res of
     for_ theException (lineStr i . displayException)
     for_ failingTestCase (lineStr i)
     lineStr i ""
-    lineStr i ("Seed: " ++ show usedSeed)
-    lineStr i ("Size: " ++ show usedSize)
+    lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
     unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
 
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> do
