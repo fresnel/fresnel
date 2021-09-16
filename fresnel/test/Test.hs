@@ -36,6 +36,7 @@ main = do
         [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_) . int) "N") "require N successful tests before concluding the property passes"
         , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)    . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
         , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_) . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
+        , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))     "NAME") "include the named group; can be used multiple times to include multiple groups"
         ]
       i = Indent [putStr "  "]
   (mods, other, errs) <- getOpt RequireOrder opts <$> getArgs
@@ -80,6 +81,9 @@ data Options = Options
   , cases  :: [String]
   , args   :: Args
   }
+
+groups_ :: Lens' Options [String]
+groups_ = lens groups (\ o groups -> o{ groups })
 
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
