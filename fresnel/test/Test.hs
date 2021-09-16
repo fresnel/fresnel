@@ -169,12 +169,19 @@ data Stats = Stats
   , numShrinks   :: Int
   }
 
+defaultStats :: Stats
+defaultStats = Stats
+  { numTests     = 0
+  , numDiscarded = 0
+  , numShrinks   = 0
+  }
+
 resultStats :: Result -> Stats
 resultStats = \case
-  Success{ numTests, numDiscarded }             -> Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-  GaveUp{ numTests, numDiscarded }              -> Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
-  Failure{ numTests, numDiscarded, numShrinks } -> Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
-  NoExpectedFailure{ numTests, numDiscarded }   -> Stats{ Main.numTests, Main.numDiscarded, Main.numShrinks = 0 }
+  Success{ numTests, numDiscarded }             -> defaultStats{ Main.numTests, Main.numDiscarded }
+  GaveUp{ numTests, numDiscarded }              -> defaultStats{ Main.numTests, Main.numDiscarded }
+  Failure{ numTests, numDiscarded, numShrinks } -> defaultStats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
+  NoExpectedFailure{ numTests, numDiscarded }   -> defaultStats{ Main.numTests, Main.numDiscarded }
 
 stats :: Indent -> Stats -> IO ()
 stats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . intersperse (putStr ", ")
