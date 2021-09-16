@@ -13,22 +13,39 @@ import qualified Data.Map as Map
 import           Data.Maybe (catMaybes, fromMaybe)
 import           Data.Ord (comparing)
 import qualified Fold.Test
+import           Fresnel.Lens (Lens', lens)
+import           Fresnel.Setter
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
 import qualified Iso.Test
 import qualified Monoid.Fork.Test
-import           Numeric (showFFloatAlt)
+import           Numeric (readDec, showFFloatAlt)
 import qualified Profunctor.Coexp.Test
 import           System.Console.ANSI
+import           System.Console.GetOpt
+import           System.Environment (getArgs, getProgName)
 import           System.Exit (exitFailure, exitSuccess)
+import           System.IO
 import           Test.Group
 import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWithResult, stdArgs, (.&&.), (===))
 import qualified Test.QuickCheck as QC
 
 main :: IO ()
 main = do
-  let i = Indent [putStr "  "]
-  res <- traverse (runGroup i stdArgs{ maxSuccess = 250, chatty = False } w) groups
+  let opts =
+        [ Option "n" ["successes"] (ReqArg (set maxSuccess_ . int) "N") "require N successful tests before concluding the property passes"
+        , Option "z" ["size"]      (ReqArg (set maxSize_    . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
+        , Option "s" ["shrinks"]   (ReqArg (set maxShrinks_ . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
+        ]
+      i = Indent [putStr "  "]
+  (mods, other, errs) <- getOpt RequireOrder opts <$> getArgs
+  case map ("Unrecognized argument: " ++) other ++ errs of
+    [] -> pure ()
+    _  -> do
+      name <- getProgName
+      for_ (errs ++ [usageInfo (header name) opts]) (hPutStrLn stderr)
+  let args = foldr ($) stdArgs{ maxSuccess = 250, chatty = False } mods
+  res <- traverse (runGroup i args w) groups
   (_, failures) <- uncurry (tally i) (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   if failures == 0 then
     exitSuccess
@@ -44,6 +61,17 @@ main = do
     , tropical
     ]
   w = fromMaybe 0 (getTropical (maxWidths groups))
+  int = fst . head . readDec
+  header name = "Usage: " ++ name ++ " [-n N|--successes N]"
+
+maxSuccess_ :: Lens' Args Int
+maxSuccess_ = lens maxSuccess (\ a maxSuccess -> a{ maxSuccess })
+
+maxSize_ :: Lens' Args Int
+maxSize_ = lens maxSize (\ a maxSize -> a{ maxSize })
+
+maxShrinks_ :: Lens' Args Int
+maxShrinks_ = lens maxShrinks (\ a maxShrinks -> a{ maxShrinks })
 
 
 newtype Indent = Indent { getIndent :: [IO ()] }
