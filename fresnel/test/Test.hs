@@ -130,6 +130,7 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     let δ = width - length name
     withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
     putStr "   "
+    hFlush stdout
     status . putNewline $ succeeded "Failure." "Success."
 
   line (incr gutter i) . status $ putNewline (replicate (fullWidth width) '─')
