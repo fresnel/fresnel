@@ -131,7 +131,7 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   succeeded (restoreCursor *> title [setColour Red]) (pure ())
 
-  putStr "   " *> succeeded (failure (putStrLn "Failure.")) (success (putStrLn "Success."))
+  putStr "   " *> succeeded (failure (putStrLn "Failure")) (success (putStrLn "Success"))
 
   let gutter s = line (incr (putStr s) i)
       stats = resultStats res
@@ -240,7 +240,7 @@ pluralize _ = \case
   C _ s -> s
 
 fullWidth :: Int -> Int
-fullWidth width = width + 3 + length "Success."
+fullWidth width = width + 3 + length "Success"
 
 stat :: Plural -> Int -> Maybe (IO ())
 stat _    0 = Nothing
