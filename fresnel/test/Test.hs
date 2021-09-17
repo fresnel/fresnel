@@ -103,7 +103,7 @@ putNewline :: String -> IO ()
 putNewline s = putStr s *> newline
 
 line :: Indent -> IO a -> IO a
-line is = foldr (\ each into m -> into (each *> m)) id (getIndent is)
+line is m = foldl (flip (*>)) m (getIndent is)
 
 lineStr :: Indent -> String -> IO ()
 lineStr i s = line i $ putStr s *> newline
