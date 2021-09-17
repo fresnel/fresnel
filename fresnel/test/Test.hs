@@ -9,7 +9,7 @@ module Main
 import           Control.Monad (unless, when)
 import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
-import           Data.List (intercalate, intersperse, sortBy)
+import           Data.List (intersperse, sortBy)
 import qualified Data.Map as Map
 import           Data.Maybe (catMaybes, fromMaybe)
 import           Data.Ord (comparing)
@@ -142,7 +142,7 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   succeeded (gutter "╭─" underline) (gutter "  " underline)
 
   let blocks = case res of
-        Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels } ->
+        Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
           [ do
             i <- pure (incr (failure (putStr "│ ")) i)
             lineStr i (path ++ ":" ++ show lineNumber)
@@ -151,7 +151,6 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
             for_ failingTestCase (lineStr i)
             lineStr i ""
             lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
-            unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
           ]
         _ -> []
 
@@ -191,10 +190,10 @@ defaultStats = Stats
 
 resultStats :: Result -> Stats
 resultStats = \case
-  Success{ numTests, numDiscarded, labels, classes, tables }           -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
-  GaveUp{ numTests, numDiscarded, labels, classes, tables }            -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
-  Failure{ numTests, numDiscarded, numShrinks, failingClasses }        -> defaultStats{ numTests, numDiscarded, numShrinks, classes = Map.fromList (map (,numTests) (toList failingClasses)) }
-  NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
+  Success{ numTests, numDiscarded, labels, classes, tables }                   -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
+  GaveUp{ numTests, numDiscarded, labels, classes, tables }                    -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
+  Failure{ numTests, numDiscarded, numShrinks, failingLabels, failingClasses } -> defaultStats{ numTests, numDiscarded, numShrinks, labels = Map.fromList (map ((, numTests) . pure) failingLabels), classes = Map.fromList (map (,numTests) (toList failingClasses)) }
+  NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables }         -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
 runStats :: Indent -> Stats -> IO ()
 runStats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . intersperse (putStr ", ")
