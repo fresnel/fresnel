@@ -138,7 +138,7 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       body = do
         i <- pure (incr (putStr "  ") i)
         sequence_ (intersperse (lineStr i "") ((runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline ".") : runLabels i (numTests stats) (labels stats)))
-        isSuccess res <$ runTables i (numTests stats) (tables stats)
+        runTables i (numTests stats) (tables stats)
 
   succeeded (failure . gutter "╭─") (success . gutter "  ") $ putNewline (replicate (fullWidth width) '─')
 
@@ -157,7 +157,7 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
       pure False
 
-    _ -> body
+    _ -> isSuccess res <$ body
   where
   δ = width - length name
   title sgr = line i $ do
