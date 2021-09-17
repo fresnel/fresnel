@@ -124,22 +124,21 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   line i $ do
     let δ = width - length name
     withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
-    putStr "   "
     hFlush stdout
 
   res <- quickCheckWithResult args property
   let succeeded f t = if isSuccess res then t else f
 
-  succeeded failure success . putNewline $ succeeded "Failure." "Success."
+  putStr "   " *> succeeded (failure (putStrLn "Failure.")) (success (putStrLn "Success."))
 
-  let gutter = succeeded (succeeded failure success (putStr "╭─")) (putStr "  ")
+  let gutter s = line (incr (putStr s) i)
       stats = resultStats res
       body t = do
         i <- pure (incr (putStr "  ") i)
         sequence_ (intersperse (lineStr i "") ((runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline t) : runLabels i (numTests stats) (labels stats)))
         runTables i (numTests stats) (tables stats)
 
-  line (incr gutter i) . succeeded failure success $ putNewline (replicate (fullWidth width) '─')
+  succeeded (failure . gutter "╭─") (success . gutter "  ") $ putNewline (replicate (fullWidth width) '─')
 
   case res of
     Success{} -> body "."
