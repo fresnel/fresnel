@@ -127,7 +127,9 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     hFlush stdout
 
   res <- quickCheckWithResult args property
-  let succeeded f t = if isSuccess res then t else f
+  let succeeded f t
+        | isSuccess res = t
+        | otherwise     = f
 
   putStr "   " *> succeeded (failure (putStrLn "Failure.")) (success (putStrLn "Success."))
 
