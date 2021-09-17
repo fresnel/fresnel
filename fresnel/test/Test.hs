@@ -121,12 +121,15 @@ runGroup i args width Group{ groupName, cases } = do
 
 runCase :: Indent -> Args -> Int -> Case -> IO Bool
 runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
+  saveCursor
   title []
 
   res <- quickCheckWithResult args property
   let succeeded f t
         | isSuccess res = t
         | otherwise     = f
+
+  succeeded (restoreCursor *> title [setColour Red]) (pure ())
 
   putStr "   " *> succeeded (failure (putStrLn "Failure.")) (success (putStrLn "Success."))
 
