@@ -157,10 +157,10 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   i <- pure (incr (succeeded (putStr "│ ") (putStr "  ")) i)
   paras i $ concat
-    [ [ runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline "." ]
+    [ [ runStats i stats *> runClasses i stats *> putNewline "." ]
     , blocks
-    , runLabels i (numTests stats) (labels stats)
-    , runTables i (numTests stats) (tables stats)
+    , runLabels i stats
+    , runTables i stats
     ]
   pure (isSuccess res)
   where
@@ -203,8 +203,8 @@ runStats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . in
   ++ toList (stat (S "shrink") numShrinks)
 
 
-runLabels :: Indent -> Int -> Map.Map [String] Int -> [IO ()]
-runLabels i n labels
+runLabels :: Indent -> Stats -> [IO ()]
+runLabels i Stats{ numTests = n, labels }
   | null labels = []
   | otherwise   = map (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
   where
@@ -217,16 +217,16 @@ runLabels i n labels
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
     lineStr i $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
-runClasses :: Indent -> Int -> Map.Map String Int -> IO ()
-runClasses i n classes = unless (null classes) $ do
+runClasses :: Indent -> Stats -> IO ()
+runClasses i Stats{ numTests = n, classes } = unless (null classes) $ do
   putStr " "
   parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ i n)) (Map.toList classes)))
 
 class_ :: Indent -> Int -> String -> Int -> IO ()
 class_ _ n label n' = putStr $ if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
 
-runTables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> [IO ()]
-runTables _ _ _ = []
+runTables :: Indent -> Stats -> [IO ()]
+runTables _ _ = []
 
 
 data Plural
