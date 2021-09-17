@@ -122,7 +122,7 @@ runGroup i args width Group{ groupName, cases } = do
 runCase :: Indent -> Args -> Int -> Case -> IO Bool
 runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   line i $ do
-    withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
+    withSGR [setBold] (putStr ("❧ " ++ name ++ replicate δ ' '))
     hFlush stdout
 
   res <- quickCheckWithResult args property
