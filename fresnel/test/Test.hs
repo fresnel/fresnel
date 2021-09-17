@@ -1,6 +1,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TupleSections #-}
 module Main
 ( main
 ) where
@@ -131,23 +132,18 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   succeeded (restoreCursor *> title [setColour Red]) (pure ())
 
-  putStr "   " *> succeeded (failure (putStrLn "Failure")) (success (putStrLn "Success"))
+  putStr "   " *> succeeded (failure (putNewline "Failure")) (success (putNewline "Success"))
 
   let gutter s = line (incr (putStr s) i)
       stats = resultStats res
-      body = do
-        i <- pure (incr (putStr "  ") i)
-        sequence_ (intersperse (lineStr i "") ((runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline ".") : runLabels i (numTests stats) (labels stats)))
-        runTables i (numTests stats) (tables stats)
+      body i classes = paras i ((runStats i stats *> runClasses i (numTests stats) classes *> putNewline ".") : runLabels i (numTests stats) (labels stats) ++ runTables i (numTests stats) (tables stats))
 
   succeeded (failure . gutter "╭─") (success . gutter "  ") $ putNewline (replicate (fullWidth width) '─')
 
   case res of
     Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
       i <- pure (incr (failure (putStr "│ ")) i)
-      runStats i stats
-      unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
-      putNewline ":"
+      body i ((, numTests stats) <$> toList failingClasses)
       lineStr i (path ++ ":" ++ show lineNumber)
       lineStr i reason
       for_ theException (lineStr i . displayException)
@@ -157,12 +153,13 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
       pure False
 
-    _ -> isSuccess res <$ body
+    _ -> isSuccess res <$ body (incr (putStr "  ") i) (Map.toList (classes stats))
   where
   δ = width - length name
   title sgr = line i $ do
     withSGR (setBold:sgr) (putStr ("❧ " ++ name ++ replicate δ ' '))
     hFlush stdout
+  paras i = sequence_ . intersperse (lineStr i "")
 
 data Stats = Stats
   { numTests     :: Int
@@ -211,16 +208,16 @@ runLabels i n labels
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
     lineStr i $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
-runClasses :: Indent -> Int -> Map.Map String Int -> IO ()
+runClasses :: Indent -> Int -> [(String, Int)] -> IO ()
 runClasses i n classes = unless (null classes) $ do
   putStr " "
-  parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ i n)) (Map.toList classes)))
+  parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ i n)) classes))
 
 class_ :: Indent -> Int -> String -> Int -> IO ()
-class_ _ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStr (showFFloatAlt (Just 1) percentage ('%':' ':label))
+class_ _ n label n' = putStr $ if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
 
-runTables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> IO ()
-runTables _ _ _ = pure ()
+runTables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> [IO ()]
+runTables _ _ _ = []
 
 
 data Plural
