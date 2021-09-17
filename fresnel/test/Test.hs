@@ -121,15 +121,16 @@ runGroup i args width Group{ groupName, cases } = do
 
 runCase :: Indent -> Args -> Int -> Case -> IO Bool
 runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
-  res <- quickCheckWithResult args property
-  let succeeded f t = if isSuccess res then t else f
-
   line i $ do
     let δ = width - length name
     withSGR [setBold] (putStr "❧ " *> putStr name *> when (width > 0) (putStr (replicate δ ' ')))
     putStr "   "
     hFlush stdout
-    succeeded failure success . putNewline $ succeeded "Failure." "Success."
+
+  res <- quickCheckWithResult args property
+  let succeeded f t = if isSuccess res then t else f
+
+  succeeded failure success . putNewline $ succeeded "Failure." "Success."
 
   let gutter = succeeded (succeeded failure success (putStr "╭─")) (putStr "  ")
       stats = resultStats res
