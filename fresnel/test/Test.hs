@@ -42,7 +42,7 @@ main = do
         , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))            "NAME") "include the named group; can be used multiple times to include multiple groups"
         , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
         ]
-      i = Indent [putStr "  "]
+      i = putStr "  "
   (mods, other, errs) <- getOpt RequireOrder opts <$> getArgs
   case map ("Unrecognized argument: " ++) other ++ errs of
     [] -> pure ()
@@ -52,8 +52,9 @@ main = do
   let Options gs _ args = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
       matching _ [] = id
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
-  res <- traverse (runGroup i args w) (matching ((==) . groupName) gs groups)
-  (_, failures) <- uncurry (tally i) (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
+  (_, failures) <- (`runLayout` i) $ do
+    res <- traverse (runGroup args w) (matching ((==) . groupName) gs groups)
+    uncurry tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   if failures == 0 then
     exitSuccess
   else
@@ -95,79 +96,58 @@ groups_ = lens groups (\ o groups -> o{ groups })
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
+runGroup :: Args -> Int -> Group -> Layout (Int, Int)
+runGroup args width Group{ groupName, cases } = do
+  withSGR [setBold] $ lineStr groupName
+  lineStr (replicate (2 + fullWidth width) '━')
+  rs <- catMaybes <$> sequence (intersperse (Nothing <$ putLn "") (map (fmap Just <$> runCase args width) cases))
+  putLn ""
+  tally (length (filter id rs)) (length (filter not rs))
 
-newtype Indent = Indent { getIndent :: [IO ()] }
+runCase :: Args -> Int -> Case -> Layout Bool
+runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
+  lift saveCursor
+  title
 
-incr :: IO () -> Indent -> Indent
-incr i = Indent . (i:) . getIndent
-
-putNewline :: String -> IO ()
-putNewline s = putStr s *> newline
-
-line :: Indent -> IO a -> IO a
-line is m = foldl (flip (*>)) m (getIndent is)
-
-lineStr :: Indent -> String -> IO ()
-lineStr i s = line i $ putStr s *> newline
-
-newline :: IO ()
-newline = putStrLn ""
-
-runGroup :: Indent -> Args -> Int -> Group -> IO (Int, Int)
-runGroup i args width Group{ groupName, cases } = do
-  withSGR [setBold] $ lineStr i groupName
-  lineStr i (replicate (2 + fullWidth width) '━')
-  rs <- catMaybes <$> sequence (intersperse (Nothing <$ newline) (map (fmap Just <$> runCase i args width) cases))
-  newline
-  tally i (length (filter id rs)) (length (filter not rs))
-
-runCase :: Indent -> Args -> Int -> Case -> IO Bool
-runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
-  saveCursor
-  title id
-
-  res <- quickCheckWithResult args property
+  res <- lift (quickCheckWithResult args property)
   let succeeded f t
         | isSuccess res = success t
         | otherwise     = failure f
 
-  succeeded (restoreCursor *> title failure) (pure ())
+  succeeded (lift restoreCursor *> failure title) (pure ())
 
-  putStr "   " *> succeeded (putNewline "Failure") (putNewline "Success")
+  put "   " *> succeeded (putLn "Failure") (putLn "Success")
 
-  let gutter s = line (incr (putStr s) i)
-      stats = resultStats res
-      underline = putNewline (replicate (fullWidth width) '─')
+  let stats = resultStats res
+      underline = withSGR [SetColor Foreground Vivid (if isSuccess res then Green else Red)] (putLn (replicate (fullWidth width) '─'))
 
-  succeeded (gutter "╭─" underline) (gutter "  " underline)
+  incr (succeeded (put "╭─") (put "  ")) $ line underline
 
   let blocks = case res of
         Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
           [ do
-            i <- pure (incr (failure (putStr "│ ")) i)
-            lineStr i (path ++ ":" ++ show lineNumber)
-            lineStr i reason
-            for_ theException (lineStr i . displayException)
-            for_ failingTestCase (lineStr i)
-            lineStr i ""
-            lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
+            lineStr (path ++ ":" ++ show lineNumber)
+            lineStr reason
+            for_ theException (lineStr . displayException)
+            for_ failingTestCase lineStr
+            lineStr ""
+            lineStr ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
           ]
         _ -> []
 
-  i <- pure (incr (succeeded (putStr "│ ") (putStr "  ")) i)
-  paras i $ concat
-    [ [ runStats i stats *> runClasses i stats *> putNewline "." ]
+  incr (succeeded (failure (put "│ ")) (put "  ")) $ paras $ concat
+    [ [ runStats stats *> runClasses stats *> putLn "." ]
     , blocks
-    , runLabels i stats
-    , runTables i stats
+    , runLabels stats
+    , runTables stats
     ]
   pure (isSuccess res)
   where
   δ = width - length name
-  title f = line i $ do
-    _ <- withSGR [setBold] (f (putStr ("❧ " ++ name ++ replicate δ ' ')))
-    hFlush stdout
-  paras i = sequence_ . intersperse (lineStr i "")
+  title = line $ do
+    _ <- withSGR [setBold] (put ("❧ " ++ name ++ replicate δ ' '))
+    lift (hFlush stdout)
+  paras = sequence_ . intersperse (lineStr "")
 
 data Stats = Stats
   { numTests     :: Int
@@ -195,15 +175,15 @@ resultStats = \case
   Failure{ numTests, numDiscarded, numShrinks, failingLabels, failingClasses } -> defaultStats{ numTests, numDiscarded, numShrinks, labels = Map.fromList (map ((, numTests) . pure) failingLabels), classes = Map.fromList (map (,numTests) (toList failingClasses)) }
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables }         -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
-runStats :: Indent -> Stats -> IO ()
-runStats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . intersperse (putStr ", ")
+runStats :: Stats -> Layout ()
+runStats Stats{ numTests, numDiscarded, numShrinks } = line . sequence_ . intersperse (put ", ")
   $  toList (stat (S "test") numTests)
   ++ toList (stat (S "discard") numDiscarded)
   ++ toList (stat (S "shrink") numShrinks)
 
 
-runLabels :: Indent -> Stats -> [IO ()]
-runLabels i Stats{ numTests = n, labels }
+runLabels :: Stats -> [Layout ()]
+runLabels Stats{ numTests = n, labels }
   | null labels = []
   | otherwise   = map (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
   where
@@ -214,18 +194,18 @@ runLabels i Stats{ numTests = n, labels }
     ]
   table k m = for_ m $ \ (key, v) -> do
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
-    lineStr i $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
+    lineStr $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
-runClasses :: Indent -> Stats -> IO ()
-runClasses i Stats{ numTests = n, classes } = unless (null classes) $ do
-  putStr " "
-  parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ i n)) (Map.toList classes)))
+runClasses :: Stats -> Layout ()
+runClasses Stats{ numTests = n, classes } = unless (null classes) $ do
+  put " "
+  parens $ sequence_ (intersperse (put ", ") (map (uncurry (class_ n)) (Map.toList classes)))
 
-class_ :: Indent -> Int -> String -> Int -> IO ()
-class_ _ n label n' = putStr $ if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
+class_ :: Int -> String -> Int -> Layout ()
+class_ n label n' = put $ if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
 
-runTables :: Indent -> Stats -> [IO ()]
-runTables _ _ = []
+runTables :: Stats -> [Layout ()]
+runTables _ = []
 
 
 data Plural
@@ -243,26 +223,26 @@ pluralize _ = \case
 fullWidth :: Int -> Int
 fullWidth width = width + 3 + length "Success"
 
-stat :: Plural -> Int -> Maybe (IO ())
+stat :: Plural -> Int -> Maybe (Layout ())
 stat _    0 = Nothing
 stat name n = Just $ do
-  putStr (show n)
-  putStr " "
-  putStr (pluralize n name)
+  put (show n)
+  put " "
+  put (pluralize n name)
 
-tally :: Indent -> Int -> Int -> IO (Int, Int)
-tally i successes failures = ((successes, failures) <$) . line i $ do
+tally :: Int -> Int -> Layout (Int, Int)
+tally successes failures = ((successes, failures) <$) . line $ do
   let hasSuccesses = successes /= 0
       hasFailures = failures /= 0
   when hasSuccesses . success $ do
-    putStr (show successes)
-    putStr (' ' : pluralize successes (C "success" "successes"))
-  when (hasSuccesses && hasFailures) $ putStr ", "
+    put (show successes)
+    put (' ' : pluralize successes (C "success" "successes"))
+  when (hasSuccesses && hasFailures) $ put ", "
   when hasFailures . failure $ do
-    putStr (show failures)
-    putStr (' ' : pluralize failures (S "failure"))
-  when (hasSuccesses || hasFailures) (putNewline ".")
-  newline
+    put (show failures)
+    put (' ' : pluralize failures (S "failure"))
+  when (hasSuccesses || hasFailures) (putLn ".")
+  putLn ""
 
 setColour :: Color -> SGR
 setColour = SetColor Foreground Vivid
@@ -271,20 +251,20 @@ setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
 
 
-parens :: IO a -> IO a
+parens :: Layout a -> Layout a
 parens m = do
-  putStr "("
+  put "("
   a <- m
-  a <$ putStr ")"
+  a <$ put ")"
 
 
-withSGR :: [SGR] -> IO a -> IO a
-withSGR sgr io = setSGR sgr *> io <* setSGR []
+withSGR :: [SGR] -> Layout a -> Layout a
+withSGR sgr io = lift (setSGR sgr) *> io <* lift (setSGR [])
 
-colour :: Color -> IO a -> IO a
+colour :: Color -> Layout a -> Layout a
 colour c = withSGR [setColour c]
 
-success, failure :: IO a -> IO a
+success, failure :: Layout a -> Layout a
 
 success = colour Green
 failure = colour Red
@@ -317,8 +297,26 @@ instance Functor Layout where
   fmap f = Layout . (fmap f .) . runLayout
 
 instance Applicative Layout where
-  pure = Layout . const . pure
+  pure = lift . pure
   Layout f <*> Layout a = Layout ((<*>) <$> f <*> a)
 
 instance Monad Layout where
   Layout m >>= f = Layout (\ i -> m i >>= (`runLayout` i) . f)
+
+lift :: IO a -> Layout a
+lift = Layout . const
+
+incr :: Layout () -> Layout a -> Layout a
+incr j m = Layout (\ i -> runLayout m (i *> runLayout j i))
+
+line :: Layout a -> Layout a
+line m = Layout (\ i -> i *> runLayout m i)
+
+lineStr :: String -> Layout ()
+lineStr s = line $ putLn s
+
+put :: String -> Layout ()
+put = lift . putStr
+
+putLn :: String -> Layout ()
+putLn = lift . putStrLn
