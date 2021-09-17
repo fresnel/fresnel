@@ -27,7 +27,7 @@ import           System.Environment (getArgs, getProgName)
 import           System.Exit (exitFailure, exitSuccess)
 import           System.IO
 import           Test.Group
-import           Test.QuickCheck (Args(..), Result(..), isSuccess, quickCheckWithResult, stdArgs, (.&&.), (===))
+import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult, stdArgs, (.&&.), (===))
 import qualified Test.QuickCheck as QC
 import           Test.QuickCheck.Random (QCGen)
 
@@ -160,13 +160,16 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   where
   body labels classes tables s t = do
     i <- pure (incr (putStr "  ") i)
-    sequence_ (intersperse (lineStr i "") ((stats i s *> Main.classes i (Main.numTests s) classes *> putNewline t) : Main.labels i (Main.numTests s) labels))
-    Main.tables i (Main.numTests s) tables
+    sequence_ (intersperse (lineStr i "") ((stats i s *> runClasses i (Main.numTests s) classes *> putNewline t) : runLabels i (Main.numTests s) labels))
+    runTables i (Main.numTests s) tables
 
 data Stats = Stats
   { numTests     :: Int
   , numDiscarded :: Int
   , numShrinks   :: Int
+  , labels       :: Map.Map [String] Int
+  , classes      :: Map.Map String Int
+  , tables       :: Map.Map String (Map.Map String Int)
   }
 
 defaultStats :: Stats
@@ -174,14 +177,17 @@ defaultStats = Stats
   { numTests     = 0
   , numDiscarded = 0
   , numShrinks   = 0
+  , labels       = Map.empty
+  , classes      = Map.empty
+  , tables       = Map.empty
   }
 
 resultStats :: Result -> Stats
 resultStats = \case
-  Success{ numTests, numDiscarded }             -> defaultStats{ Main.numTests, Main.numDiscarded }
-  GaveUp{ numTests, numDiscarded }              -> defaultStats{ Main.numTests, Main.numDiscarded }
-  Failure{ numTests, numDiscarded, numShrinks } -> defaultStats{ Main.numTests, Main.numDiscarded, Main.numShrinks }
-  NoExpectedFailure{ numTests, numDiscarded }   -> defaultStats{ Main.numTests, Main.numDiscarded }
+  Success{ numTests, numDiscarded, labels, classes } -> defaultStats{ numTests, numDiscarded, labels, classes }
+  GaveUp{ numTests, numDiscarded }                   -> defaultStats{ numTests, numDiscarded }
+  Failure{ numTests, numDiscarded, numShrinks }      -> defaultStats{ numTests, numDiscarded, numShrinks }
+  NoExpectedFailure{ numTests, numDiscarded }        -> defaultStats{ numTests, numDiscarded }
 
 stats :: Indent -> Stats -> IO ()
 stats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . intersperse (putStr ", ")
@@ -190,8 +196,8 @@ stats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . inter
   ++ toList (stat (S "shrink") numShrinks)
 
 
-labels :: Indent -> Int -> Map.Map [String] Int -> [IO ()]
-labels i n labels
+runLabels :: Indent -> Int -> Map.Map [String] Int -> [IO ()]
+runLabels i n labels
   | null labels = []
   | otherwise   = map (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
   where
@@ -204,16 +210,16 @@ labels i n labels
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
     lineStr i $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
-classes :: Indent -> Int -> Map.Map String Int -> IO ()
-classes i n classes = unless (null classes) $ do
+runClasses :: Indent -> Int -> Map.Map String Int -> IO ()
+runClasses i n classes = unless (null classes) $ do
   putStr " "
   parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ i n)) (Map.toList classes)))
 
 class_ :: Indent -> Int -> String -> Int -> IO ()
 class_ _ n label n' = let percentage = fromIntegral n' / fromIntegral n * 100 :: Double in putStr (showFFloatAlt (Just 1) percentage ('%':' ':label))
 
-tables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> IO ()
-tables _ _ _ = pure ()
+runTables :: Indent -> Int -> Map.Map String (Map.Map String Int) -> IO ()
+runTables _ _ _ = pure ()
 
 
 data Plural
