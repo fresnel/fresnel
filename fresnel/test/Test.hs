@@ -124,41 +124,49 @@ runGroup i args width Group{ groupName, cases } = do
 runCase :: Indent -> Args -> Int -> Case -> IO Bool
 runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   saveCursor
-  title []
+  title id
 
   res <- quickCheckWithResult args property
   let succeeded f t
-        | isSuccess res = t
-        | otherwise     = f
+        | isSuccess res = success t
+        | otherwise     = failure f
 
-  succeeded (restoreCursor *> title [setColour Red]) (pure ())
+  succeeded (restoreCursor *> title failure) (pure ())
 
-  putStr "   " *> succeeded (failure (putNewline "Failure")) (success (putNewline "Success"))
+  putStr "   " *> succeeded (putNewline "Failure") (putNewline "Success")
 
   let gutter s = line (incr (putStr s) i)
       stats = resultStats res
-      body i = paras i ((runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline ".") : runLabels i (numTests stats) (labels stats) ++ runTables i (numTests stats) (tables stats))
+      underline = putNewline (replicate (fullWidth width) '─')
 
-  succeeded (failure . gutter "╭─") (success . gutter "  ") $ putNewline (replicate (fullWidth width) '─')
+  succeeded (gutter "╭─" underline) (gutter "  " underline)
 
-  case res of
-    Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels } -> do
-      i <- pure (incr (failure (putStr "│ ")) i)
-      body i
-      lineStr i (path ++ ":" ++ show lineNumber)
-      lineStr i reason
-      for_ theException (lineStr i . displayException)
-      for_ failingTestCase (lineStr i)
-      lineStr i ""
-      lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
-      unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
-      pure False
+  let blocks = case res of
+        Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels } ->
+          [ do
+            i <- pure (incr (failure (putStr "│ ")) i)
+            lineStr i (path ++ ":" ++ show lineNumber)
+            lineStr i reason
+            for_ theException (lineStr i . displayException)
+            for_ failingTestCase (lineStr i)
+            lineStr i ""
+            lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
+            unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
+          ]
+        _ -> []
 
-    _ -> isSuccess res <$ body (incr (putStr "  ") i)
+  i <- pure (incr (succeeded (putStr "│ ") (putStr "  ")) i)
+  paras i $ concat
+    [ [ runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline "." ]
+    , blocks
+    , runLabels i (numTests stats) (labels stats)
+    , runTables i (numTests stats) (tables stats)
+    ]
+  pure (isSuccess res)
   where
   δ = width - length name
-  title sgr = line i $ do
-    withSGR (setBold:sgr) (putStr ("❧ " ++ name ++ replicate δ ' '))
+  title f = line i $ do
+    _ <- withSGR [setBold] (f (putStr ("❧ " ++ name ++ replicate δ ' ')))
     hFlush stdout
   paras i = sequence_ . intersperse (lineStr i "")
 
