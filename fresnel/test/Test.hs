@@ -132,16 +132,22 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     succeeded failure success . putNewline $ succeeded "Failure." "Success."
 
   let gutter = succeeded (succeeded failure success (putStr "╭─")) (putStr "  ")
+      stats = resultStats res
+      body t = do
+        i <- pure (incr (putStr "  ") i)
+        sequence_ (intersperse (lineStr i "") ((runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline t) : runLabels i (numTests stats) (labels stats)))
+        runTables i (numTests stats) (tables stats)
+
   line (incr gutter i) . succeeded failure success $ putNewline (replicate (fullWidth width) '─')
 
   case res of
-    Success{} -> body (resultStats res) "."
+    Success{} -> body "."
 
-    GaveUp{} -> body (resultStats res) ":"
+    GaveUp{} -> body ":"
 
     Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
       i <- pure (incr (failure (putStr "│ ")) i)
-      stats i (resultStats res)
+      runStats i stats
       unless (null failingClasses) $ putStr (" (" ++ intercalate ", " (toList failingClasses) ++ ")")
       putNewline ":"
       lineStr i (path ++ ":" ++ show lineNumber)
@@ -152,13 +158,8 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
 
-    NoExpectedFailure{} -> body (resultStats res) ":"
+    NoExpectedFailure{} -> body ":"
   pure (isSuccess res)
-  where
-  body s t = do
-    i <- pure (incr (putStr "  ") i)
-    sequence_ (intersperse (lineStr i "") ((stats i s *> runClasses i (numTests s) (classes s) *> putNewline t) : runLabels i (numTests s) (labels s)))
-    runTables i (numTests s) (tables s)
 
 data Stats = Stats
   { numTests     :: Int
@@ -186,8 +187,8 @@ resultStats = \case
   Failure{ numTests, numDiscarded, numShrinks }      -> defaultStats{ numTests, numDiscarded, numShrinks }
   NoExpectedFailure{ numTests, numDiscarded }        -> defaultStats{ numTests, numDiscarded }
 
-stats :: Indent -> Stats -> IO ()
-stats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . intersperse (putStr ", ")
+runStats :: Indent -> Stats -> IO ()
+runStats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . intersperse (putStr ", ")
   $  toList (stat (S "test") numTests)
   ++ toList (stat (S "discard") numDiscarded)
   ++ toList (stat (S "shrink") numShrinks)
