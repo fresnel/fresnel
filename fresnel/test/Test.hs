@@ -135,17 +135,17 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   let gutter s = line (incr (putStr s) i)
       stats = resultStats res
-      body t = do
+      body = do
         i <- pure (incr (putStr "  ") i)
-        sequence_ (intersperse (lineStr i "") ((runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline t) : runLabels i (numTests stats) (labels stats)))
+        sequence_ (intersperse (lineStr i "") ((runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline ".") : runLabels i (numTests stats) (labels stats)))
         runTables i (numTests stats) (tables stats)
 
   succeeded (failure . gutter "╭─") (success . gutter "  ") $ putNewline (replicate (fullWidth width) '─')
 
   case res of
-    Success{} -> body "."
+    Success{} -> body
 
-    GaveUp{} -> body ":"
+    GaveUp{} -> body
 
     Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
       i <- pure (incr (failure (putStr "│ ")) i)
@@ -160,7 +160,7 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
 
-    NoExpectedFailure{} -> body ":"
+    NoExpectedFailure{} -> body
   pure (isSuccess res)
   where
   δ = width - length name
