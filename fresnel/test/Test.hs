@@ -31,6 +31,7 @@ import           Test.Group
 import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult, stdArgs, (.&&.), (===))
 import qualified Test.QuickCheck as QC
 import           Test.QuickCheck.Random (QCGen)
+import           Test.QuickCheck.Test (Result(failingClasses))
 
 main :: IO ()
 main = do
@@ -136,14 +137,14 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   let gutter s = line (incr (putStr s) i)
       stats = resultStats res
-      body i classes = paras i ((runStats i stats *> runClasses i (numTests stats) classes *> putNewline ".") : runLabels i (numTests stats) (labels stats) ++ runTables i (numTests stats) (tables stats))
+      body i = paras i ((runStats i stats *> runClasses i (numTests stats) (classes stats) *> putNewline ".") : runLabels i (numTests stats) (labels stats) ++ runTables i (numTests stats) (tables stats))
 
   succeeded (failure . gutter "╭─") (success . gutter "  ") $ putNewline (replicate (fullWidth width) '─')
 
   case res of
-    Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
+    Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels } -> do
       i <- pure (incr (failure (putStr "│ ")) i)
-      body i ((, numTests stats) <$> toList failingClasses)
+      body i
       lineStr i (path ++ ":" ++ show lineNumber)
       lineStr i reason
       for_ theException (lineStr i . displayException)
@@ -153,7 +154,7 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
       pure False
 
-    _ -> isSuccess res <$ body (incr (putStr "  ") i) (Map.toList (classes stats))
+    _ -> isSuccess res <$ body (incr (putStr "  ") i)
   where
   δ = width - length name
   title sgr = line i $ do
@@ -184,7 +185,7 @@ resultStats :: Result -> Stats
 resultStats = \case
   Success{ numTests, numDiscarded, labels, classes, tables }           -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
   GaveUp{ numTests, numDiscarded, labels, classes, tables }            -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
-  Failure{ numTests, numDiscarded, numShrinks }                        -> defaultStats{ numTests, numDiscarded, numShrinks }
+  Failure{ numTests, numDiscarded, numShrinks, failingClasses }        -> defaultStats{ numTests, numDiscarded, numShrinks, classes = Map.fromList (map (,numTests) (toList failingClasses)) }
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
 runStats :: Indent -> Stats -> IO ()
@@ -208,10 +209,10 @@ runLabels i n labels
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
     lineStr i $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
-runClasses :: Indent -> Int -> [(String, Int)] -> IO ()
+runClasses :: Indent -> Int -> Map.Map String Int -> IO ()
 runClasses i n classes = unless (null classes) $ do
   putStr " "
-  parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ i n)) classes))
+  parens $ sequence_ (intersperse (putStr ", ") (map (uncurry (class_ i n)) (Map.toList classes)))
 
 class_ :: Indent -> Int -> String -> Int -> IO ()
 class_ _ n label n' = putStr $ if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
