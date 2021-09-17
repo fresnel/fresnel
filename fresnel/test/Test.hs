@@ -182,10 +182,10 @@ defaultStats = Stats
 
 resultStats :: Result -> Stats
 resultStats = \case
-  Success{ numTests, numDiscarded, labels, classes } -> defaultStats{ numTests, numDiscarded, labels, classes }
-  GaveUp{ numTests, numDiscarded }                   -> defaultStats{ numTests, numDiscarded }
-  Failure{ numTests, numDiscarded, numShrinks }      -> defaultStats{ numTests, numDiscarded, numShrinks }
-  NoExpectedFailure{ numTests, numDiscarded }        -> defaultStats{ numTests, numDiscarded }
+  Success{ numTests, numDiscarded, labels, classes, tables }           -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
+  GaveUp{ numTests, numDiscarded, labels, classes, tables }            -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
+  Failure{ numTests, numDiscarded, numShrinks }                        -> defaultStats{ numTests, numDiscarded, numShrinks }
+  NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables } -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
 runStats :: Indent -> Stats -> IO ()
 runStats i Stats{ numTests, numDiscarded, numShrinks } = line i . sequence_ . intersperse (putStr ", ")
