@@ -135,11 +135,9 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   line (incr gutter i) . succeeded failure success $ putNewline (replicate (fullWidth width) '─')
 
   case res of
-    Success{ labels, classes, tables } -> do
-      body labels classes tables (resultStats res) "."
+    Success{} -> body (resultStats res) "."
 
-    GaveUp{ labels, classes, tables } -> do
-      body labels classes tables (resultStats res) ":"
+    GaveUp{} -> body (resultStats res) ":"
 
     Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
       i <- pure (incr (failure (putStr "│ ")) i)
@@ -154,14 +152,13 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       lineStr i ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
 
-    NoExpectedFailure{ labels, classes, tables } -> do
-      body labels classes tables (resultStats res) ":"
+    NoExpectedFailure{} -> body (resultStats res) ":"
   pure (isSuccess res)
   where
-  body labels classes tables s t = do
+  body s t = do
     i <- pure (incr (putStr "  ") i)
-    sequence_ (intersperse (lineStr i "") ((stats i s *> runClasses i (Main.numTests s) classes *> putNewline t) : runLabels i (Main.numTests s) labels))
-    runTables i (Main.numTests s) tables
+    sequence_ (intersperse (lineStr i "") ((stats i s *> runClasses i (numTests s) (classes s) *> putNewline t) : runLabels i (numTests s) (labels s)))
+    runTables i (numTests s) (tables s)
 
 data Stats = Stats
   { numTests     :: Int
