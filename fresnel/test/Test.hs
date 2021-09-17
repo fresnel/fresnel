@@ -309,3 +309,16 @@ instance QC.Arbitrary ArbTropical where
     [ pure (ArbTropical (Tropical Nothing))
     , ArbTropical . Tropical . Just <$> QC.arbitrary
     ]
+
+
+newtype Layout a = Layout { runLayout :: IO () -> IO a }
+
+instance Functor Layout where
+  fmap f = Layout . (fmap f .) . runLayout
+
+instance Applicative Layout where
+  pure = Layout . const . pure
+  Layout f <*> Layout a = Layout ((<*>) <$> f <*> a)
+
+instance Monad Layout where
+  Layout m >>= f = Layout (\ i -> m i >>= (`runLayout` i) . f)
