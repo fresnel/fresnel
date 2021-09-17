@@ -143,10 +143,6 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   succeeded (failure . gutter "╭─") (success . gutter "  ") $ putNewline (replicate (fullWidth width) '─')
 
   case res of
-    Success{} -> body
-
-    GaveUp{} -> body
-
     Failure{ usedSeed, usedSize, reason, theException, failingTestCase, failingLabels, failingClasses } -> do
       i <- pure (incr (failure (putStr "│ ")) i)
       runStats i stats
@@ -161,7 +157,7 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       unless (null failingLabels) . lineStr i $ "Labels: "  ++ intercalate ", " failingLabels
       pure False
 
-    NoExpectedFailure{} -> body
+    _ -> body
   where
   δ = width - length name
   title sgr = line i $ do
