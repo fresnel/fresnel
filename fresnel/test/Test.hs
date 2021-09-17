@@ -121,7 +121,7 @@ runGroup i args width Group{ groupName, cases } = do
 
 runCase :: Indent -> Args -> Int -> Case -> IO Bool
 runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
-  line i title
+  line i (title [])
 
   res <- quickCheckWithResult args property
   let succeeded f t
@@ -161,8 +161,8 @@ runCase i args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   pure (isSuccess res)
   where
   δ = width - length name
-  title = do
-    withSGR [setBold] (putStr ("❧ " ++ name ++ replicate δ ' '))
+  title sgr = do
+    withSGR (setBold:sgr) (putStr ("❧ " ++ name ++ replicate δ ' '))
     hFlush stdout
 
 data Stats = Stats
