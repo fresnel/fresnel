@@ -252,10 +252,7 @@ setBold = SetConsoleIntensity BoldIntensity
 
 
 parens :: Layout a -> Layout a
-parens m = do
-  put "("
-  a <- m
-  a <$ put ")"
+parens m = put "(" *> m <* put ")"
 
 
 withSGR :: [SGR] -> Layout a -> Layout a
