@@ -1,4 +1,5 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE TupleSections #-}
@@ -183,18 +184,28 @@ runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepB
 
 
 runLabels :: Stats -> [Layout ()]
-runLabels Stats{ numTests = n, labels }
+runLabels Stats{ numTests, labels }
   | null labels = []
-  | otherwise   = map param (IntMap.elems numberedLabels)
+  | otherwise   = IntMap.elems numberedLabels >>= param
   where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
     | (labels, n) <- Map.toList labels
     , (i, l) <- zip [(0 :: Int)..] labels
     ]
-  param m = for_ (sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)) $ \ (key, v) -> do
-    let percentage = fromIntegral v / fromIntegral n * 100 :: Double
-    lineStr $ (' ' <$ guard (percentage < 10)) ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
+  param m =
+    [ do
+      for_ (zip [1..] scaled) $ \ (i, (key, v)) -> do
+        lineStr $ show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key
+    , do
+      lineStr [ c | e <- sparked, c <- [e, e, e, ' '] ]
+      lineStr [ c | i <- [1..length m], c <- ' ':show i ++ "  " ]
+    ]
+    where
+    n = realToFrac numTests :: Double
+    sorted = sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)
+    scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
+    sparked = sparkify (map snd scaled)
 
 runClasses :: Stats -> [Layout ()]
 runClasses Stats{ numTests = n, classes } = [ put (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
@@ -295,6 +306,16 @@ instance QC.Arbitrary ArbTropical where
     [ pure (ArbTropical (Tropical Nothing))
     , ArbTropical . Tropical . Just <$> QC.arbitrary
     ]
+
+
+sparkify :: Real a => [a] -> String
+sparkify bins = sparkifyRelativeTo (maximum bins) bins
+
+sparkifyRelativeTo :: Real a => a -> [a] -> String
+sparkifyRelativeTo max = fmap spark
+  where
+  sparks = " ▁▂▃▄▅▆▇█"
+  spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
 newtype Layout a = Layout { runLayout :: IO () -> IO a }
