@@ -123,7 +123,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   let stats = resultStats res
       details = not (null (fold (Map.keys (labels stats))) && null (classes stats) && null (tables stats))
 
-  when details $ incr (succeeded (put "╭─") (put "  ")) $ line $ withSGR [SetColor Foreground Vivid (if isSuccess res then Green else Red)] (putLn (replicate (fullWidth width) '─'))
+  when details $ incr (succeeded (put "╭─") (put "  ")) $ line $ (if isSuccess res then success else failure) (putLn (replicate (fullWidth width) '─'))
 
   incr (succeeded (failure (put "│ ")) (put "  ")) . v_ $ concat
     [ [ h_ ((runStats stats *> put ".") : runClasses stats) *> putLn "" | details ]
