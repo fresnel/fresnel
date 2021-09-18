@@ -123,7 +123,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   when details $ incr (succeeded (put "╭─") (put "  ")) $ line $ withSGR [SetColor Foreground Vivid (if isSuccess res then Green else Red)] (putLn (replicate (fullWidth width) '─'))
 
-  incr (succeeded (failure (put "│ ")) (put "  ")) $ paras $ concat
+  incr (succeeded (failure (put "│ ")) (put "  ")) . sequence_ . intersperse (lineStr "") $ concat
     [ [ runStats stats *> runClasses stats *> putLn "." | details ]
     , case res of
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
@@ -140,11 +140,9 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     ]
   pure (isSuccess res)
   where
-  δ = width - length name
   title = line $ do
-    _ <- withSGR [setBold] (put ("❧ " ++ name ++ replicate δ ' '))
+    _ <- withSGR [setBold] (put ("❧ " ++ name ++ replicate (width - length name) ' '))
     lift (hFlush stdout)
-  paras = sequence_ . intersperse (lineStr "")
 
 data Stats = Stats
   { numTests     :: Int
