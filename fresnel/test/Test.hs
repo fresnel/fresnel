@@ -130,8 +130,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
             lineStr reason
             for_ theException (lineStr . displayException)
             for_ failingTestCase lineStr
-            lineStr ""
-            lineStr ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
+          , lineStr ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
           ]
         _ -> []
 
