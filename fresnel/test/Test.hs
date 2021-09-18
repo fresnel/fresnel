@@ -7,7 +7,7 @@ module Main
 ) where
 
 import           Control.Monad (when)
-import           Data.Foldable (fold, for_, toList)
+import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
@@ -121,7 +121,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   put "   " *> succeeded (putLn "Failure") (putLn "Success")
 
   let stats = resultStats res
-      details = numTests stats == maxSuccess args && not (null (fold (Map.keys (labels stats))) && null (classes stats) && null (tables stats))
+      details = numTests stats == maxSuccess args && not (null (classes stats))
 
   when (details || not (isSuccess res)) $ incr (succeeded (put "╭─") (put "  ")) $ line $ (if isSuccess res then success else failure) (putLn (replicate (fullWidth width) '─'))
 
