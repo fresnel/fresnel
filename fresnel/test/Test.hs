@@ -7,7 +7,7 @@ module Main
 ) where
 
 import           Control.Monad (unless, when)
-import           Data.Foldable (for_, toList)
+import           Data.Foldable (fold, for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intersperse, sortBy)
 import qualified Data.Map as Map
@@ -119,9 +119,9 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   put "   " *> succeeded (putLn "Failure") (putLn "Success")
 
   let stats = resultStats res
-      underline = withSGR [SetColor Foreground Vivid (if isSuccess res then Green else Red)] (putLn (replicate (fullWidth width) '─'))
+      details = not (null (fold (Map.keys (labels stats))) && null (classes stats) && null (tables stats))
 
-  incr (succeeded (put "╭─") (put "  ")) $ line underline
+  when details $ incr (succeeded (put "╭─") (put "  ")) $ line $ withSGR [SetColor Foreground Vivid (if isSuccess res then Green else Red)] (putLn (replicate (fullWidth width) '─'))
 
   let blocks = case res of
         Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
@@ -136,7 +136,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
         _ -> []
 
   incr (succeeded (failure (put "│ ")) (put "  ")) $ paras $ concat
-    [ [ runStats stats *> runClasses stats *> putLn "." ]
+    [ [ runStats stats *> runClasses stats *> putLn "." | details ]
     , blocks
     , runLabels stats
     , runTables stats
