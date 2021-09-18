@@ -185,15 +185,15 @@ runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepB
 runLabels :: Stats -> [Layout ()]
 runLabels Stats{ numTests = n, labels }
   | null labels = []
-  | otherwise   = map (table n . sortBy (flip (comparing snd) <> flip (comparing fst)) . Map.toList) (IntMap.elems numberedLabels)
+  | otherwise   = map param (IntMap.elems numberedLabels)
   where
   numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
     [ (i, Map.singleton l n)
     | (labels, n) <- Map.toList labels
     , (i, l) <- zip [(0 :: Int)..] labels
     ]
-  table k m = for_ m $ \ (key, v) -> do
-    let percentage = fromIntegral v / fromIntegral k * 100 :: Double
+  param m = for_ (sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)) $ \ (key, v) -> do
+    let percentage = fromIntegral v / fromIntegral n * 100 :: Double
     lineStr $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
 runClasses :: Stats -> [Layout ()]
