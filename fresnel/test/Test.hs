@@ -6,7 +6,7 @@ module Main
 ( main
 ) where
 
-import           Control.Monad (when)
+import           Control.Monad (guard, when)
 import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (intercalate, intersperse, sortBy)
@@ -194,7 +194,7 @@ runLabels Stats{ numTests = n, labels }
     ]
   param m = for_ (sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)) $ \ (key, v) -> do
     let percentage = fromIntegral v / fromIntegral n * 100 :: Double
-    lineStr $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
+    lineStr $ (' ' <$ guard (percentage < 10)) ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
 runClasses :: Stats -> [Layout ()]
 runClasses Stats{ numTests = n, classes } = [ put (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
