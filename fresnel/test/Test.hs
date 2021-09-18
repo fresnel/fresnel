@@ -276,7 +276,7 @@ setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
 
 withSGR :: [SGR] -> Layout a -> Layout a
-withSGR sgr io = lift (setSGR sgr) *> io <* lift (setSGR [])
+withSGR sgr io = Layout (\ i -> setSGR sgr *> runLayout io i <* setSGR [])
 
 colour :: Color -> Layout a -> Layout a
 colour c = withSGR [setColour c]
