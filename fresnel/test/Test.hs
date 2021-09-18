@@ -6,12 +6,12 @@ module Main
 ( main
 ) where
 
-import           Control.Monad (unless, when)
+import           Control.Monad (when)
 import           Data.Foldable (fold, for_, toList)
 import qualified Data.IntMap as IntMap
-import           Data.List (intersperse, sortBy)
+import           Data.List (intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
-import           Data.Maybe (catMaybes, fromMaybe)
+import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
 import qualified Fold.Test
 import           Fresnel.Lens (Lens', lens)
@@ -51,10 +51,11 @@ main = do
   let Options gs _ args = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
       matching _ [] = id
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
-  (_, failures) <- (`runLayout` pure ()) $ do
+  t <- (`runLayout` pure ()) $ do
     res <- traverse (runGroup args w) (matching ((==) . groupName) gs groups)
-    uncurry tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
-  if failures == 0 then
+    let t = mconcat res
+    t <$ sequence_ (tally t)
+  if isFailure t then
     exitSuccess
   else
     exitFailure
@@ -95,13 +96,15 @@ groups_ = lens groups (\ o groups -> o{ groups })
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
-runGroup :: Args -> Int -> Group -> Layout (Int, Int)
+runGroup :: Args -> Int -> Group -> Layout Tally
 runGroup args width Group{ groupName, cases } = incr (put "  ") $ do
   withSGR [setBold] $ lineStr groupName
   lineStr (replicate (2 + fullWidth width) '━')
-  rs <- catMaybes <$> sequence (intersperse (Nothing <$ putLn "") (map (fmap Just <$> runCase args width) cases))
+  t <- fromMaybe (pure mempty) $ foldr (\ a as -> Just $ do
+    t <- fromBool <$> runCase args width a
+    maybe (pure t) (\ rest -> (t <>) <$ putLn "" <*> rest) as) Nothing cases
   putLn ""
-  tally (length (filter id rs)) (length (filter not rs))
+  t <$ sequence_ (tally t)
 
 runCase :: Args -> Int -> Case -> Layout Bool
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
@@ -122,8 +125,8 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   when details $ incr (succeeded (put "╭─") (put "  ")) $ line $ withSGR [SetColor Foreground Vivid (if isSuccess res then Green else Red)] (putLn (replicate (fullWidth width) '─'))
 
-  incr (succeeded (failure (put "│ ")) (put "  ")) . sequence_ . intersperse (lineStr "") $ concat
-    [ [ runStats stats *> runClasses stats *> putLn "." | details ]
+  incr (succeeded (failure (put "│ ")) (put "  ")) . v_ $ concat
+    [ [ h_ ((runStats stats *> put ".") : runClasses stats) *> putLn "" | details ]
     , case res of
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
         [ do
@@ -171,9 +174,9 @@ resultStats = \case
 
 runStats :: Stats -> Layout ()
 runStats Stats{ numTests, numDiscarded, numShrinks } = line . sequence_ . intersperse (put ", ")
-  $  toList (stat (S "test") numTests)
-  ++ toList (stat (S "discard") numDiscarded)
-  ++ toList (stat (S "shrink") numShrinks)
+  $  toList (stat "test" "tests" numTests)
+  ++ toList (stat "discard" "discards" numDiscarded)
+  ++ toList (stat "shrink" "shrinks" numShrinks)
 
 
 runLabels :: Stats -> [Layout ()]
@@ -190,64 +193,76 @@ runLabels Stats{ numTests = n, labels }
     let percentage = fromIntegral v / fromIntegral k * 100 :: Double
     lineStr $ (if percentage < 10 then " " else "") ++ showFFloatAlt (Just 1) percentage "" ++ "% " ++ key
 
-runClasses :: Stats -> Layout ()
-runClasses Stats{ numTests = n, classes } = unless (null classes) $ do
-  put " "
-  parens $ sequence_ (intersperse (put ", ") (map (uncurry (class_ n)) (Map.toList classes)))
-
-class_ :: Int -> String -> Int -> Layout ()
-class_ n label n' = put $ if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
+runClasses :: Stats -> [Layout ()]
+runClasses Stats{ numTests = n, classes } = [ put (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
+  class_ n label n' = if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
 
 runTables :: Stats -> [Layout ()]
 runTables _ = []
 
 
-data Plural
-  = S String
-  | C String String
-
-pluralize :: Int -> Plural -> String
-pluralize 1 = \case
-  S s   -> s
-  C s _ -> s
-pluralize _ = \case
-  S   s -> s ++ "s"
-  C _ s -> s
-
 fullWidth :: Int -> Int
 fullWidth width = width + 3 + length "Success"
 
-stat :: Plural -> Int -> Maybe (Layout ())
-stat _    0 = Nothing
-stat name n = Just $ do
+stat :: String -> String -> Int -> Maybe (Layout ())
+stat _ _ 0 = Nothing
+stat s p n = Just $ do
   put (show n)
   put " "
-  put (pluralize n name)
+  put (plural n s p)
 
-tally :: Int -> Int -> Layout (Int, Int)
-tally successes failures = ((successes, failures) <$) . line $ do
-  let hasSuccesses = successes /= 0
-      hasFailures = failures /= 0
-  when hasSuccesses . success $ do
-    put (show successes)
-    put (' ' : pluralize successes (C "success" "successes"))
-  when (hasSuccesses && hasFailures) $ put ", "
-  when hasFailures . failure $ do
-    put (show failures)
-    put (' ' : pluralize failures (S "failure"))
-  when (hasSuccesses || hasFailures) (putLn ".")
-  putLn ""
+plural :: Int -> a -> a -> a
+plural 1 s _ = s
+plural _ _ p = p
+
+tally :: Tally -> [Layout ()]
+tally t =
+  [ line $ do
+    sepBy_ (put ", ")
+      (  [ success (put (show (successes t) ++ ' ' : plural (successes t) "success" "successes")) | hasSuccesses ]
+      ++ [ failure (put (show (failures t) ++ ' ' : plural (failures t) "failure" "failures")) | hasFailures ])
+
+    putLn "."
+    putLn ""
+  | hasSuccesses || hasFailures
+  ]
+  where
+  hasSuccesses = successes t /= 0
+  hasFailures = failures t /= 0
+
+
+sepBy_ :: Layout () -> [Layout ()] -> Layout ()
+sepBy_ sep = sequence_ . intersperse sep
+
+h_ :: [Layout ()] -> Layout ()
+h_ = sepBy_ (put " ")
+
+v_ :: [Layout ()] -> Layout ()
+v_ = sepBy_ (lineStr "")
+
+
+fromBool :: Bool -> Tally
+fromBool = \case
+  False -> Tally 0 1
+  True  -> Tally 1 0
+
+isFailure :: Tally -> Bool
+isFailure = (/= 0) . failures
+
+data Tally = Tally { successes :: Int, failures :: Int }
+
+instance Semigroup Tally where
+  Tally s1 f1 <> Tally s2 f2 = Tally (s1 + s2) (f1 + f2)
+
+instance Monoid Tally where
+  mempty = Tally 0 0
+
 
 setColour :: Color -> SGR
 setColour = SetColor Foreground Vivid
 
 setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
-
-
-parens :: Layout a -> Layout a
-parens m = put "(" *> m <* put ")"
-
 
 withSGR :: [SGR] -> Layout a -> Layout a
 withSGR sgr io = lift (setSGR sgr) *> io <* lift (setSGR [])
