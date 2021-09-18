@@ -220,7 +220,7 @@ tally t =
   [ line $ do
     sepBy_ (put ", ")
       (  [ success (put (show (successes t) ++ ' ' : plural (successes t) "success" "successes")) | hasSuccesses ]
-      ++ [ failure (put (show (failures t) ++ ' ' : plural (failures t) "failure" "failures")) | hasFailures ])
+      ++ [ failure (put (show (failures t)  ++ ' ' : plural (failures t)  "failure" "failures"))  | hasFailures  ])
 
     putLn "."
     putLn ""
