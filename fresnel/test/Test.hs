@@ -195,17 +195,18 @@ runLabels Stats{ numTests, labels }
     ]
   param m =
     [ do
-      for_ (zip [1..] scaled) $ \ (i, (key, v)) -> do
-        lineStr $ show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key
+      for_ (zip3 vsparked [1..] scaled) $ \ (c, i, (key, v)) -> do
+        lineStr $ c:' ': show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key
     , do
-      lineStr [ c | e <- sparked, c <- [e, e, e, ' '] ]
+      lineStr [ c | e <- hsparked, c <- [e, e, e, ' '] ]
       lineStr [ c | i <- [1..length m], c <- ' ':show i ++ "  " ]
     ]
     where
     n = realToFrac numTests :: Double
     sorted = sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)
     scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
-    sparked = hsparkify (map snd scaled)
+    hsparked = sparkify hsparks (map snd scaled)
+    vsparked = sparkify vsparks (map snd scaled)
 
 runClasses :: Stats -> [Layout ()]
 runClasses Stats{ numTests = n, classes } = [ put (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
@@ -311,14 +312,14 @@ instance QC.Arbitrary ArbTropical where
 hsparks :: String
 hsparks = " ▁▂▃▄▅▆▇█"
 
-hsparkify :: Real a => [a] -> String
-hsparkify bins = hsparkifyRelativeTo (maximum bins) bins
+vsparks :: String
+vsparks = " ▏▎▍▌▋▊▉█"
 
-hsparkifyRelativeTo :: Real a => a -> [a] -> String
-hsparkifyRelativeTo = sparkifyFromRelativeTo hsparks
+sparkify :: Real a => String -> [a] -> String
+sparkify sparks bins = sparkifyRelativeTo sparks (maximum bins) bins
 
-sparkifyFromRelativeTo :: Real a => String -> a -> [a] -> String
-sparkifyFromRelativeTo sparks max = fmap spark
+sparkifyRelativeTo :: Real a => String -> a -> [a] -> String
+sparkifyRelativeTo sparks max = fmap spark
   where
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
