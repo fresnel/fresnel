@@ -140,8 +140,8 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     ]
   pure (isSuccess res)
   where
-  title = line $ do
-    _ <- withSGR [setBold] (put ("❧ " ++ name ++ replicate (width - length name) ' '))
+  title = incr (put "❧ ") . line $ do
+    _ <- withSGR [setBold] (put (name ++ replicate (width - length name) ' '))
     lift (hFlush stdout)
 
 data Stats = Stats
