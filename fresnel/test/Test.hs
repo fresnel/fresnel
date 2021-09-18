@@ -123,20 +123,18 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   when details $ incr (succeeded (put "╭─") (put "  ")) $ line $ withSGR [SetColor Foreground Vivid (if isSuccess res then Green else Red)] (putLn (replicate (fullWidth width) '─'))
 
-  let blocks = case res of
-        Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
-          [ do
-            lineStr (path ++ ":" ++ show lineNumber)
-            lineStr reason
-            for_ theException (lineStr . displayException)
-            for_ failingTestCase lineStr
-          , lineStr ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
-          ]
-        _ -> []
-
   incr (succeeded (failure (put "│ ")) (put "  ")) $ paras $ concat
     [ [ runStats stats *> runClasses stats *> putLn "." | details ]
-    , blocks
+    , case res of
+      Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
+        [ do
+          lineStr (path ++ ":" ++ show lineNumber)
+          lineStr reason
+          for_ theException (lineStr . displayException)
+          for_ failingTestCase lineStr
+        , lineStr ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
+        ]
+      _ -> []
     , runLabels stats
     , runTables stats
     ]
