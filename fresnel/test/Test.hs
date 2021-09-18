@@ -121,12 +121,12 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   put "   " *> succeeded (putLn "Failure") (putLn "Success")
 
   let stats = resultStats res
-      details = not (null (fold (Map.keys (labels stats))) && null (classes stats) && null (tables stats))
+      details = numTests stats /= maxSuccess args && not (null (fold (Map.keys (labels stats))) && null (classes stats) && null (tables stats))
 
   when details $ incr (succeeded (put "╭─") (put "  ")) $ line $ (if isSuccess res then success else failure) (putLn (replicate (fullWidth width) '─'))
 
   incr (succeeded (failure (put "│ ")) (put "  ")) . v_ $ concat
-    [ [ h_ ((runStats stats *> put ".") : runClasses stats) *> putLn "" | details ]
+    [ [ line (h_ (runStats args stats ++ runClasses stats) *> putLn "") | details ]
     , case res of
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
         [ do
@@ -172,11 +172,14 @@ resultStats = \case
   Failure{ numTests, numDiscarded, numShrinks, failingLabels, failingClasses } -> defaultStats{ numTests, numDiscarded, numShrinks, labels = Map.fromList (map ((, numTests) . pure) failingLabels), classes = Map.fromList (map (,numTests) (toList failingClasses)) }
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables }         -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
-runStats :: Stats -> Layout ()
-runStats Stats{ numTests, numDiscarded, numShrinks } = line . sequence_ . intersperse (put ", ")
-  $  toList (stat "test" "tests" numTests)
-  ++ toList (stat "discard" "discards" numDiscarded)
-  ++ toList (stat "shrink" "shrinks" numShrinks)
+runStats :: Args -> Stats -> [Layout ()]
+runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepBy_ (put ", ") entries *> put "." | not (null entries) ]
+  where
+  entries = concat
+    [ [ put (show numTests ++ " test" ++ singular numTests) | numTests > 0 && numTests /= maxSuccess ]
+    , [ put (show numDiscarded ++ " discarded") | numDiscarded > 0 ]
+    , [ put (show numShrinks ++ " shrink" ++ singular numShrinks) | numShrinks > 0 ]
+    ]
 
 
 runLabels :: Stats -> [Layout ()]
@@ -204,16 +207,13 @@ runTables _ = []
 fullWidth :: Int -> Int
 fullWidth width = width + 3 + length "Success"
 
-stat :: String -> String -> Int -> Maybe (Layout ())
-stat _ _ 0 = Nothing
-stat s p n = Just $ do
-  put (show n)
-  put " "
-  put (plural n s p)
-
 plural :: Int -> a -> a -> a
 plural 1 s _ = s
 plural _ _ p = p
+
+singular :: Int -> String
+singular 1 = "s"
+singular _ = ""
 
 tally :: Tally -> [Layout ()]
 tally t =
