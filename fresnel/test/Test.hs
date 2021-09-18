@@ -121,7 +121,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   put "   " *> succeeded (putLn "Failure") (putLn "Success")
 
   let stats = resultStats res
-      details = numTests stats /= maxSuccess args && not (null (fold (Map.keys (labels stats))) && null (classes stats) && null (tables stats))
+      details = numTests stats == maxSuccess args && not (null (fold (Map.keys (labels stats))) && null (classes stats) && null (tables stats))
 
   when details $ incr (succeeded (put "╭─") (put "  ")) $ line $ (if isSuccess res then success else failure) (putLn (replicate (fullWidth width) '─'))
 
