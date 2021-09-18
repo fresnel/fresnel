@@ -205,7 +205,7 @@ runLabels Stats{ numTests, labels }
     n = realToFrac numTests :: Double
     sorted = sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)
     scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
-    sparked = sparkify (map snd scaled)
+    sparked = hsparkify (map snd scaled)
 
 runClasses :: Stats -> [Layout ()]
 runClasses Stats{ numTests = n, classes } = [ put (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
@@ -308,13 +308,18 @@ instance QC.Arbitrary ArbTropical where
     ]
 
 
-sparkify :: Real a => [a] -> String
-sparkify bins = sparkifyRelativeTo (maximum bins) bins
+hsparks :: String
+hsparks = " ▁▂▃▄▅▆▇█"
 
-sparkifyRelativeTo :: Real a => a -> [a] -> String
-sparkifyRelativeTo max = fmap spark
+hsparkify :: Real a => [a] -> String
+hsparkify bins = hsparkifyRelativeTo (maximum bins) bins
+
+hsparkifyRelativeTo :: Real a => a -> [a] -> String
+hsparkifyRelativeTo = sparkifyFromRelativeTo hsparks
+
+sparkifyFromRelativeTo :: Real a => String -> a -> [a] -> String
+sparkifyFromRelativeTo sparks max = fmap spark
   where
-  sparks = " ▁▂▃▄▅▆▇█"
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
