@@ -42,7 +42,6 @@ main = do
         , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))            "NAME") "include the named group; can be used multiple times to include multiple groups"
         , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
         ]
-      i = putStr "  "
   (mods, other, errs) <- getOpt RequireOrder opts <$> getArgs
   case map ("Unrecognized argument: " ++) other ++ errs of
     [] -> pure ()
@@ -52,7 +51,7 @@ main = do
   let Options gs _ args = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
       matching _ [] = id
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
-  (_, failures) <- (`runLayout` i) $ do
+  (_, failures) <- (`runLayout` pure ()) $ do
     res <- traverse (runGroup args w) (matching ((==) . groupName) gs groups)
     uncurry tally (foldr (\ (s, f) (ss, fs) -> (s + ss, f + fs)) (0, 0) res)
   if failures == 0 then
@@ -97,7 +96,7 @@ args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
 runGroup :: Args -> Int -> Group -> Layout (Int, Int)
-runGroup args width Group{ groupName, cases } = do
+runGroup args width Group{ groupName, cases } = incr (put "  ") $ do
   withSGR [setBold] $ lineStr groupName
   lineStr (replicate (2 + fullWidth width) '━')
   rs <- catMaybes <$> sequence (intersperse (Nothing <$ putLn "") (map (fmap Just <$> runCase args width) cases))
