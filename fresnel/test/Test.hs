@@ -123,8 +123,9 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
+      labels = runLabels stats
 
-  when (details || not (isSuccess res)) . incr (status (failure (put "╭─")) (put "  ")) . line . status failure success . putLn $ replicate (fullWidth width) '─'
+  when (details || not (isSuccess res) || not (null labels)) . incr (status (failure (put "╭─")) (put "  ")) . line . status failure success . putLn $ replicate (fullWidth width) '─'
 
   incr (status (failure (put "│ ")) (put "  ")) . v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats) *> putLn "") | details ]
@@ -138,7 +139,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
         , lineStr ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
         ]
       _ -> []
-    , runLabels stats
+    , labels
     , runTables stats
     ]
   tell (fromBool (isSuccess res))
