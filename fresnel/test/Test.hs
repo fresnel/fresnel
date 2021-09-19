@@ -7,9 +7,10 @@ module Main
 ( main
 ) where
 
+import           Control.Applicative (liftA2)
 import           Control.Monad (guard, unless, when)
 import           Control.Monad.IO.Class
-import           Data.Foldable (for_, toList)
+import           Data.Foldable (for_, toList, traverse_)
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
@@ -53,10 +54,8 @@ main = do
   let Options gs _ args = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
       matching _ [] = id
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
-  t <- (`runLayout` pure ()) $ do
-    res <- traverse (runGroup args w) (matching ((==) . groupName) gs groups)
-    let t = mconcat res
-    t <$ sequence_ (tally t)
+  (t, _) <- runLayout (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups)) (pure ())
+  _ <- runLayout (sequence_ (tally t)) (pure ())
   if isFailure t then
     exitFailure
   else
@@ -98,17 +97,15 @@ groups_ = lens groups (\ o groups -> o{ groups })
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
-runGroup :: Args -> Int -> Group -> Layout Tally
+runGroup :: Args -> Int -> Group -> Layout ()
 runGroup args width Group{ groupName, cases } = incr (put "  ") $ do
   withSGR [setBold] $ lineStr groupName
   lineStr (replicate (2 + fullWidth width) '━')
-  t <- fromMaybe (pure mempty) $ foldr (\ a as -> Just $ do
-    t <- fromBool <$> runCase args width a
-    maybe (pure t) (\ rest -> (t <>) <$ putLn "" <*> rest) as) Nothing cases
+  (t, _) <- listen (sequence_ (intersperse (putLn "") (map (runCase args width) cases)))
   putLn ""
-  t <$ sequence_ (tally t)
+  sequence_ (tally t)
 
-runCase :: Args -> Int -> Case -> Layout Bool
+runCase :: Args -> Int -> Case -> Layout ()
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title
 
@@ -144,7 +141,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , runLabels stats
     , runTables stats
     ]
-  pure (isSuccess res)
+  tell (fromBool (isSuccess res))
   where
   title = incr (put "❧ ") . line $ do
     _ <- withSGR [setBold] (put (name ++ replicate (width - length name) ' '))
@@ -323,23 +320,35 @@ sparkifyRelativeTo sparks max = fmap spark
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
-newtype Layout a = Layout { runLayout :: IO () -> IO a }
+newtype Layout a = Layout { runLayout :: IO () -> IO (Tally, a) }
 
 instance Functor Layout where
-  fmap f = Layout . (fmap f .) . runLayout
+  fmap f = Layout . (fmap (fmap f) .) . runLayout
 
 instance Applicative Layout where
   pure = lift . pure
-  Layout f <*> Layout a = Layout ((<*>) <$> f <*> a)
+  Layout f <*> Layout a = Layout (liftA2 (<*>) <$> f <*> a)
 
 instance Monad Layout where
-  Layout m >>= f = Layout (\ i -> m i >>= (`runLayout` i) . f)
+  Layout m >>= f = Layout (\ i -> do
+    (t1, a) <- m i
+    (t2, a') <- runLayout (f a) i
+    let t = t1 <> t2
+    pure $ t `seq` (t, a'))
 
 instance MonadIO Layout where
   liftIO = lift
 
 lift :: IO a -> Layout a
-lift = Layout . const
+lift = Layout . const . fmap (mempty,)
+
+tell :: Tally -> Layout ()
+tell = Layout . const . pure . (,())
+
+listen :: Layout a -> Layout (Tally, a)
+listen m = Layout $ \ i -> do
+  (t, a) <- runLayout m i
+  pure (t, (t, a))
 
 incr :: IO () -> Layout a -> Layout a
 incr j m = Layout (\ i -> runLayout m (i *> j))
