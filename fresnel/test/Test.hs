@@ -57,9 +57,9 @@ main = do
     let t = mconcat res
     t <$ sequence_ (tally t)
   if isFailure t then
-    exitSuccess
-  else
     exitFailure
+  else
+    exitSuccess
   where
   groups =
     [ Fold.Test.tests
