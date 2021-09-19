@@ -109,7 +109,7 @@ runGroup args width Group{ groupName, cases } = incr (put "  ") $ do
 
 runCase :: Args -> Int -> Case -> Layout Bool
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
-  lift saveCursor
+  cursor <- lift getCursorPosition
   title
 
   res <- lift (quickCheckWithResult args property)
@@ -117,7 +117,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
         | isSuccess res = t
         | otherwise     = f
 
-  lift restoreCursor *> status (failure title) title
+  lift (maybe (pure ()) (uncurry setCursorPosition) cursor) *> status (failure title) title
 
   put "   " *> status (failure (putLn "Failure")) (success (putLn "Success"))
 
