@@ -10,7 +10,7 @@ module Main
 import           Control.Monad (guard, when)
 import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
-import           Data.List (intercalate, intersperse, sortBy)
+import           Data.List (elemIndex, intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
@@ -199,13 +199,13 @@ runLabels Stats{ numTests, labels }
         lineStr $ show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key
     , do
       lineStr [ c | e <- sparked, c <- [e, e, e, ' '] ]
-      lineStr [ c | i <- [1..length m], c <- ' ':show i ++ "  " ]
+      lineStr [ c | k <- Map.keys m, i <- maybe [] pure (elemIndex k (map fst sorted)), c <- ' ':show i ++ "  " ]
     ]
     where
     n = realToFrac numTests :: Double
     sorted = sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)
     scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
-    sparked = sparkify (map snd scaled)
+    sparked = sparkify (map snd (Map.toList m))
 
 runClasses :: Stats -> [Layout ()]
 runClasses Stats{ numTests = n, classes } = [ put (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
