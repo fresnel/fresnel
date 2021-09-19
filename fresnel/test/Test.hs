@@ -7,7 +7,6 @@ module Main
 ( main
 ) where
 
-import           Control.Applicative (liftA2)
 import           Control.Monad (guard, unless, when)
 import           Control.Monad.IO.Class
 import           Data.Foldable (for_, toList, traverse_)
@@ -54,8 +53,9 @@ main = do
   let Options gs _ args = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
       matching _ [] = id
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
-  (t, _) <- runLayout (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups)) (pure ())
-  _ <- runLayout (sequence_ (tally t)) (pure ())
+  (t, _) <- runLayout (do
+    (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
+    sequence_ (tally t)) (pure ()) mempty
   if isFailure t then
     exitFailure
   else
@@ -321,41 +321,44 @@ sparkifyRelativeTo sparks max = fmap spark
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
-newtype Layout a = Layout { runLayout :: IO () -> IO (Tally, a) }
+newtype Layout a = Layout { runLayout :: IO () -> Tally -> IO (Tally, a) }
 
 instance Functor Layout where
-  fmap f = Layout . (fmap (fmap f) .) . runLayout
+  fmap f m = Layout (\ i t -> fmap f <$> runLayout m i t)
 
 instance Applicative Layout where
   pure = lift . pure
-  Layout f <*> Layout a = Layout (liftA2 (<*>) <$> f <*> a)
+  Layout f <*> Layout a = Layout $ \ i t0 -> do
+    (t1, f') <- f i t0
+    (t2, a') <- a i t1
+    let fa = f' a'
+    fa `seq` pure (t2, fa)
 
 instance Monad Layout where
-  Layout m >>= f = Layout (\ i -> do
-    (t1, a) <- m i
-    (t2, a') <- runLayout (f a) i
-    let t = t1 <> t2
-    pure $ t `seq` (t, a'))
+  m >>= f = Layout $ \ i t0 -> do
+    (t1, a) <- runLayout m i t0
+    runLayout (f a) i t1
 
 instance MonadIO Layout where
   liftIO = lift
 
 lift :: IO a -> Layout a
-lift = Layout . const . fmap (mempty,)
+lift m = Layout (\ _ t -> (t,) <$> m)
 
 tell :: Tally -> Layout ()
-tell = Layout . const . pure . (,())
+tell t2 = Layout (\ _ t1 -> let t = t1 <> t2 in t `seq` pure (t, ()))
 
 listen :: Layout a -> Layout (Tally, a)
-listen m = Layout $ \ i -> do
-  (t, a) <- runLayout m i
-  pure (t, (t, a))
+listen m = Layout $ \ i t1 -> do
+  (t2, a) <- runLayout m i mempty
+  let t = t1 <> t2
+  t `seq` pure (t, (t2, a))
 
 incr :: IO () -> Layout a -> Layout a
 incr j m = Layout (\ i -> runLayout m (i *> j))
 
 line :: Layout a -> Layout a
-line m = Layout (\ i -> i *> runLayout m i)
+line m = Layout (\ i t -> i *> runLayout m i t)
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
