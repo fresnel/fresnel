@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
 module Main
 ( main
@@ -53,9 +54,9 @@ main = do
   let Options gs _ args = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
       matching _ [] = id
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
-  (t, _) <- runLayout (do
+  t <- runLayout (do
     (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-    sequence_ (tally t)) (pure ()) mempty
+    sequence_ (tally t)) (const pure) (pure ()) mempty
   if isFailure t then
     exitFailure
   else
@@ -321,44 +322,35 @@ sparkifyRelativeTo sparks max = fmap spark
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
-newtype Layout a = Layout { runLayout :: IO () -> Tally -> IO (Tally, a) }
+newtype Layout a = Layout { runLayout :: forall r . (a -> Tally -> IO r) -> IO () -> Tally -> IO r }
 
 instance Functor Layout where
-  fmap f m = Layout (\ i t -> fmap f <$> runLayout m i t)
+  fmap f m = Layout (\ k -> runLayout m (k . f))
 
 instance Applicative Layout where
   pure = lift . pure
-  Layout f <*> Layout a = Layout $ \ i t0 -> do
-    (t1, f') <- f i t0
-    (t2, a') <- a i t1
-    let fa = f' a'
-    fa `seq` pure (t2, fa)
+  Layout f <*> Layout a = Layout $ \ k i -> f (\ f' -> a (\ a' -> k $! f' a') i) i
 
 instance Monad Layout where
-  m >>= f = Layout $ \ i t0 -> do
-    (t1, a) <- runLayout m i t0
-    runLayout (f a) i t1
+  m >>= f = Layout $ \ k i -> runLayout m (\ a -> runLayout (f a) k i) i
 
 instance MonadIO Layout where
   liftIO = lift
 
 lift :: IO a -> Layout a
-lift m = Layout (\ _ t -> (t,) <$> m)
+lift m = Layout (\ k _ t -> m >>= (`k` t))
 
 tell :: Tally -> Layout ()
-tell t2 = Layout (\ _ t1 -> let t = t1 <> t2 in t `seq` pure (t, ()))
+tell t2 = Layout (\ k _ t1 -> k () $! t1 <> t2)
 
 listen :: Layout a -> Layout (Tally, a)
-listen m = Layout $ \ i t1 -> do
-  (t2, a) <- runLayout m i mempty
-  let t = t1 <> t2
-  t `seq` pure (t, (t2, a))
+listen m = Layout $ \ k i t1 -> runLayout m (\ a t2 -> k (t2, a) $! t1 <> t2) i mempty
 
 incr :: IO () -> Layout a -> Layout a
-incr j m = Layout (\ i -> runLayout m (i *> j))
+incr j m = Layout (\ k i -> runLayout m k (i *> j))
 
 line :: Layout a -> Layout a
-line m = Layout (\ i t -> i *> runLayout m i t)
+line m = Layout (\ k i t -> i *> runLayout m k i t)
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
