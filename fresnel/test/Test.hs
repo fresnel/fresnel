@@ -7,7 +7,7 @@ module Main
 ( main
 ) where
 
-import           Control.Monad (guard, when)
+import           Control.Monad (guard, unless, when)
 import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
@@ -109,7 +109,6 @@ runGroup args width Group{ groupName, cases } = incr (put "  ") $ do
 
 runCase :: Args -> Int -> Case -> Layout Bool
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
-  cursor <- lift getCursorPosition
   title
 
   res <- lift (quickCheckWithResult args property)
@@ -117,7 +116,10 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
         | isSuccess res = t
         | otherwise     = f
 
-  lift (maybe (pure ()) (uncurry setCursorPosition) cursor) *> status (failure title) title
+  unless (isSuccess res) $ do
+    lift clearFromCursorToLineBeginning
+    lift (setCursorColumn 0)
+    failure title
 
   put "   " *> status (failure (putLn "Failure")) (success (putLn "Success"))
 
