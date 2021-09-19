@@ -199,7 +199,7 @@ runLabels Stats{ numTests, labels }
         lineStr $ show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key
     , do
       lineStr [ c | e <- sparked, c <- [e, e, e, ' '] ]
-      lineStr [ c | k <- Map.keys m, i <- maybe [] pure (elemIndex k (map fst sorted)), c <- ' ':show i ++ "  " ]
+      lineStr [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ "  " ]
     ]
     where
     n = realToFrac numTests :: Double
