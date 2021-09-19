@@ -8,6 +8,7 @@ module Main
 ) where
 
 import           Control.Monad (guard, unless, when)
+import           Control.Monad.IO.Class
 import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
@@ -277,13 +278,13 @@ setColour = SetColor Foreground Vivid
 setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
 
-withSGR :: [SGR] -> Layout a -> Layout a
-withSGR sgr io = Layout (\ i -> setSGR sgr *> runLayout io i <* setSGR [])
+withSGR :: MonadIO m => [SGR] -> m a -> m a
+withSGR sgr io = liftIO (setSGR sgr) *> io <* liftIO (setSGR [])
 
-colour :: Color -> Layout a -> Layout a
+colour :: MonadIO m => Color -> m a -> m a
 colour c = withSGR [setColour c]
 
-success, failure :: Layout a -> Layout a
+success, failure :: MonadIO m => m a -> m a
 
 success = colour Green
 failure = colour Red
@@ -334,11 +335,14 @@ instance Applicative Layout where
 instance Monad Layout where
   Layout m >>= f = Layout (\ i -> m i >>= (`runLayout` i) . f)
 
+instance MonadIO Layout where
+  liftIO = lift
+
 lift :: IO a -> Layout a
 lift = Layout . const
 
-incr :: Layout () -> Layout a -> Layout a
-incr j m = Layout (\ i -> runLayout m (i *> runLayout j i))
+incr :: IO () -> Layout a -> Layout a
+incr j m = Layout (\ i -> runLayout m (i *> j))
 
 line :: Layout a -> Layout a
 line m = Layout (\ i -> i *> runLayout m i)
@@ -346,8 +350,8 @@ line m = Layout (\ i -> i *> runLayout m i)
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
 
-put :: String -> Layout ()
-put = lift . putStr
+put :: MonadIO m => String -> m ()
+put = liftIO . putStr
 
-putLn :: String -> Layout ()
-putLn = lift . putStrLn
+putLn :: MonadIO m => String -> m ()
+putLn = liftIO . putStrLn
