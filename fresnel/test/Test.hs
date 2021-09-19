@@ -113,20 +113,20 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title
 
   res <- lift (quickCheckWithResult args property)
-  let succeeded f t
-        | isSuccess res = success t
-        | otherwise     = failure f
+  let status f t
+        | isSuccess res = t
+        | otherwise     = f
 
-  succeeded (lift restoreCursor *> failure title) (pure ())
+  lift restoreCursor *> status (failure title) title
 
-  put "   " *> succeeded (putLn "Failure") (putLn "Success")
+  put "   " *> status (failure (putLn "Failure")) (success (putLn "Success"))
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
 
-  when (details || not (isSuccess res)) $ incr (succeeded (put "╭─") (put "  ")) $ line $ (if isSuccess res then success else failure) (putLn (replicate (fullWidth width) '─'))
+  when (details || not (isSuccess res)) . incr (status (failure (put "╭─")) (put "  ")) . line . status failure success . putLn $ replicate (fullWidth width) '─'
 
-  incr (succeeded (failure (put "│ ")) (put "  ")) . v_ $ concat
+  incr (status (failure (put "│ ")) (put "  ")) . v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats) *> putLn "") | details ]
     , case res of
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
