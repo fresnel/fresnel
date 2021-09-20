@@ -11,12 +11,14 @@ module Main
 import           Control.Monad (guard, unless, when)
 import           Control.Monad.IO.Class
 import           Data.Foldable (foldl', for_, toList, traverse_)
+import           Data.Function ((&))
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
 import qualified Fold.Test
+import           Fresnel.Getter ((^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Setter
 import           GHC.Exception.Type (Exception(displayException))
@@ -331,6 +333,12 @@ data State = State
   , tally  :: Tally
   }
 
+indent_ :: Lens' State [Indent]
+indent_ = lens indent (\ s indent -> s{ indent })
+
+tally_ :: Lens' State Tally
+tally_ = lens tally (\ s tally -> s{ tally })
+
 
 newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> State -> IO r }
 
@@ -351,13 +359,13 @@ lift :: IO a -> Layout a
 lift m = Layout (\ k s -> m >>= (`k` s))
 
 tell :: Tally -> Layout ()
-tell t = Layout (\ k s -> k () $! s{ tally = tally s <> t })
+tell t = Layout (\ k s -> k () $! s & tally_ %~ (<> t))
 
 listen :: Layout a -> Layout (Tally, a)
-listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2{ tally = tally s1 <> tally s2 }) s1{ tally = mempty }
+listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
 incr :: Indent -> Layout a -> Layout a
-incr i m = Layout (\ k (State is t) -> runLayout m (curry pure) (State (i:is) t) >>= \ (a, State _ t') -> k a (State is t'))
+incr i m = Layout (\ k s -> runLayout m (curry pure) (s & indent_ %~ (i:)) >>= \ (a, s') -> k a (s & tally_ .~ (s'^.tally_)))
 
 line :: Layout a -> Layout a
 line m = Layout (\ k s -> foldl' (\ m i -> putIndent i *> m) (runLayout m k s) (indent s))
