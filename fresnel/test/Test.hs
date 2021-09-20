@@ -326,9 +326,6 @@ sparkifyRelativeTo sparks max = fmap spark
 
 data Indent = Indent [SGR] String
 
-putIndent :: MonadIO m => Indent -> m ()
-putIndent (Indent sgr s) = withSGR sgr (put s)
-
 data State = State
   { indent :: [Indent]
   , tally  :: Tally
@@ -369,7 +366,7 @@ incr :: Indent -> Layout a -> Layout a
 incr i m = Layout (\ k s -> runLayout m (curry pure) (s & indent_ %~ (i:)) >>= uncurry k . set (snd_.indent_) (s^.indent_))
 
 line :: Layout a -> Layout a
-line m = Layout (\ k s -> foldl' (\ m i -> putIndent i *> m) (runLayout m k s) (indent s))
+line m = Layout (\ k s -> foldl' (\ m (Indent sgr str) -> unless (null sgr || null str) (setSGR sgr) *> putStr str *> m) (setSGR [] *> runLayout m k s) (indent s))
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
