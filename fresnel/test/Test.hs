@@ -21,6 +21,7 @@ import qualified Fold.Test
 import           Fresnel.Getter ((^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Setter
+import           Fresnel.Tuple
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
 import qualified Iso.Test
@@ -365,7 +366,7 @@ listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
 incr :: Indent -> Layout a -> Layout a
-incr i m = Layout (\ k s -> runLayout m (curry pure) (s & indent_ %~ (i:)) >>= \ (a, s') -> k a (s & tally_ .~ (s'^.tally_)))
+incr i m = Layout (\ k s -> runLayout m (curry pure) (s & indent_ %~ (i:)) >>= uncurry k . set (snd_.indent_) (s^.indent_))
 
 line :: Layout a -> Layout a
 line m = Layout (\ k s -> foldl' (\ m i -> putIndent i *> m) (runLayout m k s) (indent s))
