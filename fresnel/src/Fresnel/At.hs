@@ -2,6 +2,8 @@
 module Fresnel.At
 ( -- * Updateable collections
   At(..)
+, Index
+, IxValue
   -- * Construction
 , atSet
 , atMap
