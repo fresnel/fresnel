@@ -56,8 +56,8 @@ main = do
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
   t <- runLayout (do
     (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-    sequence_ (tally t)) (const pure) [] mempty
-  if isFailure t then
+    sequence_ (runTally t)) (const pure) (State [] mempty)
+  if isFailure (tally t) then
     exitFailure
   else
     exitSuccess
@@ -104,7 +104,7 @@ runGroup args width Group{ groupName, cases } = incr (Indent [] "  ") $ do
   lineStr (replicate (2 + fullWidth width) '━')
   (t, _) <- listen (sequence_ (intersperse (putLn "") (map (runCase args width) cases)))
   putLn ""
-  sequence_ (tally t)
+  sequence_ (runTally t)
 
 runCase :: Args -> Int -> Case -> Layout ()
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
@@ -196,8 +196,7 @@ runLabels Stats{ numTests, labels }
     , (i, l) <- zip [(0 :: Int)..] labels
     ]
   param m =
-    [ do
-      for_ (zip [1..] scaled) $ \ (i, (key, v)) -> do
+    [ for_ (zip [1..] scaled) $ \ (i, (key, v)) ->
         lineStr $ show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key
     , do
       lineStr [ c | e <- sparked, c <- [e, e, e] ]
@@ -228,8 +227,8 @@ singular :: Int -> String
 singular 1 = "s"
 singular _ = ""
 
-tally :: Tally -> [Layout ()]
-tally t =
+runTally :: Tally -> [Layout ()]
+runTally t =
   [ line $ do
     sepBy_ (put ", ")
       (  [ success (put (show (successes t) ++ ' ' : plural (successes t) "success" "successes")) | hasSuccesses ]
@@ -324,35 +323,44 @@ sparkifyRelativeTo sparks max = fmap spark
 
 data Indent = Indent [SGR] String
 
-newtype Layout a = Layout { runLayout :: forall r . (a -> Tally -> IO r) -> [Indent] -> Tally -> IO r }
+putIndent :: MonadIO m => Indent -> m ()
+putIndent (Indent sgr s) = withSGR sgr (put s)
+
+data State = State
+  { indent :: [Indent]
+  , tally  :: Tally
+  }
+
+
+newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> State -> IO r }
 
 instance Functor Layout where
   fmap f m = Layout (\ k -> runLayout m (k . f))
 
 instance Applicative Layout where
   pure = lift . pure
-  Layout f <*> Layout a = Layout $ \ k i -> f (\ f' -> a (\ a' -> k $! f' a') i) i
+  Layout f <*> Layout a = Layout $ \ k -> f (\ f' -> a (\ a' -> k $! f' a'))
 
 instance Monad Layout where
-  m >>= f = Layout $ \ k i -> runLayout m (\ a -> runLayout (f a) k i) i
+  m >>= f = Layout $ \ k -> runLayout m (\ a -> runLayout (f a) k)
 
 instance MonadIO Layout where
   liftIO = lift
 
 lift :: IO a -> Layout a
-lift m = Layout (\ k _ t -> m >>= (`k` t))
+lift m = Layout (\ k s -> m >>= (`k` s))
 
 tell :: Tally -> Layout ()
-tell t2 = Layout (\ k _ t1 -> k () $! t1 <> t2)
+tell t = Layout (\ k s -> k () $! s{ tally = tally s <> t })
 
 listen :: Layout a -> Layout (Tally, a)
-listen m = Layout $ \ k i t1 -> runLayout m (\ a t2 -> k (t2, a) $! t1 <> t2) i mempty
+listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2{ tally = tally s1 <> tally s2 }) s1{ tally = mempty }
 
 incr :: Indent -> Layout a -> Layout a
-incr j m = Layout (\ k i -> runLayout m k (j:i))
+incr i m = Layout (\ k (State is t) -> runLayout m (curry pure) (State (i:is) t) >>= \ (a, State _ t') -> k a (State is t'))
 
 line :: Layout a -> Layout a
-line m = Layout (\ k i t -> foldl' (\ m (Indent sgr s) -> withSGR sgr (putStr s) *> m) (runLayout m k i t) i)
+line m = Layout (\ k s -> foldl' (\ m i -> putIndent i *> m) (runLayout m k s) (indent s))
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
