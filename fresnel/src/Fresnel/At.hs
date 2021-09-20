@@ -8,8 +8,6 @@ module Fresnel.At
 , ixAt
   -- * Elimination
 , sans
-  -- * Indexable collections
-, module Fresnel.Ixed
 ) where
 
 import           Control.Monad (guard)
