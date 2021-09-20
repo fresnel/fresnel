@@ -10,7 +10,7 @@ module Main
 
 import           Control.Monad (guard, unless, when)
 import           Control.Monad.IO.Class
-import           Data.Foldable (for_, toList, traverse_)
+import           Data.Foldable (foldl', for_, toList, traverse_)
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
@@ -56,7 +56,7 @@ main = do
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
   t <- runLayout (do
     (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-    sequence_ (tally t)) (const pure) (pure ()) mempty
+    sequence_ (tally t)) (const pure) [] mempty
   if isFailure t then
     exitFailure
   else
@@ -99,7 +99,7 @@ args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
 runGroup :: Args -> Int -> Group -> Layout ()
-runGroup args width Group{ groupName, cases } = incr (put "  ") $ do
+runGroup args width Group{ groupName, cases } = incr (Indent [] "  ") $ do
   withSGR [setBold] $ lineStr groupName
   lineStr (replicate (2 + fullWidth width) '━')
   (t, _) <- listen (sequence_ (intersperse (putLn "") (map (runCase args width) cases)))
@@ -126,9 +126,9 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
 
-  when (details || not (isSuccess res) || not (null labels)) . incr (status (failure (put "╭─")) (put "  ")) . line . status failure success . putLn $ replicate (fullWidth width) '─'
+  when (details || not (isSuccess res) || not (null labels)) . incr (status (Indent [setColour Red] "╭─") (Indent [] "  ")) . line . status failure success . putLn $ replicate (fullWidth width) '─'
 
-  incr (status (failure (put "│ ")) (put "  ")) . v_ $ concat
+  incr (status (Indent [setColour Red] "│ ") (Indent [] "  ")) . v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats) *> putLn "") | details ]
     , case res of
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
@@ -145,7 +145,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     ]
   tell (fromBool (isSuccess res))
   where
-  title = incr (put "❧ ") . line $ do
+  title = incr (Indent [] "❧ ") . line $ do
     _ <- withSGR [setBold] (put (name ++ replicate (width - length name) ' '))
     lift (hFlush stdout)
 
@@ -322,7 +322,9 @@ sparkifyRelativeTo sparks max = fmap spark
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
-newtype Layout a = Layout { runLayout :: forall r . (a -> Tally -> IO r) -> IO () -> Tally -> IO r }
+data Indent = Indent [SGR] String
+
+newtype Layout a = Layout { runLayout :: forall r . (a -> Tally -> IO r) -> [Indent] -> Tally -> IO r }
 
 instance Functor Layout where
   fmap f m = Layout (\ k -> runLayout m (k . f))
@@ -346,11 +348,11 @@ tell t2 = Layout (\ k _ t1 -> k () $! t1 <> t2)
 listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k i t1 -> runLayout m (\ a t2 -> k (t2, a) $! t1 <> t2) i mempty
 
-incr :: IO () -> Layout a -> Layout a
-incr j m = Layout (\ k i -> runLayout m k (i *> j))
+incr :: Indent -> Layout a -> Layout a
+incr j m = Layout (\ k i -> runLayout m k (j:i))
 
 line :: Layout a -> Layout a
-line m = Layout (\ k i t -> i *> runLayout m k i t)
+line m = Layout (\ k i t -> foldl' (\ m (Indent sgr s) -> withSGR sgr (putStr s) *> m) (runLayout m k i t) i)
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
