@@ -5,6 +5,7 @@ module Fresnel.At
   -- * Construction
 , atSet
 , atMap
+, ixAt
   -- * Elimination
 , sans
   -- * Indexable collections
@@ -21,6 +22,8 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import           Fresnel.Ixed
 import           Fresnel.Lens (Lens', lens)
+import           Fresnel.Maybe (_Just)
+import           Fresnel.Optional (Optional')
 import           Fresnel.Setter
 
 -- Updateable collections
@@ -54,6 +57,9 @@ atSet member insert delete k = lens (guard . member k) (\ s -> maybe (delete k s
 
 atMap :: (Index c -> c -> Maybe (IxValue c)) -> (Index c -> IxValue c -> c -> c) -> (Index c -> c -> c) -> Index c -> Lens' c (Maybe (IxValue c))
 atMap lookup insert delete k = lens (lookup k) (\ m -> maybe (delete k m) (flip (insert k) m))
+
+ixAt :: At a => Index a -> Optional' a (IxValue a)
+ixAt i = at i . _Just
 
 
 -- Elimination
