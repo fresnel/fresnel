@@ -10,6 +10,7 @@ module Fresnel.Prism
   -- * Elimination
 , withPrism
 , matching
+, is
 , isn't
   -- * Relations
 , only
@@ -61,6 +62,9 @@ withPrism o = withUnpackedPrism (o (unpackedPrism id Right))
 
 matching :: Prism s t a b -> (s -> Either t a)
 matching o = withPrism o (const id)
+
+is :: Prism s t a b -> (s -> Bool)
+is o = either (const False) (const True) . matching o
 
 isn't :: Prism s t a b -> (s -> Bool)
 isn't o = either (const True) (const False) . matching o
