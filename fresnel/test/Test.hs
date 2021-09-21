@@ -375,16 +375,20 @@ indentTally m = Layout $ \ k s -> do
   when (s^.inCase_) space
   runLayout m k s
 
-space, vline, end :: IO ()
+space, bullet, heading1, group1, arrow, vline, end :: IO ()
 space = put "  "
+bullet = put "☙ "
+heading1 = put "╭─"
+group1 = put "┬─"
+arrow = failure (put "▶ ")
 vline = failure (put "│ ")
 end = failure (put "╰┤ ")
 
 indented :: Bool -> Layout a -> Layout a
 indented isHeading m = Layout (\ k s -> do
   let failed = s^.tally_.to isFailure
-      gutter cond str m = (if failed then failure (if isHeading then put str else vline) else space) *> when cond m
-  gutter (s^.inGroup_) "╭─" $ gutter (s^.inCase_) "┬─" $ if isHeading then if failed then failure (put "▶ ") else put "☙ " else put "  "
+      gutter cond c m = (if failed then failure (if isHeading then c else vline) else space) *> when cond m
+  gutter (s^.inGroup_) heading1 $ gutter (s^.inCase_) group1 $ if isHeading then if failed then arrow else bullet else space
   runLayout m k s)
 
 lineStr :: String -> Layout ()
