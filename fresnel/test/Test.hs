@@ -10,7 +10,7 @@ module Main
 
 import           Control.Monad (guard, unless, when)
 import           Control.Monad.IO.Class
-import           Data.Foldable (foldl', for_, toList, traverse_)
+import           Data.Foldable (for_, toList, traverse_)
 import           Data.Function ((&))
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
@@ -18,10 +18,9 @@ import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
 import qualified Fold.Test
-import           Fresnel.Getter ((^.))
+import           Fresnel.Getter (to, (^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Setter
-import           Fresnel.Tuple
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
 import qualified Iso.Test
@@ -59,7 +58,7 @@ main = do
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
   t <- runLayout (do
     (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-    sequence_ (runTally t)) (const pure) (State [] mempty)
+    sequence_ (runTally t)) (const pure) (State False False mempty)
   if isFailure (tally t) then
     exitFailure
   else
@@ -102,18 +101,22 @@ args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
 runGroup :: Args -> Int -> Group -> Layout ()
-runGroup args width Group{ groupName, cases } = incr (Indent [] "  ") $ do
+runGroup args width Group{ groupName, cases } = do
+  inGroup_ .= True
   withSGR [setBold] $ lineStr groupName
   lineStr (replicate (2 + fullWidth width) '━')
-  (t, _) <- listen (sequence_ (intersperse (putLn "") (map (runCase args width) cases)))
-  putLn ""
+  (t, _) <- listen (traverse_ (\ m -> inCase_ .= True *> m <* inCase_ .= False) (intersperse (lineStr "") (map (runCase args width) cases)))
+  lineStr ""
   sequence_ (runTally t)
+  inGroup_ .= False
+  lineStr ""
 
 runCase :: Args -> Int -> Case -> Layout ()
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title
 
   res <- lift (quickCheckWithResult args property)
+  tell (fromBool (isSuccess res))
   let status f t
         | isSuccess res = t
         | otherwise     = f
@@ -129,9 +132,9 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
 
-  when (details || not (isSuccess res) || not (null labels)) . incr (status (Indent [setColour Red] "╭─") (Indent [] "  ")) . line . status failure success . putLn $ replicate (fullWidth width) '─'
+  when (details || not (isSuccess res) || not (null labels)) . line . status failure success . putLn $ replicate (fullWidth width) '─'
 
-  incr (status (Indent [setColour Red] "│ ") (Indent [] "  ")) . v_ $ concat
+  v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats) *> putLn "") | details ]
     , case res of
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
@@ -146,9 +149,8 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , labels
     , runTables stats
     ]
-  tell (fromBool (isSuccess res))
   where
-  title = incr (Indent [] "❧ ") . line $ do
+  title = heading $ do
     _ <- withSGR [setBold] (put (name ++ replicate (width - length name) ' '))
     lift (hFlush stdout)
 
@@ -233,12 +235,11 @@ singular _ = ""
 runTally :: Tally -> [Layout ()]
 runTally t =
   [ line $ do
-    sepBy_ (put ", ")
-      (  [ success (put (show (successes t) ++ ' ' : plural (successes t) "success" "successes")) | hasSuccesses ]
-      ++ [ failure (put (show (failures t)  ++ ' ' : plural (failures t)  "failure" "failures"))  | hasFailures  ])
+    sepBy_ (put ", " )
+      (  [ success (h_ [ put "\x2713", put (show (successes t)), put (plural (successes t) "success" "successes") ]) | hasSuccesses ]
+      ++ [ failure (h_ [ put "\x2717", put (show (failures t)), put (plural (failures t)  "failure" "failures") ] )  | hasFailures  ])
 
     putLn "."
-    putLn ""
   | hasSuccesses || hasFailures
   ]
   where
@@ -324,15 +325,17 @@ sparkifyRelativeTo sparks max = fmap spark
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
-data Indent = Indent [SGR] String
-
 data State = State
-  { indent :: [Indent]
-  , tally  :: Tally
+  { inGroup :: Bool
+  , inCase  :: Bool
+  , tally   :: Tally
   }
 
-indent_ :: Lens' State [Indent]
-indent_ = lens indent (\ s indent -> s{ indent })
+inGroup_ :: Lens' State Bool
+inGroup_ = lens inGroup (\ s inGroup -> s{ inGroup })
+
+inCase_ :: Lens' State Bool
+inCase_ = lens inCase (\ s inCase -> s{ inCase })
 
 tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
@@ -362,11 +365,16 @@ tell t = Layout (\ k s -> k () $! s & tally_ %~ (<> t))
 listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
-incr :: Indent -> Layout a -> Layout a
-incr i m = Layout (\ k s -> runLayout m (curry pure) (s & indent_ %~ (i:)) >>= uncurry k . set (snd_.indent_) (s^.indent_))
+heading, line :: Layout a -> Layout a
+heading = indented True
+line = indented False
 
-line :: Layout a -> Layout a
-line m = Layout (\ k s -> foldl' (\ m (Indent sgr str) -> unless (null sgr || null str) (setSGR sgr) *> putStr str *> m) (setSGR [] *> runLayout m k s) (indent s))
+indented :: Bool -> Layout a -> Layout a
+indented isHeading m = Layout (\ k s -> do
+  let failed = s^.tally_.to isFailure
+      gutter cond str m = (if failed then failure (put (if isHeading then str else "│ ")) else put "  ") *> when cond m
+  gutter (s^.inGroup_) "╭─" $ gutter (s^.inCase_) "┬─" $ if isHeading then if failed then failure (put "▶ ") else put "☙ " else put "  "
+  runLayout m k s)
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
@@ -376,3 +384,6 @@ put = liftIO . putStr
 
 putLn :: MonadIO m => String -> m ()
 putLn = liftIO . putStrLn
+
+(.=) :: Lens' State a -> a -> Layout ()
+l .= a = Layout (\ k s -> k () (s & l .~ a))
