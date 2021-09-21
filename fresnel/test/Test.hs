@@ -234,7 +234,7 @@ singular _ = ""
 
 runTally :: Tally -> [Layout ()]
 runTally t =
-  [ line $ do
+  [ indentTally $ do
     sepBy_ (put ", " )
       (  [ success (h_ [ put "\x2713", put (show (successes t)), put (plural (successes t) "success" "successes") ]) | hasSuccesses ]
       ++ [ failure (h_ [ put "\x2717", put (show (failures t)), put (plural (failures t)  "failure" "failures") ] )  | hasFailures  ])
@@ -365,14 +365,32 @@ tell t = Layout (\ k s -> k () $! s & tally_ %~ (<> t))
 listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
-heading, line :: Layout a -> Layout a
+heading, line, indentTally :: Layout a -> Layout a
 heading = indented True
 line = indented False
+
+indentTally m = Layout $ \ k s -> do
+  if s^.inGroup_ then do
+    if s^.tally_.to isFailure then
+      vline *> end
+    else
+      space *> space
+    when (s^.inCase_) space
+  else if s^.tally_.to isFailure then
+    end
+  else
+    space
+  runLayout m k s
+
+space, vline, end :: IO ()
+space = put "  "
+vline = failure (put "│ ")
+end = failure (put "╰┤")
 
 indented :: Bool -> Layout a -> Layout a
 indented isHeading m = Layout (\ k s -> do
   let failed = s^.tally_.to isFailure
-      gutter cond str m = (if failed then failure (put (if isHeading then str else "│ ")) else put "  ") *> when cond m
+      gutter cond str m = (if failed then failure (if isHeading then put str else vline) else space) *> when cond m
   gutter (s^.inGroup_) "╭─" $ gutter (s^.inCase_) "┬─" $ if isHeading then if failed then failure (put "▶ ") else put "☙ " else put "  "
   runLayout m k s)
 
