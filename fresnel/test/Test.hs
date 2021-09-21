@@ -20,6 +20,8 @@ import           Data.Ord (comparing)
 import qualified Fold.Test
 import           Fresnel.Getter (to, (^.))
 import           Fresnel.Lens (Lens', lens)
+import           Fresnel.Maybe (_Just)
+import           Fresnel.Optional (is)
 import           Fresnel.Setter
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
@@ -58,7 +60,7 @@ main = do
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
   t <- runLayout (do
     (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-    sequence_ (runTally t)) (const pure) (State False False False mempty)
+    sequence_ (runTally t)) (const pure) (State False Nothing mempty)
   if isFailure (tally t) then
     exitFailure
   else
@@ -105,7 +107,7 @@ runGroup args width Group{ groupName, cases } = do
   inGroup_ .= True
   withSGR [setBold] $ lineStr groupName
   lineStr (replicate (2 + fullWidth width) '━')
-  (t, _) <- listen (traverse_ (\ m -> inCase_ .= True *> m <* inCase_ .= False *> caseFailed_ .= False) (intersperse (lineStr "") (map (runCase args width) cases)))
+  (t, _) <- listen (traverse_ (\ m -> caseFailed_ .= Just False *> m <* caseFailed_ .= Nothing) (intersperse (lineStr "") (map (runCase args width) cases)))
   lineStr ""
   sequence_ (runTally t)
   inGroup_ .= False
@@ -117,7 +119,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   res <- lift (quickCheckWithResult args property)
   tell (fromBool (isSuccess res))
-  caseFailed_ .= not (isSuccess res)
+  caseFailed_ .= Just (not (isSuccess res))
   let status f t
         | isSuccess res = t
         | otherwise     = f
@@ -328,18 +330,14 @@ sparkifyRelativeTo sparks max = fmap spark
 
 data State = State
   { inGroup    :: Bool
-  , inCase     :: Bool
-  , caseFailed :: Bool
+  , caseFailed :: Maybe Bool
   , tally      :: Tally
   }
 
 inGroup_ :: Lens' State Bool
 inGroup_ = lens inGroup (\ s inGroup -> s{ inGroup })
 
-inCase_ :: Lens' State Bool
-inCase_ = lens inCase (\ s inCase -> s{ inCase })
-
-caseFailed_ :: Lens' State Bool
+caseFailed_ :: Lens' State (Maybe Bool)
 caseFailed_ = lens caseFailed (\ s caseFailed -> s{ caseFailed })
 
 tally_ :: Lens' State Tally
@@ -373,7 +371,7 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 heading, line, indentTally :: Layout a -> Layout a
 
 heading m = Layout $ \ k s -> do
-  if s^.caseFailed_ then
+  if fromMaybe False (s^.caseFailed_) then
     failure (heading1 *> group1 *> arrow)
   else if s^.tally_.to isFailure then
     failure (vline *> vline) *> bullet
@@ -384,7 +382,7 @@ heading m = Layout $ \ k s -> do
 line m = Layout $ \ k s -> do
   if s^.tally_.to isFailure then vline else space
   when (s^.inGroup_) (if s^.tally_.to isFailure then vline else space)
-  when (s^.inCase_) space
+  when (is (caseFailed_._Just) s) space
   runLayout m k s
 
 indentTally m = Layout $ \ k s -> do
