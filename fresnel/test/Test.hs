@@ -113,7 +113,7 @@ runGroup args width Group{ groupName, cases } = do
 
 runCase :: Args -> Int -> Case -> Layout ()
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
-  title
+  title False
 
   res <- lift (quickCheckWithResult args property)
   tell (fromBool (isSuccess res))
@@ -124,7 +124,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   unless (isSuccess res) $ do
     lift clearFromCursorToLineBeginning
     lift (setCursorColumn 0)
-    failure title
+    failure (title True)
 
   put "   " *> status (failure (putLn "Failure")) (success (putLn "Success"))
 
@@ -150,8 +150,8 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , runTables stats
     ]
   where
-  title = heading $ do
-    _ <- withSGR [setBold] (put (name ++ replicate (width - length name) ' '))
+  title failed = heading $ do
+    _ <- withSGR (setBold:[ setColour Red | failed ]) (put (name ++ replicate (width - length name) ' '))
     lift (hFlush stdout)
 
 data Stats = Stats
