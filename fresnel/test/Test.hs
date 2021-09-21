@@ -58,7 +58,7 @@ main = do
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
   t <- runLayout (do
     (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-    sequence_ (runTally t)) (const pure) (State False False mempty)
+    sequence_ (runTally t)) (const pure) (State False False False mempty)
   if isFailure (tally t) then
     exitFailure
   else
@@ -105,7 +105,7 @@ runGroup args width Group{ groupName, cases } = do
   inGroup_ .= True
   withSGR [setBold] $ lineStr groupName
   lineStr (replicate (2 + fullWidth width) '━')
-  (t, _) <- listen (traverse_ (\ m -> inCase_ .= True *> m <* inCase_ .= False) (intersperse (lineStr "") (map (runCase args width) cases)))
+  (t, _) <- listen (traverse_ (\ m -> inCase_ .= True *> m <* inCase_ .= False *> caseFailed_ .= False) (intersperse (lineStr "") (map (runCase args width) cases)))
   lineStr ""
   sequence_ (runTally t)
   inGroup_ .= False
@@ -117,6 +117,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   res <- lift (quickCheckWithResult args property)
   tell (fromBool (isSuccess res))
+  caseFailed_ .= not (isSuccess res)
   let status f t
         | isSuccess res = t
         | otherwise     = f
@@ -326,9 +327,10 @@ sparkifyRelativeTo sparks max = fmap spark
 
 
 data State = State
-  { inGroup :: Bool
-  , inCase  :: Bool
-  , tally   :: Tally
+  { inGroup    :: Bool
+  , inCase     :: Bool
+  , caseFailed :: Bool
+  , tally      :: Tally
   }
 
 inGroup_ :: Lens' State Bool
@@ -336,6 +338,9 @@ inGroup_ = lens inGroup (\ s inGroup -> s{ inGroup })
 
 inCase_ :: Lens' State Bool
 inCase_ = lens inCase (\ s inCase -> s{ inCase })
+
+caseFailed_ :: Lens' State Bool
+caseFailed_ = lens caseFailed (\ s caseFailed -> s{ caseFailed })
 
 tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
@@ -368,9 +373,12 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 heading, line, indentTally :: Layout a -> Layout a
 
 heading m = Layout $ \ k s -> do
-  if s^.tally_.to isFailure
-    then failure (heading1 *> group1 *> arrow)
-    else space *> space *> bullet
+  if s^.caseFailed_ then
+    failure (heading1 *> group1 *> arrow)
+  else if s^.tally_.to isFailure then
+    failure (vline *> vline) *> bullet
+  else
+    space *> space *> bullet
   runLayout m k s
 
 line m = Layout $ \ k s -> do
