@@ -60,7 +60,7 @@ main = do
       matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
   t <- runLayout (do
     (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-    sequence_ (runTally t)) (const pure) (State False Nothing mempty)
+    sequence_ (runTally t)) (const pure) (State Nothing Nothing mempty)
   if isFailure (tally t) then
     exitFailure
   else
@@ -104,14 +104,18 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: Args -> Int -> Group -> Layout ()
 runGroup args width Group{ groupName, cases } = do
-  inGroup_ .= True
-  withSGR [setBold] $ lineStr groupName
-  lineStr (replicate (2 + fullWidth width) '━')
-  (t, _) <- listen (traverse_ (\ m -> caseFailed_ .= Just False *> m <* caseFailed_ .= Nothing) (intersperse (lineStr "") (map (runCase args width) cases)))
+  bookend groupFailed_ 0 $ do
+    withSGR [setBold] $ lineStr groupName
+    lineStr (replicate (2 + fullWidth width) '━')
+    (t, _) <- listen $ for_ cases $ \ c -> do
+      (t, _) <- bookend caseFailed_ 0 (listen (runCase args width c))
+      groupFailed_ %= fmap (failures t +)
+      lineStr ""
+    sequence_ (runTally t)
   lineStr ""
-  sequence_ (runTally t)
-  inGroup_ .= False
-  lineStr ""
+
+bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
+bookend o v m = o ?= v *> m <* o .= Nothing
 
 runCase :: Args -> Int -> Case -> Layout ()
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
@@ -119,7 +123,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   res <- lift (quickCheckWithResult args property)
   tell (fromBool (isSuccess res))
-  caseFailed_ .= Just (not (isSuccess res))
+  caseFailed_ .= Just (if isSuccess res then 0 else 1)
   let status f t
         | isSuccess res = t
         | otherwise     = f
@@ -329,15 +333,15 @@ sparkifyRelativeTo sparks max = fmap spark
 
 
 data State = State
-  { inGroup    :: Bool
-  , caseFailed :: Maybe Bool
-  , tally      :: Tally
+  { groupFailed :: Maybe Int
+  , caseFailed  :: Maybe Int
+  , tally       :: Tally
   }
 
-inGroup_ :: Lens' State Bool
-inGroup_ = lens inGroup (\ s inGroup -> s{ inGroup })
+groupFailed_ :: Lens' State (Maybe Int)
+groupFailed_ = lens groupFailed (\ s groupFailed -> s{ groupFailed })
 
-caseFailed_ :: Lens' State (Maybe Bool)
+caseFailed_ :: Lens' State (Maybe Int)
 caseFailed_ = lens caseFailed (\ s caseFailed -> s{ caseFailed })
 
 tally_ :: Lens' State Tally
@@ -371,9 +375,9 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 heading, line, indentTally :: Layout a -> Layout a
 
 heading m = Layout $ \ k s -> do
-  if fromMaybe False (s^.caseFailed_) then
+  if fromMaybe 0 (s^.caseFailed_) > 0 then
     failure (heading1 *> group1 *> arrow)
-  else if s^.tally_.to isFailure then
+  else if fromMaybe 0 (s^.groupFailed_) > 0 then
     failure (vline *> vline) *> bullet
   else
     space *> space *> bullet
@@ -381,12 +385,12 @@ heading m = Layout $ \ k s -> do
 
 line m = Layout $ \ k s -> do
   if s^.tally_.to isFailure then vline else space
-  when (s^.inGroup_) (if s^.tally_.to isFailure then vline else space)
-  when (is (caseFailed_._Just) s) space
+  when (is (groupFailed_._Just) s) (if s^.tally_.to isFailure then vline else space)
+  when (is (caseFailed_ ._Just) s) space
   runLayout m k s
 
 indentTally m = Layout $ \ k s -> do
-  when (s^.inGroup_) (if s^.tally_.to isFailure then vline else space)
+  when (is (groupFailed_._Just) s) (if s^.tally_.to isFailure then vline else space)
   if s^.tally_.to isFailure then end else space
   runLayout m k s
 
@@ -408,5 +412,13 @@ put = liftIO . putStr
 putLn :: MonadIO m => String -> m ()
 putLn = liftIO . putStrLn
 
-(.=) :: Lens' State a -> a -> Layout ()
-l .= a = Layout (\ k s -> k () (s & l .~ a))
+(%=) :: Setter State State a b -> (a -> b) -> Layout ()
+o %= f = Layout (\ k s -> k () (s & o %~ f))
+
+infix 4 %=
+
+(.=) :: Setter State State a b -> b -> Layout ()
+o .= v = o %= const v
+
+(?=) :: Setter State State a (Maybe b) -> b -> Layout ()
+o ?= v = o .= Just v
