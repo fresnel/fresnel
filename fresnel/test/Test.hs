@@ -366,8 +366,18 @@ listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
 heading, line, indentTally :: Layout a -> Layout a
-heading = indented True
-line = indented False
+
+heading m = Layout $ \ k s -> do
+  if s^.tally_.to isFailure
+    then failure (heading1 *> group1 *> arrow)
+    else space *> space *> bullet
+  runLayout m k s
+
+line m = Layout $ \ k s -> do
+  if s^.tally_.to isFailure then vline else space
+  when (s^.inGroup_) (if s^.tally_.to isFailure then vline else space)
+  when (s^.inCase_) space
+  runLayout m k s
 
 indentTally m = Layout $ \ k s -> do
   when (s^.inGroup_) (if s^.tally_.to isFailure then vline else space)
@@ -382,13 +392,6 @@ group1   = put "┬─"
 arrow    = failure (put "▶ ")
 vline    = failure (put "│ ")
 end      = failure (put "╰┤ ")
-
-indented :: Bool -> Layout a -> Layout a
-indented isHeading m = Layout $ \ k s -> do
-  let failed = s^.tally_.to isFailure
-      gutter c = if failed then failure (if isHeading then c else vline) else space
-  gutter heading1 *> when (s^.inGroup_) (gutter group1 *> when (s^.inCase_) (if isHeading then if failed then arrow else bullet else space))
-  runLayout m k s
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
