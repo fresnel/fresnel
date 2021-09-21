@@ -378,7 +378,7 @@ indentTally m = Layout $ \ k s -> do
 space, vline, end :: IO ()
 space = put "  "
 vline = failure (put "│ ")
-end = failure (put "╰┤")
+end = failure (put "╰┤ ")
 
 indented :: Bool -> Layout a -> Layout a
 indented isHeading m = Layout (\ k s -> do
