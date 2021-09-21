@@ -372,7 +372,6 @@ line = indented False
 indentTally m = Layout $ \ k s -> do
   when (s^.inGroup_) (if s^.tally_.to isFailure then vline else space)
   if s^.tally_.to isFailure then end else space
-  when (s^.inCase_) space
   runLayout m k s
 
 space, bullet, heading1, group1, arrow, vline, end :: IO ()
