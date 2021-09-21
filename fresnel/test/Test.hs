@@ -370,11 +370,8 @@ heading = indented True
 line = indented False
 
 indentTally m = Layout $ \ k s -> do
-  case (s^.inGroup_, s^.tally_.to isFailure) of
-    (True, True)   -> vline *> end
-    (True, False)  -> space *> space
-    (False, True)  -> end
-    (False, False) -> space
+  when (s^.inGroup_) (if s^.tally_.to isFailure then vline else space)
+  if s^.tally_.to isFailure then end else space
   when (s^.inCase_) space
   runLayout m k s
 
