@@ -376,13 +376,13 @@ indentTally m = Layout $ \ k s -> do
   runLayout m k s
 
 space, bullet, heading1, group1, arrow, vline, end :: IO ()
-space = put "  "
-bullet = put "☙ "
+space    = put "  "
+bullet   = put "☙ "
 heading1 = put "╭─"
-group1 = put "┬─"
-arrow = failure (put "▶ ")
-vline = failure (put "│ ")
-end = failure (put "╰┤ ")
+group1   = put "┬─"
+arrow    = failure (put "▶ ")
+vline    = failure (put "│ ")
+end      = failure (put "╰┤ ")
 
 indented :: Bool -> Layout a -> Layout a
 indented isHeading m = Layout (\ k s -> do
