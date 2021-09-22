@@ -55,13 +55,9 @@ main = do
     _  -> do
       name <- getProgName
       for_ (errs ++ [usageInfo (header name) opts]) (hPutStrLn stderr)
-  let Options gs _ args = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
-      matching _ [] = id
-      matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
-  t <- runLayout (do
-    (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-    sequence_ (runTally t)) (const pure) (State Nothing Nothing mempty)
-  if isFailure (tally t) then
+  let opts = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
+  t <- run opts groups
+  if isFailure t then
     exitFailure
   else
     exitSuccess
@@ -74,9 +70,18 @@ main = do
     , Profunctor.Coexp.Test.tests
     , tropical
     ]
-  w = fromMaybe 0 (getTropical (maxWidths groups))
   int = fst . head . readDec
   header name = "Usage: " ++ name ++ " [-n N|--successes N]"
+
+run :: Options -> [Group] -> IO Tally
+run (Options gs _ args) groups = tally <$> runLayout (do
+  (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
+  sequence_ (runTally t)) (const pure) (State Nothing Nothing mempty)
+  where
+  w = fromMaybe 0 (getTropical (maxWidths groups))
+  matching _ [] = id
+  matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
+
 
 maxSuccess_ :: Lens' Args Int
 maxSuccess_ = lens maxSuccess (\ a maxSuccess -> a{ maxSuccess })
