@@ -450,7 +450,7 @@ indentTally m = Layout $ \ k s -> do
     (TopFail _, Just (GroupFail _)) -> dull Red headingN *> bold (failure gtally)
   runLayout m k s
 
-space, bullet, heading1, headingN, group1, groupN, arrow, vline, gtally, end :: IO ()
+space, bullet, heading1, headingN, group1, groupN, arrow, vline, gtally, end :: MonadIO m => m ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
