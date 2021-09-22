@@ -42,6 +42,21 @@ import           Test.QuickCheck.Test (Result(failingClasses))
 
 main :: IO ()
 main = do
+  opts <- parseOpts
+  t <- run opts groups
+  if isFailure t then exitFailure else exitSuccess
+  where
+  groups =
+    [ Fold.Test.tests
+    , Getter.Test.tests
+    , Iso.Test.tests
+    , Monoid.Fork.Test.tests
+    , Profunctor.Coexp.Test.tests
+    , tropical
+    ]
+
+parseOpts :: IO Options
+parseOpts = do
   let opts =
         [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_)        . int) "N") "require N successful tests before concluding the property passes"
         , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)           . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
@@ -55,21 +70,8 @@ main = do
     _  -> do
       name <- getProgName
       for_ (errs ++ [usageInfo (header name) opts]) (hPutStrLn stderr)
-  let opts = foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
-  t <- run opts groups
-  if isFailure t then
-    exitFailure
-  else
-    exitSuccess
+  pure $! foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
   where
-  groups =
-    [ Fold.Test.tests
-    , Getter.Test.tests
-    , Iso.Test.tests
-    , Monoid.Fork.Test.tests
-    , Profunctor.Coexp.Test.tests
-    , tropical
-    ]
   int = fst . head . readDec
   header name = "Usage: " ++ name ++ " [-n N|--successes N]"
 
