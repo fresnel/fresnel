@@ -415,7 +415,7 @@ heading, line, indentTally :: Layout a -> Layout a
 heading m = Layout $ \ k s -> do
   case (s^.topStatus_, s^.caseStatus_) of
     (TopFail First, Just CaseFail) -> dull Red heading1
-    (TopFail Nth,   Just CaseFail) -> dull Red headingN
+    (TopFail Nth,   Just CaseFail) -> dull Red vline
     (TopFail _,     _)             -> dull Red vline
     (TopPass,       _)             -> space
   case (s^.groupStatus_, s^.caseStatus_) of
@@ -444,18 +444,19 @@ indentTally m = Layout $ \ k s -> do
     (TopPass,   Just (GroupFail _)) -> space *> bold (failure end)
     (TopFail _, Nothing)            -> dull Red end
     (TopFail _, Just GroupPass)     -> dull Red vline *> space
-    (TopFail _, Just (GroupFail _)) -> dull Red vline *> bold (failure end)
+    (TopFail _, Just (GroupFail _)) -> dull Red headingN *> bold (failure gtally)
   runLayout m k s
 
-space, bullet, heading1, headingN, group1, groupN, arrow, vline, end :: IO ()
+space, bullet, heading1, headingN, group1, groupN, arrow, vline, gtally, end :: IO ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
 headingN = put "├─"
-group1   = put "┬─"
-groupN   = put "┼─"
+group1   = put "╭─"
+groupN   = put "├─"
 arrow    = put "▶ "
 vline    = put "│ "
+gtally   = put "┴─┤ "
 end      = put "╰─┤ "
 
 lineStr :: String -> Layout ()
