@@ -10,6 +10,7 @@ module Main
 
 import           Control.Monad (guard, unless, when)
 import           Control.Monad.IO.Class
+import           Data.Bool (bool)
 import           Data.Foldable (for_, toList, traverse_)
 import           Data.Function ((&))
 import qualified Data.IntMap as IntMap
@@ -41,31 +42,10 @@ import           Test.QuickCheck.Random (QCGen)
 import           Test.QuickCheck.Test (Result(failingClasses))
 
 main :: IO ()
-main = do
-  args <- getArgs
-  opts <- parseOpts args
-  t <- run opts groups
-  if isFailure t then exitFailure else exitSuccess
+main = getArgs >>= either printErrors (run groups) . parseOpts opts >>= bool exitFailure exitSuccess
   where
-  groups =
-    [ Fold.Test.tests
-    , Getter.Test.tests
-    , Iso.Test.tests
-    , Monoid.Fork.Test.tests
-    , Profunctor.Coexp.Test.tests
-    , tropical
-    ]
-
-parseOpts :: [String] -> IO Options
-parseOpts args
-  | null other
-  , null errs = pure options
-  | otherwise = do
-    name <- getProgName
-    for_ (map ("Unrecognized argument: " ++) other ++ errs ++ [usageInfo (header name) opts]) (hPutStrLn stderr)
-    pure options
-  where
-  options = foldr ($) defaultOptions mods
+  printErrors errs = getProgName >>= traverse_ (hPutStrLn stderr) . errors errs >> pure False
+  errors errs name = errs ++ [usageInfo (header name) opts]
   int = fst . head . readDec
   header name = "Usage: " ++ name ++ " [-n N|--successes N]"
   opts =
@@ -75,10 +55,26 @@ parseOpts args
     , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))            "NAME") "include the named group; can be used multiple times to include multiple groups"
     , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
     ]
+  groups =
+    [ Fold.Test.tests
+    , Getter.Test.tests
+    , Iso.Test.tests
+    , Monoid.Fork.Test.tests
+    , Profunctor.Coexp.Test.tests
+    , tropical
+    ]
+
+parseOpts :: [OptDescr (Options -> Options)] -> [String] -> Either [String] Options
+parseOpts opts args
+  | null other
+  , null errs = Right options
+  | otherwise = Left (map ("Unrecognized argument: " ++) other ++ errs)
+  where
+  options = foldr ($) defaultOptions mods
   (mods, other, errs) = getOpt RequireOrder opts args
 
-run :: Options -> [Group] -> IO Tally
-run (Options gs _ args) groups = tally <$> runLayout (do
+run :: [Group] -> Options -> IO Bool
+run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
   (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
   sequence_ (runTally t)) (const pure) (State Nothing Nothing mempty)
   where
