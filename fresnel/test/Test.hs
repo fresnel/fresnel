@@ -123,7 +123,7 @@ runGroup args width Group.Group{ groupName, cases } = do
     sequence_ (runTally t)
   lineStr ""
   where
-  bar = lineStr (replicate (2 + fullWidth width) '┈')
+  bar = rule (width + 2) Nothing
 
 bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
@@ -154,7 +154,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
-      bar = when (details || not (isSuccess res) || not (null labels)) . line . status failure success . putLn $ replicate (fullWidth width) '┈'
+      bar = when (details || not (isSuccess res) || not (null labels)) (rule width (Just (isSuccess res)))
 
   bar
 
@@ -409,6 +409,9 @@ tell t = Layout (\ k s -> k () $! s & tally_ %~ (<> t))
 
 listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
+
+rule :: Int -> Maybe Bool -> Layout ()
+rule width succeeded = line . maybe id (bool failure success) succeeded . putLn $ replicate (fullWidth width) '┈'
 
 heading, line, indentTally :: Layout a -> Layout a
 
