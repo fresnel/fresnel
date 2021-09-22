@@ -376,7 +376,10 @@ heading, line, indentTally :: Layout a -> Layout a
 
 heading m = Layout $ \ k s -> do
   if fromMaybe 0 (s^.caseFailed_) > 0 then
-    failure (heading1 *> group1 *> arrow)
+    if fromMaybe 0 (s^.groupFailed_) > 0 then
+      failure (headingN *> groupN *> arrow)
+    else
+      failure (heading1 *> group1 *> arrow)
   else if fromMaybe 0 (s^.groupFailed_) > 0 then
     failure (vline *> vline) *> bullet
   else
@@ -398,7 +401,9 @@ space, bullet, heading1, group1, arrow, vline, end :: IO ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
+headingN = put "├─"
 group1   = put "┬─"
+groupN   = put "┼─"
 arrow    = failure (put "▶ ")
 vline    = failure (put "│ ")
 end      = failure (put "╰┤ ")
