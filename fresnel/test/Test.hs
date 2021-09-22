@@ -57,14 +57,15 @@ main = do
     ]
 
 parseOpts :: [String] -> IO Options
-parseOpts args = do
-  case map ("Unrecognized argument: " ++) other ++ errs of
-    [] -> pure ()
-    _  -> do
-      name <- getProgName
-      for_ (errs ++ [usageInfo (header name) opts]) (hPutStrLn stderr)
-  pure $! foldr ($) (Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}) mods
+parseOpts args
+  | null other
+  , null errs = pure options
+  | otherwise = do
+    name <- getProgName
+    for_ (map ("Unrecognized argument: " ++) other ++ errs ++ [usageInfo (header name) opts]) (hPutStrLn stderr)
+    pure options
   where
+  options = foldr ($) defaultOptions mods
   int = fst . head . readDec
   header name = "Usage: " ++ name ++ " [-n N|--successes N]"
   opts =
@@ -103,6 +104,9 @@ data Options = Options
   , cases  :: [String]
   , args   :: Args
   }
+
+defaultOptions :: Options
+defaultOptions = Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}
 
 groups_ :: Lens' Options [String]
 groups_ = lens groups (\ o groups -> o{ groups })
