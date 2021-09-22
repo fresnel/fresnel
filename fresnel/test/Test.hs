@@ -76,7 +76,7 @@ parseOpts opts args
 run :: [Group] -> Options -> IO Bool
 run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
   (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-  sequence_ (runTally t)) (const pure) (State Nothing Nothing mempty)
+  sequence_ (runTally t)) (const pure) (State TopPass Nothing Nothing mempty)
   where
   w = fromMaybe 0 (getTropical (maxWidths groups))
   matching _ [] = id
@@ -112,12 +112,12 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: Args -> Int -> Group -> Layout ()
 runGroup args width Group{ groupName, cases } = do
-  bookend groupFailed_ 0 $ do
+  bookend groupStatus_ GroupPass $ do
     withSGR [setBold] $ lineStr groupName
     lineStr (replicate (2 + fullWidth width) '━')
     (t, _) <- listen $ for_ cases $ \ c -> do
-      (t, _) <- bookend caseFailed_ 0 (listen (runCase args width c))
-      groupFailed_ %= fmap (failures t +)
+      succeeded <- bookend caseStatus_ CasePass (runCase args width c)
+      unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
       lineStr ""
     sequence_ (runTally t)
   lineStr ""
@@ -125,13 +125,18 @@ runGroup args width Group{ groupName, cases } = do
 bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
 
-runCase :: Args -> Int -> Case -> Layout ()
+runCase :: Args -> Int -> Case -> Layout Bool
 runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title False
 
   res <- lift (quickCheckWithResult args property)
   tell (fromBool (isSuccess res))
-  caseFailed_ .= Just (if isSuccess res then 0 else 1)
+  unless (isSuccess res) $ do
+    groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
+    topStatus_ %= TopFail . \case
+      TopPass -> First
+      _       -> Nth
+  caseStatus_ ?= if isSuccess res then CasePass else CaseFail
   let status f t
         | isSuccess res = t
         | otherwise     = f
@@ -164,6 +169,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , labels
     , runTables stats
     ]
+  pure $! isSuccess res
   where
   title failed = heading $ do
     _ <- withSGR (setBold:[ setColour Red | failed ]) (put (name ++ replicate (width - length name) ' '))
@@ -341,16 +347,26 @@ sparkifyRelativeTo sparks max = fmap spark
 
 
 data State = State
-  { groupFailed :: Maybe Int
-  , caseFailed  :: Maybe Int
+  { topStatus   :: TopStatus
+  , groupStatus :: Maybe GroupStatus
+  , caseStatus  :: Maybe CaseStatus
   , tally       :: Tally
   }
 
-groupFailed_ :: Lens' State (Maybe Int)
-groupFailed_ = lens groupFailed (\ s groupFailed -> s{ groupFailed })
+data TopStatus = TopPass | TopFail Pos
+data GroupStatus = GroupPass | GroupFail Pos
+data CaseStatus = CasePass | CaseFail
 
-caseFailed_ :: Lens' State (Maybe Int)
-caseFailed_ = lens caseFailed (\ s caseFailed -> s{ caseFailed })
+data Pos = First | Nth
+
+topStatus_ :: Lens' State TopStatus
+topStatus_ = lens topStatus (\ s topStatus -> s{ topStatus })
+
+groupStatus_ :: Lens' State (Maybe GroupStatus)
+groupStatus_ = lens groupStatus (\ s groupStatus -> s{ groupStatus })
+
+caseStatus_ :: Lens' State (Maybe CaseStatus)
+caseStatus_ = lens caseStatus (\ s caseStatus -> s{ caseStatus })
 
 tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
@@ -383,29 +399,35 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 heading, line, indentTally :: Layout a -> Layout a
 
 heading m = Layout $ \ k s -> do
-  if fromMaybe 0 (s^.caseFailed_) > 0 then
-    if fromMaybe 0 (s^.groupFailed_) > 0 then
-      failure (headingN *> groupN *> arrow)
-    else
-      failure (heading1 *> group1 *> arrow)
-  else if fromMaybe 0 (s^.groupFailed_) > 0 then
-    failure (vline *> vline) *> bullet
-  else
-    space *> space *> bullet
+  case (s^.topStatus_, s^.caseStatus_) of
+    (TopFail First, Just CaseFail) -> failure heading1
+    (TopFail Nth,   Just CaseFail) -> failure headingN
+    (TopFail _,     _)             -> vline
+    (TopPass,       _)             -> space
+  case (s^.groupStatus_, s^.caseStatus_) of
+    (Just (GroupFail First), Just CaseFail) -> failure group1
+    (Just (GroupFail Nth),   Just CaseFail) -> failure groupN
+    (Just (GroupFail _),     _)             -> vline
+    _                                       -> space
+  case s^.caseStatus_ of
+    Just CaseFail -> failure arrow
+    _             -> bullet
   runLayout m k s
 
 line m = Layout $ \ k s -> do
-  if s^.tally_.to isFailure then vline else space
-  when (is (groupFailed_._Just) s) (if s^.tally_.to isFailure then vline else space)
-  when (is (caseFailed_ ._Just) s) space
+  case s^.topStatus_ of
+    TopPass   -> space
+    TopFail _ -> vline
+  maybe (pure ()) (\case{ GroupPass -> space ; _ -> vline }) (s^.groupStatus_)
+  when (is _Just (s^.caseStatus_)) space
   runLayout m k s
 
 indentTally m = Layout $ \ k s -> do
-  when (is (groupFailed_._Just) s) (if s^.tally_.to isFailure then vline else space)
+  when (is (groupStatus_._Just) s) (if s^.tally_.to isFailure then vline else space)
   if s^.tally_.to isFailure then end else space
   runLayout m k s
 
-space, bullet, heading1, group1, arrow, vline, end :: IO ()
+space, bullet, heading1, headingN, group1, groupN, arrow, vline, end :: IO ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
@@ -414,7 +436,7 @@ group1   = put "┬─"
 groupN   = put "┼─"
 arrow    = failure (put "▶ ")
 vline    = failure (put "│ ")
-end      = failure (put "╰┤ ")
+end      = failure (put "╰─┤ ")
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
