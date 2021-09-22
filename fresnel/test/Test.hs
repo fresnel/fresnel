@@ -114,7 +114,7 @@ runGroup :: Args -> Int -> Group -> Layout ()
 runGroup args width Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
     line $ withSGR [setBold] $ putLn groupName
-    lineStr (replicate (2 + fullWidth width) '━')
+    lineStr (replicate (2 + fullWidth width) '┉')
     (t, _) <- listen $ for_ cases $ \ c -> do
       succeeded <- bookend caseStatus_ CasePass (runCase args width c)
       unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
@@ -152,7 +152,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
 
-  when (details || not (isSuccess res) || not (null labels)) . line . status failure success . putLn $ replicate (fullWidth width) '─'
+  when (details || not (isSuccess res) || not (null labels)) . line . status failure success . putLn $ replicate (fullWidth width) '┈'
 
   v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats) *> putLn "") | details ]
