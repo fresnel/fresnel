@@ -298,19 +298,28 @@ instance Monoid Tally where
 setColour :: Color -> SGR
 setColour = SetColor Foreground Vivid
 
+setDullColour :: Color -> SGR
+setDullColour = SetColor Foreground Dull
+
 setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
 
 withSGR :: MonadIO m => [SGR] -> m a -> m a
 withSGR sgr io = liftIO (setSGR sgr) *> io <* liftIO (setSGR [])
 
-colour :: MonadIO m => Color -> m a -> m a
-colour c = withSGR [setColour c]
+vivid :: MonadIO m => Color -> m a -> m a
+vivid c = withSGR [setColour c]
+
+dull :: MonadIO m => Color -> m a -> m a
+dull c = withSGR [setDullColour c]
+
+bold :: MonadIO m => m a -> m a
+bold = withSGR [setBold]
 
 success, failure :: MonadIO m => m a -> m a
 
-success = colour Green
-failure = colour Red
+success = vivid Green
+failure = vivid Red
 
 tropical :: Group
 tropical = Group
@@ -400,31 +409,31 @@ heading, line, indentTally :: Layout a -> Layout a
 
 heading m = Layout $ \ k s -> do
   case (s^.topStatus_, s^.caseStatus_) of
-    (TopFail First, Just CaseFail) -> failure heading1
-    (TopFail Nth,   Just CaseFail) -> failure headingN
-    (TopFail _,     _)             -> vline
+    (TopFail First, Just CaseFail) -> dull Red heading1
+    (TopFail Nth,   Just CaseFail) -> dull Red headingN
+    (TopFail _,     _)             -> dull Red vline
     (TopPass,       _)             -> space
   case (s^.groupStatus_, s^.caseStatus_) of
-    (Just (GroupFail First), Just CaseFail) -> failure group1
-    (Just (GroupFail Nth),   Just CaseFail) -> failure groupN
-    (Just (GroupFail _),     _)             -> vline
+    (Just (GroupFail First), Just CaseFail) -> bold (failure group1)
+    (Just (GroupFail Nth),   Just CaseFail) -> bold (failure groupN)
+    (Just (GroupFail _),     _)             -> bold (failure vline)
     _                                       -> space
   case s^.caseStatus_ of
-    Just CaseFail -> failure arrow
+    Just CaseFail -> bold (failure arrow)
     _             -> bullet
   runLayout m k s
 
 line m = Layout $ \ k s -> do
   case s^.topStatus_ of
     TopPass   -> space
-    TopFail _ -> vline
-  maybe (pure ()) (\case{ GroupPass -> space ; _ -> vline }) (s^.groupStatus_)
+    TopFail _ -> dull Red vline
+  maybe (pure ()) (\case{ GroupPass -> space ; _ -> bold (failure vline) }) (s^.groupStatus_)
   when (is _Just (s^.caseStatus_)) space
   runLayout m k s
 
 indentTally m = Layout $ \ k s -> do
-  when (is (groupStatus_._Just) s) (if s^.tally_.to isFailure then vline else space)
-  if s^.tally_.to isFailure then end else space
+  when (is (groupStatus_._Just) s) (if s^.tally_.to isFailure then dull Red vline else space)
+  if s^.tally_.to isFailure then if is (groupStatus_._Just) s then bold (failure end) else dull Red end else space
   runLayout m k s
 
 space, bullet, heading1, headingN, group1, groupN, arrow, vline, end :: IO ()
@@ -434,9 +443,9 @@ heading1 = put "╭─"
 headingN = put "├─"
 group1   = put "┬─"
 groupN   = put "┼─"
-arrow    = failure (put "▶ ")
-vline    = failure (put "│ ")
-end      = failure (put "╰─┤ ")
+arrow    = put "▶ "
+vline    = put "│ "
+end      = put "╰─┤ "
 
 lineStr :: String -> Layout ()
 lineStr s = line $ putLn s
