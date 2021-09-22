@@ -58,14 +58,6 @@ main = do
 
 parseOpts :: [String] -> IO Options
 parseOpts args = do
-  let opts =
-        [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_)        . int) "N") "require N successful tests before concluding the property passes"
-        , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)           . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
-        , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_)        . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
-        , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))            "NAME") "include the named group; can be used multiple times to include multiple groups"
-        , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
-        ]
-      (mods, other, errs) = getOpt RequireOrder opts args
   case map ("Unrecognized argument: " ++) other ++ errs of
     [] -> pure ()
     _  -> do
@@ -75,6 +67,14 @@ parseOpts args = do
   where
   int = fst . head . readDec
   header name = "Usage: " ++ name ++ " [-n N|--successes N]"
+  opts =
+    [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_)        . int) "N") "require N successful tests before concluding the property passes"
+    , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)           . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
+    , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_)        . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
+    , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))            "NAME") "include the named group; can be used multiple times to include multiple groups"
+    , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
+    ]
+  (mods, other, errs) = getOpt RequireOrder opts args
 
 run :: Options -> [Group] -> IO Tally
 run (Options gs _ args) groups = tally <$> runLayout (do
