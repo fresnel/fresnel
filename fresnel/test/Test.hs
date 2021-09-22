@@ -113,7 +113,7 @@ args_ = lens args (\ o args -> o{ args })
 runGroup :: Args -> Int -> Group -> Layout ()
 runGroup args width Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
-    withSGR [setBold] $ lineStr groupName
+    line $ withSGR [setBold] $ putLn groupName
     lineStr (replicate (2 + fullWidth width) '━')
     (t, _) <- listen $ for_ cases $ \ c -> do
       succeeded <- bookend caseStatus_ CasePass (runCase args width c)
@@ -424,10 +424,11 @@ heading m = Layout $ \ k s -> do
   runLayout m k s
 
 line m = Layout $ \ k s -> do
-  case s^.topStatus_ of
-    TopPass   -> space
-    TopFail _ -> dull Red vline
-  maybe (pure ()) (\case{ GroupPass -> space ; _ -> bold (failure vline) }) (s^.groupStatus_)
+  case (s^.topStatus_, s^.groupStatus_) of
+    (TopPass,   Nothing)            -> space
+    (TopPass,   Just _)             -> space *> space
+    (TopFail _, Just (GroupFail _)) -> dull Red vline *> bold (failure vline)
+    (TopFail _, _)                  -> dull Red vline *> space
   when (is _Just (s^.caseStatus_)) space
   runLayout m k s
 
