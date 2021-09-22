@@ -35,7 +35,7 @@ import           System.Console.GetOpt
 import           System.Environment (getArgs, getProgName)
 import           System.Exit (exitFailure, exitSuccess)
 import           System.IO
-import           Test.Group
+import           Test.Group as Group
 import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult, stdArgs, (.&&.), (===))
 import qualified Test.QuickCheck as QC
 import           Test.QuickCheck.Random (QCGen)
@@ -111,7 +111,7 @@ args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
 runGroup :: Args -> Int -> Group -> Layout ()
-runGroup args width Group{ groupName, cases } = do
+runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
     line $ withSGR [setBold] $ putLn groupName
     bar
@@ -129,7 +129,7 @@ bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
 
 runCase :: Args -> Int -> Case -> Layout Bool
-runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
+runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title False
 
   res <- lift (quickCheckWithResult args property)
@@ -327,7 +327,7 @@ success = vivid Green
 failure = vivid Red
 
 tropical :: Group
-tropical = Group
+tropical = Group.Group
   { groupName = "Test.Group.Tropical"
   , cases =
     [ semigroupAssoc
@@ -335,8 +335,8 @@ tropical = Group
     ]
   }
   where
-  semigroupAssoc = Case{ name = "semigroup assoc", loc = here, property = QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c) }
-  monoidIdentity = Case{ name = "monoid identity", loc = here, property = QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)}
+  semigroupAssoc = Group.Case{ name = "semigroup assoc", loc = here, property = QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c) }
+  monoidIdentity = Group.Case{ name = "monoid identity", loc = here, property = QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)}
 
 newtype ArbTropical = ArbTropical (Tropical Int)
   deriving (Eq, Ord, Show)
