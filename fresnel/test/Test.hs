@@ -114,13 +114,16 @@ runGroup :: Args -> Int -> Group -> Layout ()
 runGroup args width Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
     line $ withSGR [setBold] $ putLn groupName
-    lineStr (replicate (2 + fullWidth width) '┉')
-    (t, _) <- listen $ for_ cases $ \ c -> do
+    bar
+    (t, _) <- listen $ sequence_ (intersperse (lineStr "") . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ CasePass (runCase args width c)
-      unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
-      lineStr ""
+      unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First })
+    bar
+    lineStr ""
     sequence_ (runTally t)
   lineStr ""
+  where
+  bar = lineStr (replicate (2 + fullWidth width) '┈')
 
 bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
@@ -151,8 +154,9 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
+      bar = when (details || not (isSuccess res) || not (null labels)) . line . status failure success . putLn $ replicate (fullWidth width) '┈'
 
-  when (details || not (isSuccess res) || not (null labels)) . line . status failure success . putLn $ replicate (fullWidth width) '┈'
+  bar
 
   v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats) *> putLn "") | details ]
@@ -169,6 +173,7 @@ runCase args width Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , labels
     , runTables stats
     ]
+  bar
   pure $! isSuccess res
   where
   title failed = heading $ do
