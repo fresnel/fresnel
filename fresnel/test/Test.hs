@@ -42,7 +42,8 @@ import           Test.QuickCheck.Test (Result(failingClasses))
 
 main :: IO ()
 main = do
-  opts <- parseOpts
+  args <- getArgs
+  opts <- parseOpts args
   t <- run opts groups
   if isFailure t then exitFailure else exitSuccess
   where
@@ -55,8 +56,8 @@ main = do
     , tropical
     ]
 
-parseOpts :: IO Options
-parseOpts = do
+parseOpts :: [String] -> IO Options
+parseOpts args = do
   let opts =
         [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_)        . int) "N") "require N successful tests before concluding the property passes"
         , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)           . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
@@ -64,7 +65,7 @@ parseOpts = do
         , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))            "NAME") "include the named group; can be used multiple times to include multiple groups"
         , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
         ]
-  (mods, other, errs) <- getOpt RequireOrder opts <$> getArgs
+      (mods, other, errs) = getOpt RequireOrder opts args
   case map ("Unrecognized argument: " ++) other ++ errs of
     [] -> pure ()
     _  -> do
