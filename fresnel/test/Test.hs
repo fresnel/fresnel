@@ -19,7 +19,7 @@ import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
 import qualified Fold.Test
-import           Fresnel.Getter (to, (^.))
+import           Fresnel.Getter ((^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
 import           Fresnel.Optional (is)
@@ -432,8 +432,13 @@ line m = Layout $ \ k s -> do
   runLayout m k s
 
 indentTally m = Layout $ \ k s -> do
-  when (is (groupStatus_._Just) s) (if s^.tally_.to isFailure then dull Red vline else space)
-  if s^.tally_.to isFailure then if is (groupStatus_._Just) s then bold (failure end) else dull Red end else space
+  case (s^.topStatus_, s^.groupStatus_) of
+    (TopPass,   Nothing)            -> space
+    (TopPass,   Just GroupPass)     -> space *> space
+    (TopPass,   Just (GroupFail _)) -> space *> bold (failure end)
+    (TopFail _, Nothing)            -> dull Red end
+    (TopFail _, Just GroupPass)     -> dull Red vline *> space
+    (TopFail _, Just (GroupFail _)) -> dull Red vline *> bold (failure end)
   runLayout m k s
 
 space, bullet, heading1, headingN, group1, groupN, arrow, vline, end :: IO ()
