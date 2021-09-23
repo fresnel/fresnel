@@ -423,7 +423,7 @@ heading, line, indentTally :: Layout a -> Layout a
 
 heading = wrap $ \ s -> case s^.caseStatus_ of
   Just CaseFail -> do
-    topStat space (dull Red . pos heading1 vline) (s^.topStatus_)
+    topStat space (dull Red . pos heading1 headingN) (s^.topStatus_)
     maybe space (dull Red . group) (s^?groupStatus_._Just._GroupFail)
     dull Red arrow
   _ -> do
