@@ -100,23 +100,23 @@ horizontal :: (Foldable t, Unital r) => (a -> r) -> t a -> r
 horizontal f = foldr ((><) . f) one
 
 sumWidths :: (Foldable t, HasWidth a) => t a -> Tropical Int
-sumWidths = horizontal width
+sumWidths = horizontal maxWidth
 
 vertical :: (Foldable t, Semiring r, Monoid r) => (a -> r) -> t a -> r
 vertical f = foldr ((<>) . f) zero
 
 maxWidths :: (Foldable t, HasWidth a) => t a -> Tropical Int
-maxWidths = vertical width
+maxWidths = vertical maxWidth
 
 
 class HasWidth t where
-  width :: t -> Tropical Int
+  maxWidth :: t -> Tropical Int
 
 instance HasWidth Char where
-  width _ = finite 1
+  maxWidth _ = finite 1
 
 instance HasWidth Group where
-  width Group{ groupName, cases } = sumWidths groupName <> maxWidths cases
+  maxWidth Group{ groupName, cases } = sumWidths groupName <> maxWidths cases
 
 instance HasWidth Case where
-  width Case{ name } = sumWidths name
+  maxWidth Case{ name } = sumWidths name
