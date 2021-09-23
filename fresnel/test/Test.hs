@@ -172,7 +172,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
   pure $! isSuccess res
   where
   title failed = heading $ do
-    _ <- withSGR (setBold:[ setColour Red | failed ]) (put (name ++ replicate (width - length name) ' '))
+    _ <- withSGR (setBold:[ setColour Vivid Red | failed ]) (put (name ++ replicate (width - length name) ' '))
     liftIO (hFlush stdout)
 
 data Stats = Stats
@@ -295,11 +295,8 @@ instance Monoid Tally where
   mempty = Tally 0 0
 
 
-setColour :: Color -> SGR
-setColour = SetColor Foreground Vivid
-
-setDullColour :: Color -> SGR
-setDullColour = SetColor Foreground Dull
+setColour :: ColorIntensity -> Color -> SGR
+setColour = SetColor Foreground
 
 setBold :: SGR
 setBold = SetConsoleIntensity BoldIntensity
@@ -308,10 +305,10 @@ withSGR :: MonadIO m => [SGR] -> m a -> m a
 withSGR sgr io = liftIO (setSGR sgr) *> io <* liftIO (setSGR [])
 
 vivid :: MonadIO m => Color -> m a -> m a
-vivid c = withSGR [setColour c]
+vivid c = withSGR [setColour Vivid c]
 
 dull :: MonadIO m => Color -> m a -> m a
-dull c = withSGR [setDullColour c]
+dull c = withSGR [setColour Dull c]
 
 success, failure :: MonadIO m => m a -> m a
 
