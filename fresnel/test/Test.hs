@@ -355,8 +355,8 @@ data State = State
   , tally       :: Tally
   }
 
-topStat :: a -> (Pos -> a) -> Status -> a
-topStat pass fail = \case{ Pass -> pass ; Fail pos -> fail pos }
+stat :: a -> (Pos -> a) -> Status -> a
+stat pass fail = \case{ Pass -> pass ; Fail pos -> fail pos }
 
 data GroupStatus = GroupPass | GroupFail Pos
 
@@ -410,7 +410,7 @@ wrap i m = Layout $ \ k s -> runLayout (i s) (\ _ s -> runLayout m k s) s
 
 lineGutter :: (Status -> Layout ()) -> Layout a -> Layout a
 lineGutter case' = (nl .) . wrap $ \ s -> do
-  topStat space (const (dull Red vline)) (s^.topStatus_)
+  stat space (const (dull Red vline)) (s^.topStatus_)
   space
   maybe (pure ()) case' (s^.caseStatus_)
 
@@ -418,17 +418,17 @@ heading, line, indentTally :: Layout a -> Layout a
 
 heading = wrap $ \ s -> case s^.caseStatus_ of
   Just (Fail _) -> do
-    topStat space (dull Red . pos heading1 headingN) (s^.topStatus_)
+    stat space (dull Red . pos heading1 headingN) (s^.topStatus_)
     maybe space (dull Red . group) (s^?groupStatus_._Just._GroupFail)
     dull Red arrow
   _ -> do
-    topStat space (const (dull Red vline)) (s^.topStatus_)
+    stat space (const (dull Red vline)) (s^.topStatus_)
     space
     bullet
 
 line = lineGutter (\case{ Pass -> success vline ; _ -> failure vline })
 
-indentTally = (nl .) . wrap $ \ s -> let top p f = topStat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
+indentTally = (nl .) . wrap $ \ s -> let top p f = stat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
   GroupPass   -> top space (dull Red vline) *> space
   GroupFail _ -> dull Red headingN *> dull Red gtally) (groupStatus s)
 
