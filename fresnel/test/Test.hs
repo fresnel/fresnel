@@ -113,15 +113,15 @@ args_ = lens args (\ o args -> o{ args })
 runGroup :: Args -> Int -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
-    line $ withSGR [setBold] $ put groupName *> nl
+    line $ withSGR [setBold] $ put groupName
     bar
-    (t, _) <- listen $ sequence_ (intersperse (line nl) . (`map` cases) $ \ c -> do
+    (t, _) <- listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ CasePass (runCase args width c)
       unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First })
     bar
-    line nl
+    line (pure ())
     sequence_ (runTally t)
-  line nl
+  line (pure ())
   where
   bar = rule (width + 2) Nothing
 
@@ -149,7 +149,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
     lift (setCursorColumn 0)
     failure (title True)
 
-  put "   " *> status (failure (put "Failure")) (success (put "Success")) *> nl
+  put "   " *> status (failure (put "Failure")) (success (put "Success")) *> liftIO (putStrLn "")
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
@@ -159,15 +159,15 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
   bar
 
   v_ $ concat
-    [ [ line (h_ (runStats args stats ++ runClasses stats) *> put "" *> nl) | details ]
+    [ [ line (h_ (runStats args stats ++ runClasses stats)) | details ]
     , case res of
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
         [ do
-          line $ put (path ++ ":" ++ show lineNumber) *> nl
-          line $ put reason *> nl
-          for_ theException $ \ e -> line $ put (displayException e) *> nl
-          for_ failingTestCase $ \ s -> line $ put s *> nl
-        , line $ put ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'") *> nl
+          line $ put (path ++ ":" ++ show lineNumber)
+          line $ put reason
+          for_ theException $ \ e -> line $ put (displayException e)
+          for_ failingTestCase $ \ s -> line $ put s
+        , line $ put ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")
         ]
       _ -> []
     , labels
@@ -228,10 +228,10 @@ runLabels Stats{ numTests, labels }
     ]
   param m =
     [ for_ (zip [1..] scaled) $ \ (i, (key, v)) ->
-        line $ put (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key) *> nl
+        line $ put (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
     , do
-      line $ put [ c | e <- sparked, c <- [e, e, e] ] *> nl
-      line $ put [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ] *> nl
+      line $ put [ c | e <- sparked, c <- [e, e, e] ]
+      line $ put [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ]
     ]
     where
     n = realToFrac numTests :: Double
@@ -265,7 +265,7 @@ runTally t =
       (  [ success (h_ [ put "✓", put (show (successes t)), put (plural (successes t) "success" "successes") ]) | hasSuccesses ]
       ++ [ failure (h_ [ put "✗", put (show (failures t)),  put (plural (failures t)  "failure" "failures") ])  | hasFailures  ])
 
-    put "." *> nl
+    put "."
   | hasSuccesses || hasFailures
   ]
   where
@@ -280,7 +280,7 @@ h_ :: [Layout ()] -> Layout ()
 h_ = sepBy_ (put " ")
 
 v_ :: [Layout ()] -> Layout ()
-v_ = sepBy_ (line nl)
+v_ = sepBy_ (line (pure ()))
 
 
 fromBool :: Bool -> Tally
@@ -408,7 +408,7 @@ listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
 rule :: Int -> Maybe Bool -> Layout ()
-rule width succeeded = line . maybe id (bool failure success) succeeded $ put (replicate (fullWidth width) '┈') *> nl
+rule width succeeded = line . maybe id (bool failure success) succeeded $ put (replicate (fullWidth width) '┈')
 
 heading, line, indentTally :: Layout a -> Layout a
 
@@ -433,7 +433,7 @@ line m = Layout $ \ k s -> do
     (TopPass,   Just _)  -> space *> space
     (TopFail _, _)       -> dull Red vline *> space
   when (is _Just (s^.caseStatus_)) space
-  runLayout m k s
+  runLayout m (\ a s -> putStrLn "" *> k a s) s
 
 indentTally m = Layout $ \ k s -> do
   case (s^.topStatus_, s^.groupStatus_) of
@@ -443,7 +443,7 @@ indentTally m = Layout $ \ k s -> do
     (TopFail _, Nothing)            -> dull Red end
     (TopFail _, Just GroupPass)     -> dull Red vline *> space
     (TopFail _, Just (GroupFail _)) -> dull Red headingN *> dull Red gtally
-  runLayout m k s
+  runLayout m (\ a s -> putStrLn "" *> k a s) s
 
 space, bullet, heading1, headingN, group1, groupN, arrow, hline, vline, gtally, end :: MonadIO m => m ()
 space    = put "  "
@@ -460,9 +460,6 @@ end      = put "╰─┤ "
 
 put :: MonadIO m => String -> m ()
 put = liftIO . putStr
-
-nl :: MonadIO m => m ()
-nl = liftIO (putStrLn "")
 
 (%=) :: Setter State State a b -> (a -> b) -> Layout ()
 o %= f = Layout (\ k s -> k () (s & o %~ f))
