@@ -402,9 +402,13 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 rule :: Int -> Maybe Bool -> Layout ()
 rule width succeeded = line . maybe id (bool failure success) succeeded $ put (replicate (fullWidth width) '┈')
 
+
+wrap :: (State -> IO ()) -> Layout a -> Layout a
+wrap i m = Layout $ \ k s -> i s *> runLayout m k s
+
 heading, line, indentTally :: Layout a -> Layout a
 
-heading m = Layout $ \ k s -> do
+heading = wrap $ \ s -> do
   case (s^.topStatus_, s^.caseStatus_) of
     (TopFail First, Just CaseFail) -> dull Red heading1
     (TopFail Nth,   Just CaseFail) -> dull Red vline
@@ -417,17 +421,15 @@ heading m = Layout $ \ k s -> do
   case s^.caseStatus_ of
     Just CaseFail -> dull Red arrow
     _             -> bullet
-  runLayout m k s
 
-line m = Layout $ \ k s -> do
+line = ((<* liftIO (putStrLn "")) .) . wrap $ \ s -> do
   case (s^.topStatus_, s^.groupStatus_) of
     (TopPass,   Nothing) -> space
     (TopPass,   Just _)  -> space *> space
     (TopFail _, _)       -> dull Red vline *> space
   when (is _Just (s^.caseStatus_)) space
-  runLayout m (\ a s -> putStrLn "" *> k a s) s
 
-indentTally m = Layout $ \ k s -> do
+indentTally = ((<* liftIO (putStrLn "")) .) . wrap $ \ s -> do
   case (s^.topStatus_, s^.groupStatus_) of
     (TopPass,   Nothing)            -> space
     (TopPass,   Just GroupPass)     -> space *> space
@@ -435,7 +437,6 @@ indentTally m = Layout $ \ k s -> do
     (TopFail _, Nothing)            -> dull Red end
     (TopFail _, Just GroupPass)     -> dull Red vline *> space
     (TopFail _, Just (GroupFail _)) -> dull Red headingN *> dull Red gtally
-  runLayout m (\ a s -> putStrLn "" *> k a s) s
 
 space, bullet, heading1, headingN, group1, groupN, arrow, hline, vline, gtally, end :: MonadIO m => m ()
 space    = put "  "
