@@ -119,7 +119,7 @@ runGroup args width Group.Group{ groupName, cases } = do
     bar Top
     (t, _) <- listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ Pass (runCase args width c)
-      unless succeeded $ groupStatus_ %= Just . Fail . \case{ Just (Fail _) -> Nth ; _ -> First })
+      unless succeeded $ groupStatus_ %= Just . Fail . maybe First (stat First (const Nth)))
     bar Bottom
     line (pure ())
     sequence_ (runTally t)
@@ -137,7 +137,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   res <- liftIO (quickCheckWithResult args property)
   tell (fromBool (isSuccess res))
   unless (isSuccess res) $ do
-    groupStatus_ %= Just . Fail . \case{ Just (Fail _) -> Nth ; _ -> First }
+    groupStatus_ %= Just . Fail . maybe First (stat First (const Nth))
     topStatus_ %= Fail . stat First (const Nth)
   caseStatus_ ?= if isSuccess res then Pass else Fail Nth
 
