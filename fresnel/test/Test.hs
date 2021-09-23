@@ -429,14 +429,13 @@ line = ((<* liftIO (putStrLn "")) .) . wrap $ \ s -> do
     (TopFail _, _)       -> dull Red vline *> space
   when (is _Just (s^.caseStatus_)) space
 
-indentTally = ((<* liftIO (putStrLn "")) .) . wrap $ \ s -> do
-  case (s^.topStatus_, s^.groupStatus_) of
-    (TopPass,   Nothing)            -> space
-    (TopPass,   Just GroupPass)     -> space *> space
-    (TopPass,   Just (GroupFail _)) -> space *> dull Red end
-    (TopFail _, Nothing)            -> dull Red end
-    (TopFail _, Just GroupPass)     -> dull Red vline *> space
-    (TopFail _, Just (GroupFail _)) -> dull Red headingN *> dull Red gtally
+indentTally = ((<* liftIO (putStrLn "")) .) . wrap $ \ s -> case (s^.topStatus_, s^.groupStatus_) of
+  (TopPass,   Nothing)            -> space
+  (TopPass,   Just GroupPass)     -> space *> space
+  (TopPass,   Just (GroupFail _)) -> space *> dull Red end
+  (TopFail _, Nothing)            -> dull Red end
+  (TopFail _, Just GroupPass)     -> dull Red vline *> space
+  (TopFail _, Just (GroupFail _)) -> dull Red headingN *> dull Red gtally
 
 space, bullet, heading1, headingN, group1, groupN, arrow, hline, vline, gtally, end :: MonadIO m => m ()
 space    = put "  "
