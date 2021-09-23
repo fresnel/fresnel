@@ -138,9 +138,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   tell (fromBool (isSuccess res))
   unless (isSuccess res) $ do
     groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
-    topStatus_ %= Fail . \case
-      Pass -> First
-      _    -> Nth
+    topStatus_ %= Fail . stat First (const Nth)
   caseStatus_ ?= if isSuccess res then Pass else Fail Nth
 
   unless (isSuccess res) $ do
