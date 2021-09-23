@@ -121,6 +121,9 @@ instance Monoid Width where
 instance Semiring Width where
   Width a1 >< Width a2 = Width (a1 * a2)
 
+instance Unital Width where
+  one = Width 1
+
 
 class HasWidth t where
   maxWidth :: t -> Tropical Int
