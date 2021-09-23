@@ -157,16 +157,14 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
 
   v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats)) | details ]
-    , case res of
-      Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
-        [ do
-          line $ put (path ++ ":" ++ show lineNumber)
-          line $ put reason
-          for_ theException $ \ e -> line $ put (displayException e)
-          for_ failingTestCase $ \ s -> line $ put s
-        , line $ put ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")
-        ]
-      _ -> []
+    , do
+      Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
+      [ do
+        line (put (path ++ ":" ++ show lineNumber))
+        line (put reason)
+        for_ theException (line . put . displayException)
+        for_ failingTestCase (line . put)
+        , line (put ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
     , labels
     , runTables stats
     ]
