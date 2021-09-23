@@ -20,10 +20,12 @@ import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
 import           Data.Semigroup (stimes)
 import qualified Fold.Test
+import           Fresnel.Fold ((^?))
 import           Fresnel.Getter ((^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
 import           Fresnel.Optional (is)
+import           Fresnel.Prism (Prism', prism')
 import           Fresnel.Setter
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
@@ -358,10 +360,21 @@ data State = State
   }
 
 data TopStatus = TopPass | TopFail Pos
+
+topStat :: a -> (Pos -> a) -> TopStatus -> a
+topStat pass fail = \case{ TopPass -> pass ; TopFail pos -> fail pos }
+
 data GroupStatus = GroupPass | GroupFail Pos
+
+_GroupFail :: Prism' GroupStatus Pos
+_GroupFail = prism' GroupFail $ \case{ GroupPass -> Nothing ; GroupFail p -> Just p }
+
 data CaseStatus = CasePass | CaseFail
 
 data Pos = First | Nth
+
+pos :: a -> a -> Pos -> a
+pos first nth = \case{ First -> first ; Nth -> nth }
 
 topStatus_ :: Lens' State TopStatus
 topStatus_ = lens topStatus (\ s topStatus -> s{ topStatus })
@@ -403,27 +416,21 @@ wrap i m = Layout $ \ k s -> runLayout (i s) (\ _ s -> runLayout m k s) s
 
 lineGutter :: Layout () -> Layout a -> Layout a
 lineGutter case' = (nl .) . wrap $ \ s -> do
-  case (s^.topStatus_, s^.groupStatus_) of
-    (TopPass,   Nothing) -> space
-    (TopPass,   Just _)  -> space *> space
-    (TopFail _, _)       -> dull Red vline *> space
+  topStat space (const (dull Red vline)) (s^.topStatus_)
+  space
   when (is _Just (s^.caseStatus_)) case'
 
 heading, line, indentTally :: Layout a -> Layout a
 
-heading = wrap $ \ s -> do
-  case (s^.topStatus_, s^.caseStatus_) of
-    (TopFail First, Just CaseFail) -> dull Red heading1
-    (TopFail Nth,   Just CaseFail) -> dull Red vline
-    (TopFail _,     _)             -> dull Red vline
-    (TopPass,       _)             -> space
-  case (s^.groupStatus_, s^.caseStatus_) of
-    (Just (GroupFail First), Just CaseFail) -> dull Red group1
-    (Just (GroupFail Nth),   Just CaseFail) -> dull Red groupN
-    _                                       -> space
-  case s^.caseStatus_ of
-    Just CaseFail -> dull Red arrow
-    _             -> bullet
+heading = wrap $ \ s -> case s^.caseStatus_ of
+  Just CaseFail -> do
+    topStat space (dull Red . pos heading1 vline) (s^.topStatus_)
+    maybe space (dull Red . group) (s^?groupStatus_._Just._GroupFail)
+    dull Red arrow
+  _ -> do
+    topStat space (const (dull Red vline)) (s^.topStatus_)
+    space
+    bullet
 
 line = lineGutter space
 
@@ -441,18 +448,19 @@ rule :: Side -> Width -> Maybe Bool -> Layout ()
 rule side width succeeded = lineGutter (status succeeded $ case side of { Top -> "╭┈" ; Bottom -> "╰┈"}) . status succeeded $ replicate (fullWidth width) '┈'
 
 
-space, bullet, heading1, headingN, group1, groupN, arrow, hline, vline, gtally, end :: MonadIO m => m ()
+space, bullet, heading1, headingN, arrow, vline, gtally, end :: MonadIO m => m ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
 headingN = put "├─"
-group1   = hline
-groupN   = put "├─"
 arrow    = put "▶ "
-hline    = put "──"
 vline    = put "│ "
 gtally   = put "┤ "
 end      = put "╰─┤ "
+
+group :: MonadIO m => Pos -> m ()
+group = put . pos "──" "├─"
+
 
 nl :: MonadIO m => m a -> m a
 nl m = m <* liftIO (putStrLn "")
