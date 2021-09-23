@@ -167,7 +167,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
           lineStr reason
           for_ theException (lineStr . displayException)
           for_ failingTestCase lineStr
-        , lineStr ("--replay (" ++ show usedSeed ++ "," ++ show usedSize ++ ")")
+        , lineStr ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")
         ]
       _ -> []
     , labels
