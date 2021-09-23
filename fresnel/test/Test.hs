@@ -140,16 +140,13 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
       TopPass -> First
       _       -> Nth
   caseStatus_ ?= if isSuccess res then CasePass else CaseFail
-  let status f t
-        | isSuccess res = t
-        | otherwise     = f
 
   unless (isSuccess res) $ do
     liftIO clearFromCursorToLineBeginning
     liftIO (setCursorColumn 0)
     failure (title True)
 
-  put "   " *> status (failure (put "Failure")) (success (put "Success")) *> liftIO (putStrLn "")
+  put "   " *> (if isSuccess res then failure (put "Failure") else success (put "Success")) *> liftIO (putStrLn "")
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
