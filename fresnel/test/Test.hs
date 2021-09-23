@@ -16,7 +16,9 @@ import           Data.Function ((&))
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
+import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
+import           Data.Semigroup (stimes)
 import qualified Fold.Test
 import           Fresnel.Getter ((^.))
 import           Fresnel.Lens (Lens', lens)
@@ -77,7 +79,7 @@ run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
   (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
   sequence_ (runTally t)) (const pure) (State TopPass Nothing Nothing mempty)
   where
-  w = maybe 0 width (getTropical (maxWidths groups))
+  w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
   matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
 
@@ -109,7 +111,7 @@ groups_ = lens groups (\ o groups -> o{ groups })
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
-runGroup :: Args -> Int -> Group -> Layout ()
+runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
     line $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName
@@ -122,13 +124,13 @@ runGroup args width Group.Group{ groupName, cases } = do
     sequence_ (runTally t)
   line (pure ())
   where
-  bar = rule (width + 2) Nothing
+  bar = rule (width <> stimes (2 :: Int) one) Nothing
 
 bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
 
-runCase :: Args -> Int -> Case -> Layout Bool
-runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
+runCase :: Args -> Width -> Case -> Layout Bool
+runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title False
 
   res <- liftIO (quickCheckWithResult args property)
@@ -150,7 +152,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
-      bar = when (details || not (isSuccess res) || not (null labels)) (rule width (Just (isSuccess res)))
+      bar = when (details || not (isSuccess res) || not (null labels)) (rule w (Just (isSuccess res)))
 
   bar
 
@@ -171,7 +173,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
   pure $! isSuccess res
   where
   title failed = heading $ do
-    withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width - length name) ' '))
+    withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width w - length name) ' '))
     liftIO (hFlush stdout)
 
 data Stats = Stats
@@ -241,8 +243,8 @@ runTables :: Stats -> [Layout ()]
 runTables _ = []
 
 
-fullWidth :: Int -> Int
-fullWidth width = width + 3 + length "Success"
+fullWidth :: Width -> Int
+fullWidth w = width w + 3 + length "Success"
 
 plural :: Int -> a -> a -> a
 plural 1 s _ = s
@@ -392,7 +394,7 @@ tell t = Layout (\ k s -> k () $! s & tally_ %~ (<> t))
 listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
-rule :: Int -> Maybe Bool -> Layout ()
+rule :: Width -> Maybe Bool -> Layout ()
 rule width succeeded = line . maybe id (bool failure success) succeeded $ put (replicate (fullWidth width) '┈')
 
 
