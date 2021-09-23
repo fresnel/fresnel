@@ -78,7 +78,7 @@ parseOpts opts args
 run :: [Group] -> Options -> IO Bool
 run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
   (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-  sequence_ (runTally t)) (const pure) (State (TopStatus Pass) Nothing Nothing mempty)
+  sequence_ (runTally t)) (const pure) (State Pass Nothing Nothing mempty)
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -138,9 +138,9 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   tell (fromBool (isSuccess res))
   unless (isSuccess res) $ do
     groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
-    topStatus_ %= TopStatus . Fail . \case
-      TopStatus Pass -> First
-      _              -> Nth
+    topStatus_ %= Fail . \case
+      Pass -> First
+      _    -> Nth
   caseStatus_ ?= if isSuccess res then Pass else Fail Nth
 
   unless (isSuccess res) $ do
@@ -349,16 +349,14 @@ sparkifyRelativeTo sparks max = fmap spark
 
 
 data State = State
-  { topStatus   :: TopStatus
+  { topStatus   :: Status
   , groupStatus :: Maybe GroupStatus
   , caseStatus  :: Maybe Status
   , tally       :: Tally
   }
 
-newtype TopStatus = TopStatus Status
-
-topStat :: a -> (Pos -> a) -> TopStatus -> a
-topStat pass fail = \case{ TopStatus Pass -> pass ; TopStatus (Fail pos) -> fail pos }
+topStat :: a -> (Pos -> a) -> Status -> a
+topStat pass fail = \case{ Pass -> pass ; Fail pos -> fail pos }
 
 data GroupStatus = GroupPass | GroupFail Pos
 
@@ -372,7 +370,7 @@ data Pos = First | Nth
 pos :: a -> a -> Pos -> a
 pos first nth = \case{ First -> first ; Nth -> nth }
 
-topStatus_ :: Lens' State TopStatus
+topStatus_ :: Lens' State Status
 topStatus_ = lens topStatus (\ s topStatus -> s{ topStatus })
 
 groupStatus_ :: Lens' State (Maybe GroupStatus)
