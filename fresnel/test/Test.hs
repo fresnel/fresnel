@@ -114,12 +114,12 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
-  bookend groupStatus_ GroupPass $ do
+  bookend groupStatus_ Pass $ do
     line $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName
     bar Top
     (t, _) <- listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ Pass (runCase args width c)
-      unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First })
+      unless succeeded $ groupStatus_ %= Just . Fail . \case{ Just (Fail _) -> Nth ; _ -> First })
     bar Bottom
     line (pure ())
     sequence_ (runTally t)
@@ -137,7 +137,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   res <- liftIO (quickCheckWithResult args property)
   tell (fromBool (isSuccess res))
   unless (isSuccess res) $ do
-    groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
+    groupStatus_ %= Just . Fail . \case{ Just (Fail _) -> Nth ; _ -> First }
     topStatus_ %= Fail . stat First (const Nth)
   caseStatus_ ?= if isSuccess res then Pass else Fail Nth
 
@@ -348,7 +348,7 @@ sparkifyRelativeTo sparks max = fmap spark
 
 data State = State
   { topStatus   :: Status
-  , groupStatus :: Maybe GroupStatus
+  , groupStatus :: Maybe Status
   , caseStatus  :: Maybe Status
   , tally       :: Tally
   }
@@ -356,12 +356,10 @@ data State = State
 stat :: a -> (Pos -> a) -> Status -> a
 stat pass fail = \case{ Pass -> pass ; Fail pos -> fail pos }
 
-data GroupStatus = GroupPass | GroupFail Pos
-
-_GroupFail :: Prism' GroupStatus Pos
-_GroupFail = prism' GroupFail $ \case{ GroupPass -> Nothing ; GroupFail p -> Just p }
-
 data Status = Pass | Fail Pos
+
+_Fail :: Prism' Status Pos
+_Fail = prism' Fail $ \case{ Pass -> Nothing ; Fail p -> Just p }
 
 data Pos = First | Nth
 
@@ -371,7 +369,7 @@ pos first nth = \case{ First -> first ; Nth -> nth }
 topStatus_ :: Lens' State Status
 topStatus_ = lens topStatus (\ s topStatus -> s{ topStatus })
 
-groupStatus_ :: Lens' State (Maybe GroupStatus)
+groupStatus_ :: Lens' State (Maybe Status)
 groupStatus_ = lens groupStatus (\ s groupStatus -> s{ groupStatus })
 
 caseStatus_ :: Lens' State (Maybe Status)
@@ -417,7 +415,7 @@ heading, line, indentTally :: Layout a -> Layout a
 heading = wrap $ \ s -> case s^.caseStatus_ of
   Just (Fail _) -> do
     stat space (dull Red . pos heading1 headingN) (s^.topStatus_)
-    maybe space (dull Red . group) (s^?groupStatus_._Just._GroupFail)
+    maybe space (dull Red . group) (s^?groupStatus_._Just._Fail)
     dull Red arrow
   _ -> do
     stat space (const (dull Red vline)) (s^.topStatus_)
@@ -427,8 +425,8 @@ heading = wrap $ \ s -> case s^.caseStatus_ of
 line = lineGutter (\case{ Pass -> success vline ; _ -> failure vline })
 
 indentTally = (nl .) . wrap $ \ s -> let top p f = stat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
-  GroupPass   -> top space (dull Red vline) *> space
-  GroupFail _ -> dull Red headingN *> dull Red gtally) (groupStatus s)
+  Pass   -> top space (dull Red vline) *> space
+  Fail _ -> dull Red headingN *> dull Red gtally) (groupStatus s)
 
 data Side = Top | Bottom
 
