@@ -304,11 +304,14 @@ setBold = SetConsoleIntensity BoldIntensity
 withSGR :: MonadIO m => [SGR] -> m a -> m a
 withSGR sgr io = liftIO (setSGR sgr) *> io <* liftIO (setSGR [])
 
+colour :: MonadIO m => ColorIntensity -> Color -> m a -> m a
+colour i c = withSGR [setColour i c]
+
 vivid :: MonadIO m => Color -> m a -> m a
-vivid c = withSGR [setColour Vivid c]
+vivid = colour Vivid
 
 dull :: MonadIO m => Color -> m a -> m a
-dull c = withSGR [setColour Dull c]
+dull = colour Dull
 
 success, failure :: MonadIO m => m a -> m a
 
