@@ -88,11 +88,11 @@ instance Ord a => Semigroup (Tropical a) where
 instance Ord a => Monoid (Tropical a) where
   mempty = Tropical Nothing
 
-instance (Num a, Ord a) => Semiring (Tropical a) where
-  Tropical a1 >< Tropical a2 = Tropical ((+) <$> a1 <*> a2)
+instance (Semigroup a, Ord a) => Semiring (Tropical a) where
+  Tropical a1 >< Tropical a2 = Tropical ((<>) <$> a1 <*> a2)
 
-instance (Num a, Ord a) => Unital (Tropical a) where
-  one = finite 0
+instance (Monoid a, Ord a) => Unital (Tropical a) where
+  one = finite zero
 
 finite :: a -> Tropical a
 finite = Tropical . Just
@@ -100,13 +100,13 @@ finite = Tropical . Just
 horizontal :: (Foldable t, Unital r) => (a -> r) -> t a -> r
 horizontal f = foldr ((><) . f) one
 
-sumWidths :: (Foldable t, HasWidth a) => t a -> Tropical Int
+sumWidths :: (Foldable t, HasWidth a) => t a -> Tropical Width
 sumWidths = horizontal maxWidth
 
 vertical :: (Foldable t, Semiring r, Monoid r) => (a -> r) -> t a -> r
 vertical f = foldr ((<>) . f) zero
 
-maxWidths :: (Foldable t, HasWidth a) => t a -> Tropical Int
+maxWidths :: (Foldable t, HasWidth a) => t a -> Tropical Width
 maxWidths = vertical maxWidth
 
 newtype Width = Width { width :: Int }
@@ -126,10 +126,10 @@ instance Unital Width where
 
 
 class HasWidth t where
-  maxWidth :: t -> Tropical Int
+  maxWidth :: t -> Tropical Width
 
 instance HasWidth Char where
-  maxWidth _ = finite 1
+  maxWidth _ = finite one
 
 instance HasWidth Group where
   maxWidth Group{ groupName, cases } = sumWidths groupName <> maxWidths cases

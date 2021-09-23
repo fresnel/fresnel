@@ -16,7 +16,6 @@ import           Data.Function ((&))
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
-import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
 import qualified Fold.Test
 import           Fresnel.Getter ((^.))
@@ -78,7 +77,7 @@ run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
   (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
   sequence_ (runTally t)) (const pure) (State TopPass Nothing Nothing mempty)
   where
-  w = fromMaybe 0 (getTropical (maxWidths groups))
+  w = maybe 0 width (getTropical (maxWidths groups))
   matching _ [] = id
   matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
 
