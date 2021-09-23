@@ -115,13 +115,13 @@ runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
     line $ withSGR [setBold] $ putLn groupName
     bar
-    (t, _) <- listen $ sequence_ (intersperse (lineStr "") . (`map` cases) $ \ c -> do
+    (t, _) <- listen $ sequence_ (intersperse (line (putLn "")) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ CasePass (runCase args width c)
       unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First })
     bar
-    lineStr ""
+    line (putLn "")
     sequence_ (runTally t)
-  lineStr ""
+  line (putLn "")
   where
   bar = rule (width + 2) Nothing
 
@@ -163,11 +163,11 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
     , case res of
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } ->
         [ do
-          lineStr (path ++ ":" ++ show lineNumber)
-          lineStr reason
-          for_ theException (lineStr . displayException)
-          for_ failingTestCase lineStr
-        , lineStr ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")
+          line $ putLn (path ++ ":" ++ show lineNumber)
+          line $ putLn reason
+          for_ theException (line . putLn . displayException)
+          for_ failingTestCase (line . putLn)
+        , line $ putLn ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")
         ]
       _ -> []
     , labels
@@ -228,10 +228,10 @@ runLabels Stats{ numTests, labels }
     ]
   param m =
     [ for_ (zip [1..] scaled) $ \ (i, (key, v)) ->
-        lineStr $ show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key
+        line . putLn $ show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key
     , do
-      lineStr [ c | e <- sparked, c <- [e, e, e] ]
-      lineStr [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ]
+      line $ putLn [ c | e <- sparked, c <- [e, e, e] ]
+      line $ putLn [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ]
     ]
     where
     n = realToFrac numTests :: Double
@@ -280,7 +280,7 @@ h_ :: [Layout ()] -> Layout ()
 h_ = sepBy_ (put " ")
 
 v_ :: [Layout ()] -> Layout ()
-v_ = sepBy_ (lineStr "")
+v_ = sepBy_ (line (putLn ""))
 
 
 fromBool :: Bool -> Tally
@@ -457,9 +457,6 @@ hline    = put "──"
 vline    = put "│ "
 gtally   = put "┤ "
 end      = put "╰─┤ "
-
-lineStr :: String -> Layout ()
-lineStr s = line $ putLn s
 
 put :: MonadIO m => String -> m ()
 put = liftIO . putStr
