@@ -404,10 +404,10 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 wrap :: (State -> Layout ()) -> Layout a -> Layout a
 wrap i m = Layout $ \ k s -> runLayout (i s) (\ _ s -> runLayout m k s) s
 
-lineGutter :: (Status -> Layout ()) -> Layout a -> Layout a
-lineGutter case' = (nl .) . wrap $ \ s -> do
+lineGutter :: (Status -> Layout ()) -> (Status -> Layout ()) -> Layout a -> Layout a
+lineGutter group' case' = (nl .) . wrap $ \ s -> do
   stat space (const (dull Red vline)) (s^.topStatus_)
-  space
+  maybe (pure ()) group' (s^.groupStatus_)
   maybe (pure ()) case' (s^.caseStatus_)
 
 heading, line, indentTally :: Layout a -> Layout a
@@ -422,7 +422,7 @@ heading = wrap $ \ s -> case s^.caseStatus_ of
     space
     bullet
 
-line = lineGutter (\case{ Pass -> success vline ; _ -> failure vline })
+line = lineGutter (const space) (\case{ Pass -> success vline ; _ -> failure vline })
 
 indentTally = (nl .) . wrap $ \ s -> let top p f = stat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
   Pass   -> top space (dull Red vline) *> space
@@ -431,7 +431,7 @@ indentTally = (nl .) . wrap $ \ s -> let top p f = stat p (const f) (topStatus s
 data Side = Top | Bottom
 
 rule :: Side -> Width -> Maybe Bool -> Layout ()
-rule side w succeeded = lineGutter (const (status succeeded $ case side of { Top -> ['╭', h] ; Bottom -> ['╰', h]})) . status succeeded $ replicate fullWidth h where
+rule side w succeeded = lineGutter (const space) (const (status succeeded $ case side of { Top -> ['╭', h] ; Bottom -> ['╰', h]})) . status succeeded $ replicate fullWidth h where
   h = maybe '┈' (const '─') succeeded
   fullWidth = width w + 3 + length "Success"
 
