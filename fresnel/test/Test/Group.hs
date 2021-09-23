@@ -115,6 +115,9 @@ newtype Width = Width { width :: Int }
 instance Semigroup Width where
   Width a1 <> Width a2 = Width (a1 + a2)
 
+instance Monoid Width where
+  mempty = Width 0
+
 
 class HasWidth t where
   maxWidth :: t -> Tropical Int
