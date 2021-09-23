@@ -115,16 +115,16 @@ runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
     line $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName
-    bar
+    bar Top
     (t, _) <- listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ CasePass (runCase args width c)
       unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First })
-    bar
+    bar Bottom
     line (pure ())
     sequence_ (runTally t)
   line (pure ())
   where
-  bar = rule (width <> stimes (2 :: Int) one) Nothing
+  bar side = rule side (width <> stimes (2 :: Int) one) Nothing
 
 bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
@@ -147,14 +147,14 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
     liftIO (setCursorColumn 0)
     failure (title True)
 
-  put "   " *> (if isSuccess res then success (put "Success") else failure (put "Failure")) *> liftIO (putStrLn "")
+  put "   " *> status (Just (isSuccess res)) (bool "Failure" "Success" (isSuccess res)) *> liftIO (putStrLn "")
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
-      bar = when (details || not (isSuccess res) || not (null labels)) (rule w (Just (isSuccess res)))
+      bar side = when (details || not (isSuccess res) || not (null labels)) (rule side w (Just (isSuccess res)))
 
-  bar
+  bar Top
 
   v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats)) | details ]
@@ -169,7 +169,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , labels
     , runTables stats
     ]
-  bar
+  bar Bottom
   pure $! isSuccess res
   where
   title failed = heading $ do
@@ -313,6 +313,9 @@ success, failure :: MonadIO m => m a -> m a
 success = vivid Green
 failure = vivid Red
 
+status :: MonadIO m => Maybe Bool -> String -> m ()
+status b = maybe id (bool failure success) b . put
+
 tropical :: Group
 tropical = Group.Group
   { groupName = "Test.Group.Tropical"
@@ -394,12 +397,17 @@ tell t = Layout (\ k s -> k () $! s & tally_ %~ (<> t))
 listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
-rule :: Width -> Maybe Bool -> Layout ()
-rule width succeeded = line . maybe id (bool failure success) succeeded $ put (replicate (fullWidth width) '┈')
-
 
 wrap :: (State -> IO ()) -> Layout a -> Layout a
 wrap i m = Layout $ \ k s -> i s *> runLayout m k s
+
+lineGutter :: IO () -> Layout a -> Layout a
+lineGutter case' = (nl .) . wrap $ \ s -> do
+  case (s^.topStatus_, s^.groupStatus_) of
+    (TopPass,   Nothing) -> space
+    (TopPass,   Just _)  -> space *> space
+    (TopFail _, _)       -> dull Red vline *> space
+  when (is _Just (s^.caseStatus_)) case'
 
 heading, line, indentTally :: Layout a -> Layout a
 
@@ -417,12 +425,7 @@ heading = wrap $ \ s -> do
     Just CaseFail -> dull Red arrow
     _             -> bullet
 
-line = (nl .) . wrap $ \ s -> do
-  case (s^.topStatus_, s^.groupStatus_) of
-    (TopPass,   Nothing) -> space
-    (TopPass,   Just _)  -> space *> space
-    (TopFail _, _)       -> dull Red vline *> space
-  when (is _Just (s^.caseStatus_)) space
+line = lineGutter space
 
 indentTally = (nl .) . wrap $ \ s -> case (s^.topStatus_, s^.groupStatus_) of
   (TopPass,   Nothing)            -> space
@@ -431,6 +434,12 @@ indentTally = (nl .) . wrap $ \ s -> case (s^.topStatus_, s^.groupStatus_) of
   (TopFail _, Nothing)            -> dull Red end
   (TopFail _, Just GroupPass)     -> dull Red vline *> space
   (TopFail _, Just (GroupFail _)) -> dull Red headingN *> dull Red gtally
+
+data Side = Top | Bottom
+
+rule :: Side -> Width -> Maybe Bool -> Layout ()
+rule side width succeeded = lineGutter (status succeeded $ case side of { Top -> "╭┈" ; Bottom -> "╰┈"}) . status succeeded $ replicate (fullWidth width) '┈'
+
 
 space, bullet, heading1, headingN, group1, groupN, arrow, hline, vline, gtally, end :: MonadIO m => m ()
 space    = put "  "
