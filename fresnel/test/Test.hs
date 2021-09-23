@@ -318,9 +318,6 @@ vivid c = withSGR [setColour c]
 dull :: MonadIO m => Color -> m a -> m a
 dull c = withSGR [setDullColour c]
 
-bold :: MonadIO m => m a -> m a
-bold = withSGR [setBold]
-
 success, failure :: MonadIO m => m a -> m a
 
 success = vivid Green
@@ -422,21 +419,19 @@ heading m = Layout $ \ k s -> do
     (TopFail _,     _)             -> dull Red vline
     (TopPass,       _)             -> space
   case (s^.groupStatus_, s^.caseStatus_) of
-    (Just (GroupFail First), Just CaseFail) -> bold (failure group1)
-    (Just (GroupFail Nth),   Just CaseFail) -> bold (failure groupN)
-    (Just (GroupFail _),     _)             -> bold (failure vline)
+    (Just (GroupFail First), Just CaseFail) -> dull Red group1
+    (Just (GroupFail Nth),   Just CaseFail) -> dull Red groupN
     _                                       -> space
   case s^.caseStatus_ of
-    Just CaseFail -> bold (failure arrow)
+    Just CaseFail -> dull Red arrow
     _             -> bullet
   runLayout m k s
 
 line m = Layout $ \ k s -> do
   case (s^.topStatus_, s^.groupStatus_) of
-    (TopPass,   Nothing)            -> space
-    (TopPass,   Just _)             -> space *> space
-    (TopFail _, Just (GroupFail _)) -> dull Red vline *> bold (failure vline)
-    (TopFail _, _)                  -> dull Red vline *> space
+    (TopPass,   Nothing) -> space
+    (TopPass,   Just _)  -> space *> space
+    (TopFail _, _)       -> dull Red vline *> space
   when (is _Just (s^.caseStatus_)) space
   runLayout m k s
 
@@ -444,22 +439,23 @@ indentTally m = Layout $ \ k s -> do
   case (s^.topStatus_, s^.groupStatus_) of
     (TopPass,   Nothing)            -> space
     (TopPass,   Just GroupPass)     -> space *> space
-    (TopPass,   Just (GroupFail _)) -> space *> bold (failure end)
+    (TopPass,   Just (GroupFail _)) -> space *> dull Red end
     (TopFail _, Nothing)            -> dull Red end
     (TopFail _, Just GroupPass)     -> dull Red vline *> space
-    (TopFail _, Just (GroupFail _)) -> dull Red headingN *> bold (failure gtally)
+    (TopFail _, Just (GroupFail _)) -> dull Red headingN *> dull Red gtally
   runLayout m k s
 
-space, bullet, heading1, headingN, group1, groupN, arrow, vline, gtally, end :: MonadIO m => m ()
+space, bullet, heading1, headingN, group1, groupN, arrow, hline, vline, gtally, end :: MonadIO m => m ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
 headingN = put "├─"
-group1   = put "╭─"
+group1   = hline
 groupN   = put "├─"
 arrow    = put "▶ "
+hline    = put "──"
 vline    = put "│ "
-gtally   = put "┴─┤ "
+gtally   = put "┤ "
 end      = put "╰─┤ "
 
 lineStr :: String -> Layout ()
