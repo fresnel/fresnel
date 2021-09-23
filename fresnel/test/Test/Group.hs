@@ -112,6 +112,9 @@ maxWidths = vertical maxWidth
 newtype Width = Width { width :: Int }
   deriving (Eq, Ord)
 
+instance Semigroup Width where
+  Width a1 <> Width a2 = Width (a1 + a2)
+
 
 class HasWidth t where
   maxWidth :: t -> Tropical Int
