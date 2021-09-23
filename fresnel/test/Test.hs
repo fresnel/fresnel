@@ -78,7 +78,7 @@ parseOpts opts args
 run :: [Group] -> Options -> IO Bool
 run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
   (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-  sequence_ (runTally t)) (const pure) (State TopPass Nothing Nothing mempty)
+  sequence_ (runTally t)) (const pure) (State (TopStatus Pass) Nothing Nothing mempty)
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -138,10 +138,10 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   tell (fromBool (isSuccess res))
   unless (isSuccess res) $ do
     groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
-    topStatus_ %= TopFail . \case
-      TopPass -> First
-      _       -> Nth
-  caseStatus_ ?= if isSuccess res then Pass else Fail
+    topStatus_ %= TopStatus . Fail . \case
+      TopStatus Pass -> First
+      _              -> Nth
+  caseStatus_ ?= if isSuccess res then Pass else Fail Nth
 
   unless (isSuccess res) $ do
     liftIO clearFromCursorToLineBeginning
@@ -355,17 +355,17 @@ data State = State
   , tally       :: Tally
   }
 
-data TopStatus = TopPass | TopFail Pos
+newtype TopStatus = TopStatus Status
 
 topStat :: a -> (Pos -> a) -> TopStatus -> a
-topStat pass fail = \case{ TopPass -> pass ; TopFail pos -> fail pos }
+topStat pass fail = \case{ TopStatus Pass -> pass ; TopStatus (Fail pos) -> fail pos }
 
 data GroupStatus = GroupPass | GroupFail Pos
 
 _GroupFail :: Prism' GroupStatus Pos
 _GroupFail = prism' GroupFail $ \case{ GroupPass -> Nothing ; GroupFail p -> Just p }
 
-data Status = Pass | Fail
+data Status = Pass | Fail Pos
 
 data Pos = First | Nth
 
@@ -419,7 +419,7 @@ lineGutter case' = (nl .) . wrap $ \ s -> do
 heading, line, indentTally :: Layout a -> Layout a
 
 heading = wrap $ \ s -> case s^.caseStatus_ of
-  Just Fail -> do
+  Just (Fail _) -> do
     topStat space (dull Red . pos heading1 headingN) (s^.topStatus_)
     maybe space (dull Red . group) (s^?groupStatus_._Just._GroupFail)
     dull Red arrow
