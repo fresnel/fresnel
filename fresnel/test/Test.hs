@@ -118,7 +118,7 @@ runGroup args width Group.Group{ groupName, cases } = do
     line $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName
     bar Top
     (t, _) <- listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
-      succeeded <- bookend caseStatus_ CasePass (runCase args width c)
+      succeeded <- bookend caseStatus_ Pass (runCase args width c)
       unless succeeded $ groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First })
     bar Bottom
     line (pure ())
@@ -141,7 +141,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
     topStatus_ %= TopFail . \case
       TopPass -> First
       _       -> Nth
-  caseStatus_ ?= if isSuccess res then CasePass else CaseFail
+  caseStatus_ ?= if isSuccess res then Pass else Fail
 
   unless (isSuccess res) $ do
     liftIO clearFromCursorToLineBeginning
@@ -351,7 +351,7 @@ sparkifyRelativeTo sparks max = fmap spark
 data State = State
   { topStatus   :: TopStatus
   , groupStatus :: Maybe GroupStatus
-  , caseStatus  :: Maybe CaseStatus
+  , caseStatus  :: Maybe Status
   , tally       :: Tally
   }
 
@@ -365,7 +365,7 @@ data GroupStatus = GroupPass | GroupFail Pos
 _GroupFail :: Prism' GroupStatus Pos
 _GroupFail = prism' GroupFail $ \case{ GroupPass -> Nothing ; GroupFail p -> Just p }
 
-data CaseStatus = CasePass | CaseFail
+data Status = Pass | Fail
 
 data Pos = First | Nth
 
@@ -378,7 +378,7 @@ topStatus_ = lens topStatus (\ s topStatus -> s{ topStatus })
 groupStatus_ :: Lens' State (Maybe GroupStatus)
 groupStatus_ = lens groupStatus (\ s groupStatus -> s{ groupStatus })
 
-caseStatus_ :: Lens' State (Maybe CaseStatus)
+caseStatus_ :: Lens' State (Maybe Status)
 caseStatus_ = lens caseStatus (\ s caseStatus -> s{ caseStatus })
 
 tally_ :: Lens' State Tally
@@ -410,7 +410,7 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 wrap :: (State -> Layout ()) -> Layout a -> Layout a
 wrap i m = Layout $ \ k s -> runLayout (i s) (\ _ s -> runLayout m k s) s
 
-lineGutter :: (CaseStatus -> Layout ()) -> Layout a -> Layout a
+lineGutter :: (Status -> Layout ()) -> Layout a -> Layout a
 lineGutter case' = (nl .) . wrap $ \ s -> do
   topStat space (const (dull Red vline)) (s^.topStatus_)
   space
@@ -419,7 +419,7 @@ lineGutter case' = (nl .) . wrap $ \ s -> do
 heading, line, indentTally :: Layout a -> Layout a
 
 heading = wrap $ \ s -> case s^.caseStatus_ of
-  Just CaseFail -> do
+  Just Fail -> do
     topStat space (dull Red . pos heading1 headingN) (s^.topStatus_)
     maybe space (dull Red . group) (s^?groupStatus_._Just._GroupFail)
     dull Red arrow
@@ -428,7 +428,7 @@ heading = wrap $ \ s -> case s^.caseStatus_ of
     space
     bullet
 
-line = lineGutter (\case{ CasePass -> success vline ; _ -> failure vline })
+line = lineGutter (\case{ Pass -> success vline ; _ -> failure vline })
 
 indentTally = (nl .) . wrap $ \ s -> let top p f = topStat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
   GroupPass   -> top space (dull Red vline) *> space
