@@ -132,7 +132,7 @@ runCase :: Args -> Int -> Case -> Layout Bool
 runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title False
 
-  res <- lift (quickCheckWithResult args property)
+  res <- liftIO (quickCheckWithResult args property)
   tell (fromBool (isSuccess res))
   unless (isSuccess res) $ do
     groupStatus_ %= Just . GroupFail . \case{ Just (GroupFail _) -> Nth ; _ -> First }
@@ -145,8 +145,8 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
         | otherwise     = f
 
   unless (isSuccess res) $ do
-    lift clearFromCursorToLineBeginning
-    lift (setCursorColumn 0)
+    liftIO clearFromCursorToLineBeginning
+    liftIO (setCursorColumn 0)
     failure (title True)
 
   put "   " *> status (failure (put "Failure")) (success (put "Success")) *> liftIO (putStrLn "")
@@ -178,7 +178,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
   where
   title failed = heading $ do
     _ <- withSGR (setBold:[ setColour Red | failed ]) (put (name ++ replicate (width - length name) ' '))
-    lift (hFlush stdout)
+    liftIO (hFlush stdout)
 
 data Stats = Stats
   { numTests     :: Int
@@ -389,17 +389,14 @@ instance Functor Layout where
   fmap f m = Layout (\ k -> runLayout m (k . f))
 
 instance Applicative Layout where
-  pure = lift . pure
+  pure = liftIO . pure
   Layout f <*> Layout a = Layout $ \ k -> f (\ f' -> a (\ a' -> k $! f' a'))
 
 instance Monad Layout where
   m >>= f = Layout $ \ k -> runLayout m (\ a -> runLayout (f a) k)
 
 instance MonadIO Layout where
-  liftIO = lift
-
-lift :: IO a -> Layout a
-lift m = Layout (\ k s -> m >>= (`k` s))
+  liftIO m = Layout (\ k s -> m >>= (`k` s))
 
 tell :: Tally -> Layout ()
 tell t = Layout (\ k s -> k () $! s & tally_ %~ (<> t))
