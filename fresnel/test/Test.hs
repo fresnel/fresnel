@@ -262,8 +262,8 @@ runTally :: Tally -> [Layout ()]
 runTally t =
   [ indentTally $ do
     sepBy_ (put ", " )
-      (  [ success (h_ [ put "\x2713", put (show (successes t)), put (plural (successes t) "success" "successes") ]) | hasSuccesses ]
-      ++ [ failure (h_ [ put "\x2717", put (show (failures t)), put (plural (failures t)  "failure" "failures") ] )  | hasFailures  ])
+      (  [ success (h_ [ put "✓", put (show (successes t)), put (plural (successes t) "success" "successes") ]) | hasSuccesses ]
+      ++ [ failure (h_ [ put "✗", put (show (failures t)),  put (plural (failures t)  "failure" "failures") ])  | hasFailures  ])
 
     putLn "."
   | hasSuccesses || hasFailures
