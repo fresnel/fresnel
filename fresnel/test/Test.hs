@@ -398,10 +398,10 @@ listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
 
-wrap :: (State -> IO ()) -> Layout a -> Layout a
-wrap i m = Layout $ \ k s -> i s *> runLayout m k s
+wrap :: (State -> Layout ()) -> Layout a -> Layout a
+wrap i m = Layout $ \ k s -> runLayout (i s) (\ _ s -> runLayout m k s) s
 
-lineGutter :: IO () -> Layout a -> Layout a
+lineGutter :: Layout () -> Layout a -> Layout a
 lineGutter case' = (nl .) . wrap $ \ s -> do
   case (s^.topStatus_, s^.groupStatus_) of
     (TopPass,   Nothing) -> space
