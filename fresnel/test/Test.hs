@@ -244,9 +244,6 @@ runTables :: Stats -> [Layout ()]
 runTables _ = []
 
 
-fullWidth :: Width -> Int
-fullWidth w = width w + 3 + length "Success"
-
 plural :: Int -> a -> a -> a
 plural 1 s _ = s
 plural _ _ p = p
@@ -440,8 +437,9 @@ indentTally = (nl .) . wrap $ \ s -> let top p f = topStat p (const f) (topStatu
 data Side = Top | Bottom
 
 rule :: Side -> Width -> Maybe Bool -> Layout ()
-rule side width succeeded = lineGutter (const (status succeeded $ case side of { Top -> ['╭', h] ; Bottom -> ['╰', h]})) . status succeeded $ replicate (fullWidth width) h where
+rule side w succeeded = lineGutter (const (status succeeded $ case side of { Top -> ['╭', h] ; Bottom -> ['╰', h]})) . status succeeded $ replicate fullWidth h where
   h = maybe '┈' (const '─') succeeded
+  fullWidth = width w + 3 + length "Success"
 
 
 space, bullet, heading1, headingN, arrow, vline, gtally, end :: MonadIO m => m ()
