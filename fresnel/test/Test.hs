@@ -24,7 +24,6 @@ import           Fresnel.Fold ((^?))
 import           Fresnel.Getter ((^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
-import           Fresnel.Optional (is)
 import           Fresnel.Prism (Prism', prism')
 import           Fresnel.Setter
 import           GHC.Exception.Type (Exception(displayException))
@@ -414,11 +413,11 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 wrap :: (State -> Layout ()) -> Layout a -> Layout a
 wrap i m = Layout $ \ k s -> runLayout (i s) (\ _ s -> runLayout m k s) s
 
-lineGutter :: Layout () -> Layout a -> Layout a
+lineGutter :: (CaseStatus -> Layout ()) -> Layout a -> Layout a
 lineGutter case' = (nl .) . wrap $ \ s -> do
   topStat space (const (dull Red vline)) (s^.topStatus_)
   space
-  when (is _Just (s^.caseStatus_)) case'
+  maybe (pure ()) case' (s^.caseStatus_)
 
 heading, line, indentTally :: Layout a -> Layout a
 
@@ -432,7 +431,7 @@ heading = wrap $ \ s -> case s^.caseStatus_ of
     space
     bullet
 
-line = lineGutter space
+line = lineGutter (\case{ CasePass -> success dvline ; _ -> failure dvline })
 
 indentTally = (nl .) . wrap $ \ s -> let top p f = topStat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
   GroupPass   -> top space (dull Red vline) *> space
@@ -441,16 +440,17 @@ indentTally = (nl .) . wrap $ \ s -> let top p f = topStat p (const f) (topStatu
 data Side = Top | Bottom
 
 rule :: Side -> Width -> Maybe Bool -> Layout ()
-rule side width succeeded = lineGutter (status succeeded $ case side of { Top -> "╭┈" ; Bottom -> "╰┈"}) . status succeeded $ replicate (fullWidth width) '┈'
+rule side width succeeded = lineGutter (const (status succeeded $ case side of { Top -> "╭┈" ; Bottom -> "╰┈"})) . status succeeded $ replicate (fullWidth width) '┈'
 
 
-space, bullet, heading1, headingN, arrow, vline, gtally, end :: MonadIO m => m ()
+space, bullet, heading1, headingN, arrow, vline, dvline, gtally, end :: MonadIO m => m ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
 headingN = put "├─"
 arrow    = put "▶ "
 vline    = put "│ "
+dvline   = put "┊ "
 gtally   = put "┤ "
 end      = put "╰─┤ "
 
