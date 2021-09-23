@@ -104,6 +104,7 @@ sumWidths = horizontal width
 
 vertical :: (Foldable t, Semiring r, Monoid r) => (a -> r) -> t a -> r
 vertical f = foldr ((<>) . f) zero
+
 maxWidths :: (Foldable t, HasWidth a) => t a -> Tropical Int
 maxWidths = vertical width
 
