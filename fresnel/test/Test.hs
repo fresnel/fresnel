@@ -146,7 +146,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
     liftIO (setCursorColumn 0)
     failure (title True)
 
-  put "   " *> (if isSuccess res then failure (put "Failure") else success (put "Success")) *> liftIO (putStrLn "")
+  put "   " *> (if isSuccess res then success (put "Success") else failure (put "Failure")) *> liftIO (putStrLn "")
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
