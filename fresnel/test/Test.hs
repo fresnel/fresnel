@@ -113,7 +113,7 @@ args_ = lens args (\ o args -> o{ args })
 runGroup :: Args -> Int -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ GroupPass $ do
-    line $ withSGR [setBold] $ put groupName
+    line $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName
     bar
     (t, _) <- listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ CasePass (runCase args width c)
@@ -172,7 +172,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
   pure $! isSuccess res
   where
   title failed = heading $ do
-    _ <- withSGR (setBold:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width - length name) ' '))
+    _ <- withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width - length name) ' '))
     liftIO (hFlush stdout)
 
 data Stats = Stats
@@ -294,9 +294,6 @@ instance Semigroup Tally where
 instance Monoid Tally where
   mempty = Tally 0 0
 
-
-setBold :: SGR
-setBold = SetConsoleIntensity BoldIntensity
 
 withSGR :: MonadIO m => [SGR] -> m a -> m a
 withSGR sgr io = liftIO (setSGR sgr) *> io <* liftIO (setSGR [])
