@@ -17,6 +17,7 @@ module Test.Group
 , sumWidths
 , vertical
 , maxWidths
+, Width(..)
 , HasWidth(..)
 ) where
 
@@ -107,6 +108,9 @@ vertical f = foldr ((<>) . f) zero
 
 maxWidths :: (Foldable t, HasWidth a) => t a -> Tropical Int
 maxWidths = vertical maxWidth
+
+newtype Width = Width { width :: Int }
+  deriving (Eq, Ord)
 
 
 class HasWidth t where
