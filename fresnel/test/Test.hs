@@ -434,13 +434,9 @@ heading = wrap $ \ s -> case s^.caseStatus_ of
 
 line = lineGutter space
 
-indentTally = (nl .) . wrap $ \ s -> case (s^.topStatus_, s^.groupStatus_) of
-  (TopPass,   Nothing)            -> space
-  (TopPass,   Just GroupPass)     -> space *> space
-  (TopPass,   Just (GroupFail _)) -> space *> dull Red end
-  (TopFail _, Nothing)            -> dull Red end
-  (TopFail _, Just GroupPass)     -> dull Red vline *> space
-  (TopFail _, Just (GroupFail _)) -> dull Red headingN *> dull Red gtally
+indentTally = (nl .) . wrap $ \ s -> let top p f = topStat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
+  GroupPass   -> top space (dull Red vline) *> space
+  GroupFail _ -> dull Red headingN *> dull Red gtally) (groupStatus s)
 
 data Side = Top | Bottom
 
