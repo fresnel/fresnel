@@ -431,7 +431,7 @@ heading = wrap $ \ s -> case s^.caseStatus_ of
     space
     bullet
 
-line = lineGutter (\case{ CasePass -> success dvline ; _ -> failure dvline })
+line = lineGutter (\case{ CasePass -> success vline ; _ -> failure vline })
 
 indentTally = (nl .) . wrap $ \ s -> let top p f = topStat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
   GroupPass   -> top space (dull Red vline) *> space
@@ -440,17 +440,17 @@ indentTally = (nl .) . wrap $ \ s -> let top p f = topStat p (const f) (topStatu
 data Side = Top | Bottom
 
 rule :: Side -> Width -> Maybe Bool -> Layout ()
-rule side width succeeded = lineGutter (const (status succeeded $ case side of { Top -> "╭┈" ; Bottom -> "╰┈"})) . status succeeded $ replicate (fullWidth width) '┈'
+rule side width succeeded = lineGutter (const (status succeeded $ case side of { Top -> ['╭', h] ; Bottom -> ['╰', h]})) . status succeeded $ replicate (fullWidth width) h where
+  h = maybe '┈' (const '─') succeeded
 
 
-space, bullet, heading1, headingN, arrow, vline, dvline, gtally, end :: MonadIO m => m ()
+space, bullet, heading1, headingN, arrow, vline, gtally, end :: MonadIO m => m ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
 headingN = put "├─"
 arrow    = put "▶ "
 vline    = put "│ "
-dvline   = put "┊ "
 gtally   = put "┤ "
 end      = put "╰─┤ "
 
