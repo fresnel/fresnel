@@ -422,14 +422,14 @@ heading = wrap $ \ s -> do
     Just CaseFail -> dull Red arrow
     _             -> bullet
 
-line = ((<* liftIO (putStrLn "")) .) . wrap $ \ s -> do
+line = (nl .) . wrap $ \ s -> do
   case (s^.topStatus_, s^.groupStatus_) of
     (TopPass,   Nothing) -> space
     (TopPass,   Just _)  -> space *> space
     (TopFail _, _)       -> dull Red vline *> space
   when (is _Just (s^.caseStatus_)) space
 
-indentTally = ((<* liftIO (putStrLn "")) .) . wrap $ \ s -> case (s^.topStatus_, s^.groupStatus_) of
+indentTally = (nl .) . wrap $ \ s -> case (s^.topStatus_, s^.groupStatus_) of
   (TopPass,   Nothing)            -> space
   (TopPass,   Just GroupPass)     -> space *> space
   (TopPass,   Just (GroupFail _)) -> space *> dull Red end
@@ -449,6 +449,9 @@ hline    = put "──"
 vline    = put "│ "
 gtally   = put "┤ "
 end      = put "╰─┤ "
+
+nl :: MonadIO m => m a -> m a
+nl m = m <* liftIO (putStrLn "")
 
 put :: MonadIO m => String -> m ()
 put = liftIO . putStr
