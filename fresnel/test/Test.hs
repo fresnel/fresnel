@@ -172,7 +172,7 @@ runCase args width Group.Case{ name, loc = Loc{ path, lineNumber }, property } =
   pure $! isSuccess res
   where
   title failed = heading $ do
-    _ <- withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width - length name) ' '))
+    withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width - length name) ' '))
     liftIO (hFlush stdout)
 
 data Stats = Stats
