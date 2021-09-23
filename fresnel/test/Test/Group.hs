@@ -118,6 +118,9 @@ instance Semigroup Width where
 instance Monoid Width where
   mempty = Width 0
 
+instance Semiring Width where
+  Width a1 >< Width a2 = Width (a1 * a2)
+
 
 class HasWidth t where
   maxWidth :: t -> Tropical Int
