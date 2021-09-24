@@ -467,7 +467,7 @@ group :: MonadIO m => Pos -> m ()
 group = put . pos "──" "├─"
 
 
-nl :: MonadIO m => m ()
+nl :: Layout ()
 nl = liftIO (putStrLn "")
 
 put :: MonadIO m => String -> m ()
