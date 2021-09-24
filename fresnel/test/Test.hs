@@ -305,7 +305,7 @@ success = vivid Green
 failure = vivid Red
 
 status :: Maybe Status -> Layout a -> Layout a
-status b = maybe id (\case { Fail _ -> failure ; Pass -> success }) b
+status = maybe id (\case { Fail _ -> failure ; Pass -> success })
 
 tropical :: Group
 tropical = Group.Group
