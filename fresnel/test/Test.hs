@@ -288,7 +288,7 @@ instance Monoid Tally where
 
 
 withSGR :: [SGR] -> Layout a -> Layout a
-withSGR sgr io = liftIO (setSGR sgr) *> io <* liftIO (setSGR [])
+withSGR sgr m = withHandle $ \ h -> liftIO (hSetSGR h sgr) *> m <* liftIO (hSetSGR h [])
 
 colour :: ColorIntensity -> Color -> Layout a -> Layout a
 colour i c = withSGR [SetColor Foreground i c]
