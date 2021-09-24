@@ -368,6 +368,15 @@ tally_ = lens tally (\ s tally -> s{ tally })
 topIndent :: (Pos -> Layout ()) -> State -> Layout ()
 topIndent f = stat space (failure' . f) . topStatus
 
+isInGroup :: State -> Bool
+isInGroup = is _Just . groupStatus
+
+isInCase :: State -> Bool
+isInCase = is _Just . caseStatus
+
+isInFailCase :: State -> Bool
+isInFailCase s = case caseStatus s of { Just Fail{} -> True ; _ -> False }
+
 
 newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> Handle -> State -> IO r }
 
@@ -402,29 +411,30 @@ wrap m = Layout $ \ k h s -> runLayout (m s) k h s
 heading, line, indentTally :: Layout a -> Layout a
 
 heading m = wrap $ \ s -> do
-  case caseStatus s of
-    Just (Fail _) -> do
-      topIndent (pos heading1 headingN) s
-      maybe dvline (failure' . group) (s^?groupStatus_._Just._Fail)
-      failure' arrow
-    _ -> do
-      topIndent (const vline) s
-      if is _Just (caseStatus s) then
-        dvline *> bullet
-      else
-        space
+  if isInFailCase s then do
+    topIndent (pos heading1 headingN) s
+    maybe dvline (failure' . group) (s^?groupStatus_._Just._Fail)
+    failure' arrow
+  else do
+    topIndent (const vline) s
+    if isInCase s then
+      dvline *> bullet
+    else
+      space
   m
 
 line m = wrap (\ s -> do
   topIndent (const vline) s
-  when (is _Just (groupStatus s)) dvline
-  when (is _Just (caseStatus  s)) (status (caseStatus s) vline)
+  when (isInGroup s) $ do
+    dvline
+    when (isInCase s) (status (caseStatus s) vline)
   m <* nl)
 
 indentTally m = wrap $ \ s -> do
-  maybe (topIndent (const end) s) (\case
-    Pass   -> topIndent (const vline) s *> space
-    Fail _ -> failure' (headingN *> gtally)) (groupStatus s)
+  case groupStatus s of
+    Nothing     -> topIndent (const end) s
+    Just Pass   -> topIndent (const vline) s *> space
+    Just Fail{} -> failure' (headingN *> gtally)
   m <* nl
 
 data Side = Top | Bottom
@@ -435,7 +445,7 @@ rule side w = wrap $ \ s -> do
       h = maybe '┈' (const '─') c
       corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
   topIndent (const vline) s
-  when (is _Just c) dvline
+  when (isInCase s) dvline
   status c (put (corner ++ replicate fullWidth h))
   nl
   where
