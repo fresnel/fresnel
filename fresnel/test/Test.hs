@@ -299,10 +299,11 @@ vivid = colour Vivid
 dull :: Color -> Layout a -> Layout a
 dull = colour Dull
 
-success, failure :: Layout a -> Layout a
+success, failure, failure' :: Layout a -> Layout a
 
 success = vivid Green
 failure = vivid Red
+failure' = dull Red
 
 status :: Maybe Status -> Layout a -> Layout a
 status = maybe id (\case { Fail _ -> failure ; Pass -> success })
@@ -374,7 +375,7 @@ tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
 
 topIndent :: (Pos -> Layout ()) -> State -> Layout ()
-topIndent f = stat space (dull Red . f) . topStatus
+topIndent f = stat space (failure' . f) . topStatus
 
 
 newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> Handle -> State -> IO r }
@@ -411,8 +412,8 @@ heading m = wrap $ \ s -> do
   case caseStatus s of
     Just (Fail _) -> do
       topIndent (pos heading1 headingN) s
-      maybe dvline (dull Red . group) (s^?groupStatus_._Just._Fail)
-      dull Red arrow
+      maybe dvline (failure' . group) (s^?groupStatus_._Just._Fail)
+      failure' arrow
     _ -> do
       topIndent (const vline) s
       if is _Just (caseStatus s) then
@@ -430,7 +431,7 @@ line m = wrap (\ s -> do
 indentTally m = wrap $ \ s -> do
   maybe (topIndent (const end) s) (\case
     Pass   -> topIndent (const vline) s *> space
-    Fail _ -> dull Red (headingN *> gtally)) (groupStatus s)
+    Fail _ -> failure' (headingN *> gtally)) (groupStatus s)
   m <* nl
 
 data Side = Top | Bottom
