@@ -172,7 +172,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   where
   title failed = heading $ do
     withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width w - length name) ' '))
-    liftIO (hFlush stdout)
+    withHandle (liftIO . hFlush)
 
 data Stats = Stats
   { numTests     :: Int
