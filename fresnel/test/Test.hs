@@ -123,7 +123,7 @@ runGroup args width Group.Group{ groupName, cases } = do
     sequence_ (runTally t)
   line (pure ())
   where
-  bar side = rule side (width <> stimes (2 :: Int) one) Nothing
+  bar side = rule side (width <> stimes (2 :: Int) one)
 
 bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
@@ -150,7 +150,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
-      bar side = when (details || not (isSuccess res) || not (null labels)) (rule side w (Just stat))
+      bar side = when (details || not (isSuccess res) || not (null labels)) (rule side w)
 
   bar Top
 
@@ -436,11 +436,16 @@ indentTally m = wrap $ \ s -> do
 
 data Side = Top | Bottom
 
-rule :: Side -> Width -> Maybe Status -> Layout ()
-rule side w succeeded = wrap $ \ s -> topIndent (const vline) s *> when (is _Just (caseStatus s)) dvline *> status (caseStatus s) (corner ++ replicate fullWidth h) *> nl
+rule :: Side -> Width -> Layout ()
+rule side w = wrap $ \ s -> do
+  let c = caseStatus s
+      h = maybe '┈' (const '─') c
+      corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
+  topIndent (const vline) s
+  when (is _Just c) dvline
+  status c (corner ++ replicate fullWidth h)
+  nl
   where
-  corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
-  h = maybe '┈' (const '─') succeeded
   fullWidth = width w + 3 + length "Success"
 
 
