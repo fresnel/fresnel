@@ -141,8 +141,8 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   caseStatus_ ?= stat
 
   unless (isSuccess res) $ do
-    liftIO clearFromCursorToLineBeginning
-    liftIO (setCursorColumn 0)
+    withHandle (liftIO . hClearFromCursorToLineBeginning)
+    withHandle (liftIO . (`hSetCursorColumn` 0))
     failure (title True)
 
   put "   " *> status (Just stat) (bool "Failure" "Success" (isSuccess res)) *> liftIO (putStrLn "")
@@ -401,6 +401,9 @@ tell t = Layout (\ k _ s -> k () $! s & tally_ %~ (<> t))
 
 listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k h s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) h (s1 & tally_ .~ mempty)
+
+withHandle :: (Handle -> Layout a) -> Layout a
+withHandle f = Layout $ \ k h -> runLayout (f h) k h
 
 
 wrap :: (State -> Layout a) -> Layout a
