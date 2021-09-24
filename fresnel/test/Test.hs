@@ -8,7 +8,7 @@ module Main
 ( main
 ) where
 
-import           Control.Monad (guard, unless, when)
+import           Control.Monad (guard, void, when)
 import           Control.Monad.IO.Class
 import           Data.Bool (bool)
 import           Data.Foldable (for_, toList, traverse_)
@@ -115,9 +115,7 @@ runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ Pass $ do
     heading $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
-    (t, _) <- sandwich True (width <> stimes (2 :: Int) one) $ listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
-      succeeded <- bookend caseStatus_ Pass (runCase args width c)
-      unless succeeded $ groupStatus_ %= Just . Fail . maybe First (stat First (const Nth)))
+    (t, _) <- sandwich True (width <> stimes (2 :: Int) one) $ listen $ sequence_ (intersperse (line (pure ())) (map (void . bookend caseStatus_ Pass . runCase args width) cases))
     sequence_ (runTally t)
   line (pure ())
 
@@ -127,7 +125,7 @@ bookend o v m = o ?= v *> m <* o .= Nothing
 sandwich :: Bool -> Width -> Layout a -> Layout a
 sandwich cond w m = when cond (rule Top w) *> m <* when cond (rule Bottom w)
 
-runCase :: Args -> Width -> Case -> Layout Bool
+runCase :: Args -> Width -> Case -> Layout Status
 runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title False
 
@@ -160,7 +158,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , labels
     , runTables stats
     ]
-  pure $! isSuccess res
+  pure stat'
   where
   record res = do
     s <- if isSuccess res then pure Pass else Fail First <$ recordFail
