@@ -121,7 +121,6 @@ runGroup args width Group.Group{ groupName, cases } = do
       succeeded <- bookend caseStatus_ Pass (runCase args width c)
       unless succeeded $ groupStatus_ %= Just . Fail . maybe First (stat First (const Nth)))
     bar Bottom
-    line (pure ())
     sequence_ (runTally t)
   line (pure ())
   where
