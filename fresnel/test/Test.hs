@@ -308,7 +308,7 @@ success, failure :: MonadIO m => m a -> m a
 success = vivid Green
 failure = vivid Red
 
-status :: MonadIO m => Maybe Status -> String -> m ()
+status :: Maybe Status -> String -> Layout ()
 status b = maybe id (\case { Fail _ -> failure ; Pass -> success }) b . put
 
 tropical :: Group
