@@ -164,12 +164,12 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   pure $! isSuccess res
   where
   record res = do
-    let stat' = if isSuccess res then Pass else Fail Nth
-    unless (isSuccess res) $ do
-      groupStatus_ %= Just . Fail . maybe First (stat First (const Nth))
-      topStatus_ %= Fail . stat First (const Nth)
-    caseStatus_ ?= stat'
-    pure stat'
+    s <- if isSuccess res then pure Pass else Fail First <$ recordFail
+    s <$ (caseStatus_ ?= s)
+  recordFail = do
+    groupStatus_ %= Just . maybe (Fail First) nextStat
+    topStatus_ %= nextStat
+  nextStat = Fail . stat First (const Nth)
   title failed = heading $ do
     withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width w - length name) ' '))
     withHandle (liftIO . hFlush)
