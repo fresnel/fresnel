@@ -410,14 +410,13 @@ wrap m = Layout $ \ k s -> runLayout (m s) k s
 heading, line, indentTally :: Layout a -> Layout a
 
 heading m = wrap $ \ s -> do
-  let top f = stat space (dull Red . f) (topStatus s)
   case caseStatus s of
     Just (Fail _) -> do
-      top (pos heading1 headingN)
+      topIndent (pos heading1 headingN) s
       maybe dvline (dull Red . group) (s^?groupStatus_._Just._Fail)
       dull Red arrow
     _ -> do
-      top (const vline)
+      topIndent (const vline) s
       if is _Just (caseStatus s) then
         dvline *> bullet
       else
