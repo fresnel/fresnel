@@ -133,7 +133,6 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   res <- liftIO (quickCheckWithResult args property)
   stat <- record res
-  tell stat
 
   withHandle (\ h -> do
     isTerminal <- liftIO (hIsTerminalDevice h)
@@ -165,6 +164,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   where
   record res = do
     s <- if isSuccess res then pure Pass else Fail First <$ recordFail
+    tell s
     s <$ (caseStatus_ ?= s)
   recordFail = do
     groupStatus_ %= Just . maybe (Fail First) nextStat
