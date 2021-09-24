@@ -115,7 +115,7 @@ args_ = lens args (\ o args -> o{ args })
 runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ Pass $ do
-    line $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName
+    heading $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
     bar Top
     (t, _) <- listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ Pass (runCase args width c)
@@ -378,6 +378,9 @@ caseStatus_ = lens caseStatus (\ s caseStatus -> s{ caseStatus })
 tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
 
+topIndent :: MonadIO m => (Pos -> m ()) -> State -> m ()
+topIndent f = stat space (dull Red . f) . topStatus
+
 
 newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> State -> IO r }
 
@@ -404,56 +407,53 @@ listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tal
 wrap :: (State -> Layout a) -> Layout a
 wrap m = Layout $ \ k s -> runLayout (m s) k s
 
-gutter :: (Maybe Status -> Maybe Status -> Layout a) -> Layout a
-gutter f = wrap $ \ s -> stat space (const (dull Red vline)) (s^.topStatus_) *> nl (f (groupStatus s) (caseStatus s))
-
-lineGutter :: (Status -> Layout ()) -> (Status -> Layout ()) -> Layout a -> Layout a
-lineGutter group' case' m = wrap $ \ s -> do
-  stat space (const (dull Red vline)) (s^.topStatus_)
-  maybe (pure ()) group' (s^.groupStatus_)
-  maybe (pure ()) case' (s^.caseStatus_)
-  nl m
-
 heading, line, indentTally :: Layout a -> Layout a
 
 heading m = wrap $ \ s -> do
-  case s^.caseStatus_ of
+  let top f = stat space (dull Red . f) (topStatus s)
+  case caseStatus s of
     Just (Fail _) -> do
-      stat space (dull Red . pos heading1 headingN) (s^.topStatus_)
-      maybe space (dull Red . group) (s^?groupStatus_._Just._Fail)
+      top (pos heading1 headingN)
+      maybe dvline (dull Red . group) (s^?groupStatus_._Just._Fail)
       dull Red arrow
     _ -> do
-      stat space (const (dull Red vline)) (s^.topStatus_)
-      space
-      bullet
+      top (const vline)
+      if is _Just (caseStatus s) then
+        dvline *> bullet
+      else
+        space
   m
 
-line = lineGutter (const space) (\case{ Pass -> success vline ; _ -> failure vline })
+line m = wrap (\ s -> do
+  topIndent (const vline) s
+  when (is _Just (groupStatus s)) dvline
+  when (is _Just (caseStatus  s)) (status (caseStatus s) "│ ")
+  m <* nl)
 
 indentTally m = wrap $ \ s -> do
-  let top p f = stat p (const f) (topStatus s)
-  maybe (top space (dull Red end)) (\case
-    Pass   -> top space (dull Red vline) *> space
-    Fail _ -> dull Red headingN *> dull Red gtally) (groupStatus s)
-  nl m
+  maybe (topIndent (const end) s) (\case
+    Pass   -> topIndent (const vline) s *> space
+    Fail _ -> dull Red (headingN *> gtally)) (groupStatus s)
+  m <* nl
 
 data Side = Top | Bottom
 
 rule :: Side -> Width -> Maybe Status -> Layout ()
-rule side w succeeded = gutter $ \ _ c -> when (is _Just c) space *> status c (corner ++ replicate fullWidth h)
+rule side w succeeded = wrap $ \ s -> topIndent (const vline) s *> when (is _Just (caseStatus s)) dvline *> status (caseStatus s) (corner ++ replicate fullWidth h) *> nl
   where
   corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
   h = maybe '┈' (const '─') succeeded
   fullWidth = width w + 3 + length "Success"
 
 
-space, bullet, heading1, headingN, arrow, vline, gtally, end :: MonadIO m => m ()
+space, bullet, heading1, headingN, arrow, vline, dvline, gtally, end :: MonadIO m => m ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
 headingN = put "├─"
 arrow    = put "▶ "
 vline    = put "│ "
+dvline   = put "┊ "
 gtally   = put "┤ "
 end      = put "╰─┤ "
 
@@ -461,8 +461,8 @@ group :: MonadIO m => Pos -> m ()
 group = put . pos "──" "├─"
 
 
-nl :: MonadIO m => m a -> m a
-nl m = m <* liftIO (putStrLn "")
+nl :: MonadIO m => m ()
+nl = liftIO (putStrLn "")
 
 put :: MonadIO m => String -> m ()
 put = liftIO . putStr
