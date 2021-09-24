@@ -302,7 +302,7 @@ failure = colour Vivid Red
 failure' = colour Dull Red
 
 status :: Maybe Status -> Layout a -> Layout a
-status = maybe id (\case { Fail _ -> failure ; Pass -> success })
+status = maybe id (stat success (const failure))
 
 tropical :: Group
 tropical = Group.Group
