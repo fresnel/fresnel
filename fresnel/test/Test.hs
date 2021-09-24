@@ -115,18 +115,18 @@ runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ Pass $ do
     heading $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
-    bar Top
-    (t, _) <- listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
+    (t, _) <- sandwich True width $ listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ Pass (runCase args width c)
       unless succeeded $ groupStatus_ %= Just . Fail . maybe First (stat First (const Nth)))
-    bar Bottom
     sequence_ (runTally t)
   line (pure ())
-  where
-  bar side = rule side (width <> stimes (2 :: Int) one)
 
 bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
+
+sandwich :: Bool -> Width -> Layout a -> Layout a
+sandwich cond w m = when cond (bar Top) *> m <* when cond (bar Bottom) where
+  bar side = rule side (w <> stimes (2 :: Int) one)
 
 runCase :: Args -> Width -> Case -> Layout Bool
 runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
@@ -150,11 +150,8 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
-      bar side = when (details || not (isSuccess res) || not (null labels)) (rule side w)
 
-  bar Top
-
-  v_ $ concat
+  sandwich (details || not (isSuccess res) || not (null labels)) w $ v_ $ concat
     [ [ line (h_ (runStats args stats ++ runClasses stats)) | details ]
     , do
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
@@ -167,7 +164,6 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , labels
     , runTables stats
     ]
-  bar Bottom
   pure $! isSuccess res
   where
   title failed = heading $ do
