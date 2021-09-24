@@ -468,10 +468,10 @@ group = put . pos "──" "├─"
 
 
 nl :: Layout ()
-nl = liftIO (putStrLn "")
+nl = withHandle (liftIO . (`hPutStrLn` ""))
 
 put :: String -> Layout ()
-put = liftIO . putStr
+put s = withHandle (liftIO . (`hPutStr` s))
 
 (%=) :: Setter State State a b -> (a -> b) -> Layout ()
 o %= f = Layout (\ k _ s -> k () (s & o %~ f))
