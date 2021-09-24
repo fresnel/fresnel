@@ -140,10 +140,12 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   let stat = if isSuccess res then Pass else Fail Nth
   caseStatus_ ?= stat
 
-  unless (isSuccess res) $ do
-    withHandle (liftIO . hClearFromCursorToLineBeginning)
-    withHandle (liftIO . (`hSetCursorColumn` 0))
-    failure (title True)
+  withHandle (\ h -> do
+    isTerminal <- liftIO (hIsTerminalDevice h)
+    when (isTerminal && not (isSuccess res)) $ do
+      liftIO (hClearFromCursorToLineBeginning h)
+      liftIO (hSetCursorColumn h 0)
+      failure (title True))
 
   put "   " *> status (Just stat) (put (bool "Failure" "Success" (isSuccess res))) *> nl
 
