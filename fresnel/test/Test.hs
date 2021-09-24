@@ -139,19 +139,20 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   unless (isSuccess res) $ do
     groupStatus_ %= Just . Fail . maybe First (stat First (const Nth))
     topStatus_ %= Fail . stat First (const Nth)
-  caseStatus_ ?= if isSuccess res then Pass else Fail Nth
+  let stat = if isSuccess res then Pass else Fail Nth
+  caseStatus_ ?= stat
 
   unless (isSuccess res) $ do
     liftIO clearFromCursorToLineBeginning
     liftIO (setCursorColumn 0)
     failure (title True)
 
-  put "   " *> status (Just (isSuccess res)) (bool "Failure" "Success" (isSuccess res)) *> liftIO (putStrLn "")
+  put "   " *> status (Just stat) (bool "Failure" "Success" (isSuccess res)) *> liftIO (putStrLn "")
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stats
-      bar side = when (details || not (isSuccess res) || not (null labels)) (rule side w (Just (isSuccess res)))
+      bar side = when (details || not (isSuccess res) || not (null labels)) (rule side w (Just stat))
 
   bar Top
 
@@ -309,8 +310,8 @@ success, failure :: MonadIO m => m a -> m a
 success = vivid Green
 failure = vivid Red
 
-status :: MonadIO m => Maybe Bool -> String -> m ()
-status b = maybe id (bool failure success) b . put
+status :: MonadIO m => Maybe Status -> String -> m ()
+status b = maybe id (\case { Fail _ -> failure ; Pass -> success }) b . put
 
 tropical :: Group
 tropical = Group.Group
@@ -401,37 +402,48 @@ listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
 
 
-wrap :: (State -> Layout ()) -> Layout a -> Layout a
-wrap i m = Layout $ \ k s -> runLayout (i s) (\ _ s -> runLayout m k s) s
+wrap :: (State -> Layout a) -> Layout a
+wrap m = Layout $ \ k s -> runLayout (m s) k s
+
+gutter :: (Maybe Status -> Maybe Status -> Layout a) -> Layout a
+gutter f = wrap $ \ s -> stat space (const (dull Red vline)) (s^.topStatus_) *> nl (f (groupStatus s) (caseStatus s))
 
 lineGutter :: (Status -> Layout ()) -> (Status -> Layout ()) -> Layout a -> Layout a
-lineGutter group' case' = (nl .) . wrap $ \ s -> do
+lineGutter group' case' m = wrap $ \ s -> do
   stat space (const (dull Red vline)) (s^.topStatus_)
   maybe (pure ()) group' (s^.groupStatus_)
   maybe (pure ()) case' (s^.caseStatus_)
+  nl m
 
 heading, line, indentTally :: Layout a -> Layout a
 
-heading = wrap $ \ s -> case s^.caseStatus_ of
-  Just (Fail _) -> do
-    stat space (dull Red . pos heading1 headingN) (s^.topStatus_)
-    maybe space (dull Red . group) (s^?groupStatus_._Just._Fail)
-    dull Red arrow
-  _ -> do
-    stat space (const (dull Red vline)) (s^.topStatus_)
-    space
-    bullet
+heading m = wrap $ \ s -> do
+  case s^.caseStatus_ of
+    Just (Fail _) -> do
+      stat space (dull Red . pos heading1 headingN) (s^.topStatus_)
+      maybe space (dull Red . group) (s^?groupStatus_._Just._Fail)
+      dull Red arrow
+    _ -> do
+      stat space (const (dull Red vline)) (s^.topStatus_)
+      space
+      bullet
+  m
 
 line = lineGutter (const space) (\case{ Pass -> success vline ; _ -> failure vline })
 
-indentTally = (nl .) . wrap $ \ s -> let top p f = stat p (const f) (topStatus s) in maybe (top space (dull Red end)) (\case
-  Pass   -> top space (dull Red vline) *> space
-  Fail _ -> dull Red headingN *> dull Red gtally) (groupStatus s)
+indentTally m = wrap $ \ s -> do
+  let top p f = stat p (const f) (topStatus s)
+  maybe (top space (dull Red end)) (\case
+    Pass   -> top space (dull Red vline) *> space
+    Fail _ -> dull Red headingN *> dull Red gtally) (groupStatus s)
+  nl m
 
 data Side = Top | Bottom
 
-rule :: Side -> Width -> Maybe Bool -> Layout ()
-rule side w succeeded = lineGutter (const space) (const (status succeeded $ case side of { Top -> ['╭', h] ; Bottom -> ['╰', h]})) . status succeeded $ replicate fullWidth h where
+rule :: Side -> Width -> Maybe Status -> Layout ()
+rule side w succeeded = gutter $ \ _ c -> maybe (pure ()) (const space) c *> status c (corner ++ replicate fullWidth h)
+  where
+  corner = case side of { Top -> ['╭', h] ; Bottom -> ['╰', h]}
   h = maybe '┈' (const '─') succeeded
   fullWidth = width w + 3 + length "Success"
 
