@@ -115,7 +115,7 @@ runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupStatus_ Pass $ do
     heading $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
-    (t, _) <- sandwich True width $ listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
+    (t, _) <- sandwich True (width <> stimes (2 :: Int) one) $ listen $ sequence_ (intersperse (line (pure ())) . (`map` cases) $ \ c -> do
       succeeded <- bookend caseStatus_ Pass (runCase args width c)
       unless succeeded $ groupStatus_ %= Just . Fail . maybe First (stat First (const Nth)))
     sequence_ (runTally t)
@@ -126,7 +126,7 @@ bookend o v m = o ?= v *> m <* o .= Nothing
 
 sandwich :: Bool -> Width -> Layout a -> Layout a
 sandwich cond w m = when cond (bar Top) *> m <* when cond (bar Bottom) where
-  bar side = rule side (w <> stimes (2 :: Int) one)
+  bar side = rule side w
 
 runCase :: Args -> Width -> Case -> Layout Bool
 runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
