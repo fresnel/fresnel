@@ -24,7 +24,7 @@ import           Fresnel.Fold ((^?))
 import           Fresnel.Getter ((^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
-import           Fresnel.Prism (Prism', prism')
+import           Fresnel.Prism (Prism', is, prism')
 import           Fresnel.Setter
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
@@ -441,9 +441,9 @@ indentTally m = wrap $ \ s -> do
 data Side = Top | Bottom
 
 rule :: Side -> Width -> Maybe Status -> Layout ()
-rule side w succeeded = gutter $ \ _ c -> maybe (pure ()) (const space) c *> status c (corner ++ replicate fullWidth h)
+rule side w succeeded = gutter $ \ _ c -> when (is _Just c) space *> status c (corner ++ replicate fullWidth h)
   where
-  corner = case side of { Top -> ['╭', h] ; Bottom -> ['╰', h]}
+  corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
   h = maybe '┈' (const '─') succeeded
   fullWidth = width w + 3 + length "Success"
 
