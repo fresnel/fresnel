@@ -133,7 +133,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
 
   res <- liftIO (quickCheckWithResult args property)
   stat <- record res
-  tell (fromStatus stat)
+  tell stat
 
   withHandle (\ h -> do
     isTerminal <- liftIO (hIsTerminalDevice h)
@@ -274,11 +274,6 @@ v_ :: [Layout ()] -> Layout ()
 v_ = sepBy_ (line (pure ()))
 
 
-fromStatus :: Status -> Tally
-fromStatus = \case
-  Fail _ -> Tally 0 1
-  Pass   -> Tally 1 0
-
 isFailure :: Tally -> Bool
 isFailure = (/= 0) . failures
 
@@ -391,8 +386,10 @@ instance Monad Layout where
 instance MonadIO Layout where
   liftIO m = Layout (\ k _ s -> m >>= (`k` s))
 
-tell :: Tally -> Layout ()
-tell t = Layout (\ k _ s -> k () $! s & tally_ %~ (<> t))
+tell :: Status -> Layout ()
+tell status = Layout (\ k _ s -> k () $! s & tally_ %~ (<> case status of
+  Pass   -> Tally 1 0
+  Fail _ -> Tally 0 1))
 
 listen :: Layout a -> Layout (Tally, a)
 listen m = Layout $ \ k h s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) h (s1 & tally_ .~ mempty)
