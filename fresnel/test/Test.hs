@@ -145,7 +145,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
     withHandle (liftIO . (`hSetCursorColumn` 0))
     failure (title True)
 
-  put "   " *> status (Just stat) (bool "Failure" "Success" (isSuccess res)) *> nl
+  put "   " *> status (Just stat) (put (bool "Failure" "Success" (isSuccess res))) *> nl
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
@@ -304,8 +304,8 @@ success, failure :: Layout a -> Layout a
 success = vivid Green
 failure = vivid Red
 
-status :: Maybe Status -> String -> Layout ()
-status b = maybe id (\case { Fail _ -> failure ; Pass -> success }) b . put
+status :: Maybe Status -> Layout a -> Layout a
+status b = maybe id (\case { Fail _ -> failure ; Pass -> success }) b
 
 tropical :: Group
 tropical = Group.Group
@@ -424,7 +424,7 @@ heading m = wrap $ \ s -> do
 line m = wrap (\ s -> do
   topIndent (const vline) s
   when (is _Just (groupStatus s)) dvline
-  when (is _Just (caseStatus  s)) (status (caseStatus s) "│ ")
+  when (is _Just (caseStatus  s)) (status (caseStatus s) vline)
   m <* nl)
 
 indentTally m = wrap $ \ s -> do
@@ -442,7 +442,7 @@ rule side w = wrap $ \ s -> do
       corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
   topIndent (const vline) s
   when (is _Just c) dvline
-  status c (corner ++ replicate fullWidth h)
+  status c (put (corner ++ replicate fullWidth h))
   nl
   where
   fullWidth = width w + 3 + length "Success"
