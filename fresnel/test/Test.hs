@@ -21,7 +21,6 @@ import           Data.Ord (comparing)
 import           Data.Semigroup (stimes)
 import qualified Fold.Test
 import           Fresnel.Fold ((^?))
-import           Fresnel.Getter ((^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
 import           Fresnel.Prism (Prism', is, prism')
