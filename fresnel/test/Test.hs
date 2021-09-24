@@ -132,8 +132,8 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title False
 
   res <- liftIO (quickCheckWithResult args property)
-  tell (fromBool (isSuccess res))
   stat <- record res
+  tell (fromStatus stat)
 
   withHandle (\ h -> do
     isTerminal <- liftIO (hIsTerminalDevice h)
@@ -274,10 +274,10 @@ v_ :: [Layout ()] -> Layout ()
 v_ = sepBy_ (line (pure ()))
 
 
-fromBool :: Bool -> Tally
-fromBool = \case
-  False -> Tally 0 1
-  True  -> Tally 1 0
+fromStatus :: Status -> Tally
+fromStatus = \case
+  Fail _ -> Tally 0 1
+  Pass   -> Tally 1 0
 
 isFailure :: Tally -> Bool
 isFailure = (/= 0) . failures
