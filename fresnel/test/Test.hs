@@ -303,7 +303,7 @@ vivid = colour Vivid
 dull :: MonadIO m => Color -> m a -> m a
 dull = colour Dull
 
-success, failure :: MonadIO m => m a -> m a
+success, failure :: Layout a -> Layout a
 
 success = vivid Green
 failure = vivid Red
