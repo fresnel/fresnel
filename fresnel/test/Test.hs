@@ -463,7 +463,7 @@ dvline   = put "┊ "
 gtally   = put "┤ "
 end      = put "╰─┤ "
 
-group :: MonadIO m => Pos -> m ()
+group :: Pos -> Layout ()
 group = put . pos "──" "├─"
 
 
