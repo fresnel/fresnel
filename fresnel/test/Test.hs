@@ -125,8 +125,7 @@ bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
 
 sandwich :: Bool -> Width -> Layout a -> Layout a
-sandwich cond w m = when cond (bar Top) *> m <* when cond (bar Bottom) where
-  bar side = rule side w
+sandwich cond w m = when cond (rule Top w) *> m <* when cond (rule Bottom w)
 
 runCase :: Args -> Width -> Case -> Layout Bool
 runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
