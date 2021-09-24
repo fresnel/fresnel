@@ -291,16 +291,16 @@ instance Monoid Tally where
   mempty = Tally 0 0
 
 
-withSGR :: MonadIO m => [SGR] -> m a -> m a
+withSGR :: [SGR] -> Layout a -> Layout a
 withSGR sgr io = liftIO (setSGR sgr) *> io <* liftIO (setSGR [])
 
-colour :: MonadIO m => ColorIntensity -> Color -> m a -> m a
+colour :: ColorIntensity -> Color -> Layout a -> Layout a
 colour i c = withSGR [SetColor Foreground i c]
 
-vivid :: MonadIO m => Color -> m a -> m a
+vivid :: Color -> Layout a -> Layout a
 vivid = colour Vivid
 
-dull :: MonadIO m => Color -> m a -> m a
+dull :: Color -> Layout a -> Layout a
 dull = colour Dull
 
 success, failure :: Layout a -> Layout a
