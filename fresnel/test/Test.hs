@@ -377,7 +377,7 @@ caseStatus_ = lens caseStatus (\ s caseStatus -> s{ caseStatus })
 tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
 
-topIndent :: MonadIO m => (Pos -> m ()) -> State -> m ()
+topIndent :: (Pos -> Layout ()) -> State -> Layout ()
 topIndent f = stat space (dull Red . f) . topStatus
 
 
@@ -444,7 +444,7 @@ rule side w succeeded = wrap $ \ s -> topIndent (const vline) s *> when (is _Jus
   fullWidth = width w + 3 + length "Success"
 
 
-space, bullet, heading1, headingN, arrow, vline, dvline, gtally, end :: MonadIO m => m ()
+space, bullet, heading1, headingN, arrow, vline, dvline, gtally, end :: Layout ()
 space    = put "  "
 bullet   = put "☙ "
 heading1 = put "╭─"
