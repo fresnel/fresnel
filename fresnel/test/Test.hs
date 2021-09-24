@@ -77,7 +77,7 @@ parseOpts opts args
 run :: [Group] -> Options -> IO Bool
 run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
   (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-  sequence_ (runTally t)) (const pure) (State Pass Nothing Nothing mempty)
+  sequence_ (runTally t)) (const pure) stdout (State Pass Nothing Nothing mempty)
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -381,30 +381,30 @@ topIndent :: (Pos -> Layout ()) -> State -> Layout ()
 topIndent f = stat space (dull Red . f) . topStatus
 
 
-newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> State -> IO r }
+newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> Handle -> State -> IO r }
 
 instance Functor Layout where
   fmap f m = Layout (\ k -> runLayout m (k . f))
 
 instance Applicative Layout where
   pure = liftIO . pure
-  Layout f <*> Layout a = Layout $ \ k -> f (\ f' -> a (\ a' -> k $! f' a'))
+  Layout f <*> Layout a = Layout $ \ k h -> f (\ f' -> a (\ a' -> k $! f' a') h) h
 
 instance Monad Layout where
-  m >>= f = Layout $ \ k -> runLayout m (\ a -> runLayout (f a) k)
+  m >>= f = Layout $ \ k h -> runLayout m (\ a -> runLayout (f a) k h) h
 
 instance MonadIO Layout where
-  liftIO m = Layout (\ k s -> m >>= (`k` s))
+  liftIO m = Layout (\ k _ s -> m >>= (`k` s))
 
 tell :: Tally -> Layout ()
-tell t = Layout (\ k s -> k () $! s & tally_ %~ (<> t))
+tell t = Layout (\ k _ s -> k () $! s & tally_ %~ (<> t))
 
 listen :: Layout a -> Layout (Tally, a)
-listen m = Layout $ \ k s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) (s1 & tally_ .~ mempty)
+listen m = Layout $ \ k h s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) h (s1 & tally_ .~ mempty)
 
 
 wrap :: (State -> Layout a) -> Layout a
-wrap m = Layout $ \ k s -> runLayout (m s) k s
+wrap m = Layout $ \ k h s -> runLayout (m s) k h s
 
 heading, line, indentTally :: Layout a -> Layout a
 
@@ -466,7 +466,7 @@ put :: MonadIO m => String -> m ()
 put = liftIO . putStr
 
 (%=) :: Setter State State a b -> (a -> b) -> Layout ()
-o %= f = Layout (\ k s -> k () (s & o %~ f))
+o %= f = Layout (\ k _ s -> k () (s & o %~ f))
 
 infix 4 %=
 
