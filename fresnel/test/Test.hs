@@ -470,7 +470,7 @@ group = put . pos "──" "├─"
 nl :: Layout ()
 nl = liftIO (putStrLn "")
 
-put :: MonadIO m => String -> m ()
+put :: String -> Layout ()
 put = liftIO . putStr
 
 (%=) :: Setter State State a b -> (a -> b) -> Layout ()
