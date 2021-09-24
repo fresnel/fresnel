@@ -293,17 +293,11 @@ withSGR sgr io = liftIO (setSGR sgr) *> io <* liftIO (setSGR [])
 colour :: ColorIntensity -> Color -> Layout a -> Layout a
 colour i c = withSGR [SetColor Foreground i c]
 
-vivid :: Color -> Layout a -> Layout a
-vivid = colour Vivid
-
-dull :: Color -> Layout a -> Layout a
-dull = colour Dull
-
 success, failure, failure' :: Layout a -> Layout a
 
-success = vivid Green
-failure = vivid Red
-failure' = dull Red
+success = colour Vivid Green
+failure = colour Vivid Red
+failure' = colour Dull Red
 
 status :: Maybe Status -> Layout a -> Layout a
 status = maybe id (\case { Fail _ -> failure ; Pass -> success })
