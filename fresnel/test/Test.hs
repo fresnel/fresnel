@@ -132,7 +132,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title False
 
   res <- liftIO (quickCheckWithResult args property)
-  stat <- record res
+  stat' <- record res
 
   withHandle (\ h -> do
     isTerminal <- liftIO (hIsTerminalDevice h)
@@ -141,7 +141,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
       liftIO (hSetCursorColumn h 0)
       failure (title True))
 
-  put "   " *> status (Just stat) (put (bool "Failure" "Success" (isSuccess res))) *> nl
+  put "   " *> stat (success (put "Success")) (const (failure (put "Failure"))) stat' *> nl
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
