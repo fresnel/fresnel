@@ -8,7 +8,7 @@ module Main
 ( main
 ) where
 
-import           Control.Monad (guard, void, when)
+import           Control.Monad (guard, join, void, when)
 import           Control.Monad.IO.Class
 import           Data.Bool (bool)
 import           Data.Foldable (for_, toList, traverse_)
@@ -20,11 +20,13 @@ import           Data.Maybe (fromMaybe)
 import           Data.Ord (comparing)
 import           Data.Semigroup (stimes)
 import qualified Fold.Test
-import           Fresnel.Fold ((^?))
+import           Fresnel.Fold (preview, (^?))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
+import           Fresnel.Optional (Optional')
 import           Fresnel.Prism (Prism', is, prism')
 import           Fresnel.Setter
+import           Fresnel.Tuple (snd_)
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
 import qualified Iso.Test
@@ -77,7 +79,7 @@ parseOpts opts args
 run :: [Group] -> Options -> IO Bool
 run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
   (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-  sequence_ (runTally t)) (const pure) stdout (State Pass Nothing Nothing mempty)
+  sequence_ (runTally t)) (const pure) stdout (State Pass Nothing mempty)
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -113,7 +115,7 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
-  bookend groupStatus_ Pass $ do
+  bookend groupStatus_ (Pass, Nothing) $ do
     heading $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
     (t, _) <- sandwich True (width <> stimes (2 :: Int) one) $ listen $ sequence_ (intersperse (line (pure ())) (map (void . bookend caseStatus_ Pass . runCase args width) cases))
     sequence_ (runTally t)
@@ -161,13 +163,13 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   pure stat'
   where
   record res = do
-    s <- if isSuccess res then pure Pass else Fail First <$ recordFail
-    tell s
-    s <$ (caseStatus_ ?= s)
+    s <- bool (Fail First <$ recordFail) (Pass <$ recordPass) (isSuccess res)
+    s <$ tell s
+  recordPass = groupStatus_ .= Just (Pass, Just Pass)
   recordFail = do
-    groupStatus_ %= Just . maybe (Fail First) nextStat
-    topStatus_ %= nextStat
-  nextStat = Fail . stat First (const Nth)
+    let st p = (Fail p, Just (Fail p))
+    groupStatus_ %= Just . st . maybe First (const Nth)
+    topStatus_ %= Fail . stat First (const Nth)
   title failed = heading $ do
     withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width w - length name) ' '))
     withHandle (liftIO . hFlush)
@@ -335,8 +337,7 @@ sparkifyRelativeTo sparks max = fmap spark
 
 data State = State
   { topStatus   :: Status
-  , groupStatus :: Maybe Status
-  , caseStatus  :: Maybe Status
+  , groupStatus :: Maybe (Status, Maybe Status)
   , tally       :: Tally
   }
 
@@ -356,11 +357,11 @@ pos first nth = \case{ First -> first ; Nth -> nth }
 topStatus_ :: Lens' State Status
 topStatus_ = lens topStatus (\ s topStatus -> s{ topStatus })
 
-groupStatus_ :: Lens' State (Maybe Status)
+groupStatus_ :: Lens' State (Maybe (Status, Maybe Status))
 groupStatus_ = lens groupStatus (\ s groupStatus -> s{ groupStatus })
 
-caseStatus_ :: Lens' State (Maybe Status)
-caseStatus_ = lens caseStatus (\ s caseStatus -> s{ caseStatus })
+caseStatus_ :: Optional' State (Maybe Status)
+caseStatus_ = groupStatus_._Just.snd_
 
 tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
@@ -376,6 +377,9 @@ isInCase = is _Just . caseStatus
 
 isInFailCase :: State -> Bool
 isInFailCase s = case caseStatus s of { Just Fail{} -> True ; _ -> False }
+
+caseStatus :: State -> Maybe Status
+caseStatus = join . preview caseStatus_
 
 
 newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> Handle -> State -> IO r }
@@ -413,7 +417,7 @@ heading, line, indentTally :: Layout a -> Layout a
 heading m = wrap $ \ s -> do
   if isInFailCase s then do
     topIndent (pos heading1 headingN) s
-    maybe dvline (failure' . group) (s^?groupStatus_._Just._Fail)
+    maybe dvline (failure' . group) (s^?caseStatus_._Just._Fail)
     failure' arrow
   else do
     topIndent (const vline) s
@@ -432,9 +436,9 @@ line m = wrap (\ s -> do
 
 indentTally m = wrap $ \ s -> do
   case groupStatus s of
-    Nothing     -> topIndent (const end) s
-    Just Pass   -> topIndent (const vline) s *> space
-    Just Fail{} -> failure' (headingN *> gtally)
+    Nothing          -> topIndent (const end) s
+    Just (Pass,   _) -> topIndent (const vline) s *> space
+    Just (Fail{}, _) -> failure' (headingN *> gtally)
   m <* nl
 
 data Side = Top | Bottom
