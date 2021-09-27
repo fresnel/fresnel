@@ -8,6 +8,7 @@ module Main
 ( main
 ) where
 
+import           Control.Applicative (liftA2)
 import           Control.Monad (guard, join, void, when)
 import           Control.Monad.IO.Class
 import           Data.Bool (bool)
@@ -383,6 +384,9 @@ caseStatus = join . preview caseStatus_
 
 
 newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> Handle -> State -> IO r }
+
+instance Semigroup a => Semigroup (Layout a) where
+  (<>) = liftA2 (<>)
 
 instance Functor Layout where
   fmap f m = Layout (\ k -> runLayout m (k . f))
