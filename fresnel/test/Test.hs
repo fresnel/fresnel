@@ -12,7 +12,7 @@ import           Control.Applicative (liftA2)
 import           Control.Monad (guard, join, void, when)
 import           Control.Monad.IO.Class
 import           Data.Bool (bool)
-import           Data.Foldable (for_, toList, traverse_)
+import           Data.Foldable (fold, for_, toList, traverse_)
 import           Data.Function ((&))
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
@@ -265,8 +265,8 @@ runTally t =
   hasFailures = failures t /= 0
 
 
-sepBy_ :: Layout () -> [Layout ()] -> Layout ()
-sepBy_ sep = sequence_ . intersperse sep
+sepBy_ :: Monoid a => Layout a -> [Layout a] -> Layout a
+sepBy_ sep = fold . intersperse sep
 
 h_ :: [Layout ()] -> Layout ()
 h_ = sepBy_ (put " ")
