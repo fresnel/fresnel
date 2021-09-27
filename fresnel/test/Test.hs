@@ -388,6 +388,9 @@ newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> Hand
 instance Semigroup a => Semigroup (Layout a) where
   (<>) = liftA2 (<>)
 
+instance Monoid a => Monoid (Layout a) where
+  mempty = pure mempty
+
 instance Functor Layout where
   fmap f m = Layout (\ k -> runLayout m (k . f))
 
