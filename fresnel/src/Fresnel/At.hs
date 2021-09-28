@@ -49,6 +49,9 @@ instance (Eq k, Hashable k) => At (HashSet.HashSet k) where
 instance (Eq k, Hashable k) => At (HashMap.HashMap k v) where
   at = atMap HashMap.lookup HashMap.insert HashMap.delete
 
+instance At (Maybe a) where
+  at _ = lens id (const id)
+
 
 -- Construction
 
