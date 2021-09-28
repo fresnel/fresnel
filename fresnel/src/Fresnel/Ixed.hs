@@ -66,6 +66,12 @@ instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
 
   ix = ixMap HashMap.lookup HashMap.insert
 
+instance Ixed (Maybe a) where
+  type Index (Maybe a) = ()
+  type IxValue (Maybe a) = a
+
+  ix _ = optional' id (\ _ a -> Just a)
+
 instance Ixed [v] where
   type Index [v] = Int
   type IxValue [v] = v
