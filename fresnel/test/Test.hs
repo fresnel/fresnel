@@ -458,19 +458,21 @@ rule side w = wrap $ \ s -> do
   fullWidth = width w + 3 + length "Success"
 
 
-space, bullet, heading1, headingN, arrow, vline, dvline, gtally, end :: String
+space, bullet, heading1, headingN, arrow, vline, hline, dvline, gtally, end, vlineR :: String
 space    = "  "
 bullet   = "☙ "
 heading1 = "╭─"
 headingN = "├─"
 arrow    = "▶ "
 vline    = "│ "
+hline    = "──"
 dvline   = "┊ "
 gtally   = "┤ "
 end      = "╰─┤ "
+vlineR   = "├─"
 
 group :: Pos -> Layout ()
-group = put . pos "──" "├─"
+group = put . pos hline vlineR
 
 
 nl :: Layout ()
