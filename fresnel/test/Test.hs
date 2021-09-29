@@ -420,7 +420,7 @@ heading p m = wrap $ \ s -> do
   else do
     topIndent (put vline) (isFailure (tally s))
     put $ if isInCase s then
-      dvline <> bullet
+      vline <> bullet
     else
       space
   m
@@ -430,7 +430,7 @@ line, indentTally :: Layout a -> Layout a
 line m = wrap (\ s -> do
   topIndent (put vline) (isFailure (tally s))
   when (isInGroup s) $ do
-    put dvline
+    put vline
     when (isInCase s) (status (caseStatus s) (put vline))
   m <* nl)
 
@@ -447,17 +447,17 @@ data Side = Top | Bottom
 rule :: Side -> Width -> Layout ()
 rule side w = wrap $ \ s -> do
   let c = caseStatus s
-      h = maybe '┈' (const '─') c
       corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
   topIndent (put vline) (isFailure (tally s))
-  when (isInCase s) (put dvline)
+  when (isInCase s) (put vline)
   status c (put (corner ++ replicate fullWidth h))
   nl
   where
+  h = '─'
   fullWidth = width w + 3 + length "Success"
 
 
-space, bullet, heading1, headingN, arrow, vline, hline, dvline, gtally, end, vlineR :: String
+space, bullet, heading1, headingN, arrow, vline, hline, gtally, end, vlineR :: String
 space    = "  "
 bullet   = "☙ "
 heading1 = "╭─"
@@ -465,7 +465,6 @@ headingN = "├─"
 arrow    = "▶ "
 vline    = "│ "
 hline    = "──"
-dvline   = "┊ "
 gtally   = "┤ "
 end      = "╰─┤ "
 vlineR   = "├─"
