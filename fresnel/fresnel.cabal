@@ -91,6 +91,7 @@ test-suite test
     Iso.Test
     Monoid.Fork.Test
     Profunctor.Coexp.Test
+    Review.Test
     Test.Group
   build-depends:
     , ansi-terminal ^>= 0.11

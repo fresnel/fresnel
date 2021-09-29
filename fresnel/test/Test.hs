@@ -34,6 +34,7 @@ import qualified Iso.Test
 import qualified Monoid.Fork.Test
 import           Numeric (readDec, showFFloatAlt)
 import qualified Profunctor.Coexp.Test
+import qualified Review.Test
 import           System.Console.ANSI
 import           System.Console.GetOpt
 import           System.Environment (getArgs, getProgName)
@@ -65,6 +66,7 @@ main = getArgs >>= either printErrors (run groups) . parseOpts opts >>= bool exi
     , Iso.Test.tests
     , Monoid.Fork.Test.tests
     , Profunctor.Coexp.Test.tests
+    , Review.Test.tests
     , tropical
     ]
 
