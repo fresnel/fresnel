@@ -67,6 +67,7 @@ library
   other-modules:
     Fresnel.Iso.Internal
     Fresnel.Lens.Internal
+    Fresnel.Optional.Internal
     Fresnel.OptionalFold.Internal
     Fresnel.Prism.Internal
     Fresnel.Traversal.Internal
