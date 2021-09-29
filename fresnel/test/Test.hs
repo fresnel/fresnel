@@ -416,7 +416,7 @@ heading :: Pos -> Layout a -> Layout a
 
 heading p m = wrap $ \ s -> do
   if isInFailCase s then do
-    topIndent (put (pos heading1 headingN p)) (isFailure (tally s))
+    topIndent (headingGutter p) (isFailure (tally s))
     failure' (group First *> put arrow)
   else do
     topIndent (put vline) (isFailure (tally s))
@@ -473,6 +473,9 @@ vlineR   = "├─"
 
 group :: Pos -> Layout ()
 group = put . pos hline vlineR
+
+headingGutter :: Pos -> Layout ()
+headingGutter = put . pos heading1 headingN
 
 
 nl :: Layout ()
