@@ -363,7 +363,7 @@ tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
 
 topIndent :: Layout () -> Bool -> Layout ()
-topIndent = bool space . failure'
+topIndent = bool (put space) . failure'
 
 isInGroup :: State -> Bool
 isInGroup = is (groupState_._Just)
@@ -416,12 +416,12 @@ heading :: Pos -> Layout a -> Layout a
 
 heading p m = wrap $ \ s -> do
   if isInFailCase s then do
-    topIndent (pos heading1 headingN p) (isFailure (tally s))
-    failure' (group First *> arrow)
+    topIndent (put (pos heading1 headingN p)) (isFailure (tally s))
+    failure' (group First *> put arrow)
   else do
-    topIndent vline (isFailure (tally s))
-    if isInCase s then
-      dvline *> bullet
+    topIndent (put vline) (isFailure (tally s))
+    put $ if isInCase s then
+      dvline <> bullet
     else
       space
   m
@@ -429,18 +429,18 @@ heading p m = wrap $ \ s -> do
 line, indentTally :: Layout a -> Layout a
 
 line m = wrap (\ s -> do
-  topIndent vline (isFailure (tally s))
+  topIndent (put vline) (isFailure (tally s))
   when (isInGroup s) $ do
-    dvline
-    when (isInCase s) (status (caseStatus s) vline)
+    put dvline
+    when (isInCase s) (status (caseStatus s) (put vline))
   m <* nl)
 
 indentTally m = wrap $ \ s -> do
   case groupState s of
-    Nothing         -> topIndent end (isFailure (tally s))
+    Nothing         -> topIndent (put end) (isFailure (tally s))
     Just (t, _)
-      | isFailure t -> failure' (headingN *> gtally)
-      | otherwise   -> topIndent vline (isFailure (tally s)) *> space
+      | isFailure t -> failure' (put (headingN <> gtally))
+      | otherwise   -> topIndent (put vline) (isFailure (tally s)) *> put space
   m <* nl
 
 data Side = Top | Bottom
@@ -450,24 +450,24 @@ rule side w = wrap $ \ s -> do
   let c = caseStatus s
       h = maybe '┈' (const '─') c
       corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
-  topIndent vline (isFailure (tally s))
-  when (isInCase s) dvline
+  topIndent (put vline) (isFailure (tally s))
+  when (isInCase s) (put dvline)
   status c (put (corner ++ replicate fullWidth h))
   nl
   where
   fullWidth = width w + 3 + length "Success"
 
 
-space, bullet, heading1, headingN, arrow, vline, dvline, gtally, end :: Layout ()
-space    = put "  "
-bullet   = put "☙ "
-heading1 = put "╭─"
-headingN = put "├─"
-arrow    = put "▶ "
-vline    = put "│ "
-dvline   = put "┊ "
-gtally   = put "┤ "
-end      = put "╰─┤ "
+space, bullet, heading1, headingN, arrow, vline, dvline, gtally, end :: String
+space    = "  "
+bullet   = "☙ "
+heading1 = "╭─"
+headingN = "├─"
+arrow    = "▶ "
+vline    = "│ "
+dvline   = "┊ "
+gtally   = "┤ "
+end      = "╰─┤ "
 
 group :: Pos -> Layout ()
 group = put . pos "──" "├─"
