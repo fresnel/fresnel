@@ -25,6 +25,7 @@ module Fresnel.Prism
 import Control.Arrow (Kleisli)
 import Control.Monad (guard)
 import Data.Bifunctor (bimap)
+import Data.Maybe (isJust)
 import Data.Profunctor
 import Fresnel.Iso.Internal (IsIso)
 import Fresnel.Optic
@@ -68,7 +69,7 @@ matching' :: Prism s t a b -> (s -> Maybe a)
 matching' o = withPrism o (\ _ prj -> either (const Nothing) Just . prj)
 
 is :: Prism s t a b -> (s -> Bool)
-is o = either (const False) (const True) . matching o
+is o = isJust . matching' o
 
 isn't :: Prism s t a b -> (s -> Bool)
 isn't o = either (const True) (const False) . matching o
