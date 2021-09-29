@@ -10,8 +10,6 @@ module Iso.Test
 import Fresnel.Getter
 import Fresnel.Iso
 import Fresnel.Review
-import Language.Haskell.TH.Lib
-import Language.Haskell.TH.Syntax
 import Test.Group
 import Test.QuickCheck as QC
 
@@ -44,4 +42,4 @@ prop_involuted_invalidity = invalidIso (involuted (+ (1 :: Integer)))
 pure []
 
 tests :: Group
-tests = mkGroup ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
+tests = $mkGroup

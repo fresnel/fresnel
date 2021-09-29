@@ -1,6 +1,7 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TemplateHaskell #-}
 module Test.Group
 ( Group(..)
 , mkGroup
@@ -23,16 +24,18 @@ module Test.Group
 
 import Data.Char (isSpace)
 import GHC.Stack
+import Language.Haskell.TH.Lib
+import Language.Haskell.TH.Syntax (Module(..), modString)
 import Numeric (readDec)
-import Test.QuickCheck (Property)
+import Test.QuickCheck (Property, allProperties)
 
 data Group = Group
   { groupName :: String
   , cases     :: [Case]
   }
 
-mkGroup :: (String, [(String, Property)]) -> Group
-mkGroup = uncurry Group . fmap (map (uncurry mkCase))
+mkGroup :: ExpQ
+mkGroup = [e| Group $(thisModule >>= \ (Module _ name) -> stringE (modString name)) (map (uncurry mkCase) $allProperties) |]
 
 data Case = Case
   { name     :: String

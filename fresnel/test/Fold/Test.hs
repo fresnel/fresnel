@@ -7,8 +7,6 @@ module Fold.Test
 
 import Fresnel.Fold
 import Fresnel.Ixed
-import Language.Haskell.TH.Lib
-import Language.Haskell.TH.Syntax
 import Test.Group
 import Test.QuickCheck
 
@@ -51,4 +49,4 @@ instance Arbitrary a => Arbitrary (ArbFold a) where
 pure []
 
 tests :: Group
-tests = mkGroup ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
+tests = $mkGroup

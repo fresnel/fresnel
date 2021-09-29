@@ -4,8 +4,6 @@ module Profunctor.Coexp.Test
 ) where
 
 import Fresnel.Profunctor.Coexp
-import Language.Haskell.TH.Lib
-import Language.Haskell.TH.Syntax
 import Test.Group
 import Test.QuickCheck
 
@@ -33,4 +31,4 @@ appCoexp c e a = withCoexp c $ \ recall forget -> (recall e, forget a)
 pure []
 
 tests :: Group
-tests = mkGroup ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
+tests = $mkGroup

@@ -6,8 +6,6 @@ module Monoid.Fork.Test
 import Data.Foldable (toList)
 import Data.Ratio
 import Fresnel.Monoid.Fork (Fork(runFork), singleton)
-import Language.Haskell.TH.Lib
-import Language.Haskell.TH.Syntax
 import Test.Group
 import Test.QuickCheck as QC hiding (total)
 
@@ -73,4 +71,4 @@ total (Counts f l n) = f + l + n
 pure []
 
 tests :: Group
-tests = mkGroup ($(thisModule >>= \ (Module _ name) -> stringE (modString name)), $allProperties)
+tests = $mkGroup
