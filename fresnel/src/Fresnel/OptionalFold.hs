@@ -37,7 +37,7 @@ filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 -- Elimination
 
-isn't :: OptionalFold s a -> s -> Bool
+isn't :: OptionalFold s a -> (s -> Bool)
 isn't o = isJust . preview o
 
 traverseOf_ :: Functor f => OptionalFold s a -> ((forall x . x -> f x) -> (a -> f u) -> (s -> f ()))
