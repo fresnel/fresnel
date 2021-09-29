@@ -5,7 +5,7 @@ module Fresnel.OptionalFold.Internal
 import Data.Functor.Contravariant
 import Data.Profunctor
 import Fresnel.Getter (IsGetter)
-import Fresnel.Optional (IsOptional)
+import Fresnel.Optional.Internal (IsOptional)
 import Fresnel.Profunctor.OptionalStar (OptionalStar)
 
 class (IsOptional p, IsGetter p) => IsOptionalFold p
