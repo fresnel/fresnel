@@ -65,6 +65,7 @@ library
     Fresnel.Traversal
     Fresnel.Tuple
   other-modules:
+    Fresnel.Getter.Internal
     Fresnel.Iso.Internal
     Fresnel.Lens.Internal
     Fresnel.Optional.Internal
