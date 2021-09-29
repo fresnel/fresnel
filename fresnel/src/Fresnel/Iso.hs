@@ -56,6 +56,7 @@ import Data.Profunctor.Sieve
 import Data.Tuple (swap)
 import Fresnel.Iso.Internal
 import Fresnel.Optic
+-- import Fresnel.Optional (Optional', isn't, only)
 import Fresnel.Prism
 import Fresnel.Profunctor.Coexp
 import Fresnel.Review (review)

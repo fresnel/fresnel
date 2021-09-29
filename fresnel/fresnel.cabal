@@ -66,6 +66,7 @@ library
     Fresnel.Tuple
   other-modules:
     Fresnel.Iso.Internal
+    Fresnel.Lens.Internal
     Fresnel.OptionalFold.Internal
     Fresnel.Prism.Internal
   build-depends:
