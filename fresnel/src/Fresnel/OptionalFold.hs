@@ -7,6 +7,7 @@ module Fresnel.OptionalFold
 , folding
 , filtered
   -- * Elimination
+, is
 , isn't
 , traverseOf_
 , Failover(..)
@@ -14,7 +15,7 @@ module Fresnel.OptionalFold
 
 import Control.Applicative ((<|>))
 import Data.Functor (void)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, isNothing)
 import Data.Profunctor
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Fold (preview)
@@ -36,6 +37,9 @@ filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 
 -- Elimination
+
+is :: OptionalFold s a -> (s -> Bool)
+is o = isNothing . preview o
 
 isn't :: OptionalFold s a -> (s -> Bool)
 isn't o = isJust . preview o
