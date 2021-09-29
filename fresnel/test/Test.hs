@@ -356,7 +356,7 @@ groupState_ :: Lens' State (Maybe (Tally, Maybe Status))
 groupState_ = lens groupState (\ s groupState -> s{ groupState })
 
 caseStatus_ :: Lens' State (Maybe Status)
-caseStatus_ = lens (snd <=< groupState) (\ s st -> s{ groupState = Just (maybe mempty fst (groupState s), st) })
+caseStatus_ = lens (snd <=< groupState) (\ s st -> s{ groupState = Just (maybe id ((<>) . unit) st (maybe mempty fst (groupState s)), st) })
 
 tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
