@@ -16,7 +16,7 @@ module Fresnel.Setter
 
 import Data.Profunctor.Mapping
 import Fresnel.Optic
-import Fresnel.Traversal (IsTraversal)
+import Fresnel.Traversal.Internal (IsTraversal)
 
 -- Setters
 

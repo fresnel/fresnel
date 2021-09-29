@@ -42,7 +42,7 @@ import Fresnel.Monoid.Fork as Fork
 import Fresnel.Monoid.Snoc as Snoc
 import Fresnel.Optic
 import Fresnel.OptionalFold.Internal (IsOptionalFold)
-import Fresnel.Traversal (IsTraversal)
+import Fresnel.Traversal.Internal (IsTraversal)
 
 -- Folds
 
