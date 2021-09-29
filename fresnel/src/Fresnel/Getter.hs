@@ -16,7 +16,7 @@ import Data.Functor.Contravariant (Contravariant)
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
-import Fresnel.Lens (IsLens)
+import Fresnel.Lens.Internal (IsLens)
 import Fresnel.Optic
 import Fresnel.Profunctor.OptionalStar (OptionalStar)
 

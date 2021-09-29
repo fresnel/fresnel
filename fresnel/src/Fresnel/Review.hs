@@ -19,7 +19,7 @@ import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Void
 import Fresnel.Optic
-import Fresnel.Prism (IsPrism)
+import Fresnel.Prism.Internal (IsPrism)
 import Fresnel.Profunctor.Recall
 
 -- Reviews
