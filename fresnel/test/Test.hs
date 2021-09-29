@@ -118,10 +118,12 @@ runGroup :: Args -> Width -> Group -> Layout ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupState_ (mempty, Nothing) $ do
     heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
-    sandwich True (width <> stimes (2 :: Int) one) (sequence_ (intersperse blank (map (bookend caseStatus_ Pass . runCase args width) cases)))
+    sandwich True width' (sequence_ (intersperse blank (map (bookend caseStatus_ Pass . runCase args width) cases)))
     t <- use (groupState_.to (fmap fst))
     maybe (pure mempty) (sequence_ . runTally) t
   blank
+  where
+  width' = width <> stimes (2 :: Int) one
 
 bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
 bookend o v m = o ?= v *> m <* o .= Nothing
