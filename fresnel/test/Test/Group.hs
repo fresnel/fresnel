@@ -4,6 +4,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Test.Group
 ( Group(..)
+, mkGroup
 , deriveGroup
 , Case(..)
 , mkCase
@@ -34,8 +35,11 @@ data Group = Group
   , cases     :: [Case]
   }
 
+mkGroup :: String -> [(String, Property)] -> Group
+mkGroup name = Group name . map (uncurry mkCase)
+
 deriveGroup :: ExpQ
-deriveGroup = [e| Group $(thisModule >>= \ (Module _ name) -> stringE (modString name)) (map (uncurry mkCase) $allProperties) |]
+deriveGroup = [e| mkGroup $(thisModule >>= \ (Module _ name) -> stringE (modString name)) $allProperties |]
 
 data Case = Case
   { name     :: String
