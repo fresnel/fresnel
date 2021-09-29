@@ -472,6 +472,7 @@ group :: Pos -> Layout ()
 group = put . \case
   First -> hline
   Nth   -> vlineR
+
 headingGutter :: Pos -> Layout ()
 headingGutter = put . \case
   First -> heading1
