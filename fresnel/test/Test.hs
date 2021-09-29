@@ -350,9 +350,6 @@ _Fail = prism' (const Fail) $ \case{ Pass -> Nothing ; Fail -> Just () }
 
 data Pos = First | Nth
 
-pos :: a -> a -> Pos -> a
-pos first nth = \case{ First -> first ; Nth -> nth }
-
 groupState_ :: Lens' State (Maybe (Tally, Maybe Status))
 groupState_ = lens groupState (\ s groupState -> s{ groupState })
 
@@ -472,10 +469,13 @@ end      = "╰─┤ "
 vlineR   = "├─"
 
 group :: Pos -> Layout ()
-group = put . pos hline vlineR
-
+group = put . \case
+  First -> hline
+  Nth   -> vlineR
 headingGutter :: Pos -> Layout ()
-headingGutter = put . pos heading1 headingN
+headingGutter = put . \case
+  First -> heading1
+  Nth   -> headingN
 
 
 nl :: Layout ()
