@@ -15,12 +15,15 @@ module Fresnel.Optional
 , traverseOf
 , is
 , isn't
+  -- * Relations
+, only
   -- * Unpacked
 , UnpackedOptional(..)
 , unpackedOptional
 ) where
 
 import Control.Arrow (Kleisli)
+import Control.Monad (guard)
 import Data.Bifunctor
 import Data.Maybe (isJust, isNothing)
 import Data.Profunctor
@@ -76,6 +79,12 @@ is o = isJust . matching' o
 
 isn't :: Optional s t a b -> (s -> Bool)
 isn't o = isNothing . matching' o
+
+
+-- Relations
+
+only :: Eq a => a -> Optional' a ()
+only a = optional' (guard . (== a)) (\ _ _ -> a)
 
 
 -- Unpacked
