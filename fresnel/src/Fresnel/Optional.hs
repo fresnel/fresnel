@@ -27,8 +27,8 @@ import Control.Monad (guard)
 import Data.Bifunctor
 import Data.Maybe (isJust, isNothing)
 import Data.Profunctor
-import Fresnel.Iso (IsIso)
-import Fresnel.Lens (IsLens)
+import Fresnel.Iso.Internal (IsIso)
+import Fresnel.Lens.Internal (IsLens)
 import Fresnel.Optic
 import Fresnel.Prism.Internal (IsPrism)
 import Fresnel.Profunctor.OptionalStar
