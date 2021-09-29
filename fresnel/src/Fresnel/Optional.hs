@@ -27,7 +27,7 @@ import Data.Profunctor
 import Fresnel.Iso (IsIso)
 import Fresnel.Lens (IsLens)
 import Fresnel.Optic
-import Fresnel.Prism (IsPrism)
+import Fresnel.Prism.Internal (IsPrism)
 import Fresnel.Profunctor.OptionalStar
 
 -- Optional traversals
