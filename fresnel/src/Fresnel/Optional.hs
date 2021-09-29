@@ -14,6 +14,7 @@ module Fresnel.Optional
 , withOptional
 , traverseOf
 , is
+, isn't
   -- * Unpacked
 , UnpackedOptional(..)
 , unpackedOptional
@@ -21,7 +22,7 @@ module Fresnel.Optional
 
 import Control.Arrow (Kleisli)
 import Data.Bifunctor
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, isNothing)
 import Data.Profunctor
 import Fresnel.Iso (IsIso)
 import Fresnel.Lens (IsLens)
@@ -72,6 +73,9 @@ traverseOf o point = runOptionalStar . o . optionalStar point
 
 is :: Optional s t a b -> (s -> Bool)
 is o = isJust . matching' o
+
+isn't :: Optional s t a b -> (s -> Bool)
+isn't o = isNothing . matching' o
 
 
 -- Unpacked
