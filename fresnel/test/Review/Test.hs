@@ -12,4 +12,4 @@ prop_review_unto_involution f x = review (unto (applyFun f)) x === applyFun f x
 pure []
 
 tests :: Group
-tests = $mkGroup
+tests = $deriveGroup

@@ -49,4 +49,4 @@ instance Arbitrary a => Arbitrary (ArbFold a) where
 pure []
 
 tests :: Group
-tests = $mkGroup
+tests = $deriveGroup

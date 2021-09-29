@@ -13,4 +13,4 @@ prop_view_to_involution f x = view (to (applyFun f)) x === applyFun f x
 pure []
 
 tests :: Group
-tests = $mkGroup
+tests = $deriveGroup

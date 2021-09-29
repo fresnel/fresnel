@@ -42,4 +42,4 @@ prop_involuted_invalidity = invalidIso (involuted (+ (1 :: Integer)))
 pure []
 
 tests :: Group
-tests = $mkGroup
+tests = $deriveGroup

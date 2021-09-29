@@ -71,4 +71,4 @@ total (Counts f l n) = f + l + n
 pure []
 
 tests :: Group
-tests = $mkGroup
+tests = $deriveGroup
