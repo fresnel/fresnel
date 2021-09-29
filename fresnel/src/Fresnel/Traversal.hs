@@ -11,25 +11,17 @@ module Fresnel.Traversal
 , traverseOf
 ) where
 
-import Control.Arrow (Kleisli)
 import Data.Profunctor
 import Data.Profunctor.Traversing (Traversing(..))
 import Fresnel.Functor.Backwards
 import Fresnel.Optic
-import Fresnel.Optional (IsOptional)
+import Fresnel.Traversal.Internal (IsTraversal)
 
 -- Traversals
 
 type Traversal s t a b = forall p . IsTraversal p => Optic p s t a b
 
 type Traversal' s a = Traversal s s a a
-
-class (IsOptional p, Traversing p) => IsTraversal p
-
-instance IsTraversal (->)
-instance Monad m => IsTraversal (Kleisli m)
-instance Monoid r => IsTraversal (Forget r)
-instance Applicative f => IsTraversal (Star f)
 
 
 -- Construction
