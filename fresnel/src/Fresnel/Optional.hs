@@ -10,6 +10,7 @@ module Fresnel.Optional
 , optional'
   -- * Elimination
 , matching
+, matching'
 , withOptional
 , traverseOf
 , is
@@ -20,6 +21,7 @@ module Fresnel.Optional
 
 import Control.Arrow (Kleisli)
 import Data.Bifunctor
+import Data.Maybe (isJust)
 import Data.Profunctor
 import Fresnel.Iso (IsIso)
 import Fresnel.Lens (IsLens)
@@ -58,6 +60,9 @@ optional' prj = optional (\ s -> maybe (Left s) Right (prj s))
 
 matching :: Optional s t a b -> (s -> Either t a)
 matching o = withOptional o const
+
+matching' :: Optional s t a b -> (s -> Maybe a)
+matching' o = withOptional o (\ prj _ -> either (const Nothing) Just . prj)
 
 withOptional :: Optional s t a b -> (((s -> Either t a) -> (s -> b -> t) -> r) -> r)
 withOptional o = withUnpackedOptional (o (unpackedOptional Right (const id)))
