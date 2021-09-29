@@ -27,7 +27,7 @@ import Data.Bifunctor (bimap)
 import Data.Profunctor
 import Fresnel.Iso.Internal (IsIso)
 import Fresnel.Optic
-import Fresnel.Optional (is, isn't)
+import Fresnel.Optional (is, isn't, matching, matching')
 import Fresnel.Prism.Internal (IsPrism)
 
 -- Prisms
@@ -50,12 +50,6 @@ prism' inj prj = prism inj (\ s -> maybe (Left s) Right (prj s))
 
 withPrism :: Prism s t a b -> (((b -> t) -> (s -> Either t a) -> r) -> r)
 withPrism o = withUnpackedPrism (o (unpackedPrism id Right))
-
-matching :: Prism s t a b -> (s -> Either t a)
-matching o = withPrism o (const id)
-
-matching' :: Prism s t a b -> (s -> Maybe a)
-matching' o = withPrism o (\ _ prj -> either (const Nothing) Just . prj)
 
 
 -- Relations
