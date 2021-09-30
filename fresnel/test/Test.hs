@@ -253,13 +253,9 @@ singular 1 = "s"
 singular _ = ""
 
 runTally :: (Has (Reader Handle) sig m, MonadIO m) => Tally -> m ()
-runTally t = do
-  sepBy_ (putS ", " )
-    $  [ success (formatTally "✓" "success" "successes" (successes t)) | hasSuccesses t ]
-    ++ [ failure (formatTally "✗" "failure" "failures"  (failures t))  | hasFailures  t ]
-  putS "." <* nl
+runTally t = sepBy_ (putS ", " ) (map success (tally "✓" "success" "successes" (successes t)) ++ map failure (tally "✗" "failure" "failures"  (failures t))) *> putS "." *> nl
   where
-  formatTally prefix s p n = h_ [ putS prefix, putS (show n), putS (plural n s p) ]
+  tally prefix s p n = [ h_ [ putS prefix, putS (show n), putS (plural n s p) ] | n /= 0 ]
 
 
 sepBy_ :: (Applicative m, Monoid a) => m a -> [m a] -> m a
