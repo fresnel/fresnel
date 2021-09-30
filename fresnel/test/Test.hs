@@ -122,7 +122,7 @@ runGroup :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => A
 runGroup args width groupName entries  = do
   topIndent (putS vline)
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
-  t <- sandwich True Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
+  t <- section Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
   traverse_ (\ m -> do
     if isFailure t then
       failure' (putS (headingN <> gtally))
@@ -132,9 +132,6 @@ runGroup args width groupName entries  = do
   t <$ topIndent (putS vline) <* nl
   where
   width' = width <> stimes (2 :: Int) one
-
-sandwich :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Bool -> Maybe Status -> Width -> m a -> m a
-sandwich cond s w m = when cond (rule s Top w) *> m <* when cond (rule s Bottom w)
 
 runProp :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Status
 runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
@@ -158,20 +155,21 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels (Just stat') stats
+      body = v_ (Just stat') $ concat
+        [ [ line (Just stat') (h_ (runStats args stats ++ runClasses stats)) | details ]
+        , do
+          Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
+          pure (do
+            line (Just stat') (putS (path ++ ":" ++ show lineNumber))
+            line (Just stat') (putS reason)
+            for_ theException (line (Just stat') . putS . displayException)
+            for_ failingTestCase (line (Just stat') . putS))
+            <> [ line (Just stat') (putS ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
+        , labels
+        , runTables stats
+        ]
 
-  sandwich (details || not (isSuccess res) || not (null labels)) (Just stat') w $ v_ (Just stat') $ concat
-    [ [ line (Just stat') (h_ (runStats args stats ++ runClasses stats)) | details ]
-    , do
-      Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
-      pure (do
-        line (Just stat') (putS (path ++ ":" ++ show lineNumber))
-        line (Just stat') (putS reason)
-        for_ theException (line (Just stat') . putS . displayException)
-        for_ failingTestCase (line (Just stat') . putS))
-        <> [ line (Just stat') (putS ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
-    , labels
-    , runTables stats
-    ]
+  if details || not (isSuccess res) || not (null labels) then section (Just stat') w body else body
   pure stat'
   where
   title s pos = do
@@ -371,16 +369,11 @@ line st m = do
   when (is _Just st) (status st (putS vline))
   m <* nl
 
-data Side = Top | Bottom
-
-rule :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Side -> Width -> m ()
-rule c side w = do
-  let corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
-  topIndent (putS vline)
-  when (is _Just c) (putS vline)
-  status c (putS (corner ++ replicate fullWidth h))
-  nl
+section :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Width -> m a -> m a
+section s w m = rule '╭' *> m <* rule '╰'
   where
+  rule corner = indent *> status s (putS (corner : h : replicate fullWidth h)) *> nl
+  indent = topIndent (putS vline) *> when (is _Just s) (putS vline)
   h = '─'
   fullWidth = width w + 3 + length "Success"
 
