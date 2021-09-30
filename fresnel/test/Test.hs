@@ -121,7 +121,7 @@ runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) =
 runGroup args width Group.Group{ groupName, entries } = do
   bookend groupState_ (mempty, Nothing) $ do
     heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
-    sandwich True width' (getAp (foldMap Ap (intersperse blank (map (bookend caseStatus_ Pass . fmap unit . runCase args width) entries)))) >>= results
+    sandwich True width' (getAp (foldMap Ap (intersperse blank (map (bookend caseStatus_ Pass . runEntry args width) entries)))) >>= results
   blank
   where
   results t = if successes t == 0 && failures t == 0 then pure mempty else sequence_ (runTally t)
@@ -132,6 +132,11 @@ bookend o v m = o ?= v *> m <* o .= Nothing
 
 sandwich :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Width -> m a -> m a
 sandwich cond w m = when cond (rule Top w) *> m <* when cond (rule Bottom w)
+
+runEntry :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Entry -> m Tally
+runEntry args w = \case
+  GroupEntry g -> runGroup args w g
+  CaseEntry c  -> unit <$> runCase args w c
 
 runCase :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Case -> m Status
 runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
@@ -309,8 +314,8 @@ tropical :: Group
 tropical = Group.Group
   { groupName = "Test.Group.Tropical"
   , entries =
-    [ semigroupAssoc
-    , monoidIdentity
+    [ CaseEntry semigroupAssoc
+    , CaseEntry monoidIdentity
     ]
   }
   where

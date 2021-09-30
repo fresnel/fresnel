@@ -6,6 +6,7 @@ module Test.Group
 ( Group(..)
 , mkGroup
 , deriveGroup
+, Entry(..)
 , Case(..)
 , mkCase
 , Loc(..)
@@ -32,14 +33,18 @@ import Test.QuickCheck (Property, allProperties)
 
 data Group = Group
   { groupName :: String
-  , entries   :: [Case]
+  , entries   :: [Entry]
   }
 
 mkGroup :: String -> [(String, Property)] -> Group
-mkGroup name = Group name . map (uncurry mkCase)
+mkGroup name = Group name . map (CaseEntry . uncurry mkCase)
 
 deriveGroup :: ExpQ
 deriveGroup = [e| mkGroup $(thisModule >>= \ (Module _ name) -> stringE (modString name)) $allProperties |]
+
+data Entry
+  = GroupEntry Group
+  | CaseEntry Case
 
 data Case = Case
   { name     :: String
@@ -140,6 +145,11 @@ instance HasWidth Char where
 
 instance HasWidth Group where
   maxWidth Group{ groupName, entries } = sumWidths groupName <> maxWidths entries
+
+instance HasWidth Entry where
+  maxWidth = \case
+    GroupEntry g -> maxWidth g
+    CaseEntry c  -> maxWidth c
 
 instance HasWidth Case where
   maxWidth Case{ name } = sumWidths name
