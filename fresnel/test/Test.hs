@@ -80,7 +80,7 @@ parseOpts opts args
 runEntries :: [Entry] -> Options -> IO Bool
 runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure) mempty (do
   t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
-  traverse_ (\ m -> topIndent end *> m) (runTally t)))
+  traverse_ (topIndent end *>) (runTally t)))
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
