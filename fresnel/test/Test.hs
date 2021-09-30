@@ -156,7 +156,7 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels (Just stat') stats
       body = sepBy_ (blank (Just stat')) $ concat
-        [ [ line (Just stat') (h_ (runStats args stats ++ runClasses stats)) | details ]
+        [ [ line (Just stat') (sepBy_ (putS " ") (runStats args stats ++ runClasses stats)) | details ]
         , do
           Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
           pure (do
@@ -255,14 +255,11 @@ singular _ = ""
 runTally :: (Has (Reader Handle) sig m, MonadIO m) => Tally -> m ()
 runTally t = sepBy_ (putS ", " ) (map success (tally "✓" "success" "successes" (successes t)) ++ map failure (tally "✗" "failure" "failures"  (failures t))) *> putS "." *> nl
   where
-  tally prefix s p n = [ h_ [ putS prefix, putS (show n), putS (plural n s p) ] | n /= 0 ]
+  tally prefix s p n = [ sepBy_ (putS " ") [ putS prefix, putS (show n), putS (plural n s p) ] | n /= 0 ]
 
 
 sepBy_ :: (Applicative m, Monoid a) => m a -> [m a] -> m a
 sepBy_ sep = getAp . foldMap Ap . intersperse sep
-
-h_ :: (Has (Reader Handle) sig m, MonadIO m) => [m ()] -> m ()
-h_ = sepBy_ (putS " ")
 
 
 isFailure :: Tally -> Bool
