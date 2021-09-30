@@ -127,8 +127,7 @@ runGroup args width groupName entries  = do
   t <- sandwich True Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
   sequence_ (runTally True t)
   groupState_ .= Nothing
-  get >>= \ s -> topIndent (putS vline) (isFailure (tally s)) <* nl
-  pure t
+  t <$ topIndent (putS vline) <* nl
   where
   width' = width <> stimes (2 :: Int) one
 
@@ -359,26 +358,23 @@ groupState_ = lens groupState (\ s groupState -> s{ groupState })
 tally_ :: Lens' TopState Tally
 tally_ = lens tally (\ s tally -> s{ tally })
 
-topIndent :: (Has (Reader Handle) sig m, MonadIO m) => m () -> Bool -> m ()
-topIndent = bool (putS space) . failure'
+topIndent :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => m () -> m ()
+topIndent m = gets (isFailure . tally) >>= bool (putS space) (failure' m)
 
 withHandle :: Has (Reader Handle) sig m => (Handle -> m a) -> m a
 withHandle = join . asks
 
 
-wrap :: Has (State TopState) sig m => (TopState -> m a) -> m a
-wrap = join . gets
-
 blank :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> m ()
 blank s = line s (pure ())
 
 heading :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> Pos -> m a -> m a
-heading st p m = wrap $ \ s -> do
+heading st p m = do
   if is (_Just._Fail) st then do
-    topIndent (headingGutter p) (isFailure (tally s))
+    topIndent (headingGutter p)
     failure' (group First *> putS arrow)
   else do
-    topIndent (putS vline) (isFailure (tally s))
+    topIndent (putS vline)
     putS $ if is _Just st then
       vline <> bullet
     else
@@ -387,28 +383,28 @@ heading st p m = wrap $ \ s -> do
 
 
 line :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> m a -> m a
-line st m = wrap (\ s -> do
-  topIndent (putS vline) (isFailure (tally s))
+line st m = do
+  topIndent (putS vline)
   putS vline
   when (is _Just st) (status st (putS vline))
-  m <* nl)
+  m <* nl
 
 indentTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Tally -> m a -> m a
-indentTally g t m = wrap $ \ s -> do
+indentTally g t m = do
   if not g then
-    topIndent (putS end) (isFailure (tally s))
+    topIndent (putS end)
   else if isFailure t then
     failure' (putS (headingN <> gtally))
   else
-    topIndent (putS vline) (isFailure (tally s)) *> putS space
+    topIndent (putS vline) *> putS space
   m <* nl
 
 data Side = Top | Bottom
 
 rule :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> Side -> Width -> m ()
-rule c side w = wrap $ \ s -> do
+rule c side w = do
   let corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
-  topIndent (putS vline) (isFailure (tally s))
+  topIndent (putS vline)
   when (is _Just c) (putS vline)
   status c (putS (corner ++ replicate fullWidth h))
   nl
