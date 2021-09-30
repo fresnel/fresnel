@@ -116,7 +116,7 @@ groups_ = lens groups (\ o groups -> o{ groups })
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
-runGroup :: Args -> Width -> Group -> Layout ()
+runGroup :: MonadIO m => Args -> Width -> Group -> Layout m ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupState_ (mempty, Nothing) $ do
     heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
@@ -127,13 +127,13 @@ runGroup args width Group.Group{ groupName, cases } = do
   where
   width' = width <> stimes (2 :: Int) one
 
-bookend :: Setter State State a (Maybe b) -> b -> Layout c -> Layout c
+bookend :: Setter State State a (Maybe b) -> b -> Layout m c -> Layout m c
 bookend o v m = o ?= v *> m <* o .= Nothing
 
-sandwich :: Bool -> Width -> Layout a -> Layout a
+sandwich :: MonadIO m => Bool -> Width -> Layout m a -> Layout m a
 sandwich cond w m = when cond (rule Top w) *> m <* when cond (rule Bottom w)
 
-runCase :: Args -> Width -> Case -> Layout Tally
+runCase :: MonadIO m => Args -> Width -> Case -> Layout m Tally
 runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title First False
 
@@ -201,7 +201,7 @@ resultStats = \case
   Failure{ numTests, numDiscarded, numShrinks, failingLabels, failingClasses } -> defaultStats{ numTests, numDiscarded, numShrinks, labels = Map.fromList (map ((, numTests) . pure) failingLabels), classes = Map.fromList (map (,numTests) (toList failingClasses)) }
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables }         -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
-runStats :: Args -> Stats -> [Layout ()]
+runStats :: MonadIO m => Args -> Stats -> [Layout m ()]
 runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepBy_ (put ", ") entries *> put "." | not (null entries) ]
   where
   entries = concat
@@ -211,7 +211,7 @@ runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepB
     ]
 
 
-runLabels :: Stats -> [Layout ()]
+runLabels :: MonadIO m => Stats -> [Layout m ()]
 runLabels Stats{ numTests, labels }
   | null labels = []
   | otherwise   = IntMap.elems numberedLabels >>= param
@@ -234,11 +234,11 @@ runLabels Stats{ numTests, labels }
     scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
     sparked = sparkify (map snd (Map.toList m))
 
-runClasses :: Stats -> [Layout ()]
+runClasses :: MonadIO m => Stats -> [Layout m ()]
 runClasses Stats{ numTests = n, classes } = [ put (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
   class_ n label n' = if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
 
-runTables :: Stats -> [Layout ()]
+runTables :: Stats -> [Layout m ()]
 runTables _ = []
 
 
@@ -250,7 +250,7 @@ singular :: Int -> String
 singular 1 = "s"
 singular _ = ""
 
-runTally :: Tally -> [Layout ()]
+runTally :: MonadIO m => Tally -> [Layout m ()]
 runTally t =
   [ indentTally $ do
     sepBy_ (put ", " )
@@ -265,13 +265,13 @@ runTally t =
   hasFailures = failures t /= 0
 
 
-sepBy_ :: Monoid a => Layout a -> [Layout a] -> Layout a
+sepBy_ :: Monoid a => Layout m a -> [Layout m a] -> Layout m a
 sepBy_ sep = fold . intersperse sep
 
-h_ :: [Layout ()] -> Layout ()
+h_ :: MonadIO m => [Layout m ()] -> Layout m ()
 h_ = sepBy_ (put " ")
 
-v_ :: [Layout ()] -> Layout ()
+v_ :: MonadIO m => [Layout m ()] -> Layout m ()
 v_ = sepBy_ blank
 
 
@@ -290,19 +290,19 @@ instance Monoid Tally where
   mempty = Tally 0 0
 
 
-withSGR :: [SGR] -> Layout a -> Layout a
+withSGR :: MonadIO m => [SGR] -> Layout m a -> Layout m a
 withSGR sgr m = withHandle $ \ h -> liftIO (hSetSGR h sgr) *> m <* liftIO (hSetSGR h [])
 
-colour :: ColorIntensity -> Color -> Layout a -> Layout a
+colour :: MonadIO m => ColorIntensity -> Color -> Layout m a -> Layout m a
 colour i c = withSGR [SetColor Foreground i c]
 
-success, failure, failure' :: Layout a -> Layout a
+success, failure, failure' :: MonadIO m => Layout m a -> Layout m a
 
 success = colour Vivid Green
 failure = colour Vivid Red
 failure' = colour Dull Red
 
-status :: Maybe Status -> Layout a -> Layout a
+status :: MonadIO m => Maybe Status -> Layout m a -> Layout m a
 status = maybe id (stat success failure)
 
 tropical :: Group
@@ -363,7 +363,7 @@ caseStatus_ = lens (snd <=< groupState) (\ s st -> s{ groupState = Just (maybe i
 tally_ :: Lens' State Tally
 tally_ = lens tally (\ s tally -> s{ tally })
 
-topIndent :: Layout () -> Bool -> Layout ()
+topIndent :: MonadIO m => Layout m () -> Bool -> Layout m ()
 topIndent = bool (put space) . failure'
 
 isInGroup :: State -> Bool
@@ -379,41 +379,41 @@ caseStatus :: State -> Maybe Status
 caseStatus = join . preview caseStatus_
 
 
-newtype Layout a = Layout { runLayout :: forall r . (a -> State -> IO r) -> Handle -> State -> IO r }
+newtype Layout m a = Layout { runLayout :: forall r . (a -> State -> m r) -> Handle -> State -> m r }
 
-instance Semigroup a => Semigroup (Layout a) where
+instance Semigroup a => Semigroup (Layout m a) where
   (<>) = liftA2 (<>)
 
-instance Monoid a => Monoid (Layout a) where
+instance Monoid a => Monoid (Layout m a) where
   mempty = pure mempty
 
-instance Functor Layout where
+instance Functor (Layout m) where
   fmap f m = Layout (\ k -> runLayout m (k . f))
 
-instance Applicative Layout where
-  pure = liftIO . pure
+instance Applicative (Layout m) where
+  pure a = Layout $ \ k _ -> k a
   Layout f <*> Layout a = Layout $ \ k h -> f (\ f' -> a (\ a' -> k $! f' a') h) h
 
-instance Monad Layout where
+instance Monad (Layout m) where
   m >>= f = Layout $ \ k h -> runLayout m (\ a -> runLayout (f a) k h) h
 
-instance MonadIO Layout where
-  liftIO m = Layout (\ k _ s -> m >>= (`k` s))
+instance MonadIO m => MonadIO (Layout m) where
+  liftIO m = Layout (\ k _ s -> liftIO m >>= (`k` s))
 
-listen :: Layout a -> Layout (Tally, a)
+listen :: Layout m a -> Layout m (Tally, a)
 listen m = Layout $ \ k h s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) h (s1 & tally_ .~ mempty)
 
-withHandle :: (Handle -> Layout a) -> Layout a
+withHandle :: (Handle -> Layout m a) -> Layout m a
 withHandle f = Layout $ \ k h -> runLayout (f h) k h
 
 
-wrap :: (State -> Layout a) -> Layout a
+wrap :: (State -> Layout m a) -> Layout m a
 wrap m = Layout $ \ k h s -> runLayout (m s) k h s
 
-blank :: Monoid a => Layout a
+blank :: (MonadIO m, Monoid a) => Layout m a
 blank = line (pure mempty)
 
-heading :: Pos -> Layout a -> Layout a
+heading :: MonadIO m => Pos -> Layout m a -> Layout m a
 
 heading p m = wrap $ \ s -> do
   if isInFailCase s then do
@@ -427,7 +427,7 @@ heading p m = wrap $ \ s -> do
       space
   m
 
-line, indentTally :: Layout a -> Layout a
+line, indentTally :: MonadIO m => Layout m a -> Layout m a
 
 line m = wrap (\ s -> do
   topIndent (put vline) (isFailure (tally s))
@@ -446,7 +446,7 @@ indentTally m = wrap $ \ s -> do
 
 data Side = Top | Bottom
 
-rule :: Side -> Width -> Layout ()
+rule :: MonadIO m => Side -> Width -> Layout m ()
 rule side w = wrap $ \ s -> do
   let c = caseStatus s
       corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
@@ -471,33 +471,33 @@ gtally   = "┤ "
 end      = "╰─┤ "
 vlineR   = "├─"
 
-group :: Pos -> Layout ()
+group :: MonadIO m => Pos -> Layout m ()
 group = put . \case
   First -> hline
   Nth   -> vlineR
 
-headingGutter :: Pos -> Layout ()
+headingGutter :: MonadIO m => Pos -> Layout m ()
 headingGutter = put . \case
   First -> heading1
   Nth   -> headingN
 
 
-nl :: Layout ()
+nl :: MonadIO m => Layout m ()
 nl = withHandle (liftIO . (`hPutStrLn` ""))
 
-put :: String -> Layout ()
+put :: MonadIO m => String -> Layout m ()
 put s = withHandle (liftIO . (`hPutStr` s))
 
-(%=) :: Setter State State a b -> (a -> b) -> Layout ()
+(%=) :: Setter State State a b -> (a -> b) -> Layout m ()
 o %= f = Layout (\ k _ s -> k () (s & o %~ f))
 
 infix 4 %=
 
-(.=) :: Setter State State a b -> b -> Layout ()
+(.=) :: Setter State State a b -> b -> Layout m ()
 o .= v = o %= const v
 
-(?=) :: Setter State State a (Maybe b) -> b -> Layout ()
+(?=) :: Setter State State a (Maybe b) -> b -> Layout m ()
 o ?= v = o .= Just v
 
-use :: Getter State a -> Layout a
+use :: Getter State a -> Layout m a
 use o = Layout (\ k _ s -> k (s^.o) s)
