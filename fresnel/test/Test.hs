@@ -348,7 +348,7 @@ blank s = line s (pure ())
 heading :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Status -> Pos -> m ()
 heading st p = case st of
   Pass -> topIndent vline             *> putS vline
-  Fail -> topIndent (headingGutter p) *> failure' (putS (group First ++ arrow))
+  Fail -> topIndent (headingGutter p) *> failure' (putS (hline ++ arrow))
 
 
 line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
@@ -367,7 +367,7 @@ section s w m = rule '╭' *> m <* rule '╰'
   fullWidth = width w + 3 + length "Success"
 
 
-space, bullet, heading1, headingN, arrow, vline, hline, gtally, end, vlineR :: String
+space, bullet, heading1, headingN, arrow, vline, hline, gtally, end :: String
 space    = "  "
 bullet   = "☙ "
 heading1 = "╭─"
@@ -377,12 +377,6 @@ vline    = "│ "
 hline    = "──"
 gtally   = "┤ "
 end      = "╰─┤ "
-vlineR   = "├─"
-
-group :: Pos -> String
-group = \case
-  First -> hline
-  Nth   -> vlineR
 
 headingGutter :: Pos -> String
 headingGutter = \case
