@@ -255,12 +255,9 @@ singular _ = ""
 runTally :: (Has (Reader Handle) sig m, MonadIO m) => Tally -> m ()
 runTally t = do
   sepBy_ (putS ", " )
-    $  [ success (h_ [ putS "✓", putS (show (successes t)), putS (plural (successes t) "success" "successes") ]) | hasSuccesses ]
-    ++ [ failure (h_ [ putS "✗", putS (show (failures t)),  putS (plural (failures t)  "failure" "failures") ])  | hasFailures  ]
+    $  [ success (h_ [ putS "✓", putS (show (successes t)), putS (plural (successes t) "success" "successes") ]) | hasSuccesses t ]
+    ++ [ failure (h_ [ putS "✗", putS (show (failures t)),  putS (plural (failures t)  "failure" "failures") ])  | hasFailures  t ]
   putS "." <* nl
-  where
-  hasSuccesses = successes t /= 0
-  hasFailures = failures t /= 0
 
 
 sepBy_ :: (Applicative m, Monoid a) => m a -> [m a] -> m a
