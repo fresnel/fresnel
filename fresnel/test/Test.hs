@@ -173,7 +173,9 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
   pure stat'
   where
   title s pos = do
-    heading s pos
+    case s of
+      Pass -> topIndent vline                                               *> putS vline
+      Fail -> topIndent (case pos of { First -> heading1 ; _ -> headingN }) *> failure' (putS (hline ++ arrow))
     withSGR (SetConsoleIntensity BoldIntensity:stat [] [ SetColor Foreground Vivid Red ] s) (putS (bullet ++ name ++ replicate (width w - length name) ' '))
     withHandle (liftIO . hFlush)
 
@@ -344,11 +346,6 @@ withHandle = join . asks
 
 blank :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m ()
 blank s = line s (pure ())
-
-heading :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Status -> Pos -> m ()
-heading st p = case st of
-  Pass -> topIndent vline                                             *> putS vline
-  Fail -> topIndent (case p of { First -> heading1 ; _ -> headingN }) *> failure' (putS (hline ++ arrow))
 
 
 line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
