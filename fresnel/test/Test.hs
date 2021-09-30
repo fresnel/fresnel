@@ -80,7 +80,7 @@ parseOpts opts args
 runEntries :: [Entry] -> Options -> IO Bool
 runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure) mempty (do
   t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
-  traverse_ (topIndent end *>) (runTally t)))
+  when (hasSuccesses t || hasFailures t) (topIndent end *> runTally t)))
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -123,12 +123,12 @@ runGroup args width groupName entries  = do
   topIndent vline
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
   t <- section Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
-  traverse_ (\ m -> do
+  when (hasSuccesses t || hasFailures t) $ do
     if isFailure t then
       failure' (putS (headingN <> gtally))
     else
       topIndent vline *> putS space
-    m) (runTally t)
+    runTally t
   t <$ topIndent vline <* nl
   where
   width' = width <> stimes (2 :: Int) one
@@ -252,15 +252,12 @@ singular :: Int -> String
 singular 1 = "s"
 singular _ = ""
 
-runTally :: (Has (Reader Handle) sig m, MonadIO m) => Tally -> [m ()]
-runTally t =
-  [ do
-    sepBy_ (putS ", " )
-      $  [ success (h_ [ putS "✓", putS (show (successes t)), putS (plural (successes t) "success" "successes") ]) | hasSuccesses ]
-      ++ [ failure (h_ [ putS "✗", putS (show (failures t)),  putS (plural (failures t)  "failure" "failures") ])  | hasFailures  ]
-    putS "." <* nl
-  | hasSuccesses || hasFailures
-  ]
+runTally :: (Has (Reader Handle) sig m, MonadIO m) => Tally -> m ()
+runTally t = do
+  sepBy_ (putS ", " )
+    $  [ success (h_ [ putS "✓", putS (show (successes t)), putS (plural (successes t) "success" "successes") ]) | hasSuccesses ]
+    ++ [ failure (h_ [ putS "✗", putS (show (failures t)),  putS (plural (failures t)  "failure" "failures") ])  | hasFailures  ]
+  putS "." <* nl
   where
   hasSuccesses = successes t /= 0
   hasFailures = failures t /= 0
@@ -278,6 +275,12 @@ v_ = sepBy_ . blank
 
 isFailure :: Tally -> Bool
 isFailure = (/= 0) . failures
+
+hasSuccesses :: Tally -> Bool
+hasSuccesses = (/= 0) . successes
+
+hasFailures :: Tally -> Bool
+hasFailures = (/= 0) . failures
 
 unit :: Status -> Tally
 unit = stat (Tally 1 0) (Tally 0 1)
