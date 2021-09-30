@@ -347,10 +347,7 @@ withHandle = join . asks
 
 
 line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m a -> m a
-line m = do
-  topIndent vline
-  putS vline
-  m <* nl
+line m = topIndent vline *> putS vline *> m <* nl
 
 section :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Width -> m a -> m a
 section s w m = rule '╭' *> m <* rule '╰'
