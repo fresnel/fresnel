@@ -80,7 +80,7 @@ parseOpts opts args
 runEntries :: [Entry] -> Options -> IO Bool
 runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure) mempty (do
   t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
-  sequence_ (runTally False t)))
+  traverse_ (\ m -> topIndent (putS end) *> m) (runTally t)))
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -123,7 +123,12 @@ runGroup args width groupName entries  = do
   topIndent (putS vline)
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
   t <- sandwich True Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
-  sequence_ (runTally True t)
+  traverse_ (\ m -> do
+    if isFailure t then
+      failure' (putS (headingN <> gtally))
+    else
+      topIndent (putS vline) *> putS space
+    m) (runTally t)
   t <$ topIndent (putS vline) <* nl
   where
   width' = width <> stimes (2 :: Int) one
@@ -249,21 +254,13 @@ singular :: Int -> String
 singular 1 = "s"
 singular _ = ""
 
-runTally :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Bool -> Tally -> [m ()]
-runTally g t =
+runTally :: (Has (Reader Handle) sig m, MonadIO m) => Tally -> [m ()]
+runTally t =
   [ do
-    if not g then
-      topIndent (putS end)
-    else if isFailure t then
-      failure' (putS (headingN <> gtally))
-    else
-      topIndent (putS vline) *> putS space
-
     sepBy_ (putS ", " )
       $  [ success (h_ [ putS "✓", putS (show (successes t)), putS (plural (successes t) "success" "successes") ]) | hasSuccesses ]
       ++ [ failure (h_ [ putS "✗", putS (show (failures t)),  putS (plural (failures t)  "failure" "failures") ])  | hasFailures  ]
-    putS "."
-    nl
+    putS "." <* nl
   | hasSuccesses || hasFailures
   ]
   where
