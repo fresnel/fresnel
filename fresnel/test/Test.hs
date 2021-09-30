@@ -319,9 +319,9 @@ newtype ArbTropical = ArbTropical (Tropical Int)
   deriving (Eq, Ord, Show)
 
 instance QC.Arbitrary ArbTropical where
-  arbitrary = QC.oneof
-    [ pure (ArbTropical (Tropical Nothing))
-    , ArbTropical . Tropical . Just <$> QC.arbitrary
+  arbitrary = QC.oneof $ map (fmap (ArbTropical . Tropical))
+    [ pure Nothing
+    , Just <$> QC.arbitrary
     ]
 
 
