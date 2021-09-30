@@ -22,7 +22,6 @@ import           Data.Monoid (Ap(..))
 import           Data.Ord (comparing)
 import           Data.Semigroup (stimes)
 import qualified Fold.Test
-import           Fresnel.Getter (Getter, to, (^.))
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
 import           Fresnel.Optional (is)
@@ -80,7 +79,7 @@ parseOpts opts args
   (mods, other, errs) = getOpt RequireOrder opts args
 
 runEntries :: [Entry] -> Options -> IO Bool
-runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure . tally) (TopState mempty) (do
+runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure) mempty (do
   t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
   sequence_ (runTally False t)))
   where
@@ -88,7 +87,7 @@ runEntries groups (Options es args) = runReader stdout (runState (const . pure .
   matching _ [] = id
   matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
 
-runEntry :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Entry -> m Tally
+runEntry :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> Entry -> m Tally
 runEntry args w = \case
   Group name entries -> runGroup args w name entries
   Prop name loc prop -> unit <$> runProp args w name loc prop
@@ -120,7 +119,7 @@ entries_ = lens entries (\ o entries -> o{ entries })
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
-runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
+runGroup :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
 runGroup args width groupName entries  = do
   heading Nothing First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
   t <- sandwich True Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
@@ -129,17 +128,17 @@ runGroup args width groupName entries  = do
   where
   width' = width <> stimes (2 :: Int) one
 
-sandwich :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Maybe Status -> Width -> m a -> m a
+sandwich :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Bool -> Maybe Status -> Width -> m a -> m a
 sandwich cond s w m = when cond (rule s Top w) *> m <* when cond (rule s Bottom w)
 
-runProp :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Status
+runProp :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Status
 runProp args w name Loc{ path, lineNumber } property = do
   title (Just Pass) First False
 
-  pos <- use (tally_.to (bool First Nth . isFailure))
+  pos <- gets (bool First Nth . isFailure)
   res <- liftIO (quickCheckWithResult args property)
   let stat' = if isSuccess res then Pass else Fail
-  tally_ %= (<> unit stat')
+  modify (<> unit stat')
 
   withHandle (\ h -> do
     isTerminal <- liftIO (hIsTerminalDevice h)
@@ -209,7 +208,7 @@ runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepB
     ]
 
 
-runLabels :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> Stats -> [m ()]
+runLabels :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Stats -> [m ()]
 runLabels s Stats{ numTests, labels }
   | null labels = []
   | otherwise   = IntMap.elems numberedLabels >>= param
@@ -248,7 +247,7 @@ singular :: Int -> String
 singular 1 = "s"
 singular _ = ""
 
-runTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Tally -> [m ()]
+runTally :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Bool -> Tally -> [m ()]
 runTally g t =
   [ indentTally g t $ do
     sepBy_ (putS ", " )
@@ -269,7 +268,7 @@ sepBy_ sep = getAp . foldMap Ap . intersperse sep
 h_ :: (Has (Reader Handle) sig m, MonadIO m) => [m ()] -> m ()
 h_ = sepBy_ (putS " ")
 
-v_ :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> [m ()] -> m ()
+v_ :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> [m ()] -> m ()
 v_ = sepBy_ . blank
 
 
@@ -335,8 +334,6 @@ sparkifyRelativeTo sparks max = fmap spark
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
-newtype TopState = TopState { tally :: Tally }
-
 stat :: a -> a -> Status -> a
 stat pass fail = \case{ Pass -> pass ; Fail -> fail }
 
@@ -347,20 +344,18 @@ _Fail = prism' (const Fail) $ \case{ Pass -> Nothing ; Fail -> Just () }
 
 data Pos = First | Nth
 
-tally_ :: Lens' TopState Tally
-tally_ = lens tally (\ s tally -> s{ tally })
 
-topIndent :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => m () -> m ()
-topIndent m = gets (isFailure . tally) >>= bool (putS space) (failure' m)
+topIndent :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m () -> m ()
+topIndent m = gets isFailure >>= bool (putS space) (failure' m)
 
 withHandle :: Has (Reader Handle) sig m => (Handle -> m a) -> m a
 withHandle = join . asks
 
 
-blank :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> m ()
+blank :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m ()
 blank s = line s (pure ())
 
-heading :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> Pos -> m a -> m a
+heading :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Pos -> m a -> m a
 heading st p m = do
   if is (_Just._Fail) st then do
     topIndent (headingGutter p)
@@ -374,14 +369,14 @@ heading st p m = do
   m
 
 
-line :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> m a -> m a
+line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
 line st m = do
   topIndent (putS vline)
   putS vline
   when (is _Just st) (status st (putS vline))
   m <* nl
 
-indentTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Tally -> m a -> m a
+indentTally :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Bool -> Tally -> m a -> m a
 indentTally g t m = do
   if not g then
     topIndent (putS end)
@@ -393,7 +388,7 @@ indentTally g t m = do
 
 data Side = Top | Bottom
 
-rule :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> Side -> Width -> m ()
+rule :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Side -> Width -> m ()
 rule c side w = do
   let corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
   topIndent (putS vline)
@@ -433,11 +428,3 @@ nl = withHandle (liftIO . (`hPutStrLn` ""))
 
 putS :: (Has (Reader Handle) sig m, MonadIO m) => String -> m ()
 putS s = withHandle (liftIO . (`hPutStr` s))
-
-(%=) :: Has (State TopState) sig m => Setter TopState TopState a b -> (a -> b) -> m ()
-o %= f = modify (o %~ f)
-
-infix 4 %=
-
-use :: Has (State TopState) sig m => Getter TopState a -> m a
-use o = gets (^.o)
