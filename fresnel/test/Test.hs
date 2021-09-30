@@ -8,16 +8,17 @@ module Main
 ( main
 ) where
 
-import           Control.Applicative (liftA2)
+import           Control.Carrier.Reader
+import           Control.Carrier.State.Church
 import           Control.Monad (guard, join, when, (<=<))
 import           Control.Monad.IO.Class
 import           Data.Bool (bool)
-import           Data.Foldable (fold, for_, toList, traverse_)
-import           Data.Function ((&))
+import           Data.Foldable (for_, toList, traverse_)
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
+import           Data.Monoid (Ap(..))
 import           Data.Ord (comparing)
 import           Data.Semigroup (stimes)
 import qualified Fold.Test
@@ -47,7 +48,7 @@ import           Test.QuickCheck.Random (QCGen)
 import           Test.QuickCheck.Test (Result(failingClasses))
 
 main :: IO ()
-main = getArgs >>= either printErrors (run groups) . parseOpts opts >>= bool exitFailure exitSuccess
+main = getArgs >>= either printErrors (runGroups groups) . parseOpts opts >>= bool exitFailure exitSuccess
   where
   printErrors errs = getProgName >>= traverse_ (hPutStrLn stderr) . errors errs >> pure False
   errors errs name = errs ++ [usageInfo (header name) opts]
@@ -79,10 +80,10 @@ parseOpts opts args
   options = foldr ($) defaultOptions mods
   (mods, other, errs) = getOpt RequireOrder opts args
 
-run :: [Group] -> Options -> IO Bool
-run groups (Options gs _ args) = not . isFailure . tally <$> runLayout (do
-  (t, _) <- listen (traverse_ (runGroup args w) (matching ((==) . groupName) gs groups))
-  sequence_ (runTally t)) (const pure) stdout (State Nothing mempty)
+runGroups :: [Group] -> Options -> IO Bool
+runGroups groups (Options gs _ args) = runReader stdout (runState (const . pure . not . isFailure . tally) (TopState Nothing mempty) (do
+  t <- getAp (foldMap (Ap . runGroup args w) (matching ((==) . groupName) gs groups))
+  sequence_ (runTally t)))
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -116,23 +117,23 @@ groups_ = lens groups (\ o groups -> o{ groups })
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
-runGroup :: MonadIO m => Args -> Width -> Group -> Layout m ()
+runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Group -> m Tally
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupState_ (mempty, Nothing) $ do
-    heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
-    sandwich True width' (fold (intersperse blank (map (bookend caseStatus_ Pass . fmap unit . runCase args width) cases))) >>= results
+    heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
+    sandwich True width' (getAp (foldMap Ap (intersperse blank (map (bookend caseStatus_ Pass . fmap unit . runCase args width) cases)))) >>= results
   blank
   where
   results t = if successes t == 0 && failures t == 0 then pure mempty else sequence_ (runTally t)
   width' = width <> stimes (2 :: Int) one
 
-bookend :: Setter State State a (Maybe b) -> b -> Layout m c -> Layout m c
+bookend :: Has (State TopState) sig m => Setter TopState TopState a (Maybe b) -> b -> m c -> m c
 bookend o v m = o ?= v *> m <* o .= Nothing
 
-sandwich :: MonadIO m => Bool -> Width -> Layout m a -> Layout m a
+sandwich :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Width -> m a -> m a
 sandwich cond w m = when cond (rule Top w) *> m <* when cond (rule Bottom w)
 
-runCase :: MonadIO m => Args -> Width -> Case -> Layout m Status
+runCase :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Case -> m Status
 runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title First False
 
@@ -149,7 +150,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
       liftIO (hSetCursorColumn h 0)
       failure (title pos True))
 
-  put "   " *> stat (success (put "Success")) (failure (put "Failure")) stat' *> nl
+  putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) stat' *> nl
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
@@ -160,18 +161,18 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , do
       Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
       pure (do
-        line (put (path ++ ":" ++ show lineNumber))
-        line (put reason)
-        for_ theException (line . put . displayException)
-        for_ failingTestCase (line . put))
-        <> [ line (put ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
+        line (putS (path ++ ":" ++ show lineNumber))
+        line (putS reason)
+        for_ theException (line . putS . displayException)
+        for_ failingTestCase (line . putS))
+        <> [ line (putS ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
     , labels
     , runTables stats
     ]
   pure stat'
   where
   title pos failed = heading pos $ do
-    withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width w - length name) ' '))
+    withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (putS (name ++ replicate (width w - length name) ' '))
     withHandle (liftIO . hFlush)
 
 data Stats = Stats
@@ -200,17 +201,17 @@ resultStats = \case
   Failure{ numTests, numDiscarded, numShrinks, failingLabels, failingClasses } -> defaultStats{ numTests, numDiscarded, numShrinks, labels = Map.fromList (map ((, numTests) . pure) failingLabels), classes = Map.fromList (map (,numTests) (toList failingClasses)) }
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables }         -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
-runStats :: MonadIO m => Args -> Stats -> [Layout m ()]
-runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepBy_ (put ", ") entries *> put "." | not (null entries) ]
+runStats :: (Has (Reader Handle) sig m, MonadIO m) => Args -> Stats -> [m ()]
+runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepBy_ (putS ", ") entries *> putS "." | not (null entries) ]
   where
   entries = concat
-    [ [ put (show numTests ++ " test" ++ singular numTests) | numTests > 0 && numTests /= maxSuccess ]
-    , [ put (show numDiscarded ++ " discarded") | numDiscarded > 0 ]
-    , [ put (show numShrinks ++ " shrink" ++ singular numShrinks) | numShrinks > 0 ]
+    [ [ putS (show numTests ++ " test" ++ singular numTests) | numTests > 0 && numTests /= maxSuccess ]
+    , [ putS (show numDiscarded ++ " discarded") | numDiscarded > 0 ]
+    , [ putS (show numShrinks ++ " shrink" ++ singular numShrinks) | numShrinks > 0 ]
     ]
 
 
-runLabels :: MonadIO m => Stats -> [Layout m ()]
+runLabels :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Stats -> [m ()]
 runLabels Stats{ numTests, labels }
   | null labels = []
   | otherwise   = IntMap.elems numberedLabels >>= param
@@ -222,10 +223,10 @@ runLabels Stats{ numTests, labels }
     ]
   param m =
     [ for_ (zip [1..] scaled) $ \ (i, (key, v)) ->
-        line $ put (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
+        line $ putS (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
     , do
-      line $ put [ c | e <- sparked, c <- [e, e, e] ]
-      line $ put [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ]
+      line $ putS [ c | e <- sparked, c <- [e, e, e] ]
+      line $ putS [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ]
     ]
     where
     n = realToFrac numTests :: Double
@@ -233,11 +234,11 @@ runLabels Stats{ numTests, labels }
     scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
     sparked = sparkify (map snd (Map.toList m))
 
-runClasses :: MonadIO m => Stats -> [Layout m ()]
-runClasses Stats{ numTests = n, classes } = [ put (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
+runClasses :: (Has (Reader Handle) sig m, MonadIO m) => Stats -> [m ()]
+runClasses Stats{ numTests = n, classes } = [ putS (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
   class_ n label n' = if n == n' then label else showFFloatAlt (Just 1) (fromIntegral n' / fromIntegral n * 100 :: Double) ('%':' ':label)
 
-runTables :: Stats -> [Layout m ()]
+runTables :: Stats -> [m ()]
 runTables _ = []
 
 
@@ -249,14 +250,14 @@ singular :: Int -> String
 singular 1 = "s"
 singular _ = ""
 
-runTally :: MonadIO m => Tally -> [Layout m ()]
+runTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Tally -> [m ()]
 runTally t =
   [ indentTally $ do
-    sepBy_ (put ", " )
-      (  [ success (h_ [ put "✓", put (show (successes t)), put (plural (successes t) "success" "successes") ]) | hasSuccesses ]
-      ++ [ failure (h_ [ put "✗", put (show (failures t)),  put (plural (failures t)  "failure" "failures") ])  | hasFailures  ])
+    sepBy_ (putS ", " )
+      (  [ success (h_ [ putS "✓", putS (show (successes t)), putS (plural (successes t) "success" "successes") ]) | hasSuccesses ]
+      ++ [ failure (h_ [ putS "✗", putS (show (failures t)),  putS (plural (failures t)  "failure" "failures") ])  | hasFailures  ])
 
-    put "."
+    putS "."
   | hasSuccesses || hasFailures
   ]
   where
@@ -264,13 +265,13 @@ runTally t =
   hasFailures = failures t /= 0
 
 
-sepBy_ :: Monoid a => Layout m a -> [Layout m a] -> Layout m a
-sepBy_ sep = fold . intersperse sep
+sepBy_ :: (Applicative m, Monoid a) => m a -> [m a] -> m a
+sepBy_ sep = getAp . foldMap Ap . intersperse sep
 
-h_ :: MonadIO m => [Layout m ()] -> Layout m ()
-h_ = sepBy_ (put " ")
+h_ :: (Has (Reader Handle) sig m, MonadIO m) => [m ()] -> m ()
+h_ = sepBy_ (putS " ")
 
-v_ :: MonadIO m => [Layout m ()] -> Layout m ()
+v_ :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => [m ()] -> m ()
 v_ = sepBy_ blank
 
 
@@ -289,19 +290,19 @@ instance Monoid Tally where
   mempty = Tally 0 0
 
 
-withSGR :: MonadIO m => [SGR] -> Layout m a -> Layout m a
+withSGR :: (Has (Reader Handle) sig m, MonadIO m) => [SGR] -> m a -> m a
 withSGR sgr m = withHandle $ \ h -> liftIO (hSetSGR h sgr) *> m <* liftIO (hSetSGR h [])
 
-colour :: MonadIO m => ColorIntensity -> Color -> Layout m a -> Layout m a
+colour :: (Has (Reader Handle) sig m, MonadIO m) => ColorIntensity -> Color -> m a -> m a
 colour i c = withSGR [SetColor Foreground i c]
 
-success, failure, failure' :: MonadIO m => Layout m a -> Layout m a
+success, failure, failure' :: (Has (Reader Handle) sig m, MonadIO m) => m a -> m a
 
 success = colour Vivid Green
 failure = colour Vivid Red
 failure' = colour Dull Red
 
-status :: MonadIO m => Maybe Status -> Layout m a -> Layout m a
+status :: (Has (Reader Handle) sig m, MonadIO m) => Maybe Status -> m a -> m a
 status = maybe id (stat success failure)
 
 tropical :: Group
@@ -338,7 +339,7 @@ sparkifyRelativeTo sparks max = fmap spark
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
-data State = State
+data TopState = TopState
   { groupState :: Maybe (Tally, Maybe Status)
   , tally      :: Tally
   }
@@ -353,105 +354,81 @@ _Fail = prism' (const Fail) $ \case{ Pass -> Nothing ; Fail -> Just () }
 
 data Pos = First | Nth
 
-groupState_ :: Lens' State (Maybe (Tally, Maybe Status))
+groupState_ :: Lens' TopState (Maybe (Tally, Maybe Status))
 groupState_ = lens groupState (\ s groupState -> s{ groupState })
 
-caseStatus_ :: Lens' State (Maybe Status)
+caseStatus_ :: Lens' TopState (Maybe Status)
 caseStatus_ = lens (snd <=< groupState) (\ s st -> s{ groupState = Just (maybe id ((<>) . unit) st (maybe mempty fst (groupState s)), st) })
 
-tally_ :: Lens' State Tally
+tally_ :: Lens' TopState Tally
 tally_ = lens tally (\ s tally -> s{ tally })
 
-topIndent :: MonadIO m => Layout m () -> Bool -> Layout m ()
-topIndent = bool (put space) . failure'
+topIndent :: (Has (Reader Handle) sig m, MonadIO m) => m () -> Bool -> m ()
+topIndent = bool (putS space) . failure'
 
-isInGroup :: State -> Bool
+isInGroup :: TopState -> Bool
 isInGroup = is (groupState_._Just)
 
-isInCase :: State -> Bool
+isInCase :: TopState -> Bool
 isInCase = is (caseStatus_._Just)
 
-isInFailCase :: State -> Bool
+isInFailCase :: TopState -> Bool
 isInFailCase = is (caseStatus_._Just._Fail)
 
-caseStatus :: State -> Maybe Status
+caseStatus :: TopState -> Maybe Status
 caseStatus = join . preview caseStatus_
 
 
-newtype Layout m a = Layout { runLayout :: forall r . (a -> State -> m r) -> Handle -> State -> m r }
-
-instance Semigroup a => Semigroup (Layout m a) where
-  (<>) = liftA2 (<>)
-
-instance Monoid a => Monoid (Layout m a) where
-  mempty = pure mempty
-
-instance Functor (Layout m) where
-  fmap f m = Layout (\ k -> runLayout m (k . f))
-
-instance Applicative (Layout m) where
-  pure a = Layout $ \ k _ -> k a
-  Layout f <*> Layout a = Layout $ \ k h -> f (\ f' -> a (\ a' -> k $! f' a') h) h
-
-instance Monad (Layout m) where
-  m >>= f = Layout $ \ k h -> runLayout m (\ a -> runLayout (f a) k h) h
-
-instance MonadIO m => MonadIO (Layout m) where
-  liftIO m = Layout (\ k _ s -> liftIO m >>= (`k` s))
-
-listen :: Layout m a -> Layout m (Tally, a)
-listen m = Layout $ \ k h s1 -> runLayout m (\ a s2 -> k (tally s2, a) $! s2 & tally_ %~ (tally s1 <>)) h (s1 & tally_ .~ mempty)
-
-withHandle :: (Handle -> Layout m a) -> Layout m a
-withHandle f = Layout $ \ k h -> runLayout (f h) k h
+withHandle :: Has (Reader Handle) sig m => (Handle -> m a) -> m a
+withHandle = join . asks
 
 
-wrap :: (State -> Layout m a) -> Layout m a
-wrap m = Layout $ \ k h s -> runLayout (m s) k h s
+wrap :: Has (State TopState) sig m => (TopState -> m a) -> m a
+wrap = join . gets
 
-blank :: (MonadIO m, Monoid a) => Layout m a
+blank :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m, Monoid a) => m a
 blank = line (pure mempty)
 
-heading :: MonadIO m => Pos -> Layout m a -> Layout m a
+heading :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Pos -> m a -> m a
 
 heading p m = wrap $ \ s -> do
   if isInFailCase s then do
     topIndent (headingGutter p) (isFailure (tally s))
-    failure' (group First *> put arrow)
+    failure' (group First *> putS arrow)
   else do
-    topIndent (put vline) (isFailure (tally s))
-    put $ if isInCase s then
+    topIndent (putS vline) (isFailure (tally s))
+    putS $ if isInCase s then
       vline <> bullet
     else
       space
   m
 
-line, indentTally :: MonadIO m => Layout m a -> Layout m a
+line, indentTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => m a -> m a
 
 line m = wrap (\ s -> do
-  topIndent (put vline) (isFailure (tally s))
+  topIndent (putS vline) (isFailure (tally s))
   when (isInGroup s) $ do
-    put vline
-    when (isInCase s) (status (caseStatus s) (put vline))
+    putS vline
+    when (isInCase s) (status (caseStatus s) (putS vline))
   m <* nl)
 
 indentTally m = wrap $ \ s -> do
   case groupState s of
-    Nothing         -> topIndent (put end) (isFailure (tally s))
+    Nothing         -> topIndent (putS end) (isFailure (tally s))
     Just (t, _)
-      | isFailure t -> failure' (put (headingN <> gtally))
-      | otherwise   -> topIndent (put vline) (isFailure (tally s)) *> put space
+      | isFailure t -> failure' (putS (headingN <> gtally))
+      | otherwise   -> topIndent (putS vline) (isFailure (tally s)) *> putS space
   m <* nl
 
 data Side = Top | Bottom
 
-rule :: MonadIO m => Side -> Width -> Layout m ()
+rule :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Side -> Width -> m ()
 rule side w = wrap $ \ s -> do
   let c = caseStatus s
       corner = case side of { Top -> '╭' ; Bottom -> '╰' } : [h]
-  topIndent (put vline) (isFailure (tally s))
-  when (isInCase s) (put vline)
-  status c (put (corner ++ replicate fullWidth h))
+  topIndent (putS vline) (isFailure (tally s))
+  when (isInCase s) (putS vline)
+  status c (putS (corner ++ replicate fullWidth h))
   nl
   where
   h = '─'
@@ -470,33 +447,33 @@ gtally   = "┤ "
 end      = "╰─┤ "
 vlineR   = "├─"
 
-group :: MonadIO m => Pos -> Layout m ()
-group = put . \case
+group :: (Has (Reader Handle) sig m, MonadIO m) => Pos -> m ()
+group = putS . \case
   First -> hline
   Nth   -> vlineR
 
-headingGutter :: MonadIO m => Pos -> Layout m ()
-headingGutter = put . \case
+headingGutter :: (Has (Reader Handle) sig m, MonadIO m) => Pos -> m ()
+headingGutter = putS . \case
   First -> heading1
   Nth   -> headingN
 
 
-nl :: MonadIO m => Layout m ()
+nl :: (Has (Reader Handle) sig m, MonadIO m) => m ()
 nl = withHandle (liftIO . (`hPutStrLn` ""))
 
-put :: MonadIO m => String -> Layout m ()
-put s = withHandle (liftIO . (`hPutStr` s))
+putS :: (Has (Reader Handle) sig m, MonadIO m) => String -> m ()
+putS s = withHandle (liftIO . (`hPutStr` s))
 
-(%=) :: Setter State State a b -> (a -> b) -> Layout m ()
-o %= f = Layout (\ k _ s -> k () (s & o %~ f))
+(%=) :: Has (State TopState) sig m => Setter TopState TopState a b -> (a -> b) -> m ()
+o %= f = modify (o %~ f)
 
 infix 4 %=
 
-(.=) :: Setter State State a b -> b -> Layout m ()
+(.=) :: Has (State TopState) sig m => Setter TopState TopState a b -> b -> m ()
 o .= v = o %= const v
 
-(?=) :: Setter State State a (Maybe b) -> b -> Layout m ()
+(?=) :: Has (State TopState) sig m => Setter TopState TopState a (Maybe b) -> b -> m ()
 o ?= v = o .= Just v
 
-use :: Getter State a -> Layout m a
-use o = Layout (\ k _ s -> k (s^.o) s)
+use :: Has (State TopState) sig m => Getter TopState a -> m a
+use o = gets (^.o)
