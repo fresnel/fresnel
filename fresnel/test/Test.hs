@@ -122,7 +122,7 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
 runGroup args width groupName entries  = do
-  bookend groupState_ (mempty, Nothing) $ do
+  bookend groupState_ mempty $ do
     heading Nothing First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
     sandwich True Nothing width' (getAp (foldMap Ap (intersperse (blank Nothing) (map (runEntry args width) entries)))) >>= results
   blank Nothing
@@ -340,7 +340,7 @@ sparkifyRelativeTo sparks max = fmap spark
 
 
 data TopState = TopState
-  { groupState :: Maybe (Tally, Maybe Status)
+  { groupState :: Maybe Tally
   , tally      :: Tally
   }
 
@@ -354,7 +354,7 @@ _Fail = prism' (const Fail) $ \case{ Pass -> Nothing ; Fail -> Just () }
 
 data Pos = First | Nth
 
-groupState_ :: Lens' TopState (Maybe (Tally, Maybe Status))
+groupState_ :: Lens' TopState (Maybe Tally)
 groupState_ = lens groupState (\ s groupState -> s{ groupState })
 
 tally_ :: Lens' TopState Tally
@@ -402,7 +402,7 @@ indentTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m
 indentTally m = wrap $ \ s -> do
   case groupState s of
     Nothing         -> topIndent (putS end) (isFailure (tally s))
-    Just (t, _)
+    Just t
       | isFailure t -> failure' (putS (headingN <> gtally))
       | otherwise   -> topIndent (putS vline) (isFailure (tally s)) *> putS space
   m <* nl
