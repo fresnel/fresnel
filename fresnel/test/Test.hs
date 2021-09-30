@@ -302,8 +302,8 @@ tropical = Group.Group
   , monoidIdentity
   ]
   where
-  semigroupAssoc = Group.Prop"semigroup assoc" here $ QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c)
-  monoidIdentity = Group.Prop"monoid identity" here $ QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)
+  semigroupAssoc = Group.Prop "semigroup assoc" here $ QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c)
+  monoidIdentity = Group.Prop "monoid identity" here $ QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)
 
 newtype ArbTropical = ArbTropical (Tropical Int)
   deriving (Eq, Ord, Show)
