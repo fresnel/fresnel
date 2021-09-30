@@ -25,7 +25,6 @@ import qualified Fold.Test
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
 import           Fresnel.Optional (is)
-import           Fresnel.Prism (Prism', prism')
 import           Fresnel.Setter
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
@@ -341,9 +340,6 @@ stat :: a -> a -> Status -> a
 stat pass fail = \case{ Pass -> pass ; Fail -> fail }
 
 data Status = Pass | Fail
-
-_Fail :: Prism' Status ()
-_Fail = prism' (const Fail) $ \case{ Pass -> Nothing ; Fail -> Just () }
 
 data Pos = First | Nth
 
