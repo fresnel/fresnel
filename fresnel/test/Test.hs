@@ -79,9 +79,10 @@ parseOpts opts args
 
 runEntries :: [Entry] -> Options -> IO Bool
 runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . hasFailures) mempty (do
-  t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
-  when (hasSuccesses t || hasFailures t) (topIndent end *> runTally t)))
+  t <- getAp (foldMap Ap (intersperse (mempty <$ blank <* blank) (map (runEntry args w) (matching ((==) . entryName) es groups))))
+  when (hasSuccesses t || hasFailures t) (blank *> topIndent end *> runTally t)))
   where
+  blank = topIndent vline <* nl
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
   matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
@@ -129,8 +130,7 @@ runGroup args width groupName entries  = do
     else
       topIndent vline *> putS space
     runTally t
-  topIndent vline <* nl
-  t <$ topIndent vline <* nl
+  pure t
   where
   width' = width <> stimes (2 :: Int) one
 
