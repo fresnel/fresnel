@@ -120,11 +120,10 @@ runGroup :: MonadIO m => Args -> Width -> Group -> Layout m ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupState_ (mempty, Nothing) $ do
     heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
-    sandwich True width' (sequence_ (intersperse blank (map (bookend caseStatus_ Pass . fmap unit . runCase args width) cases)))
-    t <- use (groupState_.to (fmap fst))
-    maybe (pure mempty) (sequence_ . runTally) t
+    sandwich True width' (fold (intersperse blank (map (bookend caseStatus_ Pass . fmap unit . runCase args width) cases))) >>= results
   blank
   where
+  results t = if successes t == 0 && failures t == 0 then pure mempty else sequence_ (runTally t)
   width' = width <> stimes (2 :: Int) one
 
 bookend :: Setter State State a (Maybe b) -> b -> Layout m c -> Layout m c
