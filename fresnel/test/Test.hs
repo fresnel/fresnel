@@ -80,7 +80,7 @@ parseOpts opts args
   (mods, other, errs) = getOpt RequireOrder opts args
 
 runEntries :: [Entry] -> Options -> IO Bool
-runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure . tally) (TopState Nothing mempty) (do
+runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure . tally) (TopState mempty) (do
   t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
   sequence_ (runTally False t)))
   where
@@ -122,11 +122,9 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
 runGroup args width groupName entries  = do
-  groupState_ .= Just mempty
   heading Nothing First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
   t <- sandwich True Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
   sequence_ (runTally True t)
-  groupState_ .= Nothing
   t <$ topIndent (putS vline) <* nl
   where
   width' = width <> stimes (2 :: Int) one
@@ -337,10 +335,7 @@ sparkifyRelativeTo sparks max = fmap spark
   spark n = sparks !! round (realToFrac n / realToFrac max * realToFrac (length sparks - 1) :: Double)
 
 
-data TopState = TopState
-  { groupState :: Maybe Tally
-  , tally      :: Tally
-  }
+newtype TopState = TopState { tally :: Tally }
 
 stat :: a -> a -> Status -> a
 stat pass fail = \case{ Pass -> pass ; Fail -> fail }
@@ -351,9 +346,6 @@ _Fail :: Prism' Status ()
 _Fail = prism' (const Fail) $ \case{ Pass -> Nothing ; Fail -> Just () }
 
 data Pos = First | Nth
-
-groupState_ :: Lens' TopState (Maybe Tally)
-groupState_ = lens groupState (\ s groupState -> s{ groupState })
 
 tally_ :: Lens' TopState Tally
 tally_ = lens tally (\ s tally -> s{ tally })
@@ -446,9 +438,6 @@ putS s = withHandle (liftIO . (`hPutStr` s))
 o %= f = modify (o %~ f)
 
 infix 4 %=
-
-(.=) :: Has (State TopState) sig m => Setter TopState TopState a b -> b -> m ()
-o .= v = o %= const v
 
 use :: Has (State TopState) sig m => Getter TopState a -> m a
 use o = gets (^.o)
