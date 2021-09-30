@@ -30,5 +30,5 @@ appCoexp c e a = withCoexp c $ \ recall forget -> (recall e, forget a)
 
 pure []
 
-tests :: Group
+tests :: Entry
 tests = $deriveGroup

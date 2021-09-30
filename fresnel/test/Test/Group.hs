@@ -3,12 +3,11 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Test.Group
-( Group(..)
+( Entry(..)
 , mkGroup
 , deriveGroup
-, Entry(..)
-, Prop(..)
 , mkProp
+, entryName
 , Loc(..)
 , here
 , zero
@@ -31,33 +30,27 @@ import Language.Haskell.TH.Syntax (Module(..), modString)
 import Numeric (readDec)
 import Test.QuickCheck (Property, allProperties)
 
-data Group = Group
-  { groupName :: String
-  , entries   :: [Entry]
-  }
+data Entry
+  = Group String [Entry]
+  | Prop String Loc Property
 
-mkGroup :: String -> [(String, Property)] -> Group
-mkGroup name = Group name . map (PropEntry . uncurry mkProp)
+mkGroup :: String -> [(String, Property)] -> Entry
+mkGroup name = Group name . map (uncurry mkProp)
 
 deriveGroup :: ExpQ
 deriveGroup = [e| mkGroup $(thisModule >>= \ (Module _ name) -> stringE (modString name)) $allProperties |]
 
-data Entry
-  = GroupEntry Group
-  | PropEntry Prop
-
-data Prop = Prop
-  { name     :: String
-  , loc      :: Loc
-  , property :: Property
-  }
-
-mkProp :: String -> Property -> Prop
-mkProp s property = Prop{ name, loc = Loc{ path, lineNumber }, property }
+mkProp :: String -> Property -> Entry
+mkProp s = Prop name Loc{ path, lineNumber }
   where
   (name, path, lineNumber) = case breaks [isSpace, not . isSpace, isSpace, not . isSpace, (== ':'), (/= ':')] s of
     [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
     _                     -> ("", "", 0)
+
+entryName :: Entry -> String
+entryName = \case
+  Group name _  -> name
+  Prop name _ _ -> name
 
 
 data Loc = Loc { path :: FilePath, lineNumber :: Int }
@@ -143,13 +136,7 @@ class HasWidth t where
 instance HasWidth Char where
   maxWidth _ = finite one
 
-instance HasWidth Group where
-  maxWidth Group{ groupName, entries } = sumWidths groupName <> maxWidths entries
-
 instance HasWidth Entry where
   maxWidth = \case
-    GroupEntry g -> maxWidth g
-    PropEntry c  -> maxWidth c
-
-instance HasWidth Prop where
-  maxWidth Prop{ name } = sumWidths name
+    Group groupName entries -> sumWidths groupName <> maxWidths entries
+    Prop name _ _           -> sumWidths name

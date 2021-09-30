@@ -48,5 +48,5 @@ instance Arbitrary a => Arbitrary (ArbFold a) where
 
 pure []
 
-tests :: Group
+tests :: Entry
 tests = $deriveGroup

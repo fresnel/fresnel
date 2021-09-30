@@ -48,7 +48,7 @@ import           Test.QuickCheck.Random (QCGen)
 import           Test.QuickCheck.Test (Result(failingClasses))
 
 main :: IO ()
-main = getArgs >>= either printErrors (runGroups groups) . parseOpts opts >>= bool exitFailure exitSuccess
+main = getArgs >>= either printErrors (runEntries entries) . parseOpts opts >>= bool exitFailure exitSuccess
   where
   printErrors errs = getProgName >>= traverse_ (hPutStrLn stderr) . errors errs >> pure False
   errors errs name = errs ++ [usageInfo (header name) opts]
@@ -58,10 +58,10 @@ main = getArgs >>= either printErrors (runGroups groups) . parseOpts opts >>= bo
     [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_)        . int) "N") "require N successful tests before concluding the property passes"
     , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)           . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
     , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_)        . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
-    , Option "g" ["group"]     (ReqArg (\ s -> groups_ %~ (s:))            "NAME") "include the named group; can be used multiple times to include multiple groups"
+    , Option "g" ["group"]     (ReqArg (\ s -> entries_ %~ (s:))           "NAME") "include the named group or property; can be used multiple times to include multiple groups/properties"
     , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
     ]
-  groups =
+  entries =
     [ Fold.Test.tests
     , Getter.Test.tests
     , Iso.Test.tests
@@ -80,14 +80,19 @@ parseOpts opts args
   options = foldr ($) defaultOptions mods
   (mods, other, errs) = getOpt RequireOrder opts args
 
-runGroups :: [Group] -> Options -> IO Bool
-runGroups groups (Options gs _ args) = runReader stdout (runState (const . pure . not . isFailure . tally) (TopState Nothing mempty) (do
-  t <- getAp (foldMap (Ap . runGroup args w) (matching ((==) . groupName) gs groups))
+runEntries :: [Entry] -> Options -> IO Bool
+runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure . tally) (TopState Nothing mempty) (do
+  t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
   sequence_ (runTally t)))
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
   matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
+
+runEntry :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Entry -> m Tally
+runEntry args w = \case
+  Group name entries -> runGroup args w name entries
+  Prop name loc prop -> unit <$> runProp args w name loc prop
 
 
 maxSuccess_ :: Lens' Args Int
@@ -103,22 +108,21 @@ replay_ :: Lens' Args (Maybe (QCGen, Int))
 replay_ = lens replay (\ a replay -> a{ replay })
 
 data Options = Options
-  { groups :: [String]
-  , cases  :: [String]
-  , args   :: Args
+  { entries :: [String]
+  , args    :: Args
   }
 
 defaultOptions :: Options
-defaultOptions = Options{ groups = [], cases = [], args = stdArgs{ maxSuccess = 250, chatty = False }}
+defaultOptions = Options{ entries = [], args = stdArgs{ maxSuccess = 250, chatty = False }}
 
-groups_ :: Lens' Options [String]
-groups_ = lens groups (\ o groups -> o{ groups })
+entries_ :: Lens' Options [String]
+entries_ = lens entries (\ o entries -> o{ entries })
 
 args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
-runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Group -> m Tally
-runGroup args width Group.Group{ groupName, entries } = do
+runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
+runGroup args width groupName entries  = do
   bookend groupState_ (mempty, Nothing) $ do
     heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
     sandwich True width' (getAp (foldMap Ap (intersperse blank (map (bookend caseStatus_ Pass . runEntry args width) entries)))) >>= results
@@ -133,13 +137,8 @@ bookend o v m = o ?= v *> m <* o .= Nothing
 sandwich :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Width -> m a -> m a
 sandwich cond w m = when cond (rule Top w) *> m <* when cond (rule Bottom w)
 
-runEntry :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Entry -> m Tally
-runEntry args w = \case
-  GroupEntry g -> runGroup args w g
-  PropEntry c  -> unit <$> runProp args w c
-
-runProp :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Prop -> m Status
-runProp args w Group.Prop{ name, loc = Loc{ path, lineNumber }, property } = do
+runProp :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Status
+runProp args w name Loc{ path, lineNumber } property = do
   title First False
 
   pos <- use (tally_.to (bool First Nth . isFailure))
@@ -310,17 +309,15 @@ failure' = colour Dull Red
 status :: (Has (Reader Handle) sig m, MonadIO m) => Maybe Status -> m a -> m a
 status = maybe id (stat success failure)
 
-tropical :: Group
+tropical :: Entry
 tropical = Group.Group
-  { groupName = "Test.Group.Tropical"
-  , entries =
-    [ PropEntry semigroupAssoc
-    , PropEntry monoidIdentity
-    ]
-  }
+  "Test.Group.Tropical"
+  [ semigroupAssoc
+  , monoidIdentity
+  ]
   where
-  semigroupAssoc = Group.Prop{ name = "semigroup assoc", loc = here, property = QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c) }
-  monoidIdentity = Group.Prop{ name = "monoid identity", loc = here, property = QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)}
+  semigroupAssoc = Group.Prop"semigroup assoc" here $ QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c)
+  monoidIdentity = Group.Prop"monoid identity" here $ QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)
 
 newtype ArbTropical = ArbTropical (Tropical Int)
   deriving (Eq, Ord, Show)
