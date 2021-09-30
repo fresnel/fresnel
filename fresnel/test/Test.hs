@@ -121,7 +121,8 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
 runGroup args width groupName entries  = do
-  heading Nothing First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
+  topIndent (putS vline)
+  withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
   t <- sandwich True Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
   sequence_ (runTally True t)
   t <$ topIndent (putS vline) <* nl
@@ -132,20 +133,21 @@ sandwich :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => B
 sandwich cond s w m = when cond (rule s Top w) *> m <* when cond (rule s Bottom w)
 
 runProp :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Status
-runProp args w name Loc{ path, lineNumber } property = do
-  title (Just Pass) First False
+runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
+  isTerminal <- liftIO (hIsTerminalDevice h)
+
+  when isTerminal (title Pass First)
 
   pos <- gets (bool First Nth . isFailure)
   res <- liftIO (quickCheckWithResult args property)
   let stat' = if isSuccess res then Pass else Fail
   modify (<> unit stat')
 
-  withHandle (\ h -> do
-    isTerminal <- liftIO (hIsTerminalDevice h)
-    when (isTerminal && not (isSuccess res)) $ do
-      liftIO (hClearFromCursorToLineBeginning h)
-      liftIO (hSetCursorColumn h 0)
-      failure (title (Just Fail) pos True))
+  when isTerminal $ do
+    liftIO (hClearFromCursorToLineBeginning h)
+    liftIO (hSetCursorColumn h 0)
+
+  title stat' pos
 
   putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) stat' *> nl
 
@@ -168,8 +170,9 @@ runProp args w name Loc{ path, lineNumber } property = do
     ]
   pure stat'
   where
-  title s pos failed = heading s pos $ do
-    withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (putS (name ++ replicate (width w - length name) ' '))
+  title s pos = do
+    heading s pos
+    withSGR (SetConsoleIntensity BoldIntensity:stat [] [ SetColor Foreground Vivid Red ] s) (putS (bullet ++ name ++ replicate (width w - length name) ' '))
     withHandle (liftIO . hFlush)
 
 data Stats = Stats
@@ -355,18 +358,10 @@ withHandle = join . asks
 blank :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m ()
 blank s = line s (pure ())
 
-heading :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Pos -> m a -> m a
-heading st p m = do
-  if is (_Just._Fail) st then do
-    topIndent (putS (headingGutter p))
-    failure' (putS (group First) *> putS arrow)
-  else do
-    topIndent (putS vline)
-    putS $ if is _Just st then
-      vline <> bullet
-    else
-      space
-  m
+heading :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Status -> Pos -> m ()
+heading st p = case st of
+  Pass -> topIndent (putS vline)             *> putS vline
+  Fail -> topIndent (putS (headingGutter p)) *> failure' (putS (group First ++ arrow))
 
 
 line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
