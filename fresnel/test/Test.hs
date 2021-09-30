@@ -118,10 +118,10 @@ args_ :: Lens' Options Args
 args_ = lens args (\ o args -> o{ args })
 
 runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Group -> m Tally
-runGroup args width Group.Group{ groupName, cases } = do
+runGroup args width Group.Group{ groupName, entries } = do
   bookend groupState_ (mempty, Nothing) $ do
     heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
-    sandwich True width' (getAp (foldMap Ap (intersperse blank (map (bookend caseStatus_ Pass . fmap unit . runCase args width) cases)))) >>= results
+    sandwich True width' (getAp (foldMap Ap (intersperse blank (map (bookend caseStatus_ Pass . fmap unit . runCase args width) entries)))) >>= results
   blank
   where
   results t = if successes t == 0 && failures t == 0 then pure mempty else sequence_ (runTally t)
@@ -308,7 +308,7 @@ status = maybe id (stat success failure)
 tropical :: Group
 tropical = Group.Group
   { groupName = "Test.Group.Tropical"
-  , cases =
+  , entries =
     [ semigroupAssoc
     , monoidIdentity
     ]

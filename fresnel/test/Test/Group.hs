@@ -32,7 +32,7 @@ import Test.QuickCheck (Property, allProperties)
 
 data Group = Group
   { groupName :: String
-  , cases     :: [Case]
+  , entries   :: [Case]
   }
 
 mkGroup :: String -> [(String, Property)] -> Group
@@ -139,7 +139,7 @@ instance HasWidth Char where
   maxWidth _ = finite one
 
 instance HasWidth Group where
-  maxWidth Group{ groupName, cases } = sumWidths groupName <> maxWidths cases
+  maxWidth Group{ groupName, entries } = sumWidths groupName <> maxWidths entries
 
 instance HasWidth Case where
   maxWidth Case{ name } = sumWidths name
