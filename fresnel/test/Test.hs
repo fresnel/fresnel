@@ -78,7 +78,7 @@ parseOpts opts args
   (mods, other, errs) = getOpt RequireOrder opts args
 
 runEntries :: [Entry] -> Options -> IO Bool
-runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure) mempty (do
+runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . hasFailures) mempty (do
   t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
   when (hasSuccesses t || hasFailures t) (topIndent end *> runTally t)))
   where
@@ -124,7 +124,7 @@ runGroup args width groupName entries  = do
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
   t <- section Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
   when (hasSuccesses t || hasFailures t) $ do
-    if isFailure t then
+    if hasFailures t then
       failure' (putS (headingN <> gtally))
     else
       topIndent vline *> putS space
@@ -139,7 +139,7 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
 
   when isTerminal (title Pass First)
 
-  pos <- gets (bool First Nth . isFailure)
+  pos <- gets (bool First Nth . hasFailures)
   res <- liftIO (quickCheckWithResult args property)
   let stat' = if isSuccess res then Pass else Fail
   modify (<> unit stat')
@@ -262,9 +262,6 @@ sepBy_ :: Applicative m => m () -> [m ()] -> m ()
 sepBy_ sep = getAp . foldMap Ap . intersperse sep
 
 
-isFailure :: Tally -> Bool
-isFailure = (/= 0) . failures
-
 hasSuccesses :: Tally -> Bool
 hasSuccesses = (/= 0) . successes
 
@@ -339,7 +336,7 @@ data Pos = First | Nth
 
 
 topIndent :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => String -> m ()
-topIndent m = gets isFailure >>= bool (putS space) (failure' (putS m))
+topIndent m = gets hasFailures >>= bool (putS space) (failure' (putS m))
 
 withHandle :: Has (Reader Handle) sig m => (Handle -> m a) -> m a
 withHandle = join . asks
