@@ -358,8 +358,8 @@ blank s = line s (pure ())
 heading :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Pos -> m a -> m a
 heading st p m = do
   if is (_Just._Fail) st then do
-    topIndent (headingGutter p)
-    failure' (group First *> putS arrow)
+    topIndent (putS (headingGutter p))
+    failure' (putS (group First) *> putS arrow)
   else do
     topIndent (putS vline)
     putS $ if is _Just st then
@@ -412,13 +412,13 @@ gtally   = "┤ "
 end      = "╰─┤ "
 vlineR   = "├─"
 
-group :: (Has (Reader Handle) sig m, MonadIO m) => Pos -> m ()
-group = putS . \case
+group :: Pos -> String
+group = \case
   First -> hline
   Nth   -> vlineR
 
-headingGutter :: (Has (Reader Handle) sig m, MonadIO m) => Pos -> m ()
-headingGutter = putS . \case
+headingGutter :: Pos -> String
+headingGutter = \case
   First -> heading1
   Nth   -> headingN
 
