@@ -347,8 +347,8 @@ blank s = line s (pure ())
 
 heading :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Status -> Pos -> m ()
 heading st p = case st of
-  Pass -> topIndent vline             *> putS vline
-  Fail -> topIndent (headingGutter p) *> failure' (putS (hline ++ arrow))
+  Pass -> topIndent vline                                             *> putS vline
+  Fail -> topIndent (case p of { First -> heading1 ; _ -> headingN }) *> failure' (putS (hline ++ arrow))
 
 
 line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
@@ -377,11 +377,6 @@ vline    = "│ "
 hline    = "──"
 gtally   = "┤ "
 end      = "╰─┤ "
-
-headingGutter :: Pos -> String
-headingGutter = \case
-  First -> heading1
-  Nth   -> headingN
 
 
 nl :: (Has (Reader Handle) sig m, MonadIO m) => m ()
