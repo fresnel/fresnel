@@ -155,7 +155,7 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels (Just stat') stats
-      body = v_ (Just stat') $ concat
+      body = sepBy_ (blank (Just stat')) $ concat
         [ [ line (Just stat') (h_ (runStats args stats ++ runClasses stats)) | details ]
         , do
           Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
@@ -263,9 +263,6 @@ sepBy_ sep = getAp . foldMap Ap . intersperse sep
 
 h_ :: (Has (Reader Handle) sig m, MonadIO m) => [m ()] -> m ()
 h_ = sepBy_ (putS " ")
-
-v_ :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> [m ()] -> m ()
-v_ = sepBy_ . blank
 
 
 isFailure :: Tally -> Bool
