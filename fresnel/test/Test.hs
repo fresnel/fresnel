@@ -129,6 +129,7 @@ runGroup args width groupName entries  = do
     else
       topIndent vline *> putS space
     runTally t
+  topIndent vline <* nl
   t <$ topIndent vline <* nl
   where
   width' = width <> stimes (2 :: Int) one
