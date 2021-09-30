@@ -80,7 +80,7 @@ parseOpts opts args
 runEntries :: [Entry] -> Options -> IO Bool
 runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure) mempty (do
   t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
-  traverse_ (\ m -> topIndent (putS end) *> m) (runTally t)))
+  traverse_ (\ m -> topIndent end *> m) (runTally t)))
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -120,16 +120,16 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
 runGroup args width groupName entries  = do
-  topIndent (putS vline)
+  topIndent vline
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
   t <- section Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
   traverse_ (\ m -> do
     if isFailure t then
       failure' (putS (headingN <> gtally))
     else
-      topIndent (putS vline) *> putS space
+      topIndent vline *> putS space
     m) (runTally t)
-  t <$ topIndent (putS vline) <* nl
+  t <$ topIndent vline <* nl
   where
   width' = width <> stimes (2 :: Int) one
 
@@ -346,8 +346,8 @@ data Status = Pass | Fail
 data Pos = First | Nth
 
 
-topIndent :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m () -> m ()
-topIndent m = gets isFailure >>= bool (putS space) (failure' m)
+topIndent :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => String -> m ()
+topIndent m = gets isFailure >>= bool (putS space) (failure' (putS m))
 
 withHandle :: Has (Reader Handle) sig m => (Handle -> m a) -> m a
 withHandle = join . asks
@@ -358,13 +358,13 @@ blank s = line s (pure ())
 
 heading :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Status -> Pos -> m ()
 heading st p = case st of
-  Pass -> topIndent (putS vline)             *> putS vline
-  Fail -> topIndent (putS (headingGutter p)) *> failure' (putS (group First ++ arrow))
+  Pass -> topIndent vline             *> putS vline
+  Fail -> topIndent (headingGutter p) *> failure' (putS (group First ++ arrow))
 
 
 line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
 line st m = do
-  topIndent (putS vline)
+  topIndent vline
   putS vline
   when (is _Just st) (status st (putS vline))
   m <* nl
@@ -373,7 +373,7 @@ section :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Ma
 section s w m = rule '╭' *> m <* rule '╰'
   where
   rule corner = indent *> status s (putS (corner : h : replicate fullWidth h)) *> nl
-  indent = topIndent (putS vline) *> when (is _Just s) (putS vline)
+  indent = topIndent vline *> when (is _Just s) (putS vline)
   h = '─'
   fullWidth = width w + 3 + length "Success"
 
