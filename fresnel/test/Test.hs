@@ -127,7 +127,8 @@ runGroup args width groupName entries  = do
   t <- sandwich True Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
   sequence_ (runTally True t)
   groupState_ .= Nothing
-  t <$ blank Nothing
+  get >>= \ s -> topIndent (putS vline) (isFailure (tally s)) <* nl
+  pure t
   where
   width' = width <> stimes (2 :: Int) one
 
@@ -361,9 +362,6 @@ tally_ = lens tally (\ s tally -> s{ tally })
 topIndent :: (Has (Reader Handle) sig m, MonadIO m) => m () -> Bool -> m ()
 topIndent = bool (putS space) . failure'
 
-isInGroup :: TopState -> Bool
-isInGroup = is (groupState_._Just)
-
 withHandle :: Has (Reader Handle) sig m => (Handle -> m a) -> m a
 withHandle = join . asks
 
@@ -391,9 +389,8 @@ heading st p m = wrap $ \ s -> do
 line :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> m a -> m a
 line st m = wrap (\ s -> do
   topIndent (putS vline) (isFailure (tally s))
-  when (isInGroup s) $ do
-    putS vline
-    when (is _Just st) (status st (putS vline))
+  putS vline
+  when (is _Just st) (status st (putS vline))
   m <* nl)
 
 indentTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Tally -> m a -> m a
