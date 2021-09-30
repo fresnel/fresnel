@@ -137,9 +137,9 @@ runProp :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Ar
 runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
   isTerminal <- liftIO (hIsTerminalDevice h)
 
-  when isTerminal (title Pass First)
+  when isTerminal (title Pass False)
 
-  pos <- gets (bool First Nth . hasFailures)
+  failedPreviously <- gets hasFailures
   res <- liftIO (quickCheckWithResult args property)
   let stat' = if isSuccess res then Pass else Fail
   modify (<> unit stat')
@@ -148,7 +148,7 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
     liftIO (hClearFromCursorToLineBeginning h)
     liftIO (hSetCursorColumn h 0)
 
-  title stat' pos
+  title stat' failedPreviously
 
   putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) stat' *> nl
 
@@ -173,8 +173,8 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
   if details || not (isSuccess res) || not (null labels) then section (Just stat') w body else body
   pure stat'
   where
-  title s pos = do
-    topIndent (stat vline (case pos of { First -> heading1 ; _ -> headingN }) s)
+  title s failedPreviously = do
+    topIndent (stat vline (bool heading1 headingN failedPreviously) s)
     stat (putS vline) (failure' (putS (hline ++ arrow))) s
     withSGR (SetConsoleIntensity BoldIntensity:stat [] [ SetColor Foreground Vivid Red ] s) (putS (bullet ++ name ++ replicate (width w - length name) ' '))
     withHandle (liftIO . hFlush)
@@ -335,8 +335,6 @@ stat :: a -> a -> Status -> a
 stat pass fail = \case{ Pass -> pass ; Fail -> fail }
 
 data Status = Pass | Fail
-
-data Pos = First | Nth
 
 
 topIndent :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => String -> m ()
