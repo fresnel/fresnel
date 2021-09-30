@@ -7,15 +7,12 @@ import Data.Foldable (toList)
 import Data.Ratio
 import Fresnel.Monoid.Fork (Fork(runFork), singleton)
 import Test.Group
-import Test.QuickCheck as QC hiding (total)
+import Test.QuickCheck hiding (total)
 
 prop_semigroup_assoc :: (Eq a, Show a) => ArbFork a -> ArbFork a -> ArbFork a -> Property
 prop_semigroup_assoc (ArbFork a) (ArbFork b) (ArbFork c) =
   label (summarize a) . label (summarize b) . label (summarize c) $
   (toList (a <> (b <> c)) === toList ((a <> b) <> c))
-
-prop_fail :: (Eq a, Show a) => a -> a -> Property
-prop_fail a b = a === b
 
 prop_monoid_identity :: (Eq a, Show a) => ArbFork a -> Property
 prop_monoid_identity (ArbFork a) = label (summarize a) $ toList (mempty <> a) === toList a .&&. toList (a <> mempty) === toList a

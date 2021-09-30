@@ -11,7 +11,7 @@ import Fresnel.Getter
 import Fresnel.Iso
 import Fresnel.Review
 import Test.Group
-import Test.QuickCheck as QC
+import Test.QuickCheck
 
 validIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
 validIso o s a = withRoundtrips o $ \ ss aa -> ss s === s .&&. aa a === a
@@ -27,8 +27,6 @@ prop_view_elimination f g x = view (iso (applyFun f) (applyFun g)) x === applyFu
 
 prop_review_elimination f g x = review (iso (applyFun f) (applyFun g)) x === applyFun g x
 
-prop_fail :: (Eq a, Show a) => a -> a -> Property
-prop_fail a b = a === b
 
 prop_constant_validity c s a = withRoundtrips (constant c) $ \ sasa aa ->
   sasa (const a) s === const a s .&&. aa a === a
