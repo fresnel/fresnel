@@ -89,7 +89,7 @@ runEntries groups (Options es args) = runReader stdout (runState (const . pure .
 runEntry :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> Entry -> m Tally
 runEntry args w = \case
   Group name entries -> runGroup args w name entries
-  Prop name loc prop -> unit <$> runProp args w name loc prop
+  Prop name loc prop -> runProp  args w name loc prop
 
 
 maxSuccess_ :: Lens' Args Int
@@ -133,7 +133,7 @@ runGroup args width groupName entries  = do
   where
   width' = width <> stimes (2 :: Int) one
 
-runProp :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Status
+runProp :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Tally
 runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
   isTerminal <- liftIO (hIsTerminalDevice h)
 
@@ -171,7 +171,7 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
         ]
 
   if details || not (isSuccess res) || not (null labels) then section (Just stat') w body else body
-  pure stat'
+  pure (unit stat')
   where
   title s failedPreviously = do
     topIndent (stat vline (bool heading1 headingN failedPreviously) s)
