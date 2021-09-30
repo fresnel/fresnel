@@ -7,8 +7,8 @@ module Test.Group
 , mkGroup
 , deriveGroup
 , Entry(..)
-, Case(..)
-, mkCase
+, Prop(..)
+, mkProp
 , Loc(..)
 , here
 , zero
@@ -37,23 +37,23 @@ data Group = Group
   }
 
 mkGroup :: String -> [(String, Property)] -> Group
-mkGroup name = Group name . map (CaseEntry . uncurry mkCase)
+mkGroup name = Group name . map (PropEntry . uncurry mkProp)
 
 deriveGroup :: ExpQ
 deriveGroup = [e| mkGroup $(thisModule >>= \ (Module _ name) -> stringE (modString name)) $allProperties |]
 
 data Entry
   = GroupEntry Group
-  | CaseEntry Case
+  | PropEntry Prop
 
-data Case = Case
+data Prop = Prop
   { name     :: String
   , loc      :: Loc
   , property :: Property
   }
 
-mkCase :: String -> Property -> Case
-mkCase s property = Case{ name, loc = Loc{ path, lineNumber }, property }
+mkProp :: String -> Property -> Prop
+mkProp s property = Prop{ name, loc = Loc{ path, lineNumber }, property }
   where
   (name, path, lineNumber) = case breaks [isSpace, not . isSpace, isSpace, not . isSpace, (== ':'), (/= ':')] s of
     [n, _, _, _, p, _, l] -> (unwords (filter (\ s -> s /= "_" && s /= "prop") (breakAll (== '_') n)), p, fst (head (readDec l)))
@@ -149,7 +149,7 @@ instance HasWidth Group where
 instance HasWidth Entry where
   maxWidth = \case
     GroupEntry g -> maxWidth g
-    CaseEntry c  -> maxWidth c
+    PropEntry c  -> maxWidth c
 
-instance HasWidth Case where
-  maxWidth Case{ name } = sumWidths name
+instance HasWidth Prop where
+  maxWidth Prop{ name } = sumWidths name

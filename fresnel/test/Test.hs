@@ -136,10 +136,10 @@ sandwich cond w m = when cond (rule Top w) *> m <* when cond (rule Bottom w)
 runEntry :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Entry -> m Tally
 runEntry args w = \case
   GroupEntry g -> runGroup args w g
-  CaseEntry c  -> unit <$> runCase args w c
+  PropEntry c  -> unit <$> runProp args w c
 
-runCase :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Case -> m Status
-runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
+runProp :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> Prop -> m Status
+runProp args w Group.Prop{ name, loc = Loc{ path, lineNumber }, property } = do
   title First False
 
   pos <- use (tally_.to (bool First Nth . isFailure))
@@ -314,13 +314,13 @@ tropical :: Group
 tropical = Group.Group
   { groupName = "Test.Group.Tropical"
   , entries =
-    [ CaseEntry semigroupAssoc
-    , CaseEntry monoidIdentity
+    [ PropEntry semigroupAssoc
+    , PropEntry monoidIdentity
     ]
   }
   where
-  semigroupAssoc = Group.Case{ name = "semigroup assoc", loc = here, property = QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c) }
-  monoidIdentity = Group.Case{ name = "monoid identity", loc = here, property = QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)}
+  semigroupAssoc = Group.Prop{ name = "semigroup assoc", loc = here, property = QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c) }
+  monoidIdentity = Group.Prop{ name = "monoid identity", loc = here, property = QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)}
 
 newtype ArbTropical = ArbTropical (Tropical Int)
   deriving (Eq, Ord, Show)
