@@ -252,7 +252,13 @@ singular _ = ""
 runTally :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Bool -> Tally -> [m ()]
 runTally g t =
   [ do
-    indentTally g t
+    if not g then
+      topIndent (putS end)
+    else if isFailure t then
+      failure' (putS (headingN <> gtally))
+    else
+      topIndent (putS vline) *> putS space
+
     sepBy_ (putS ", " )
       $  [ success (h_ [ putS "✓", putS (show (successes t)), putS (plural (successes t) "success" "successes") ]) | hasSuccesses ]
       ++ [ failure (h_ [ putS "✗", putS (show (failures t)),  putS (plural (failures t)  "failure" "failures") ])  | hasFailures  ]
@@ -367,12 +373,6 @@ line st m = do
   putS vline
   when (is _Just st) (status st (putS vline))
   m <* nl
-
-indentTally :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Bool -> Tally -> m ()
-indentTally g t
-  | not g       = topIndent (putS end)
-  | isFailure t = failure' (putS (headingN <> gtally))
-  | otherwise   = topIndent (putS vline) *> putS space
 
 data Side = Top | Bottom
 
