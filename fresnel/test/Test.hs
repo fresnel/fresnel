@@ -368,14 +368,10 @@ line st m = do
   m <* nl
 
 indentTally :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Bool -> Tally -> m a -> m a
-indentTally g t m = do
-  if not g then
-    topIndent (putS end)
-  else if isFailure t then
-    failure' (putS (headingN <> gtally))
-  else
-    topIndent (putS vline) *> putS space
-  m <* nl
+indentTally g t m
+  | not g       = topIndent (putS end)                 *> m <* nl
+  | isFailure t = failure' (putS (headingN <> gtally)) *> m <* nl
+  | otherwise   = topIndent (putS vline) *> putS space *> m <* nl
 
 data Side = Top | Bottom
 
