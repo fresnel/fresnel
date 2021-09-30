@@ -258,7 +258,7 @@ runTally t = sepBy_ (putS ", " ) (map success (tally "✓" "success" "successes"
   tally prefix s p n = [ sepBy_ (putS " ") [ putS prefix, putS (show n), putS (plural n s p) ] | n /= 0 ]
 
 
-sepBy_ :: (Applicative m, Monoid a) => m a -> [m a] -> m a
+sepBy_ :: Applicative m => m () -> [m ()] -> m ()
 sepBy_ sep = getAp . foldMap Ap . intersperse sep
 
 
