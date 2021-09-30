@@ -208,9 +208,9 @@ runStats :: (Has (Reader Handle) sig m, MonadIO m) => Args -> Stats -> [m ()]
 runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepBy_ (putS ", ") entries *> putS "." | not (null entries) ]
   where
   entries = concat
-    [ [ putS (show numTests ++ " test" ++ singular numTests) | numTests > 0 && numTests /= maxSuccess ]
-    , [ putS (show numDiscarded ++ " discarded") | numDiscarded > 0 ]
-    , [ putS (show numShrinks ++ " shrink" ++ singular numShrinks) | numShrinks > 0 ]
+    [ [ putS (show numTests     ++ " test"   ++ singular numTests)   | numTests     > 0, numTests /= maxSuccess ]
+    , [ putS (show numDiscarded ++ " discarded")                     | numDiscarded > 0 ]
+    , [ putS (show numShrinks   ++ " shrink" ++ singular numShrinks) | numShrinks   > 0 ]
     ]
 
 
