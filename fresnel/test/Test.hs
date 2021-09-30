@@ -340,7 +340,7 @@ data Pos = First | Nth
 
 
 topIndent :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => String -> m ()
-topIndent m = gets hasFailures >>= bool (putS space) (failure' (putS m))
+topIndent m = gets hasFailures >>= failure' . putS . bool space m
 
 withHandle :: Has (Reader Handle) sig m => (Handle -> m a) -> m a
 withHandle = join . asks
