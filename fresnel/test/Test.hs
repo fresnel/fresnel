@@ -120,7 +120,7 @@ runGroup :: MonadIO m => Args -> Width -> Group -> Layout m ()
 runGroup args width Group.Group{ groupName, cases } = do
   bookend groupState_ (mempty, Nothing) $ do
     heading First $ withSGR [SetConsoleIntensity BoldIntensity] $ put groupName *> nl
-    sandwich True width' (sequence_ (intersperse blank (map (bookend caseStatus_ Pass . runCase args width) cases)))
+    sandwich True width' (sequence_ (intersperse blank (map (bookend caseStatus_ Pass . fmap unit . runCase args width) cases)))
     t <- use (groupState_.to (fmap fst))
     maybe (pure mempty) (sequence_ . runTally) t
   blank
@@ -133,7 +133,7 @@ bookend o v m = o ?= v *> m <* o .= Nothing
 sandwich :: MonadIO m => Bool -> Width -> Layout m a -> Layout m a
 sandwich cond w m = when cond (rule Top w) *> m <* when cond (rule Bottom w)
 
-runCase :: MonadIO m => Args -> Width -> Case -> Layout m Tally
+runCase :: MonadIO m => Args -> Width -> Case -> Layout m Status
 runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
   title First False
 
@@ -169,7 +169,7 @@ runCase args w Group.Case{ name, loc = Loc{ path, lineNumber }, property } = do
     , labels
     , runTables stats
     ]
-  pure (unit stat')
+  pure stat'
   where
   title pos failed = heading pos $ do
     withSGR (SetConsoleIntensity BoldIntensity:[ SetColor Foreground Vivid Red | failed ]) (put (name ++ replicate (width w - length name) ' '))
