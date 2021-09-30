@@ -173,9 +173,8 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
   pure stat'
   where
   title s pos = do
-    case s of
-      Pass -> topIndent vline                                               *> putS vline
-      Fail -> topIndent (case pos of { First -> heading1 ; _ -> headingN }) *> failure' (putS (hline ++ arrow))
+    topIndent (stat vline (case pos of { First -> heading1 ; _ -> headingN }) s)
+    stat (putS vline) (failure' (putS (hline ++ arrow))) s
     withSGR (SetConsoleIntensity BoldIntensity:stat [] [ SetColor Foreground Vivid Red ] s) (putS (bullet ++ name ++ replicate (width w - length name) ' '))
     withHandle (liftIO . hFlush)
 
