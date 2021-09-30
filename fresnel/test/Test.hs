@@ -82,7 +82,7 @@ parseOpts opts args
 runEntries :: [Entry] -> Options -> IO Bool
 runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . isFailure . tally) (TopState Nothing mempty) (do
   t <- getAp (foldMap (Ap . runEntry args w) (matching ((==) . entryName) es groups))
-  sequence_ (runTally t)))
+  sequence_ (runTally False t)))
   where
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
@@ -122,16 +122,14 @@ args_ = lens args (\ o args -> o{ args })
 
 runGroup :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
 runGroup args width groupName entries  = do
-  bookend groupState_ mempty $ do
-    heading Nothing First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
-    sandwich True Nothing width' (getAp (foldMap Ap (intersperse (blank Nothing) (map (runEntry args width) entries)))) >>= results
-  blank Nothing
+  groupState_ .= Just mempty
+  heading Nothing First $ withSGR [SetConsoleIntensity BoldIntensity] $ putS groupName *> nl
+  t <- sandwich True Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
+  sequence_ (runTally True t)
+  groupState_ .= Nothing
+  t <$ blank Nothing
   where
-  results t = if successes t == 0 && failures t == 0 then pure mempty else sequence_ (runTally t)
   width' = width <> stimes (2 :: Int) one
-
-bookend :: Has (State TopState) sig m => Setter TopState TopState a (Maybe b) -> b -> m c -> m c
-bookend o v m = o ?= v *> m <* o .= Nothing
 
 sandwich :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Maybe Status -> Width -> m a -> m a
 sandwich cond s w m = when cond (rule s Top w) *> m <* when cond (rule s Bottom w)
@@ -252,9 +250,9 @@ singular :: Int -> String
 singular 1 = "s"
 singular _ = ""
 
-runTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Tally -> [m ()]
-runTally t =
-  [ indentTally $ do
+runTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Tally -> [m ()]
+runTally g t =
+  [ indentTally g t $ do
     sepBy_ (putS ", " )
       (  [ success (h_ [ putS "✓", putS (show (successes t)), putS (plural (successes t) "success" "successes") ]) | hasSuccesses ]
       ++ [ failure (h_ [ putS "✗", putS (show (failures t)),  putS (plural (failures t)  "failure" "failures") ])  | hasFailures  ])
@@ -373,8 +371,8 @@ withHandle = join . asks
 wrap :: Has (State TopState) sig m => (TopState -> m a) -> m a
 wrap = join . gets
 
-blank :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m, Monoid a) => Maybe Status -> m a
-blank s = line s (pure mempty)
+blank :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> m ()
+blank s = line s (pure ())
 
 heading :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Maybe Status -> Pos -> m a -> m a
 heading st p m = wrap $ \ s -> do
@@ -398,13 +396,14 @@ line st m = wrap (\ s -> do
     when (is _Just st) (status st (putS vline))
   m <* nl)
 
-indentTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => m a -> m a
-indentTally m = wrap $ \ s -> do
-  case groupState s of
-    Nothing         -> topIndent (putS end) (isFailure (tally s))
-    Just t
-      | isFailure t -> failure' (putS (headingN <> gtally))
-      | otherwise   -> topIndent (putS vline) (isFailure (tally s)) *> putS space
+indentTally :: (Has (Reader Handle) sig m, Has (State TopState) sig m, MonadIO m) => Bool -> Tally -> m a -> m a
+indentTally g t m = wrap $ \ s -> do
+  if not g then
+    topIndent (putS end) (isFailure (tally s))
+  else if isFailure t then
+    failure' (putS (headingN <> gtally))
+  else
+    topIndent (putS vline) (isFailure (tally s)) *> putS space
   m <* nl
 
 data Side = Top | Bottom
@@ -457,9 +456,6 @@ infix 4 %=
 
 (.=) :: Has (State TopState) sig m => Setter TopState TopState a b -> b -> m ()
 o .= v = o %= const v
-
-(?=) :: Has (State TopState) sig m => Setter TopState TopState a (Maybe b) -> b -> m ()
-o ?= v = o .= Just v
 
 use :: Has (State TopState) sig m => Getter TopState a -> m a
 use o = gets (^.o)
