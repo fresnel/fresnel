@@ -122,7 +122,7 @@ runGroup :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => A
 runGroup args width groupName entries  = do
   topIndent vline
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
-  t <- section Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ blank Nothing) (map (runEntry args width) entries))))
+  t <- section Nothing width' (getAp (foldMap Ap (intersperse (line (pure mempty)) (map (runEntry args width) entries))))
   when (hasSuccesses t || hasFailures t) $ do
     if hasFailures t then
       failure' (putS (headingN <> gtally))
@@ -154,17 +154,18 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
 
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
-      labels = runLabels (Just stat') stats
-      body = sepBy_ (blank (Just stat')) $ concat
-        [ [ line (Just stat') (sepBy_ (putS " ") (runStats args stats ++ runClasses stats)) | details ]
+      labels = runLabels stat' stats
+      propGutter = status (Just stat') (putS vline)
+      body = sepBy_ (line propGutter) $ concat
+        [ [ line (propGutter *> sepBy_ (putS " ") (runStats args stats ++ runClasses stats)) | details ]
         , do
           Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
           pure (do
-            line (Just stat') (putS (path ++ ":" ++ show lineNumber))
-            line (Just stat') (putS reason)
-            for_ theException (line (Just stat') . putS . displayException)
-            for_ failingTestCase (line (Just stat') . putS))
-            <> [ line (Just stat') (putS ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
+            line (propGutter *> putS (path ++ ":" ++ show lineNumber))
+            line (propGutter *> putS reason)
+            for_ theException (line . (propGutter *>) . putS . displayException)
+            for_ failingTestCase (line . (propGutter *>) . putS))
+            <> [ line (propGutter *> putS ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
         , labels
         , runTables stats
         ]
@@ -214,7 +215,7 @@ runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepB
     ]
 
 
-runLabels :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Stats -> [m ()]
+runLabels :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Status -> Stats -> [m ()]
 runLabels s Stats{ numTests, labels }
   | null labels = []
   | otherwise   = IntMap.elems numberedLabels >>= param
@@ -224,14 +225,16 @@ runLabels s Stats{ numTests, labels }
     | (labels, n) <- Map.toList labels
     , (i, l) <- zip [(0 :: Int)..] labels
     ]
+  param :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Map.Map String Int -> [m ()]
   param m =
     [ for_ (zip [1..] scaled) $ \ (i, (key, v)) ->
-        line s $ putS (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
+        line $ propGutter *> putS (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
     , do
-      line s $ putS [ c | e <- sparked, c <- [e, e, e] ]
-      line s $ putS [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ]
+      line $ propGutter *> putS [ c | e <- sparked, c <- [e, e, e] ]
+      line $ propGutter *> putS [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ]
     ]
     where
+    propGutter = status (Just s) (putS vline)
     n = realToFrac numTests :: Double
     sorted = sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)
     scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
@@ -343,15 +346,10 @@ withHandle :: Has (Reader Handle) sig m => (Handle -> m a) -> m a
 withHandle = join . asks
 
 
-blank :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m ()
-blank s = line s (pure ())
-
-
-line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
-line st m = do
+line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m a -> m a
+line m = do
   topIndent vline
   putS vline
-  when (is _Just st) (status st (putS vline))
   m <* nl
 
 section :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Width -> m a -> m a
