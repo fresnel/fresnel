@@ -13,8 +13,6 @@ module Test.Group
 , zero
 , Semiring(..)
 , Unital(..)
-, Tropical(..)
-, finite
 , horizontal
 , sumWidths
 , vertical
@@ -24,6 +22,7 @@ module Test.Group
 ) where
 
 import Data.Char (isSpace)
+import Fresnel.Tropical
 import GHC.Stack
 import Language.Haskell.TH.Lib
 import Language.Haskell.TH.Syntax (Module(..), modString)
@@ -80,27 +79,15 @@ class Semigroup s => Semiring s where
   (><) :: s -> s -> s
   infixr 7 ><
 
-class (Monoid s, Semiring s) => Unital s where
-  one :: s
-
-
-newtype Tropical a = Tropical { getTropical :: Maybe a }
-  deriving (Eq, Ord, Show)
-
-instance Ord a => Semigroup (Tropical a) where
-  (<>) = max
-
-instance Ord a => Monoid (Tropical a) where
-  mempty = Tropical Nothing
-
 instance (Semigroup a, Ord a) => Semiring (Tropical a) where
   Tropical a1 >< Tropical a2 = Tropical ((<>) <$> a1 <*> a2)
+
+class (Monoid s, Semiring s) => Unital s where
+  one :: s
 
 instance (Monoid a, Ord a) => Unital (Tropical a) where
   one = finite zero
 
-finite :: a -> Tropical a
-finite = Tropical . Just
 
 horizontal :: (Foldable t, Unital r) => (a -> r) -> t a -> r
 horizontal f = foldr ((><) . f) one
