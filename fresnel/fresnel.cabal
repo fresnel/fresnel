@@ -94,6 +94,7 @@ test-suite test
     Profunctor.Coexp.Test
     Review.Test
     Test.Group
+    Tropical.Test
   build-depends:
     , ansi-terminal ^>= 0.11
     , base
