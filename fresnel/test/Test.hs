@@ -40,10 +40,11 @@ import           System.Environment (getArgs, getProgName)
 import           System.Exit (exitFailure, exitSuccess)
 import           System.IO
 import           Test.Group as Group
-import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult, stdArgs, (.&&.), (===))
+import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult, stdArgs)
 import qualified Test.QuickCheck as QC
 import           Test.QuickCheck.Random (QCGen)
 import           Test.QuickCheck.Test (Result(failingClasses))
+import qualified Tropical.Test
 
 main :: IO ()
 main = getArgs >>= either printErrors (runEntries entries) . parseOpts opts >>= bool exitFailure exitSuccess
@@ -66,7 +67,7 @@ main = getArgs >>= either printErrors (runEntries entries) . parseOpts opts >>= 
     , Monoid.Fork.Test.tests
     , Profunctor.Coexp.Test.tests
     , Review.Test.tests
-    , tropical
+    , Tropical.Test.tests
     ]
 
 parseOpts :: [OptDescr (Options -> Options)] -> [String] -> Either [String] Options
@@ -300,25 +301,6 @@ failure' = colour Dull Red
 
 status :: (Has (Reader Handle) sig m, MonadIO m) => Maybe Status -> m a -> m a
 status = maybe id (stat success failure)
-
-tropical :: Entry
-tropical = Group.Group
-  "Test.Group.Tropical"
-  [ semigroupAssoc
-  , monoidIdentity
-  ]
-  where
-  semigroupAssoc = Group.Prop "semigroup assoc" here $ QC.property (\ (ArbTropical a) (ArbTropical b) (ArbTropical c) -> a <> (b <> c) === (a <> b) <> c)
-  monoidIdentity = Group.Prop "monoid identity" here $ QC.property (\ (ArbTropical a) -> (mempty <> a) === a .&&. (a <> mempty) === a)
-
-newtype ArbTropical = ArbTropical (Tropical Int)
-  deriving (Eq, Ord, Show)
-
-instance QC.Arbitrary ArbTropical where
-  arbitrary = QC.oneof $ map (fmap (ArbTropical . Tropical))
-    [ pure Nothing
-    , Just <$> QC.arbitrary
-    ]
 
 
 sparks :: String
