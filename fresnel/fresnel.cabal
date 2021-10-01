@@ -87,6 +87,7 @@ test-suite test
   main-is: Test.hs
   other-modules:
     Fold.Test
+    Fresnel.Tropical
     Getter.Test
     Iso.Test
     Monoid.Fork.Test
