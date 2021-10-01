@@ -221,27 +221,25 @@ runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepB
 runLabels :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Status -> Stats -> [m ()]
 runLabels s Stats{ numTests, labels }
   | null labels = []
-  | otherwise   = IntMap.elems numberedLabels >>= param
-  where
-  numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
-    [ (i, Map.singleton l n)
-    | (labels, n) <- Map.toList labels
-    , (i, l) <- zip [(0 :: Int)..] labels
-    ]
-  param :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Map.Map String Int -> [m ()]
-  param m =
+  | otherwise   = IntMap.elems numberedLabels >>= \ m ->
+    let sorted = sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)
+        scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
+        sparked = sparkify (map snd (Map.toList m))
+    in
     [ for_ (zip [1..] scaled) $ \ (i, (key, v)) ->
         line *> propGutter *> putS (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key) *> nl
     , do
       line *> propGutter *> putS [ c | e <- sparked, c <- [e, e, e] ] *> nl
       line *> propGutter *> putS [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ] *> nl
     ]
-    where
-    propGutter = status (Just s) (putS vline)
-    n = realToFrac numTests :: Double
-    sorted = sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)
-    scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
-    sparked = sparkify (map snd (Map.toList m))
+  where
+  numberedLabels = IntMap.fromListWith (Map.unionWith (+)) $
+    [ (i, Map.singleton l n)
+    | (labels, n) <- Map.toList labels
+    , (i, l) <- zip [(0 :: Int)..] labels
+    ]
+  propGutter = status (Just s) (putS vline)
+  n = realToFrac numTests :: Double
 
 runClasses :: (Has (Reader Handle) sig m, MonadIO m) => Stats -> [m ()]
 runClasses Stats{ numTests = n, classes } = [ putS (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
