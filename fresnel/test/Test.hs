@@ -109,12 +109,6 @@ replay_ :: Lens' Args (Maybe (QCGen, Int))
 replay_ = lens replay (\ a replay -> a{ replay })
 
 
-entries_ :: Lens' Options [String]
-entries_ = lens entries (\ o entries -> o{ entries })
-
-args_ :: Lens' Options Args
-args_ = lens args (\ o args -> o{ args })
-
 runGroup :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
 runGroup args width groupName entries  = do
   topIndent vline
