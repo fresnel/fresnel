@@ -10,9 +10,12 @@ module Test.Options
 , maxSize_
 , maxShrinks_
 , replay_
+  -- * CLI options
+, parseOpts
 ) where
 
 import Fresnel.Lens (Lens', lens)
+import System.Console.GetOpt
 import Test.QuickCheck (Args(..), stdArgs)
 import Test.QuickCheck.Random (QCGen)
 
@@ -46,3 +49,15 @@ maxShrinks_ = lens maxShrinks (\ a maxShrinks -> a{ maxShrinks })
 
 replay_ :: Lens' Args (Maybe (QCGen, Int))
 replay_ = lens replay (\ a replay -> a{ replay })
+
+
+-- CLI options
+
+parseOpts :: [OptDescr (Options -> Options)] -> [String] -> Either [String] Options
+parseOpts opts args
+  | null other
+  , null errs = Right options
+  | otherwise = Left (map ("Unrecognized argument: " ++) other ++ errs)
+  where
+  options = foldr ($) defaultOptions mods
+  (mods, other, errs) = getOpt RequireOrder opts args

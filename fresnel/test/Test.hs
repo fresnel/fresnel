@@ -69,15 +69,6 @@ main = getArgs >>= either printErrors (runEntries entries) . parseOpts opts >>= 
     , Tropical.Test.tests
     ]
 
-parseOpts :: [OptDescr (Options -> Options)] -> [String] -> Either [String] Options
-parseOpts opts args
-  | null other
-  , null errs = Right options
-  | otherwise = Left (map ("Unrecognized argument: " ++) other ++ errs)
-  where
-  options = foldr ($) defaultOptions mods
-  (mods, other, errs) = getOpt RequireOrder opts args
-
 runEntries :: [Entry] -> Options -> IO Bool
 runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . hasFailures) mempty (do
   t <- getAp (foldMap Ap (intersperse (mempty <$ blank <* blank) (map (runEntry args w) (matching ((==) . entryName) es groups))))
