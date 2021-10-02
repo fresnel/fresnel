@@ -1,6 +1,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 module Test.Options
-( Options(..)
+( -- * Options
+  Options(..)
 , defaultOptions
 , entries_
 , args_
@@ -14,6 +15,8 @@ module Test.Options
 import Fresnel.Lens (Lens', lens)
 import Test.QuickCheck (Args(..), stdArgs)
 import Test.QuickCheck.Random (QCGen)
+
+-- Options
 
 data Options = Options
   { entries :: [String]
