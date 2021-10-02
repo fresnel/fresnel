@@ -95,6 +95,7 @@ test-suite test
     Review.Test
     Test.Group
     Test.Options
+    Test.Print
     Tropical.Test
   build-depends:
     , ansi-terminal ^>= 0.11
