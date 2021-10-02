@@ -87,16 +87,16 @@ runGroup args width groupName entries  = do
   width' = width <> stimes (2 :: Int) one
 
 runProp :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Tally
-runProp args = runPropWith (liftIO . quickCheckWithResult args) args
+runProp args w name loc property = runPropWith (liftIO (quickCheckWithResult args property)) args w name loc
 
-runPropWith :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => (QC.Property -> m Result) -> Args -> Width -> String -> Loc -> QC.Property -> m Tally
-runPropWith with args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
+runPropWith :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m Result -> Args -> Width -> String -> Loc -> m Tally
+runPropWith run args w name Loc{ path, lineNumber } = withHandle $ \ h ->  do
   isTerminal <- liftIO (hIsTerminalDevice h)
 
   when isTerminal (title Pass False)
 
   failedPreviously <- gets hasFailures
-  res <- with property
+  res <- run
   let stat' = if isSuccess res then Pass else Fail
   modify (<> unit stat')
 
