@@ -13,12 +13,18 @@ module Test.Options
   -- * CLI options
 , parseOpts
 , defaultOpts
+, printErrors
+, header
 ) where
 
+import Data.Foldable (traverse_)
+import Data.List (intercalate)
 import Fresnel.Lens (Lens', lens)
 import Fresnel.Setter (set, (%~))
 import Numeric (readDec)
 import System.Console.GetOpt
+import System.Environment (getProgName)
+import System.IO (hPutStrLn, stderr)
 import Test.QuickCheck (Args(..), stdArgs)
 import Test.QuickCheck.Random (QCGen)
 
@@ -75,3 +81,16 @@ defaultOpts =
   ]
   where
   int = fst . head . readDec
+
+printErrors :: [OptDescr a] -> [String] -> IO Bool
+printErrors opts errs = do
+  name <- getProgName
+  False <$ traverse_ (hPutStrLn stderr) (errs ++ [usageInfo (header name opts) opts])
+
+header :: String -> [OptDescr a] -> String
+header name opts = "Usage: " ++ name ++ " " ++ unwords (map opt opts) where
+  opt (Option short long a _) = bracket (intercalate "|" ([ arg a ['-',c] | c <- short ] ++ map (arg a . ("--"++)) long))
+  arg (NoArg _)    = id
+  arg (ReqArg _ s) = (++ " " ++ s)
+  arg (OptArg _ s) = (++ bracket s)
+  bracket s = "[" ++ s ++ "]"

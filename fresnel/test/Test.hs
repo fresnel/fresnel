@@ -13,7 +13,7 @@ import           Control.Carrier.State.Church
 import           Control.Monad (guard, join, when)
 import           Control.Monad.IO.Class
 import           Data.Bool (bool)
-import           Data.Foldable (for_, toList, traverse_)
+import           Data.Foldable (for_, toList)
 import qualified Data.IntMap as IntMap
 import           Data.List (elemIndex, intercalate, intersperse, sortBy)
 import qualified Data.Map as Map
@@ -33,8 +33,7 @@ import           Numeric (showFFloatAlt)
 import qualified Profunctor.Coexp.Test
 import qualified Review.Test
 import           System.Console.ANSI
-import           System.Console.GetOpt
-import           System.Environment (getArgs, getProgName)
+import           System.Environment (getArgs)
 import           System.Exit (exitFailure, exitSuccess)
 import           System.IO
 import           Test.Group as Group
@@ -45,12 +44,8 @@ import           Test.QuickCheck.Test (Result(failingClasses))
 import qualified Tropical.Test
 
 main :: IO ()
-main = getArgs >>= either printErrors (runEntries entries) . parseOpts opts >>= bool exitFailure exitSuccess
+main = getArgs >>= either (printErrors defaultOpts) (runEntries entries) . parseOpts defaultOpts >>= bool exitFailure exitSuccess
   where
-  printErrors errs = getProgName >>= traverse_ (hPutStrLn stderr) . errors errs >> pure False
-  errors errs name = errs ++ [usageInfo (header name) opts]
-  header name = "Usage: " ++ name ++ " [-n N|--successes N]"
-  opts = defaultOpts
   entries =
     [ Fold.Test.tests
     , Getter.Test.tests
