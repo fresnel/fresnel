@@ -22,7 +22,6 @@ import           Data.Monoid (Ap(..))
 import           Data.Ord (comparing)
 import           Data.Semigroup (stimes)
 import qualified Fold.Test
-import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Maybe (_Just)
 import           Fresnel.Optional (is)
 import           Fresnel.Setter
@@ -43,7 +42,6 @@ import           Test.Group as Group
 import           Test.Options
 import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult)
 import qualified Test.QuickCheck as QC
-import           Test.QuickCheck.Random (QCGen)
 import           Test.QuickCheck.Test (Result(failingClasses))
 import qualified Tropical.Test
 
@@ -94,19 +92,6 @@ runEntry :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => A
 runEntry args w = \case
   Group name entries -> runGroup args w name entries
   Prop name loc prop -> runProp  args w name loc prop
-
-
-maxSuccess_ :: Lens' Args Int
-maxSuccess_ = lens maxSuccess (\ a maxSuccess -> a{ maxSuccess })
-
-maxSize_ :: Lens' Args Int
-maxSize_ = lens maxSize (\ a maxSize -> a{ maxSize })
-
-maxShrinks_ :: Lens' Args Int
-maxShrinks_ = lens maxShrinks (\ a maxShrinks -> a{ maxShrinks })
-
-replay_ :: Lens' Args (Maybe (QCGen, Int))
-replay_ = lens replay (\ a replay -> a{ replay })
 
 
 runGroup :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
