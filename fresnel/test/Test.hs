@@ -40,7 +40,8 @@ import           System.Environment (getArgs, getProgName)
 import           System.Exit (exitFailure, exitSuccess)
 import           System.IO
 import           Test.Group as Group
-import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult, stdArgs)
+import           Test.Options
+import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult)
 import qualified Test.QuickCheck as QC
 import           Test.QuickCheck.Random (QCGen)
 import           Test.QuickCheck.Test (Result(failingClasses))
@@ -107,13 +108,6 @@ maxShrinks_ = lens maxShrinks (\ a maxShrinks -> a{ maxShrinks })
 replay_ :: Lens' Args (Maybe (QCGen, Int))
 replay_ = lens replay (\ a replay -> a{ replay })
 
-data Options = Options
-  { entries :: [String]
-  , args    :: Args
-  }
-
-defaultOptions :: Options
-defaultOptions = Options{ entries = [], args = stdArgs{ maxSuccess = 250, chatty = False }}
 
 entries_ :: Lens' Options [String]
 entries_ = lens entries (\ o entries -> o{ entries })
