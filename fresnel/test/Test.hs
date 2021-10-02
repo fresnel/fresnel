@@ -34,7 +34,6 @@ import qualified Profunctor.Coexp.Test
 import qualified Review.Test
 import           System.Console.ANSI
 import           System.Environment (getArgs)
-import           System.Exit (exitFailure, exitSuccess)
 import           System.IO
 import           Test.Group as Group
 import           Test.Options
@@ -44,7 +43,7 @@ import           Test.QuickCheck.Test (Result(failingClasses))
 import qualified Tropical.Test
 
 main :: IO ()
-main = getArgs >>= either (printErrors defaultOpts) (runEntries entries) . parseOpts defaultOpts >>= bool exitFailure exitSuccess
+main = getArgs >>= withOptions defaultOpts (runEntries entries)
   where
   entries =
     [ Fold.Test.tests

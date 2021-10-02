@@ -15,8 +15,11 @@ module Test.Options
 , defaultOpts
 , printErrors
 , header
+, withOptions
 ) where
 
+import Control.Monad ((<=<))
+import Data.Bool (bool)
 import Data.Foldable (traverse_)
 import Data.List (intercalate)
 import Fresnel.Lens (Lens', lens)
@@ -24,6 +27,7 @@ import Fresnel.Setter (set, (%~))
 import Numeric (readDec)
 import System.Console.GetOpt
 import System.Environment (getProgName)
+import System.Exit (exitFailure, exitSuccess)
 import System.IO (hPutStrLn, stderr)
 import Test.QuickCheck (Args(..), stdArgs)
 import Test.QuickCheck.Random (QCGen)
@@ -94,3 +98,6 @@ header name opts = "Usage: " ++ name ++ " " ++ unwords (map opt opts) where
   arg (ReqArg _ s) = (++ " " ++ s)
   arg (OptArg _ s) = (++ bracket s)
   bracket s = "[" ++ s ++ "]"
+
+withOptions :: [OptDescr (Options -> Options)] -> (Options -> IO Bool) -> [String] -> IO ()
+withOptions opts f = bool exitFailure exitSuccess <=< either (printErrors opts) f . parseOpts opts
