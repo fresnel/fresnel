@@ -227,7 +227,3 @@ runTally :: (Has (Reader Handle) sig m, MonadIO m) => Tally -> m ()
 runTally t = sepBy_ (putS ", " ) (map success (tally "✓" "success" "successes" (successes t)) ++ map failure (tally "✗" "failure" "failures"  (failures t))) *> putS "." *> nl
   where
   tally prefix s p n = [ sepBy_ (putS " ") [ putS prefix, putS (show n), putS (plural n s p) ] | n /= 0 ]
-
-
-sepBy_ :: Applicative m => m () -> [m ()] -> m ()
-sepBy_ sep = getAp . foldMap Ap . intersperse sep

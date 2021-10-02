@@ -20,6 +20,7 @@ module Test.Print
 , end
 , nl
 , putS
+, sepBy_
 ) where
 
 import Control.Effect.Reader
@@ -27,6 +28,8 @@ import Control.Effect.State
 import Control.Monad (join, when)
 import Control.Monad.IO.Class
 import Data.Bool (bool)
+import Data.List (intersperse)
+import Data.Monoid (Ap(..))
 import Fresnel.Maybe (_Just)
 import Fresnel.Optional (is)
 import System.Console.ANSI (Color(..), ColorIntensity(..), ConsoleLayer(..), SGR(..), hSetSGR)
@@ -95,3 +98,7 @@ nl = withHandle (liftIO . (`hPutStrLn` ""))
 
 putS :: (Has (Reader Handle) sig m, MonadIO m) => String -> m ()
 putS s = withHandle (liftIO . (`hPutStr` s))
+
+
+sepBy_ :: Applicative m => m () -> [m ()] -> m ()
+sepBy_ sep = getAp . foldMap Ap . intersperse sep
