@@ -24,13 +24,12 @@ import           Data.Semigroup (stimes)
 import qualified Fold.Test
 import           Fresnel.Maybe (_Just)
 import           Fresnel.Optional (is)
-import           Fresnel.Setter
 import           Fresnel.Tropical
 import           GHC.Exception.Type (Exception(displayException))
 import qualified Getter.Test
 import qualified Iso.Test
 import qualified Monoid.Fork.Test
-import           Numeric (readDec, showFFloatAlt)
+import           Numeric (showFFloatAlt)
 import qualified Profunctor.Coexp.Test
 import qualified Review.Test
 import           System.Console.ANSI
@@ -50,15 +49,8 @@ main = getArgs >>= either printErrors (runEntries entries) . parseOpts opts >>= 
   where
   printErrors errs = getProgName >>= traverse_ (hPutStrLn stderr) . errors errs >> pure False
   errors errs name = errs ++ [usageInfo (header name) opts]
-  int = fst . head . readDec
   header name = "Usage: " ++ name ++ " [-n N|--successes N]"
-  opts =
-    [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_)        . int) "N") "require N successful tests before concluding the property passes"
-    , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)           . int) "N") "increase the size parameter to a maximum of N for successive tests of a property"
-    , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_)        . int) "N") "perform a maximum of N shrinks; setting this to 0 disables shrinking"
-    , Option "m" ["match"]     (ReqArg (\ s -> entries_ %~ (s:))           "NAME") "include the named group or property; can be used multiple times to include multiple groups/properties"
-    , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
-    ]
+  opts = defaultOpts
   entries =
     [ Fold.Test.tests
     , Getter.Test.tests

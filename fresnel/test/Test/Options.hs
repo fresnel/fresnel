@@ -12,9 +12,12 @@ module Test.Options
 , replay_
   -- * CLI options
 , parseOpts
+, defaultOpts
 ) where
 
 import Fresnel.Lens (Lens', lens)
+import Fresnel.Setter (set, (%~))
+import Numeric (readDec)
 import System.Console.GetOpt
 import Test.QuickCheck (Args(..), stdArgs)
 import Test.QuickCheck.Random (QCGen)
@@ -61,3 +64,14 @@ parseOpts opts args
   where
   options = foldr ($) defaultOptions mods
   (mods, other, errs) = getOpt RequireOrder opts args
+
+defaultOpts :: [OptDescr (Options -> Options)]
+defaultOpts =
+  [ Option "n" ["successes"] (ReqArg (set (args_.maxSuccess_)    . int)  "N")    "require N successful tests before concluding the property passes"
+  , Option "z" ["size"]      (ReqArg (set (args_.maxSize_)       . int)  "N")    "increase the size parameter to a maximum of N for successive tests of a property"
+  , Option "s" ["shrinks"]   (ReqArg (set (args_.maxShrinks_)    . int)  "N")    "perform a maximum of N shrinks; setting this to 0 disables shrinking"
+  , Option "m" ["match"]     (ReqArg (\ s -> entries_ %~ (s:))           "NAME") "include the named group or property; can be used multiple times to include multiple groups/properties"
+  , Option "r" ["replay"]    (ReqArg (set (args_.replay_) . Just . read) "SEED") "the seed and size to repeat"
+  ]
+  where
+  int = fst . head . readDec
