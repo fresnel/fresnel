@@ -158,18 +158,17 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
   let stats = resultStats res
       details = numTests stats == maxSuccess args && not (null (classes stats))
       labels = runLabels stat' stats
-      propGutter = status (Just stat') (putS vline)
-      ln s = line *> status (Just stat') (putS vline) *> putS s *> nl
-      body = sepBy_ (ln "") $ concat
-        [ [ line *> propGutter *> sepBy_ (putS " ") (runStats args stats ++ runClasses stats) *> nl | details ]
+      ln b = line *> status (Just stat') (putS vline) *> b *> nl
+      body = sepBy_ (ln (pure ())) $ concat
+        [ [ ln (sepBy_ (putS " ") (runStats args stats ++ runClasses stats)) | details ]
         , do
           Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
           pure (do
-            ln (path ++ ":" ++ show lineNumber)
-            ln reason
-            for_ theException (ln . displayException)
-            for_ failingTestCase ln)
-            <> [ ln ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'") ]
+            ln (putS (path ++ ":" ++ show lineNumber))
+            ln (putS reason)
+            for_ theException (ln . putS . displayException)
+            for_ failingTestCase (ln . putS))
+            <> [ ln (putS ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
         , labels
         , runTables stats
         ]
