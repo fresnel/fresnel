@@ -56,8 +56,8 @@ main = getArgs >>= withOptions defaultOpts (runEntries entries)
     ]
 
 runEntries :: [Entry] -> Options -> IO Bool
-runEntries groups (Options es args) = runReader args . runReader stdout . runState (const . pure . not . hasFailures) mempty $ do
-  t <- getAp (foldMap Ap (intersperse (mempty <$ blank <* blank) (map (runEntry w) (matching ((==) . entryName) es groups))))
+runEntries groups (Options es args) = runReader w . runReader args . runReader stdout . runState (const . pure . not . hasFailures) mempty $ do
+  t <- getAp (foldMap Ap (intersperse (mempty <$ blank <* blank) (map runEntry (matching ((==) . entryName) es groups))))
   when (hasSuccesses t || hasFailures t) (blank *> topIndent end *> runTally t)
   where
   blank = topIndent vline <* nl
@@ -65,17 +65,18 @@ runEntries groups (Options es args) = runReader args . runReader stdout . runSta
   matching _ [] = id
   matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
 
-runEntry :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Width -> Entry -> m Tally
-runEntry w = \case
-  Group name entries -> runGroup w name entries
-  Prop name loc prop -> runProp  w name loc prop
+runEntry :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (Reader Width) sig m, Has (State Tally) sig m, MonadIO m) => Entry -> m Tally
+runEntry = \case
+  Group name entries -> runGroup name entries
+  Prop name loc prop -> runProp  name loc prop
 
 
-runGroup :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Width -> String -> [Entry] -> m Tally
-runGroup width groupName entries  = do
+runGroup :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (Reader Width) sig m, Has (State Tally) sig m, MonadIO m) => String -> [Entry] -> m Tally
+runGroup groupName entries  = do
   topIndent vline
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
-  t <- section Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ line <* nl) (map (runEntry width) entries))))
+  w <- asks (<> stimes (2 :: Int) one)
+  t <- section Nothing w (getAp (foldMap Ap (intersperse (mempty <$ line <* nl) (map runEntry entries))))
   when (hasSuccesses t || hasFailures t) $ do
     if hasFailures t then
       failure' (putS (headingN <> gtally))
@@ -83,14 +84,12 @@ runGroup width groupName entries  = do
       topIndent vline *> putS space
     runTally t
   pure t
-  where
-  width' = width <> stimes (2 :: Int) one
 
-runProp :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Width -> String -> Loc -> QC.Property -> m Tally
-runProp w name loc property = runPropWith (ask >>= \ args -> liftIO (quickCheckWithResult args property)) w name loc
+runProp :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (Reader Width) sig m, Has (State Tally) sig m, MonadIO m) => String -> Loc -> QC.Property -> m Tally
+runProp name loc property = runPropWith (ask >>= \ args -> liftIO (quickCheckWithResult args property)) name loc
 
-runPropWith :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m Result -> Width -> String -> Loc -> m Tally
-runPropWith run w name Loc{ path, lineNumber } = withHandle $ \ h ->  do
+runPropWith :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (Reader Width) sig m, Has (State Tally) sig m, MonadIO m) => m Result -> String -> Loc -> m Tally
+runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
   isTerminal <- liftIO (hIsTerminalDevice h)
 
   when isTerminal (title Pass False)
@@ -127,13 +126,15 @@ runPropWith run w name Loc{ path, lineNumber } = withHandle $ \ h ->  do
         , runTables stats
         ]
 
+  w <- ask
   if details || not (isSuccess res) || not (null labels) then section (Just stat') w body else body
   pure (unit stat')
   where
   title s failedPreviously = do
     topIndent (stat vline (bool heading1 headingN failedPreviously) s)
     stat (putS vline) (failure' (putS (hline ++ arrow))) s
-    withSGR (SetConsoleIntensity BoldIntensity:stat [] [ SetColor Foreground Vivid Red ] s) (putS (bullet ++ name ++ replicate (width w - length name) ' '))
+    w <- asks width
+    withSGR (SetConsoleIntensity BoldIntensity:stat [] [ SetColor Foreground Vivid Red ] s) (putS (bullet ++ name ++ replicate (w - length name) ' '))
     withHandle (liftIO . hFlush)
 
 data Stats = Stats
