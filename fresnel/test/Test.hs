@@ -20,7 +20,6 @@ import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
 import           Data.Monoid (Ap(..))
 import           Data.Ord (comparing)
-import           Data.Semigroup (stimes)
 import qualified Fold.Test
 import           Fresnel.Maybe (_Just)
 import           Fresnel.Optional (is)
@@ -75,8 +74,8 @@ runGroup :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (Reader Wid
 runGroup groupName entries  = do
   topIndent vline
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
-  w <- asks (<> stimes (2 :: Int) one)
-  t <- section Nothing w (getAp (foldMap Ap (intersperse (mempty <$ line <* nl) (map runEntry entries))))
+  w <- ask
+  t <- local (<> Width 2) (section Nothing (getAp (foldMap Ap (intersperse (mempty <$ line <* nl) (map (local (const (w :: Width)) . runEntry) entries)))))
   when (hasSuccesses t || hasFailures t) $ do
     if hasFailures t then
       failure' (putS (headingN <> gtally))
@@ -126,8 +125,7 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
         , runTables stats
         ]
 
-  w <- ask
-  if details || not (isSuccess res) || not (null labels) then section (Just stat') w body else body
+  if details || not (isSuccess res) || not (null labels) then section (Just stat') body else body
   pure (unit stat')
   where
   title s failedPreviously = do
@@ -281,13 +279,14 @@ withHandle = join . asks
 line :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m ()
 line = topIndent vline *> putS vline
 
-section :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> Width -> m a -> m a
-section s w m = rule '╭' *> m <* rule '╰'
+section :: (Has (Reader Handle) sig m, Has (Reader Width) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
+section s m = do
+  fullWidth <- asks ((+ (3 + length "Success")) . width)
+  let rule corner = indent *> status s (putS (corner : h : replicate fullWidth h)) *> nl
+  rule '╭' *> m <* rule '╰'
   where
-  rule corner = indent *> status s (putS (corner : h : replicate fullWidth h)) *> nl
   indent = topIndent vline *> when (is _Just s) (putS vline)
   h = '─'
-  fullWidth = width w + 3 + length "Success"
 
 
 space, bullet, heading1, headingN, arrow, vline, hline, gtally, end :: String
