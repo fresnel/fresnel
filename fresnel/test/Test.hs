@@ -56,26 +56,26 @@ main = getArgs >>= withOptions defaultOpts (runEntries entries)
     ]
 
 runEntries :: [Entry] -> Options -> IO Bool
-runEntries groups (Options es args) = runReader stdout (runState (const . pure . not . hasFailures) mempty (do
-  t <- getAp (foldMap Ap (intersperse (mempty <$ blank <* blank) (map (runEntry args w) (matching ((==) . entryName) es groups))))
-  when (hasSuccesses t || hasFailures t) (blank *> topIndent end *> runTally t)))
+runEntries groups (Options es args) = runReader args . runReader stdout . runState (const . pure . not . hasFailures) mempty $ do
+  t <- getAp (foldMap Ap (intersperse (mempty <$ blank <* blank) (map (runEntry w) (matching ((==) . entryName) es groups))))
+  when (hasSuccesses t || hasFailures t) (blank *> topIndent end *> runTally t)
   where
   blank = topIndent vline <* nl
   w = fromMaybe zero (getTropical (maxWidths groups))
   matching _ [] = id
   matching f fs = filter (\ g -> foldr ((||) . f g) False fs)
 
-runEntry :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> Entry -> m Tally
-runEntry args w = \case
-  Group name entries -> runGroup args w name entries
-  Prop name loc prop -> runProp  args w name loc prop
+runEntry :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Width -> Entry -> m Tally
+runEntry w = \case
+  Group name entries -> runGroup w name entries
+  Prop name loc prop -> runProp  w name loc prop
 
 
-runGroup :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> [Entry] -> m Tally
-runGroup args width groupName entries  = do
+runGroup :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Width -> String -> [Entry] -> m Tally
+runGroup width groupName entries  = do
   topIndent vline
   withSGR [SetConsoleIntensity BoldIntensity] (putS (space ++ groupName) *> nl)
-  t <- section Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ line <* nl) (map (runEntry args width) entries))))
+  t <- section Nothing width' (getAp (foldMap Ap (intersperse (mempty <$ line <* nl) (map (runEntry width) entries))))
   when (hasSuccesses t || hasFailures t) $ do
     if hasFailures t then
       failure' (putS (headingN <> gtally))
@@ -86,11 +86,11 @@ runGroup args width groupName entries  = do
   where
   width' = width <> stimes (2 :: Int) one
 
-runProp :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Args -> Width -> String -> Loc -> QC.Property -> m Tally
-runProp args w name loc property = runPropWith (liftIO (quickCheckWithResult args property)) args w name loc
+runProp :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => Width -> String -> Loc -> QC.Property -> m Tally
+runProp w name loc property = runPropWith (ask >>= \ args -> liftIO (quickCheckWithResult args property)) w name loc
 
-runPropWith :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m Result -> Args -> Width -> String -> Loc -> m Tally
-runPropWith run args w name Loc{ path, lineNumber } = withHandle $ \ h ->  do
+runPropWith :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => m Result -> Width -> String -> Loc -> m Tally
+runPropWith run w name Loc{ path, lineNumber } = withHandle $ \ h ->  do
   isTerminal <- liftIO (hIsTerminalDevice h)
 
   when isTerminal (title Pass False)
@@ -108,12 +108,13 @@ runPropWith run args w name Loc{ path, lineNumber } = withHandle $ \ h ->  do
 
   putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) stat' *> nl
 
+  maxSuccess <- asks maxSuccess
   let stats = resultStats res
-      details = numTests stats == maxSuccess args && not (null (classes stats))
+      details = numTests stats == maxSuccess && not (null (classes stats))
       labels = runLabels stat' stats
       ln b = line *> status (Just stat') (putS vline) *> b *> nl
       body = sepBy_ (ln (pure ())) $ concat
-        [ [ ln (sepBy_ (putS " ") (runStats (maxSuccess args) stats ++ runClasses stats)) | details ]
+        [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats ++ runClasses stats)) | details ]
         , do
           Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
           pure (do
