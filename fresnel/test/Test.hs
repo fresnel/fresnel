@@ -110,7 +110,7 @@ runProp args w name Loc{ path, lineNumber } property = withHandle $ \ h ->  do
       labels = runLabels stat' stats
       ln b = line *> status (Just stat') (putS vline) *> b *> nl
       body = sepBy_ (ln (pure ())) $ concat
-        [ [ ln (sepBy_ (putS " ") (runStats args stats ++ runClasses stats)) | details ]
+        [ [ ln (sepBy_ (putS " ") (runStats (maxSuccess args) stats ++ runClasses stats)) | details ]
         , do
           Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
           pure (do
@@ -158,8 +158,8 @@ resultStats = \case
   Failure{ numTests, numDiscarded, numShrinks, failingLabels, failingClasses } -> defaultStats{ numTests, numDiscarded, numShrinks, labels = Map.fromList (map ((, numTests) . pure) failingLabels), classes = Map.fromList (map (,numTests) (toList failingClasses)) }
   NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables }         -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
-runStats :: (Has (Reader Handle) sig m, MonadIO m) => Args -> Stats -> [m ()]
-runStats Args{ maxSuccess } Stats{ numTests, numDiscarded, numShrinks } = [ sepBy_ (putS ", ") entries *> putS "." | not (null entries) ]
+runStats :: (Has (Reader Handle) sig m, MonadIO m) => Int -> Stats -> [m ()]
+runStats maxSuccess Stats{ numTests, numDiscarded, numShrinks } = [ sepBy_ (putS ", ") entries *> putS "." | not (null entries) ]
   where
   entries = concat
     [ [ putS (show numTests     ++ " test"   ++ singular numTests)   | numTests     > 0, numTests /= maxSuccess ]
