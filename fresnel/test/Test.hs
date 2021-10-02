@@ -110,7 +110,7 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
   let stats = resultStats res
       details = numTests stats == maxSuccess && not (null (classes stats))
       labels = runLabels stat' stats
-      ln b = line *> status (Just stat') (putS vline) *> b *> nl
+      ln b = line *> stat success failure stat' (putS vline) *> b *> nl
       body = sepBy_ (ln (pure ())) $ concat
         [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats ++ runClasses stats)) | details ]
         , do
@@ -178,7 +178,7 @@ runLabels s Stats{ numTests, labels }
     let sorted = sortBy (flip (comparing snd) <> flip (comparing fst)) (Map.toList m)
         scaled = map (fmap (\ v -> realToFrac v / n * 100)) sorted
         sparked = sparkify (Map.elems m)
-        ln l = line *> status (Just s) (putS vline) *> putS l *> nl
+        ln l = line *> stat success failure s (putS vline) *> putS l *> nl
     in
     [ for_ (zip [1..] scaled) $ \ (i, (key, v)) -> ln (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
     , do
@@ -247,9 +247,6 @@ success = colour Vivid Green
 failure = colour Vivid Red
 failure' = colour Dull Red
 
-status :: (Has (Reader Handle) sig m, MonadIO m) => Maybe Status -> m a -> m a
-status = maybe id (stat success failure)
-
 
 sparks :: String
 sparks = " ▁▂▃▄▅▆▇█"
@@ -282,7 +279,7 @@ line = topIndent vline *> putS vline
 section :: (Has (Reader Handle) sig m, Has (Reader Width) sig m, Has (State Tally) sig m, MonadIO m) => Maybe Status -> m a -> m a
 section s m = do
   fullWidth <- asks ((+ (3 + length "Success")) . width)
-  let rule corner = indent *> status s (putS (corner : h : replicate fullWidth h)) *> nl
+  let rule corner = indent *> maybe id (stat success failure) s (putS (corner : h : replicate fullWidth h)) *> nl
   rule '╭' *> m <* rule '╰'
   where
   indent = topIndent vline *> when (is _Just s) (putS vline)
