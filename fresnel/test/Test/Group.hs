@@ -19,6 +19,14 @@ module Test.Group
 , maxWidths
 , Width(..)
 , HasWidth(..)
+  -- * Statuses
+, stat
+, Status(..)
+  -- * Tallies
+, hasFailures
+, hasSuccesses
+, unit
+, Tally(..)
 ) where
 
 import Data.Char (isSpace)
@@ -127,3 +135,32 @@ instance HasWidth Entry where
   maxWidth = \case
     Group groupName entries -> sumWidths groupName <> maxWidths entries
     Prop name _ _           -> sumWidths name
+
+
+-- Statuses
+
+stat :: a -> a -> Status -> a
+stat pass fail = \case{ Pass -> pass ; Fail -> fail }
+
+data Status = Pass | Fail
+  deriving (Eq)
+
+
+-- Tallies
+
+hasSuccesses :: Tally -> Bool
+hasSuccesses = (/= 0) . successes
+
+hasFailures :: Tally -> Bool
+hasFailures = (/= 0) . failures
+
+unit :: Status -> Tally
+unit = stat (Tally 1 0) (Tally 0 1)
+
+data Tally = Tally { successes :: Int, failures :: Int }
+
+instance Semigroup Tally where
+  Tally s1 f1 <> Tally s2 f2 = Tally (s1 + s2) (f1 + f2)
+
+instance Monoid Tally where
+  mempty = Tally 0 0
