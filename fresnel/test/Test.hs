@@ -10,6 +10,7 @@ module Main
 
 import           Control.Carrier.Reader
 import           Control.Carrier.State.Church
+import           Control.Exception (SomeException)
 import           Control.Monad (guard, join, when)
 import           Control.Monad.IO.Class
 import           Data.Bool (bool)
@@ -36,9 +37,8 @@ import           System.Environment (getArgs)
 import           System.IO
 import           Test.Group as Group
 import           Test.Options
-import           Test.QuickCheck (Args(..), Result(Failure, GaveUp, NoExpectedFailure, Success), isSuccess, quickCheckWithResult)
+import           Test.QuickCheck (Args(..), isSuccess, quickCheckWithResult)
 import qualified Test.QuickCheck as QC
-import           Test.QuickCheck.Test (Result(failingClasses))
 import qualified Tropical.Test
 
 main :: IO ()
@@ -85,7 +85,7 @@ runGroup groupName entries  = do
   pure t
 
 runProp :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (Reader Width) sig m, Has (State Tally) sig m, MonadIO m) => String -> Loc -> QC.Property -> m Tally
-runProp name loc property = runPropWith (ask >>= \ args -> liftIO (quickCheckWithResult args property)) name loc
+runProp name loc property = runPropWith (ask >>= \ args -> fromQC <$> liftIO (quickCheckWithResult args property)) name loc
 
 runPropWith :: (Has (Reader Args) sig m, Has (Reader Handle) sig m, Has (Reader Width) sig m, Has (State Tally) sig m, MonadIO m) => m Result -> String -> Loc -> m Tally
 runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
@@ -95,38 +95,37 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
 
   failedPreviously <- gets hasFailures
   res <- run
-  let stat' = if isSuccess res then Pass else Fail
-  modify (<> unit stat')
+  modify (<> unit (status res))
 
   when isTerminal $ do
     liftIO (hClearFromCursorToLineBeginning h)
     liftIO (hSetCursorColumn h 0)
 
-  title stat' failedPreviously
+  title (status res) failedPreviously
 
-  putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) stat' *> nl
+  putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) (status res) *> nl
 
   maxSuccess <- asks maxSuccess
-  let stats = resultStats res
-      details = numTests stats == maxSuccess && not (null (classes stats))
-      labels = runLabels stat' stats
-      ln b = line *> stat success failure stat' (putS vline) *> b *> nl
+  let stats' = stats res
+      details = numTests stats' == maxSuccess && not (null (classes stats'))
+      labels = runLabels (status res) stats'
+      ln b = line *> stat success failure (status res) (putS vline) *> b *> nl
       body = sepBy_ (ln (pure ())) $ concat
-        [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats ++ runClasses stats)) | details ]
+        [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats' ++ runClasses stats')) | details ]
         , do
-          Failure{ usedSeed, usedSize, reason, theException, failingTestCase } <- pure res
+          Failure{ seed, reason, exception, testCase } <- toList (failed res)
           pure (do
             ln (putS (path ++ ":" ++ show lineNumber))
             ln (putS reason)
-            for_ theException (ln . putS . displayException)
-            for_ failingTestCase (ln . putS))
-            <> [ ln (putS ("--replay '(" ++ show usedSeed ++ "," ++ show usedSize ++ ")'")) ]
+            for_ exception (ln . putS . displayException)
+            for_ testCase (ln . putS))
+            <> [ ln (putS ("--replay '" ++ show seed ++ "'")) ]
         , labels
-        , runTables stats
+        , runTables stats'
         ]
 
-  if details || not (isSuccess res) || not (null labels) then section (Just stat') body else body
-  pure (unit stat')
+  if details || status res == Fail || not (null labels) then section (Just (status res)) body else body
+  pure (unit (status res))
   where
   title s failedPreviously = do
     topIndent (stat vline (bool heading1 headingN failedPreviously) s)
@@ -134,6 +133,19 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
     w <- asks width
     withSGR (SetConsoleIntensity BoldIntensity:stat [] [ SetColor Foreground Vivid Red ] s) (putS (bullet ++ name ++ replicate (w - length name) ' '))
     withHandle (liftIO . hFlush)
+
+data Result = Result
+  { stats  :: Stats
+  , status :: Status
+  , failed :: Maybe Failure
+  }
+
+data Failure = Failure
+  { seed      :: String
+  , reason    :: String
+  , exception :: Maybe SomeException
+  , testCase  :: [String]
+  }
 
 data Stats = Stats
   { numTests     :: Int
@@ -154,12 +166,17 @@ defaultStats = Stats
   , tables       = Map.empty
   }
 
-resultStats :: Result -> Stats
+fromQC :: QC.Result -> Result
+fromQC r = Result (resultStats r) (bool Fail Pass (isSuccess r)) $ case r of
+  QC.Failure{ usedSeed, usedSize, reason, theException, failingTestCase } -> Just Failure{ seed = show (usedSeed, usedSize), reason, exception = theException, testCase = failingTestCase }
+  _                                                                       -> Nothing
+
+resultStats :: QC.Result -> Stats
 resultStats = \case
-  Success{ numTests, numDiscarded, labels, classes, tables }                   -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
-  GaveUp{ numTests, numDiscarded, labels, classes, tables }                    -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
-  Failure{ numTests, numDiscarded, numShrinks, failingLabels, failingClasses } -> defaultStats{ numTests, numDiscarded, numShrinks, labels = Map.fromList (map ((, numTests) . pure) failingLabels), classes = Map.fromList (map (,numTests) (toList failingClasses)) }
-  NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables }         -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
+  QC.Success{ numTests, numDiscarded, labels, classes, tables }                   -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
+  QC.GaveUp{ numTests, numDiscarded, labels, classes, tables }                    -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
+  QC.Failure{ numTests, numDiscarded, numShrinks, failingLabels, failingClasses } -> defaultStats{ numTests, numDiscarded, numShrinks, labels = Map.fromList (map ((, numTests) . pure) failingLabels), classes = Map.fromList (map (,numTests) (toList failingClasses)) }
+  QC.NoExpectedFailure{ numTests, numDiscarded, labels, classes, tables }         -> defaultStats{ numTests, numDiscarded, labels, classes, tables }
 
 runStats :: (Has (Reader Handle) sig m, MonadIO m) => Int -> Stats -> [m ()]
 runStats maxSuccess Stats{ numTests, numDiscarded, numShrinks } = [ sepBy_ (putS ", ") entries *> putS "." | not (null entries) ]
@@ -264,6 +281,7 @@ stat :: a -> a -> Status -> a
 stat pass fail = \case{ Pass -> pass ; Fail -> fail }
 
 data Status = Pass | Fail
+  deriving (Eq)
 
 
 topIndent :: (Has (Reader Handle) sig m, Has (State Tally) sig m, MonadIO m) => String -> m ()
