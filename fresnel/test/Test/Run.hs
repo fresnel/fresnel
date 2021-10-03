@@ -97,8 +97,7 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
       let len = length testCase
       concat
         [ [ do
-            ln (putS (path ++ ":" ++ show lineNumber))
-            ln (putS reason)
+            ln (putS (path ++ ':' : show lineNumber ++ ':' : ' ' : reason))
             for_ exception (ln . putS . displayException) ]
         , [ do
             let digits i = ceiling (logBase 10 (realToFrac (i + 1) :: Double))
