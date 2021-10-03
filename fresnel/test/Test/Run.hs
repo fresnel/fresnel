@@ -71,30 +71,30 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
   when isTerminal (title Pass False)
 
   failedPreviously <- gets hasFailures
-  res <- run
-  modify (<> unit (status res))
+  Result{ stats, status, failed } <- run
+  modify (<> unit status)
 
   when isTerminal $ do
     liftIO (hClearFromCursorToLineBeginning h)
     liftIO (hSetCursorColumn h 0)
 
-  title (status res) failedPreviously
+  title status failedPreviously
 
-  putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) (status res) *> nl
+  putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) status *> nl
 
   maxSuccess <- asks maxSuccess
-  let stats' = stats res
+  let stats' = stats
       details = numTests stats' == maxSuccess && not (null (classes stats'))
-      labels = runLabels (status res) stats'
-      ln b = line *> stat success failure (status res) (putS vline) *> b *> nl
+      labels = runLabels status stats'
+      ln b = line *> stat success failure status (putS vline) *> b *> nl
       output
-        | details || status res == Fail || not (null labels) = section (Just (status res))
+        | details || status == Fail || not (null labels) = section (Just status)
         | otherwise                                          = id
 
-  unit (status res) <$ output (sepBy_ (ln (pure ())) (concat
+  unit status <$ output (sepBy_ (ln (pure ())) (concat
     [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats' ++ runClasses stats')) | details ]
     , do
-      Failure{ seed, reason, exception, testCase } <- toList (failed res)
+      Failure{ seed, reason, exception, testCase } <- toList failed
       let len = length testCase
       concat
         [ [ do
