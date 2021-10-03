@@ -99,11 +99,7 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
         [ [ do
             ln (putS (path ++ ':' : show lineNumber ++ ':' : ' ' : reason))
             for_ exception (ln . putS . displayException) ]
-        , [ do
-            let digits i = ceiling (logBase 10 (realToFrac (i + 1) :: Double))
-                maxDigits = digits (len - 1)
-            for_ (zip [1..] (init testCase)) (\ (i, s) -> ln (putS (show (i :: Int) ++ ". " ++ replicate (maxDigits - digits i) ' ' ++ s)))
-          | len >= 2 ]
+        , [ for_ (enumerate (init testCase)) (\ (i, s) -> ln (putS (i ++ s))) | len >= 2 ]
         , [ ln (failure (putS ("✗ " ++ last testCase))) | len >= 1 ]
         , [ ln (putS ("--replay '" ++ show seed ++ "'")) ] ]
     , labels
@@ -189,6 +185,11 @@ runLabels s Stats{ numTests, labels }
     | (labels, n) <- Map.toList labels
     , (i, l) <- zip [(0 :: Int)..] labels ]
   n = realToFrac numTests :: Double
+
+enumerate :: [a] -> [(String, a)]
+enumerate as = foldr (\ (i, a) as -> (show (i :: Int) ++ ". " ++ replicate (maxDigits - digits i) ' ', a):as) [] (zip [1 :: Int ..] as) where
+  digits i = ceiling (logBase 10 (realToFrac (i + 1) :: Double))
+  maxDigits = digits (length as)
 
 runClasses :: (Has (Reader Handle) sig m, MonadIO m) => Stats -> [m ()]
 runClasses Stats{ numTests = n, classes } = [ putS (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
