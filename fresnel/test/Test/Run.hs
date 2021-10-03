@@ -88,7 +88,7 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
       ln b = line *> stat success failure status (putS vline) *> b *> nl
       output
         | details || status == Fail || not (null labels) = section (Just status)
-        | otherwise                                          = id
+        | otherwise                                      = id
 
   unit status <$ output (sepBy_ (ln (pure ())) (concat
     [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats ++ runClasses stats)) | details ]
