@@ -87,6 +87,9 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
       details = numTests stats' == maxSuccess && not (null (classes stats'))
       labels = runLabels (status res) stats'
       ln b = line *> stat success failure (status res) (putS vline) *> b *> nl
+      output
+        | details || status res == Fail || not (null labels) = section (Just (status res))
+        | otherwise                                          = id
       body = sepBy_ (ln (pure ())) $ concat
         [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats' ++ runClasses stats')) | details ]
         , do
@@ -107,7 +110,7 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
         , labels
         , runTables stats' ]
 
-  if details || status res == Fail || not (null labels) then section (Just (status res)) body else body
+  output body
   pure (unit (status res))
   where
   title s failedPreviously = do
