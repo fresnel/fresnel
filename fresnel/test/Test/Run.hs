@@ -89,26 +89,23 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
       ln b = line *> stat success failure (status res) (putS vline) *> b *> nl
       body = sepBy_ (ln (pure ())) $ concat
         [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats' ++ runClasses stats')) | details ]
-        , do { Failure{ seed, reason, exception, testCase } <- toList (failed res) ; pure (seed, reason, exception, testCase) }
-        >>= \ (seed, reason, exception, testCase) ->
-          [ do
-            ln (putS (path ++ ":" ++ show lineNumber))
-            ln (putS reason)
-            for_ exception (ln . putS . displayException)
-          , do
-            let len = length testCase
-                digits i = ceiling (logBase 10 (realToFrac (i + 1) :: Double))
-                maxDigits = digits (len - 1)
-            if len >= 2 then do
-              for_ (zip [1..] (init testCase)) (\ (i, s) -> ln (putS (show (i :: Int) ++ ". " ++ replicate (maxDigits - digits i) ' ' ++ s)))
-              ln (failure (putS ("✗ " ++ last testCase)))
-            else
-              for_ testCase (ln . putS)
-          , ln (putS ("--replay '" ++ show seed ++ "'"))
-          ]
+        , do
+          Failure{ seed, reason, exception, testCase } <- toList (failed res)
+          let len = length testCase
+          concat
+            [ [ do
+                ln (putS (path ++ ":" ++ show lineNumber))
+                ln (putS reason)
+                for_ exception (ln . putS . displayException) ]
+            , [ do
+                let digits i = ceiling (logBase 10 (realToFrac (i + 1) :: Double))
+                    maxDigits = digits (len - 1)
+                for_ (zip [1..] (init testCase)) (\ (i, s) -> ln (putS (show (i :: Int) ++ ". " ++ replicate (maxDigits - digits i) ' ' ++ s)))
+              | len >= 2 ]
+            , [ ln (failure (putS ("✗ " ++ last testCase))) | len >= 1 ]
+            , [ ln (putS ("--replay '" ++ show seed ++ "'")) ] ]
         , labels
-        , runTables stats'
-        ]
+        , runTables stats' ]
 
   if details || status res == Fail || not (null labels) then section (Just (status res)) body else body
   pure (unit (status res))
