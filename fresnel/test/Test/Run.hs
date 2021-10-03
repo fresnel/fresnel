@@ -10,7 +10,7 @@ module Test.Run
 import           Control.Carrier.Reader
 import           Control.Carrier.State.Church
 import           Control.Exception (SomeException)
-import           Control.Monad (guard, when)
+import           Control.Monad (when)
 import           Control.Monad.IO.Class
 import           Data.Bool (bool)
 import           Data.Foldable (for_, toList)
@@ -175,7 +175,7 @@ runLabels s Stats{ numTests, labels }
         sparked = sparkify (Map.elems m)
         ln l = line *> stat success failure s (putS vline) *> putS l *> nl
     in
-    [ for_ (zip [1..] scaled) $ \ (i, (key, v)) -> ln (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
+    [ for_ (enumerate scaled) $ \ (i, (key, v)) -> ln (i ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
     , do
       ln [ c | e <- sparked, c <- [e, e, e] ]
       ln [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ] ]
