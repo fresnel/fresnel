@@ -83,16 +83,15 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
   putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) status *> nl
 
   maxSuccess <- asks maxSuccess
-  let stats' = stats
-      details = numTests stats' == maxSuccess && not (null (classes stats'))
-      labels = runLabels status stats'
+  let details = numTests stats == maxSuccess && not (null (classes stats))
+      labels = runLabels status stats
       ln b = line *> stat success failure status (putS vline) *> b *> nl
       output
         | details || status == Fail || not (null labels) = section (Just status)
         | otherwise                                          = id
 
   unit status <$ output (sepBy_ (ln (pure ())) (concat
-    [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats' ++ runClasses stats')) | details ]
+    [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats ++ runClasses stats)) | details ]
     , do
       Failure{ seed, reason, exception, testCase } <- toList failed
       let len = length testCase
@@ -109,7 +108,7 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
         , [ ln (failure (putS ("✗ " ++ last testCase))) | len >= 1 ]
         , [ ln (putS ("--replay '" ++ show seed ++ "'")) ] ]
     , labels
-    , runTables stats' ]))
+    , runTables stats ]))
   where
   title s failedPreviously = do
     topIndent (stat vline (bool heading1 headingN failedPreviously) s)
