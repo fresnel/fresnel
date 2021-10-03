@@ -90,28 +90,26 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
       output
         | details || status res == Fail || not (null labels) = section (Just (status res))
         | otherwise                                          = id
-      body = sepBy_ (ln (pure ())) $ concat
-        [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats' ++ runClasses stats')) | details ]
-        , do
-          Failure{ seed, reason, exception, testCase } <- toList (failed res)
-          let len = length testCase
-          concat
-            [ [ do
-                ln (putS (path ++ ":" ++ show lineNumber))
-                ln (putS reason)
-                for_ exception (ln . putS . displayException) ]
-            , [ do
-                let digits i = ceiling (logBase 10 (realToFrac (i + 1) :: Double))
-                    maxDigits = digits (len - 1)
-                for_ (zip [1..] (init testCase)) (\ (i, s) -> ln (putS (show (i :: Int) ++ ". " ++ replicate (maxDigits - digits i) ' ' ++ s)))
-              | len >= 2 ]
-            , [ ln (failure (putS ("✗ " ++ last testCase))) | len >= 1 ]
-            , [ ln (putS ("--replay '" ++ show seed ++ "'")) ] ]
-        , labels
-        , runTables stats' ]
 
-  output body
-  pure (unit (status res))
+  unit (status res) <$ output (sepBy_ (ln (pure ())) (concat
+    [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats' ++ runClasses stats')) | details ]
+    , do
+      Failure{ seed, reason, exception, testCase } <- toList (failed res)
+      let len = length testCase
+      concat
+        [ [ do
+            ln (putS (path ++ ":" ++ show lineNumber))
+            ln (putS reason)
+            for_ exception (ln . putS . displayException) ]
+        , [ do
+            let digits i = ceiling (logBase 10 (realToFrac (i + 1) :: Double))
+                maxDigits = digits (len - 1)
+            for_ (zip [1..] (init testCase)) (\ (i, s) -> ln (putS (show (i :: Int) ++ ". " ++ replicate (maxDigits - digits i) ' ' ++ s)))
+          | len >= 2 ]
+        , [ ln (failure (putS ("✗ " ++ last testCase))) | len >= 1 ]
+        , [ ln (putS ("--replay '" ++ show seed ++ "'")) ] ]
+    , labels
+    , runTables stats' ]))
   where
   title s failedPreviously = do
     topIndent (stat vline (bool heading1 headingN failedPreviously) s)
