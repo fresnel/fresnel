@@ -38,34 +38,45 @@ common common
 library
   import: common
   exposed-modules:
-    Fresnel.AffineFold
     Fresnel.At
     Fresnel.Bifunctor.Contravariant
     Fresnel.Either
     Fresnel.Fold
+    Fresnel.Functor.Backwards
+    Fresnel.Functor.Traversed
     Fresnel.Getter
     Fresnel.Iso
     Fresnel.Ixed
     Fresnel.Lens
     Fresnel.List.NonEmpty
     Fresnel.Maybe
+    Fresnel.Monoid.Cons
+    Fresnel.Monoid.Fork
+    Fresnel.Monoid.Snoc
     Fresnel.Optic
     Fresnel.Optional
+    Fresnel.OptionalFold
     Fresnel.Prism
-    Fresnel.Profunctor.AffineStar
     Fresnel.Profunctor.Coexp
-    Fresnel.Profunctor.Optical
+    Fresnel.Profunctor.OptionalStar
     Fresnel.Profunctor.Recall
     Fresnel.Review
     Fresnel.Setter
     Fresnel.Traversal
     Fresnel.Tuple
+  other-modules:
+    Fresnel.Getter.Internal
+    Fresnel.Iso.Internal
+    Fresnel.Lens.Internal
+    Fresnel.Optional.Internal
+    Fresnel.OptionalFold.Internal
+    Fresnel.Prism.Internal
+    Fresnel.Traversal.Internal
   build-depends:
     , base >=4.14 && < 5
     , containers   >= 0.5 && < 0.7
     , hashable    ^>= 1.3
     , profunctors ^>= 5.6
-    , transformers >= 0.5.6 && < 0.7
     , unordered-containers ^>= 0.2
   hs-source-dirs: src
 
@@ -75,12 +86,25 @@ test-suite test
   hs-source-dirs: test
   main-is: Test.hs
   other-modules:
+    Fold.Test
+    Fresnel.Tropical
     Getter.Test
     Iso.Test
+    Monoid.Fork.Test
     Profunctor.Coexp.Test
+    Review.Test
+    Test.Group
+    Test.Options
+    Test.Print
+    Test.Run
+    Tropical.Test
   build-depends:
+    , ansi-terminal ^>= 0.11
     , base
+    , containers
     , fresnel
+    , fused-effects
+    , template-haskell
     , QuickCheck ^>= 2.14
 
 

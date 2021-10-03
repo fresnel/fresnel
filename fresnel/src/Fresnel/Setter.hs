@@ -11,17 +11,22 @@ module Fresnel.Setter
 , (%~)
 , set
 , (.~)
+, (+~)
 ) where
 
 import Data.Profunctor.Mapping
 import Fresnel.Optic
-import Fresnel.Profunctor.Optical
+import Fresnel.Traversal.Internal (IsTraversal)
 
 -- Setters
 
 type Setter s t a b = forall p . IsSetter p => Optic p s t a b
 
 type Setter' s a = Setter s s a a
+
+class (IsTraversal p, Mapping p) => IsSetter p
+
+instance IsSetter (->)
 
 
 -- Construction
@@ -45,4 +50,8 @@ set o = over o . const
 
 (.~) = set
 
-infixr 4 .~
+infixr 4 .~, +~
+
+
+(+~) :: Num a => Setter s t a a -> a -> s -> t
+o +~ a = over o (a +)

@@ -15,8 +15,8 @@ module Fresnel.Getter
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
+import Fresnel.Getter.Internal (IsGetter)
 import Fresnel.Optic
-import Fresnel.Profunctor.Optical
 
 -- Getters
 

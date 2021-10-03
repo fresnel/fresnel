@@ -10,6 +10,8 @@ module Fresnel.Prism
   -- * Elimination
 , withPrism
 , matching
+, matching'
+, is
 , isn't
   -- * Relations
 , only
@@ -23,8 +25,10 @@ module Fresnel.Prism
 import Control.Monad (guard)
 import Data.Bifunctor (bimap)
 import Data.Profunctor
+import Fresnel.Iso.Internal (IsIso)
 import Fresnel.Optic
-import Fresnel.Profunctor.Optical
+import Fresnel.Optional (is, isn't, matching, matching')
+import Fresnel.Prism.Internal (IsPrism)
 
 -- Prisms
 
@@ -46,12 +50,6 @@ prism' inj prj = prism inj (\ s -> maybe (Left s) Right (prj s))
 
 withPrism :: Prism s t a b -> (((b -> t) -> (s -> Either t a) -> r) -> r)
 withPrism o = withUnpackedPrism (o (unpackedPrism id Right))
-
-matching :: Prism s t a b -> (s -> Either t a)
-matching o = withPrism o (const id)
-
-isn't :: Prism s t a b -> (s -> Bool)
-isn't o = either (const True) (const False) . matching o
 
 
 -- Relations

@@ -11,11 +11,11 @@ module Fresnel.Traversal
 , traverseOf
 ) where
 
-import Control.Applicative.Backwards
 import Data.Profunctor
-import Data.Profunctor.Traversing (wander)
-import Fresnel.Profunctor.Optical
+import Data.Profunctor.Traversing (Traversing(..))
+import Fresnel.Functor.Backwards
 import Fresnel.Optic
+import Fresnel.Traversal.Internal (IsTraversal)
 
 -- Traversals
 

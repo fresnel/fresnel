@@ -41,6 +41,7 @@ function flags {
   # .hs source dirs
   echo "-ifresnel/src"
   echo "-ifresnel/test"
+  echo "-ifresnel-diagram/src"
 
   # disable automatic selection of packages
   echo "-hide-all-packages"

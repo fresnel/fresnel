@@ -7,12 +7,12 @@ module Fresnel.Profunctor.Recall
 ) where
 
 import Data.Bifunctor
+import Data.Coerce
 import Data.Functor.Const
 import Data.Profunctor
-import Data.Profunctor.Unsafe
 import Data.Profunctor.Rep as Pro
 import Data.Profunctor.Sieve
-import Data.Coerce
+import Data.Profunctor.Unsafe
 
 -- Recall profunctor
 

@@ -10,20 +10,27 @@ module Fresnel.Optional
 , optional'
   -- * Elimination
 , matching
+, matching'
 , withOptional
-, optionalTraverseOf
+, traverseOf
+, is
+, isn't
   -- * Unpacked
 , UnpackedOptional(..)
 , unpackedOptional
 ) where
 
 import Data.Bifunctor
+import Data.Maybe (isJust, isNothing)
 import Data.Profunctor
+import Fresnel.Iso.Internal (IsIso)
+import Fresnel.Lens.Internal (IsLens)
 import Fresnel.Optic
-import Fresnel.Profunctor.AffineStar
-import Fresnel.Profunctor.Optical
+import Fresnel.Optional.Internal (IsOptional)
+import Fresnel.Prism.Internal (IsPrism)
+import Fresnel.Profunctor.OptionalStar
 
--- Affine traversals
+-- Optional traversals
 
 type Optional s t a b = forall p . IsOptional p => Optic p s t a b
 
@@ -47,11 +54,20 @@ optional' prj = optional (\ s -> maybe (Left s) Right (prj s))
 matching :: Optional s t a b -> (s -> Either t a)
 matching o = withOptional o const
 
+matching' :: Optional s t a b -> (s -> Maybe a)
+matching' o = withOptional o (\ prj _ -> either (const Nothing) Just . prj)
+
 withOptional :: Optional s t a b -> (((s -> Either t a) -> (s -> b -> t) -> r) -> r)
 withOptional o = withUnpackedOptional (o (unpackedOptional Right (const id)))
 
-optionalTraverseOf :: Functor f => Optional s t a b -> (forall r . r -> f r) -> (a -> f b) -> (s -> f t)
-optionalTraverseOf o point = runAffineStar . o . affineStar point
+traverseOf :: Functor f => Optional s t a b -> (forall r . r -> f r) -> (a -> f b) -> (s -> f t)
+traverseOf o point = runOptionalStar . o . optionalStar point
+
+is :: Optional s t a b -> (s -> Bool)
+is o = isJust . matching' o
+
+isn't :: Optional s t a b -> (s -> Bool)
+isn't o = isNothing . matching' o
 
 
 -- Unpacked

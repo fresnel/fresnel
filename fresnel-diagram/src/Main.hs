@@ -11,12 +11,10 @@ module Main
 , Vertex(..)
 ) where
 
+import           Control.Applicative (liftA2)
 import           Control.Monad (guard, unless)
 import           Data.Foldable as Foldable (fold, for_)
 import qualified Data.Map as Map
-import           Linear.V2
-import           Linear.V3
-import           Linear.V4
 import           System.Console.GetOpt
 import           System.Environment (getArgs)
 import           Text.Blaze.Svg.Renderer.Pretty
@@ -205,14 +203,14 @@ offset = (,) . Just
 graph :: Diagram Vertex
 graph = diagram
   where
-  diagram = Diagram{ iso, lens, getter, prism, review, optional, affineFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping }
+  diagram = Diagram{ iso, lens, getter, prism, review, optional, optionalFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping }
   iso             = optic "Iso"             (V3 0 0 0) (V2 mx mn) [dest lens, dest prism]
   lens            = optic "Lens"            (V3 1 0 0) (V2 mn mn) [dest optional, dest getter]
-  getter          = optic "Getter"          (V3 2 0 0) (V2 mn mx) [dest affineFold]
+  getter          = optic "Getter"          (V3 2 0 0) (V2 mn mx) [dest optionalFold]
   prism           = optic "Prism"           (V3 0 1 0) (V2 mx mn) [dest optional, dest review]
   review          = optic "Review"          (V3 0 2 0) (V2 mx mn) []
-  optional        = optic "Optional"        (V3 1 1 0) (V2 mn no) [dest affineFold, dest traversal]
-  affineFold      = optic "AffineFold"      (V3 2 1 0) (V2 mn mx) [dest fold]
+  optional        = optic "Optional"        (V3 1 1 0) (V2 mn no) [dest optionalFold, dest traversal]
+  optionalFold    = optic "OptionalFold"    (V3 2 1 0) (V2 mn mx) [dest fold]
   traversal       = optic "Traversal"       (V3 1 2 0) (V2 mx mn) [dest fold, dest setter]
   fold            = optic "Fold"            (V3 2 2 0) (V2 mn mx) []
   setter          = optic "Setter"          (V3 1 3 0) (V2 mx mx) []
@@ -241,7 +239,7 @@ data Diagram a = Diagram
   , prism           :: a
   , review          :: a
   , optional        :: a
-  , affineFold      :: a
+  , optionalFold    :: a
   , traversal       :: a
   , fold            :: a
   , setter          :: a
@@ -257,3 +255,54 @@ data Diagram a = Diagram
   , mapping         :: a
   }
   deriving (Foldable, Functor, Traversable)
+
+
+-- Vectors
+
+data V2 a = V2 a a
+  deriving (Functor)
+
+instance Num a => Num (V2 a) where
+  (+) = liftA2 (+)
+  (*) = liftA2 (+)
+  (-) = liftA2 (+)
+  abs = fmap abs
+  signum = fmap signum
+  negate = fmap negate
+  fromInteger = pure . fromInteger
+
+instance Applicative V2 where
+  pure a = V2 a a
+  V2 f1 f2 <*> V2 a1 a2 = V2 (f1 a1) (f2 a2)
+
+data V3 a = V3 a a a
+  deriving (Functor)
+
+instance Num a => Num (V3 a) where
+  (+) = liftA2 (+)
+  (*) = liftA2 (+)
+  (-) = liftA2 (+)
+  abs = fmap abs
+  signum = fmap signum
+  negate = fmap negate
+  fromInteger = pure . fromInteger
+
+instance Applicative V3 where
+  pure a = V3 a a a
+  V3 f1 f2 f3 <*> V3 a1 a2 a3 = V3 (f1 a1) (f2 a2) (f3 a3)
+
+data V4 a = V4 a a a a
+  deriving (Functor)
+
+instance Num a => Num (V4 a) where
+  (+) = liftA2 (+)
+  (*) = liftA2 (+)
+  (-) = liftA2 (+)
+  abs = fmap abs
+  signum = fmap signum
+  negate = fmap negate
+  fromInteger = pure . fromInteger
+
+instance Applicative V4 where
+  pure a = V4 a a a a
+  V4 f1 f2 f3 f4 <*> V4 a1 a2 a3 a4 = V4 (f1 a1) (f2 a2) (f3 a3) (f4 a4)

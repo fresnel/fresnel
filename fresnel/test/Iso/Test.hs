@@ -4,12 +4,13 @@ module Iso.Test
 ( validIso
 , invalidIso
 , withRoundtrips
-, test
+, tests
 ) where
 
 import Fresnel.Getter
 import Fresnel.Iso
 import Fresnel.Review
+import Test.Group
 import Test.QuickCheck
 
 validIso :: (Eq a, Show a, Eq s, Show s) => Iso' s a -> s -> a -> Property
@@ -38,5 +39,5 @@ prop_involuted_invalidity = invalidIso (involuted (+ (1 :: Integer)))
 
 pure []
 
-test :: IO Bool
-test = $quickCheckAll
+tests :: Entry
+tests = $deriveGroup

@@ -37,7 +37,7 @@
 :seti -Wno-type-defaults
 :set -Wno-unused-packages
 
-:load Fresnel.AffineFold Fresnel.At Fresnel.Fold Fresnel.Getter Fresnel.Iso Fresnel.Lens Fresnel.Optional Fresnel.Prism Fresnel.Review Fresnel.Setter Fresnel.Traversal
+:load Fresnel.At Fresnel.Fold Fresnel.Getter Fresnel.Iso Fresnel.Lens Fresnel.Optional Fresnel.OptionalFold Fresnel.Prism Fresnel.Review Fresnel.Setter Fresnel.Traversal
 
 :def load-tests (\ _ -> pure ":add fresnel/test/Test.hs")
 :def load-diagram (\ _ -> pure ":add fresnel-diagram/src/Main.hs")
