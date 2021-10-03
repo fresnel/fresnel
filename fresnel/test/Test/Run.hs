@@ -101,7 +101,7 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
             for_ exception (ln . putS . displayException) ]
         , [ for_ (enumerate (init testCase)) (\ (i, s) -> ln (putS (i ++ s))) | len >= 2 ]
         , [ ln (failure (putS ("✗ " ++ last testCase))) | len >= 1 ]
-        , [ ln (putS ("--replay '" ++ show seed ++ "'")) ] ]
+        , [ ln (putS ("--replay '" ++ seed ++ "'")) ] ]
     , labels
     , runTables stats ]))
   where
