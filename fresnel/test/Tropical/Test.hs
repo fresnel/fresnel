@@ -28,6 +28,7 @@ instance Arbitrary ArbTropical where
   arbitrary = oneof $ map (fmap (ArbTropical . Tropical))
     [ pure Nothing
     , Just <$> arbitrary
+    , pure (Just 0)
     ]
 
 
