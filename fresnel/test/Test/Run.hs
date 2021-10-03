@@ -71,38 +71,39 @@ runPropWith run name Loc{ path, lineNumber } = withHandle $ \ h ->  do
   when isTerminal (title Pass False)
 
   failedPreviously <- gets hasFailures
-  res <- run
-  modify (<> unit (status res))
+  Result{ stats, status, failed } <- run
+  modify (<> unit status)
 
   when isTerminal $ do
     liftIO (hClearFromCursorToLineBeginning h)
     liftIO (hSetCursorColumn h 0)
 
-  title (status res) failedPreviously
+  title status failedPreviously
 
-  putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) (status res) *> nl
+  putS "   " *> stat (success (putS "Success")) (failure (putS "Failure")) status *> nl
 
   maxSuccess <- asks maxSuccess
-  let stats' = stats res
-      details = numTests stats' == maxSuccess && not (null (classes stats'))
-      labels = runLabels (status res) stats'
-      ln b = line *> stat success failure (status res) (putS vline) *> b *> nl
-      body = sepBy_ (ln (pure ())) $ concat
-        [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats' ++ runClasses stats')) | details ]
-        , do
-          Failure{ seed, reason, exception, testCase } <- toList (failed res)
-          pure (do
-            ln (putS (path ++ ":" ++ show lineNumber))
-            ln (putS reason)
-            for_ exception (ln . putS . displayException)
-            for_ testCase (ln . putS))
-            <> [ ln (putS ("--replay '" ++ show seed ++ "'")) ]
-        , labels
-        , runTables stats'
-        ]
+  let details = numTests stats == maxSuccess && not (null (classes stats))
+      labels = runLabels status stats
+      ln b = line *> stat success failure status (putS vline) *> b *> nl
+      output
+        | details || status == Fail || not (null labels) = section (Just status)
+        | otherwise                                      = id
 
-  if details || status res == Fail || not (null labels) then section (Just (status res)) body else body
-  pure (unit (status res))
+  unit status <$ output (sepBy_ (ln (pure ())) (concat
+    [ [ ln (sepBy_ (putS " ") (runStats maxSuccess stats ++ runClasses stats)) | details ]
+    , do
+      Failure{ seed, reason, exception, testCase } <- toList failed
+      let len = length testCase
+      concat
+        [ [ do
+            ln (putS (path ++ ':' : show lineNumber ++ ':' : ' ' : reason))
+            for_ exception (ln . putS . displayException) ]
+        , [ for_ (enumerate (init testCase)) (\ (i, s) -> ln (putS (i ++ s))) | len >= 2 ]
+        , [ ln (failure (putS (last testCase))) | len >= 1 ]
+        , [ ln (putS ("--replay '" ++ seed ++ "'")) ] ]
+    , labels
+    , runTables stats ]))
   where
   title s failedPreviously = do
     topIndent (stat vline (bool heading1 headingN failedPreviously) s)
@@ -174,7 +175,7 @@ runLabels s Stats{ numTests, labels }
         sparked = sparkify (Map.elems m)
         ln l = line *> stat success failure s (putS vline) *> putS l *> nl
     in
-    [ for_ (zip [1..] scaled) $ \ (i, (key, v)) -> ln (show (i :: Int) ++ ". " ++  (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
+    [ for_ (enumerate scaled) $ \ (i, (key, v)) -> ln (i ++ (' ' <$ guard (v < 10)) ++ showFFloatAlt (Just 1) v "" ++ "% " ++ key)
     , do
       ln [ c | e <- sparked, c <- [e, e, e] ]
       ln [ c | k <- Map.keys m, i <- maybe [] (pure . succ) (elemIndex k (map fst sorted)), c <- ' ':show i ++ " " ] ]
@@ -184,6 +185,11 @@ runLabels s Stats{ numTests, labels }
     | (labels, n) <- Map.toList labels
     , (i, l) <- zip [(0 :: Int)..] labels ]
   n = realToFrac numTests :: Double
+
+enumerate :: [a] -> [(String, a)]
+enumerate as = foldr (\ (i, a) as -> (show (i :: Int) ++ ". " ++ replicate (maxDigits - digits i) ' ', a):as) [] (zip [1 :: Int ..] as) where
+  digits i = ceiling (logBase 10 (realToFrac (i + 1) :: Double))
+  maxDigits = digits (length as)
 
 runClasses :: (Has (Reader Handle) sig m, MonadIO m) => Stats -> [m ()]
 runClasses Stats{ numTests = n, classes } = [ putS (intercalate ", " (map (uncurry (class_ n)) (Map.toList classes)) ++ ".") | not (null classes) ] where
