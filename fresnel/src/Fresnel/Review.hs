@@ -6,6 +6,7 @@ module Fresnel.Review
   -- * Construction
 , unto
 , reviewing
+, un
   -- * Elimination
 , reviews
 , review
@@ -18,6 +19,7 @@ import Data.Bifunctor
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Void
+import Fresnel.Getter (Getter, view)
 import Fresnel.Optic
 import Fresnel.Prism.Internal (IsPrism)
 import Fresnel.Profunctor.Recall
@@ -39,6 +41,10 @@ unto f = lphantom . rmap f
 
 reviewing :: (Profunctor p, Bifunctor p) => Optic p s t a b -> Optic' p t b
 reviewing l f = lphantom . l $ lphantom f
+
+
+un :: Getter s a -> Review a s
+un o = unto (view o)
 
 
 -- Elimination
