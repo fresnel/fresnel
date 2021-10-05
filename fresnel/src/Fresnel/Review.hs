@@ -11,6 +11,7 @@ module Fresnel.Review
 , reviews
 , review
 , (#)
+, re
   -- * Utilities
 , lphantom
 ) where
@@ -19,7 +20,7 @@ import Data.Bifunctor
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Void
-import Fresnel.Getter (Getter, view)
+import Fresnel.Getter (Getter, to, view)
 import Fresnel.Optic
 import Fresnel.Prism.Internal (IsPrism)
 import Fresnel.Profunctor.Recall
@@ -59,6 +60,10 @@ review b = reviews b id
 (#) = review
 
 infixr 8 #
+
+
+re :: Review t b -> Getter b t
+re o = to (review o)
 
 
 -- Utilities
