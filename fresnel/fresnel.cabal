@@ -48,6 +48,7 @@ library
     Fresnel.Iso
     Fresnel.Ixed
     Fresnel.Lens
+    Fresnel.List
     Fresnel.List.NonEmpty
     Fresnel.Maybe
     Fresnel.Monoid.Cons
