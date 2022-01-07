@@ -22,6 +22,7 @@ module Fresnel.Fold
 , forOf_
 , toListOf
 , anyOf
+, allOf
 , previews
 , preview
 , (^?)
@@ -108,6 +109,9 @@ toListOf o = foldrOf o (:) []
 
 anyOf :: Fold s a -> (a -> Bool) -> (s -> Bool)
 anyOf o = foldMapByOf o (||) False
+
+allOf :: Fold s a -> (a -> Bool) -> (s -> Bool)
+allOf o = foldMapByOf o (&&) True
 
 
 previews :: Fold s a -> (a -> r) -> (s -> Maybe r)
