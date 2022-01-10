@@ -7,9 +7,9 @@ module Fresnel.List.NonEmpty
 ) where
 
 import qualified Data.List.NonEmpty as NE
-import           Fresnel.Iso (Iso, iso)
-import           Fresnel.Lens (Lens', lens)
-import           Fresnel.Tuple (fst_)
+import           Fresnel.Iso (Iso, from, iso)
+import           Fresnel.Lens (Lens')
+import           Fresnel.Tuple (fst_, snd_)
 
 -- Optics
 
@@ -23,4 +23,4 @@ head_ :: Lens' (NE.NonEmpty a) a
 head_ = uncons_.fst_
 
 tail_ :: Lens' (NE.NonEmpty a) [a]
-tail_ = lens NE.tail (\ (a NE.:|_) as' -> a NE.:|as')
+tail_ = uncons_.snd_.from nonEmpty_
