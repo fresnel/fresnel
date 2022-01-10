@@ -1,16 +1,20 @@
 module Fresnel.List.NonEmpty
 ( -- * Optics
-  uncons_
+  nonEmpty_
+, uncons_
 , head_
 , tail_
 ) where
 
 import qualified Data.List.NonEmpty as NE
-import           Fresnel.Iso (Iso, iso)
+import           Fresnel.Iso (Iso, Iso', iso)
 import           Fresnel.Lens (Lens', lens)
 import           Fresnel.Tuple (fst_)
 
 -- Optics
+
+nonEmpty_ :: Iso' [a] (Maybe (NE.NonEmpty a))
+nonEmpty_ = iso NE.nonEmpty (foldMap NE.toList)
 
 uncons_ :: Iso (NE.NonEmpty a) (NE.NonEmpty b) (a, Maybe (NE.NonEmpty a)) (b, Maybe (NE.NonEmpty b))
 uncons_ = iso NE.uncons (uncurry (NE.:|) . fmap (foldMap NE.toList))
