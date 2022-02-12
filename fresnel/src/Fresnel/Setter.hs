@@ -14,6 +14,8 @@ module Fresnel.Setter
 , set
 , (.~)
 , (+~)
+, (-~)
+, (*~)
 ) where
 
 import Data.Functor.Contravariant
@@ -60,8 +62,12 @@ set o = over o . const
 
 (.~) = set
 
-infixr 4 .~, +~
+infixr 4 .~
 
 
-(+~) :: Num a => Setter s t a a -> a -> s -> t
+(+~), (-~), (*~) :: Num a => Setter s t a a -> a -> s -> t
 o +~ a = over o (a +)
+o -~ a = over o (a -)
+o *~ a = over o (a *)
+
+infixr 4 +~, -~, *~
