@@ -6,6 +6,7 @@ module Fresnel.Setter
 , IsSetter
   -- * Construction
 , sets
+, mapped
   -- * Elimination
 , over
 , (%~)
@@ -33,6 +34,10 @@ instance IsSetter (->)
 
 sets :: ((a -> b) -> (s -> t)) -> Setter s t a b
 sets f = (f `roam`) -- written thus to placate hlint
+
+
+mapped :: Functor f => Setter (f a) (f b) a b
+mapped = sets fmap
 
 
 -- Elimination
