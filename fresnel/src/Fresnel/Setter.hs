@@ -7,6 +7,7 @@ module Fresnel.Setter
   -- * Construction
 , sets
 , mapped
+, contramapped
   -- * Elimination
 , over
 , (%~)
@@ -15,6 +16,7 @@ module Fresnel.Setter
 , (+~)
 ) where
 
+import Data.Functor.Contravariant
 import Data.Profunctor.Mapping
 import Fresnel.Optic
 import Fresnel.Traversal.Internal (IsTraversal)
@@ -38,6 +40,9 @@ sets f = (f `roam`) -- written thus to placate hlint
 
 mapped :: Functor f => Setter (f a) (f b) a b
 mapped = sets fmap
+
+contramapped :: Contravariant f => Setter (f a) (f b) b a
+contramapped = sets contramap
 
 
 -- Elimination
