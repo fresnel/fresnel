@@ -18,6 +18,7 @@ module Fresnel.Setter
 , (*~)
 , (/~)
 , (^~)
+, (^^~)
 ) where
 
 import Data.Functor.Contravariant
@@ -83,3 +84,8 @@ infixr 4 /~
 o ^~ a = over o (^ a)
 
 infixr 4 ^~
+
+(^^~) :: (Fractional a, Integral b) => Setter s t a a -> b -> s -> t
+o ^^~ a = over o (^^ a)
+
+infixr 4 ^^~
