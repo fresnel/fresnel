@@ -19,6 +19,7 @@ module Fresnel.Setter
 , (/~)
 , (^~)
 , (^^~)
+, (**~)
 ) where
 
 import Data.Functor.Contravariant
@@ -89,3 +90,8 @@ infixr 4 ^~
 o ^^~ a = over o (^^ a)
 
 infixr 4 ^^~
+
+(**~) :: Floating a => Setter s t a a -> a -> s -> t
+o **~ a = over o (** a)
+
+infixr 4 **~
