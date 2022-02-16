@@ -12,9 +12,11 @@ module Fresnel.Traversal
 , forOf
 , sequenceOf
 , transposeOf
+, mapAccumLOf
 ) where
 
 import Control.Applicative (ZipList(..))
+import Control.Monad.Trans.State
 import Data.Profunctor
 import Data.Profunctor.Traversing (Traversing(..))
 import Data.Profunctor.Unsafe ((#.))
@@ -51,3 +53,8 @@ sequenceOf o = traverseOf o id
 
 transposeOf :: Traversal s t [a] a -> s -> [t]
 transposeOf o = getZipList #. traverseOf o ZipList
+
+mapAccumLOf :: Traversal s t a b -> (accum -> a -> (b, accum)) -> accum -> s -> (t, accum)
+mapAccumLOf o f z s =
+  let g a = state $ \ accum -> f accum a
+  in runState (traverseOf o g s) z
