@@ -9,6 +9,7 @@ module Fresnel.Traversal
 , backwards
   -- * Elimination
 , traverseOf
+, forOf
 ) where
 
 import Data.Profunctor
@@ -37,3 +38,6 @@ backwards o = wander (\ f -> forwards . traverseOf o (Backwards . f))
 
 traverseOf :: Applicative f => Traversal s t a b -> ((a -> f b) -> (s -> f t))
 traverseOf o = runStar . o . Star
+
+forOf :: Applicative f => Traversal s t a b -> (s -> (a -> f b) -> f t)
+forOf o = flip (traverseOf o)
