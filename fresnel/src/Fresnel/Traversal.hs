@@ -11,10 +11,13 @@ module Fresnel.Traversal
 , traverseOf
 , forOf
 , sequenceOf
+, transposeOf
 ) where
 
+import Control.Applicative (ZipList(..))
 import Data.Profunctor
 import Data.Profunctor.Traversing (Traversing(..))
+import Data.Profunctor.Unsafe ((#.))
 import Fresnel.Functor.Backwards
 import Fresnel.Optic
 import Fresnel.Traversal.Internal (IsTraversal)
@@ -45,3 +48,6 @@ forOf o = flip (traverseOf o)
 
 sequenceOf :: Applicative f => Traversal s t (f b) b -> (s -> f t)
 sequenceOf o = traverseOf o id
+
+transposeOf :: Traversal s t [a] a -> s -> [t]
+transposeOf o = getZipList #. traverseOf o ZipList
