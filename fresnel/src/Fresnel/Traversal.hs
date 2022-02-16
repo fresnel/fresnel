@@ -15,6 +15,7 @@ module Fresnel.Traversal
 , mapAccumLOf
 , mapAccumROf
 , scanl1Of
+, scanr1Of
 ) where
 
 import Control.Applicative (ZipList(..))
@@ -69,3 +70,9 @@ scanl1Of o f =
   let step Nothing  a = (a, Just a)
       step (Just s) a = let r = f s a in (r, Just r)
   in fst . mapAccumLOf o step Nothing
+
+scanr1Of :: Traversal s t a a -> (a -> a -> a) -> s -> t
+scanr1Of o f =
+  let step Nothing  a = (a, Just a)
+      step (Just s) a = let r = f s a in (r, Just r)
+  in fst . mapAccumROf o step Nothing
