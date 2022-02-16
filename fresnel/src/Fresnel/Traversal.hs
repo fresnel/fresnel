@@ -13,6 +13,7 @@ module Fresnel.Traversal
 , sequenceOf
 , transposeOf
 , mapAccumLOf
+, mapAccumROf
 ) where
 
 import Control.Applicative (ZipList(..))
@@ -58,3 +59,6 @@ mapAccumLOf :: Traversal s t a b -> (accum -> a -> (b, accum)) -> accum -> s -> 
 mapAccumLOf o f z s =
   let g a = state $ \ accum -> f accum a
   in runState (traverseOf o g s) z
+
+mapAccumROf :: Traversal s t a b -> (accum -> a -> (b, accum)) -> accum -> s -> (t, accum)
+mapAccumROf o = mapAccumLOf (backwards o)
