@@ -10,6 +10,7 @@ module Fresnel.Traversal
   -- * Elimination
 , traverseOf
 , forOf
+, sequenceOf
 ) where
 
 import Data.Profunctor
@@ -41,3 +42,6 @@ traverseOf o = runStar . o . Star
 
 forOf :: Applicative f => Traversal s t a b -> (s -> (a -> f b) -> f t)
 forOf o = flip (traverseOf o)
+
+sequenceOf :: Applicative f => Traversal s t (f b) b -> (s -> f t)
+sequenceOf o = traverseOf o id
