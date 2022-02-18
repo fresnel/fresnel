@@ -18,13 +18,14 @@ module Fresnel.Prism
 , nearly
   -- * Combinators
 , without
+, below
   -- * Unpacked
 , UnpackedPrism(..)
 , unpackedPrism
 ) where
 
 import Control.Monad (guard)
-import Data.Bifunctor (bimap)
+import Data.Bifunctor (Bifunctor(..))
 import Data.Profunctor
 import Fresnel.Iso.Internal (IsIso)
 import Fresnel.Optic
@@ -67,6 +68,9 @@ nearly a p = prism' (const a) (guard . p)
 without :: Prism s1 t1 a1 b1 -> Prism s2 t2 a2 b2 -> Prism (Either s1 s2) (Either t1 t2) (Either a1 a2) (Either b1 b2)
 without o1 o2 = withPrism o1 $ \ inj1 prj1 -> withPrism o2 $ \ inj2 prj2 ->
   prism (bimap inj1 inj2) (either (bimap Left Left . prj1) (bimap Right Right . prj2))
+
+below :: Traversable f => Prism' s a -> Prism' (f s) (f a)
+below o = withPrism o $ \ inj prj -> prism (fmap inj) $ \ s -> first (const s) (traverse prj s)
 
 
 -- Unpacked
