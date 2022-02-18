@@ -56,7 +56,7 @@ withPrism o = withUnpackedPrism (o (unpackedPrism id Right))
 -- Relations
 
 only :: Eq a => a -> Prism' a ()
-only a = prism' (const a) (guard . (== a))
+only a = nearly a (a ==)
 
 nearly :: a -> (a -> Bool) -> Prism' a ()
 nearly a p = prism' (const a) (guard . p)
