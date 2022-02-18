@@ -12,6 +12,8 @@ module Fresnel.Fold
 , ignored
 , backwards
   -- * Elimination
+, has
+, hasn't
 , foldMapOf
 , foldMapByOf
 , foldrOf
@@ -80,6 +82,13 @@ backwards o = rphantom . wander (\ f -> forwards . traverseOf_ o (Backwards #. f
 
 
 -- Elimination
+
+has :: Fold s a -> (s -> Bool)
+has o = anyOf o (const True)
+
+hasn't :: Fold s a -> (s -> Bool)
+hasn't = nullOf
+
 
 foldMapOf :: Monoid m => Fold s a -> ((a -> m) -> (s -> m))
 foldMapOf o = runForget #. o .# Forget
