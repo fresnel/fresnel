@@ -15,6 +15,7 @@ module Fresnel.Prism
 , isn't
   -- * Relations
 , only
+, nearly
   -- * Combinators
 , without
   -- * Unpacked
@@ -56,6 +57,9 @@ withPrism o = withUnpackedPrism (o (unpackedPrism id Right))
 
 only :: Eq a => a -> Prism' a ()
 only a = prism' (const a) (guard . (== a))
+
+nearly :: a -> (a -> Bool) -> Prism' a ()
+nearly a p = prism' (const a) (guard . p)
 
 
 -- Combinators
