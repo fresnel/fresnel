@@ -1,4 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TupleSections #-}
 module Fresnel.Prism
 ( -- * Prisms
   Prism
@@ -19,6 +20,7 @@ module Fresnel.Prism
   -- * Combinators
 , without
 , below
+, aside
   -- * Unpacked
 , UnpackedPrism(..)
 , unpackedPrism
@@ -71,6 +73,9 @@ without o1 o2 = withPrism o1 $ \ inj1 prj1 -> withPrism o2 $ \ inj2 prj2 ->
 
 below :: Traversable f => Prism' s a -> Prism' (f s) (f a)
 below o = withPrism o $ \ inj prj -> prism (fmap inj) $ \ s -> first (const s) (traverse prj s)
+
+aside :: Prism s t a b -> Prism (e, s) (e, t) (e, a) (e, b)
+aside o = withPrism o $ \ inj prj -> prism (fmap inj) $ \ (e, s) -> bimap (e,) (e,) (prj s)
 
 
 -- Unpacked
