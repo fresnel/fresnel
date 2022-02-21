@@ -24,10 +24,16 @@ It seemed like an apt metaphor for a pared-down optics library based on function
 
 Like `optics`, it uses profunctor optics rather than the Van Laarhoven representation. Like `lens`, it uses type synonyms and `-XRankNTypes` to compose optics with the `.` operator and allow `ghc` to deduce the (faux-)subtyping relationships between optics.
 
+Like both of the above, but unlike [`prolens`][], `fresnel` offers a rich suite of optics to suit all tastes.
+
 Unlike `lens` (but like `optics`), it goes to some effort to provide a sensibly-named hierarchy of optics to improve type errors. In `optics` this is provided by means of type families providing the subsumption relation and constraints; in `fresnel`, names, subsumption, and constraints are all provided by `Is*` typeclasses (e.g. `IsPrism`, `IsTraversal`, etc.) subclassing the profunctor classes directly.
 
 Unlike `lens`, it doesn’t define any typeclasses to abstract over optics’ sources. It also has a comparatively minimal suite of combinators for complex compositions of projections, etc.
 
+Unlike both `lens` and `prolens`, `fresnel` uses somewhat more approachable names where possible, e.g. `Optional` instead of `AffineTraversal`.
+
 Unlike both `lens` _and_ `optics`, `fresnel` (currently) has no support for indexed optics, or certain other baroque optics. Some of these would be simpler additions than others, and are likely to be added in the fullness of time.
 
-Finally, and also unlike either, `fresnel` requires a reasonably small set of dependencies: `base`, `containers`, `profunctors`, and `unordered-containers`.
+Like [`prolens`][], and also unlike either of the others, `fresnel` requires a reasonably small set of dependencies: `base`, `containers`, `profunctors`, and `unordered-containers`. On the other hand, [`prolens`][] requires even fewer dependencies: only `base`.
+
+[`prolens`]: https://github.com/kowainik/prolens
