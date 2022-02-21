@@ -1,4 +1,16 @@
 {-# LANGUAGE RankNTypes #-}
+{-|
+@'Iso'@s are the root of the optic hierarchy: an @'Iso'@ can be used anywhere any other kind of optic is required. On the other hand, if something requests an @'Iso'@, it can only be given an @'Iso'@, as it doesn't provide enough capabilities to accept anything else.
+
+This implies that they're the weakest optic; they make the fewest assumptions, and thus can provide only the most minimal guarantees. Even so, these guarantees are relativevly strong: notionally, an @'Iso'@ consists of functions @/f/@ and @/g/@ which are mutual inverses:
+
+@
+f '.' g = 'id'
+@
+@
+g '.' f = 'id'
+@
+-}
 module Fresnel.Iso
 ( -- * Isos
   Iso
