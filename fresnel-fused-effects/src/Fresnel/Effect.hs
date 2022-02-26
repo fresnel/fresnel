@@ -8,6 +8,10 @@ module Fresnel.Effect
 , modifying
 , (.=)
 , (%=)
+, (+=)
+, (-=)
+, (*=)
+, (//=)
 ) where
 
 import           Control.Algebra
@@ -46,3 +50,14 @@ modifying o f = S.modify (O.over o f)
 (%=) = modifying
 
 infix 4 %=
+
+
+(+=), (-=), (*=) :: (Has (S.State s) sig m, Num a) => O.Setter s s a a -> a -> m ()
+o += n = modifying o (+ n)
+o -= n = modifying o (subtract n)
+o *= n = modifying o (* n)
+
+(//=) :: (Has (S.State s) sig m, Fractional a) => O.Setter s s a a -> a -> m ()
+o //= n = modifying o (/ n)
+
+infix 4 +=, -=, *=, //=
