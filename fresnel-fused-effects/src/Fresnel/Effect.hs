@@ -6,21 +6,21 @@ module Fresnel.Effect
 , (%=)
 ) where
 
-import Control.Effect.State
-import Fresnel.Setter
+import qualified Control.Effect.State as E
+import qualified Fresnel.Setter as O
 
-assign, (.=) :: Has (State s) sig m => Setter s s a b -> b -> m ()
+assign, (.=) :: E.Has (E.State s) sig m => O.Setter s s a b -> b -> m ()
 
-assign o v = modify (set o v)
+assign o v = E.modify (O.set o v)
 
 (.=) = assign
 
 infix 4 .=
 
 
-modifying, (%=) :: Has (State s) sig m => Setter s s a b -> (a -> b) -> m ()
+modifying, (%=) :: E.Has (E.State s) sig m => O.Setter s s a b -> (a -> b) -> m ()
 
-modifying o f = modify (over o f)
+modifying o f = E.modify (O.over o f)
 
 (%=) = modifying
 
