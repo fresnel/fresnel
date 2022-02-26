@@ -2,6 +2,7 @@
 module Fresnel.Effect
 ( view
 , views
+, use
 , assign
 , modifying
 , (.=)
@@ -19,6 +20,10 @@ view o = R.asks (O.view o)
 
 views :: Has (R.Reader r) sig m => O.Getter r a -> (a -> b) -> m b
 views o f = R.asks (O.views o f)
+
+
+use :: Has (S.State s) sig m => O.Getter s a -> m a
+use o = S.gets (O.view o)
 
 
 assign, (.=) :: Has (S.State s) sig m => O.Setter s s a b -> b -> m ()
