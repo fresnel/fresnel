@@ -42,6 +42,7 @@ function flags {
   echo "-ifresnel/src"
   echo "-ifresnel/test"
   echo "-ifresnel-diagram/src"
+  echo "-ifresnel-fused-effects/src"
 
   # disable automatic selection of packages
   echo "-hide-all-packages"

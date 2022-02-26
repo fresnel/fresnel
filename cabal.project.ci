@@ -1,9 +1,13 @@
 packages:
   fresnel
   fresnel-diagram
+  fresnel-fused-effects
 
 package fresnel
   ghc-options: -Werror
 
 package fresnel-diagram
+  ghc-options: -Werror
+
+package fresnel-fused-effects
   ghc-options: -Werror
