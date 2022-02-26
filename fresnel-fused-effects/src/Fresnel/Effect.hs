@@ -8,6 +8,7 @@ module Fresnel.Effect
 , modifying
 , (.=)
 , (%=)
+, (?=)
 , (<~)
 , (+=)
 , (-=)
@@ -52,6 +53,13 @@ modifying o f = S.modify (O.over o f)
 
 infix 4 %=
 
+
+
+(?=) :: Has (S.State s) sig m => O.Setter s s a (Maybe b) -> b -> m ()
+o ?= v = o .= Just v
+
+
+infix 4 ?=
 
 
 (<~) :: Has (S.State s) sig m => O.Setter s s a b -> m b -> m ()
