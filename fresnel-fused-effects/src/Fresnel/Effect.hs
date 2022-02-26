@@ -1,15 +1,20 @@
 {-# LANGUAGE RankNTypes #-}
 module Fresnel.Effect
-( view
+( -- * Access
+  -- ** Reader
+  view
 , views
+  -- ** State
 , use
 , uses
+  -- * Assignment
 , assign
 , modifying
 , (.=)
 , (%=)
 , (?=)
 , (<~)
+  -- ** Arithmetical
 , (+=)
 , (-=)
 , (*=)
