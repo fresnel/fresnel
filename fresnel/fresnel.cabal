@@ -106,7 +106,7 @@ test-suite test
     , base
     , containers
     , fresnel
-    , fused-effects
+    , fused-effects ^>= 1.1
     , template-haskell
     , QuickCheck ^>= 2.14
 
