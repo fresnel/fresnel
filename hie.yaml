@@ -6,3 +6,5 @@ cradle:
       component: "test:test"
     - path: "./fresnel-diagram/src"
       component: "exe:fresnel-diagram"
+    - path: "./fresnel-fused-effects/src"
+      component: "lib:fresnel-fused-effects"
