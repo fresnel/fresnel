@@ -93,7 +93,7 @@ printErrors opts errs = do
 
 header :: String -> [OptDescr a] -> String
 header name opts = "Usage: " ++ name ++ " " ++ unwords (map opt opts) where
-  opt (Option short long a _) = bracket (intercalate "|" ([ arg a ['-',c] | c <- short ] ++ map (arg a . ("--"++)) long))
+  opt (Option short long a _) = bracket (intercalate "|" ([ arg a ['-',c] | c <- short ] ++ map (arg a . ("--" ++)) long))
   arg (NoArg _)    = id
   arg (ReqArg _ s) = (++ " " ++ s)
   arg (OptArg _ s) = (++ bracket s)

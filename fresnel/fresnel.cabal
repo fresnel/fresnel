@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               fresnel
-version:            0.0.0.0
+version:            0.0.0.1
 synopsis:           high-powered optics in a small package
 description:        fresnel offers (non-indexed) profunctor optics composed with the lowly . operator.
 homepage:           https://github.com/fresnel/fresnel
@@ -12,7 +12,9 @@ maintainer:         rob.rix@me.com
 
 copyright:          2021–2022 Rob Rix
 category:           Control
-extra-source-files: CHANGELOG.md
+extra-source-files:
+  CHANGELOG.md
+  README.md
 
 common common
   default-language: Haskell2010
@@ -34,6 +36,9 @@ common common
     ghc-options:
       -Wno-missing-safe-haskell-mode
       -Wno-prepositive-qualified-module
+  if (impl(ghc >= 9.2))
+    ghc-options:
+      -Wno-missing-kind-signatures
 
 library
   import: common
@@ -106,9 +111,12 @@ test-suite test
     , base
     , containers
     , fresnel
-    , fused-effects
+    , fused-effects ^>= 1.1
     , template-haskell
     , QuickCheck ^>= 2.14
+  if (impl(ghc >= 9.2))
+    ghc-options:
+      -Wno-missing-signatures
 
 
 source-repository head

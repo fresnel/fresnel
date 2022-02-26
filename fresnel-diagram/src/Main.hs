@@ -118,7 +118,10 @@ edgeId Vertex{ name = a } Vertex{ name = b } = a <> "-" <> b
 edgeClass :: Vertex -> Vertex -> AttributeValue
 edgeClass u v = stringValue (unwords ["edge", show (kind u), name u, name v])
 
+xmlns :: AttributeValue -> Attribute
 xmlns = customAttribute "xmlns"
+
+href :: AttributeValue -> Attribute
 href = customAttribute "href"
 
 (!??) :: Svg -> Maybe Attribute -> Svg
