@@ -1,6 +1,7 @@
 {-# LANGUAGE Rank2Types #-}
 module Fresnel.Effect
 ( view
+, views
 , assign
 , modifying
 , (.=)
@@ -15,6 +16,9 @@ import qualified Fresnel.Setter as O
 
 view :: Has (R.Reader r) sig m => O.Getter r a -> m a
 view o = R.asks (O.view o)
+
+views :: Has (R.Reader r) sig m => O.Getter r a -> (a -> b) -> m b
+views o f = R.asks (O.views o f)
 
 
 assign, (.=) :: Has (S.State s) sig m => O.Setter s s a b -> b -> m ()
