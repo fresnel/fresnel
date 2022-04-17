@@ -235,7 +235,7 @@ stop {
 }
 
 .vertex:hover text {
-  stroke-width: 0.5px;
+  stroke-width: 1px;
   stroke-dasharray: none;
 }
 
