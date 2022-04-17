@@ -1,23 +1,23 @@
 @font-face {
-	font-family: 'Computer Modern Serif';
-	src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.eot');
-	src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.eot?#iefix') format('embedded-opentype'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.woff') format('woff'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.ttf') format('truetype'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.svg#cmunrm') format('svg');
-	font-weight: normal;
-	font-style: normal;
+  font-family: 'Computer Modern Serif';
+  src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.eot');
+  src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.eot?#iefix') format('embedded-opentype'),
+    url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.woff') format('woff'),
+    url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.ttf') format('truetype'),
+    url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.svg#cmunrm') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
 
 @font-face {
-	font-family: 'Computer Modern Serif';
-	src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.eot');
-	src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.eot?#iefix') format('embedded-opentype'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.woff') format('woff'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.ttf') format('truetype'),
-		 url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.svg#cmunti') format('svg');
-	font-weight: normal;
-	font-style: italic;
+  font-family: 'Computer Modern Serif';
+  src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.eot');
+  src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.eot?#iefix') format('embedded-opentype'),
+    url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.woff') format('woff'),
+    url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.ttf') format('truetype'),
+    url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunti.svg#cmunti') format('svg');
+  font-weight: normal;
+  font-style: italic;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -46,6 +46,7 @@
   --lens-colour: hsl(315, 50%, 50%);
   --optional-colour: hsl(0, 0%, 60%);
 }
+
 text {
   font-family: "Computer Modern Serif";
   font-size: 20px;
@@ -54,135 +55,188 @@ text {
   transform-origin: center center;
   stroke-width: 0;
 }
+
 .label {
   stroke-width: var(--label-stroke-width, 0.5px);
   stroke-dasharray: 1px 1px;
   pointer-events: none;
 }
+
 .Class {
   color: var(--Class-colour);
   stroke-dasharray: 1px 1px;
 }
+
 .vertex.Class {
   visibility: hidden;
 }
+
 .show-profunctors .vertex.Class {
   visibility: visible;
 }
+
 .Class text {
   font-style: italic;
 }
-path, polyline {
+
+path,
+polyline {
   stroke-miterlimit: 8;
   stroke-linejoin: miter;
   stroke-linecap: square;
   fill: transparent;
   shape-rendering: geometricPrecision;
 }
+
 circle {
   stroke-width: 0;
   pointer-events: none;
 }
+
 use.Class {
   fill: var(--Class-colour);
   stroke: var(--Class-colour);
 }
+
 .vertex {
   fill: currentColor;
   stroke: currentColor;
 }
-#Iso, .Iso {
+
+#Iso,
+.Iso {
   color: var(--iso-colour);
 }
-#Lens, .Lens {
+
+#Lens,
+.Lens {
   color: var(--lens-colour);
 }
-#Getter, .Getter {
+
+#Getter,
+.Getter {
   color: var(--getter-colour);
 }
-#Prism, .Prism {
+
+#Prism,
+.Prism {
   color: var(--prism-colour);
 }
-#Review, .Review {
+
+#Review,
+.Review {
   color: var(--review-colour);
 }
-#Optional, .Optional, #Optional text {
+
+#Optional,
+.Optional,
+#Optional text {
   color: var(--optional-colour);
   text-anchor: end;
 }
-#OptionalFold, .OptionalFold {
+
+#OptionalFold,
+.OptionalFold {
   color: var(--optional-fold-colour);
 }
-#Traversal, .Traversal {
+
+#Traversal,
+.Traversal {
   color: var(--traversal-colour);
 }
-#Fold, .Fold {
+
+#Fold,
+.Fold {
   color: var(--fold-colour);
 }
-#Setter, .Setter {
+
+#Setter,
+.Setter {
   color: var(--setter-colour);
 }
+
 .Iso.Lens {
   stroke: url(#gradient-Iso-Lens);
 }
+
 .Iso.Prism {
   stroke: url(#gradient-Iso-Prism);
 }
+
 .Lens.Optional {
   stroke: url(#gradient-Lens-Optional);
 }
+
 .Lens.Getter {
   stroke: url(#gradient-Lens-Getter);
 }
+
 .Prism.Optional {
   stroke: url(#gradient-Prism-Optional);
 }
+
 .Prism.Review {
   stroke: url(#gradient-Prism-Review);
 }
+
 .Getter.OptionalFold {
   stroke: url(#gradient-Getter-OptionalFold);
 }
+
 .Optional.OptionalFold {
   stroke: url(#gradient-Optional-OptionalFold);
 }
+
 .OptionalFold.Fold {
   stroke: url(#gradient-OptionalFold-Fold);
 }
+
 .Optional.Traversal {
   stroke: url(#gradient-Optional-Traversal);
 }
+
 .Traversal.Fold {
   stroke: url(#gradient-Traversal-Fold);
 }
+
 .Traversal.Setter {
   stroke: url(#gradient-Traversal-Setter);
 }
+
 stop {
   stop-color: currentColor;
 }
+
 .vertex {
   pointer-events: none;
   --edge-stroke-width: 0.5px;
 }
-.vertex text, .vertex circle, .vertex .label {
+
+.vertex text,
+.vertex circle,
+.vertex .label {
   pointer-events: all;
 }
+
 .vertex .ancestors {
   pointer-events: none;
   visibility: hidden;
   --edge-stroke-width: 1.25px;
 }
+
 .vertex:hover {
   --label-stroke-width: 1px;
 }
+
 .vertex:hover circle {
   stroke-width: 2px;
 }
+
 .show-profunctors .vertex:hover .ancestors,
 .vertex.Optic:hover .ancestors .edge.Optic {
   visibility: visible;
 }
+
 .edge {
   stroke-width: var(--edge-stroke-width, 0.5px);
 }
