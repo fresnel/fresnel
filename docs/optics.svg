@@ -255,6 +255,11 @@ stop {
   --label-stroke-width: 1px;
 }
 
+.vertex:hover text {
+  stroke-width: 0.5px;
+  stroke-dasharray: none;
+}
+
 .vertex:hover circle {
   stroke-width: 2px;
 }
