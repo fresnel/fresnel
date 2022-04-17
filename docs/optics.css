@@ -228,6 +228,10 @@ stop {
   --label-stroke-width: 1px;
 }
 
+.vertex text {
+  stroke-opacity: 0.5;
+}
+
 .vertex:hover text {
   stroke-width: 0.5px;
   stroke-dasharray: none;
