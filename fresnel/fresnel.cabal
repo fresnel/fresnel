@@ -112,7 +112,7 @@ test-suite test
     , containers
     , fresnel
     , fused-effects ^>= 1.1
-    , template-haskell
+    , template-haskell >= 2.16 && < 2.22
     , QuickCheck ^>= 2.14
   if (impl(ghc >= 9.2))
     ghc-options:
