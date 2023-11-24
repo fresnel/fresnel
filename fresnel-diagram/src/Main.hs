@@ -15,6 +15,7 @@ import           Control.Applicative (liftA2)
 import           Control.Monad (guard, unless)
 import           Data.Foldable as Foldable (fold, for_)
 import qualified Data.Map as Map
+import           Prelude hiding (liftA2)
 import           System.Console.GetOpt
 import           System.Environment (getArgs)
 import           Text.Blaze.Svg.Renderer.Pretty
