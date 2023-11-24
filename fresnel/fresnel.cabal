@@ -12,7 +12,7 @@ maintainer:         rob.rix@me.com
 
 copyright:          2021–2022 Rob Rix
 category:           Control
-extra-source-files:
+extra-doc-files:
   CHANGELOG.md
   README.md
 
