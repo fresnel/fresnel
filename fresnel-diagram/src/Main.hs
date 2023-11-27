@@ -6,6 +6,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-} -- 9.6+ exports liftA2 from Prelude, earlier does not
 module Main
 ( main
 , Vertex(..)
@@ -15,7 +16,6 @@ import           Control.Applicative (liftA2)
 import           Control.Monad (guard, unless)
 import           Data.Foldable as Foldable (fold, for_)
 import qualified Data.Map as Map
-import           Prelude hiding (liftA2)
 import           System.Console.GetOpt
 import           System.Environment (getArgs)
 import           Text.Blaze.Svg.Renderer.Pretty
