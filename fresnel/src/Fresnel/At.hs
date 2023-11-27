@@ -43,10 +43,10 @@ instance Ord k => At (Set.Set k) where
 instance Ord k => At (Map.Map k v) where
   at = atMap Map.lookup Map.insert Map.delete
 
-instance (Eq k, Hashable k) => At (HashSet.HashSet k) where
+instance Hashable k => At (HashSet.HashSet k) where
   at = atSet HashSet.member HashSet.insert HashSet.delete
 
-instance (Eq k, Hashable k) => At (HashMap.HashMap k v) where
+instance Hashable k => At (HashMap.HashMap k v) where
   at = atMap HashMap.lookup HashMap.insert HashMap.delete
 
 instance At (Maybe a) where
