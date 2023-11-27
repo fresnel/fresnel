@@ -54,13 +54,13 @@ instance Ord k => Ixed (Map.Map k v) where
 
   ix = ixMap Map.lookup Map.insert
 
-instance (Eq k, Hashable k) => Ixed (HashSet.HashSet k) where
+instance Hashable k => Ixed (HashSet.HashSet k) where
   type Index (HashSet.HashSet k) = k
   type IxValue (HashSet.HashSet k) = ()
 
   ix = ixSet HashSet.member HashSet.insert
 
-instance (Eq k, Hashable k) => Ixed (HashMap.HashMap k v) where
+instance Hashable k => Ixed (HashMap.HashMap k v) where
   type Index (HashMap.HashMap k v) = k
   type IxValue (HashMap.HashMap k v) = v
 

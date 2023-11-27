@@ -6,6 +6,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-} -- 9.6+ exports liftA2 from Prelude, earlier does not
 module Main
 ( main
 , Vertex(..)

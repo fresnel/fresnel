@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               fresnel
-version:            0.0.0.2
+version:            0.0.0.3
 synopsis:           high-powered optics in a small package
 description:        fresnel offers (non-indexed) profunctor optics composed with the lowly . operator.
 homepage:           https://github.com/fresnel/fresnel
@@ -84,7 +84,7 @@ library
     , containers   >= 0.5 && < 0.7
     , hashable     >= 1.3 && < 1.5
     , profunctors ^>= 5.6
-    , transformers  >= 0.4 && < 0.6
+    , transformers  >= 0.4 && < 0.7
     , unordered-containers ^>= 0.2
   hs-source-dirs: src
 
