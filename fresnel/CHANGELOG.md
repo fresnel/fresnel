@@ -1,3 +1,8 @@
+# 0.0.0.3
+
+Support ghc 9.6 a little harder.
+
+
 # 0.0.0.2
 
 Support ghc 9.6.
