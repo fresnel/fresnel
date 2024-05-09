@@ -10,7 +10,7 @@ license-file:       LICENSE
 author:             Rob Rix
 maintainer:         rob.rix@me.com
 
-copyright:          2021–2023 Rob Rix
+copyright:          2021–2024 Rob Rix
 category:           Control
 extra-doc-files:
   CHANGELOG.md
