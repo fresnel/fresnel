@@ -1,4 +1,3 @@
-{-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE RankNTypes #-}
 module Fresnel.Fold
 ( -- * Folds
