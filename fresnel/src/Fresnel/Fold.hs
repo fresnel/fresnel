@@ -180,7 +180,7 @@ altOf :: Alternative f => Fold s a -> (s -> f a)
 altOf o = getAlt #. foldMapOf o (Alt #. pure)
 
 asumOf :: Alternative f => Fold s (f a) -> (s -> f a)
-asumOf o = foldMapByOf o (<|>) empty id
+asumOf o = getAlt #. foldMapOf o Alt
 
 concatOf :: Fold s [a] -> (s -> [a])
 concatOf = foldOf
