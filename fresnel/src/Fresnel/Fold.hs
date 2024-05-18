@@ -32,6 +32,7 @@ module Fresnel.Fold
 , allOf
 , noneOf
 , andOf
+, orOf
 , nullOf
 , previews
 , preview
@@ -153,6 +154,9 @@ noneOf o p = anyOf o (not . p)
 
 andOf :: Fold s Bool -> (s -> Bool)
 andOf o = getAll . foldMapOf o All
+
+orOf :: Fold s Bool -> (s -> Bool)
+orOf o = getAny . foldMapOf o Any
 
 nullOf :: Fold s a -> (s -> Bool)
 nullOf o = foldrOf o (\ _ _ -> False) True
