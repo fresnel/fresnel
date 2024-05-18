@@ -47,6 +47,7 @@ module Fresnel.Fold
 , firstOf
 , lastOf
 , minimumOf
+, minimumByOf
 , maximumOf
 , previews
 , preview
@@ -214,6 +215,13 @@ lastOf o = getLast #. foldMapOf o (Last #. Just)
 
 minimumOf :: Ord a => Fold s a -> (s -> Maybe a)
 minimumOf o = getMin #. foldMapOf o (Min #. Just)
+
+minimumByOf :: Fold s a -> (a -> a -> Ordering) -> (s -> Maybe a)
+minimumByOf o cmp = foldlOf' o (\ a b -> Just (case a of
+  Nothing -> b
+  Just a
+    | GT <- cmp a b -> b
+    | otherwise     -> a)) Nothing
 
 maximumOf :: Ord a => Fold s a -> (s -> Maybe a)
 maximumOf o = getMax #. foldMapOf o (Max #. Just)
