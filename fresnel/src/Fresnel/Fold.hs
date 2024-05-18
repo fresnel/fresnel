@@ -39,6 +39,7 @@ module Fresnel.Fold
 , concatMapOf
 , elemOf
 , notElemOf
+, lengthOf
 , nullOf
 , previews
 , preview
@@ -181,6 +182,9 @@ elemOf o = anyOf o . (==)
 
 notElemOf :: Eq a => Fold s a -> a -> s -> Bool
 notElemOf o = noneOf o . (==)
+
+lengthOf :: Fold s a -> (s -> Int)
+lengthOf o = foldrOf o (const (+ 1)) 0
 
 nullOf :: Fold s a -> (s -> Bool)
 nullOf o = foldrOf o (\ _ _ -> False) True
