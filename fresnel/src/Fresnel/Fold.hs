@@ -85,7 +85,7 @@ backwards :: Fold s a -> Fold s a
 backwards o = rphantom . wander (\ f -> forwards . traverseOf_ o (Backwards #. f))
 
 iterated :: (a -> a) -> Fold a a
-iterated f = rphantom . wander (\ g a -> let loop a = g a *> loop (f a) in loop a)
+iterated f = rphantom . wander (\ g -> let loop a = g a *> loop (f a) in loop)
 
 filtered :: (a -> Bool) -> Fold a a
 filtered p = folding (\ a -> if p a then Just a else Nothing)
