@@ -26,7 +26,7 @@ prop_failover_monoid_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
 prop_failover_monoid_identity (ArbFold a) as = classifyList as $ toListOf (getFailover (mempty <> Failover a)) as === toListOf a as .&&. toListOf (getFailover (Failover a <> mempty)) as === toListOf a as
 
 
-prop_replicated_length n a = length (toListOf (replicated n) a) === max 0 n
+prop_replicated n a = toListOf (replicated n) a === replicate n a
 
 
 classifyList :: Testable prop => [a] -> prop -> Property
