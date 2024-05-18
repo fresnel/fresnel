@@ -50,6 +50,7 @@ module Fresnel.Fold
 , minimumByOf
 , maximumOf
 , maximumByOf
+, findOf
 , previews
 , preview
 , (^?)
@@ -233,6 +234,9 @@ maximumByOf o cmp = foldlOf' o (\ a b -> Just (case a of
   Just a
     | LT <- cmp a b -> b
     | otherwise     -> a)) Nothing
+
+findOf :: Fold s a -> (a -> Bool) -> (s -> Maybe a)
+findOf o p = foldrOf o (\ a as -> if p a then Just a else as) Nothing
 
 
 previews :: Fold s a -> (a -> r) -> (s -> Maybe r)
