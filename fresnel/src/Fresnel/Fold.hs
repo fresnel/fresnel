@@ -36,6 +36,7 @@ module Fresnel.Fold
 , productOf
 , sumOf
 , concatOf
+, concatMapOf
 , nullOf
 , previews
 , preview
@@ -169,6 +170,9 @@ sumOf o = getSum . foldMapOf o Sum
 
 concatOf :: Fold s [a] -> (s -> [a])
 concatOf = foldOf
+
+concatMapOf :: Fold s a -> ((a -> [r]) -> (s -> [r]))
+concatMapOf = foldMapOf
 
 nullOf :: Fold s a -> (s -> Bool)
 nullOf o = foldrOf o (\ _ _ -> False) True
