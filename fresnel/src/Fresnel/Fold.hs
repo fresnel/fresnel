@@ -34,6 +34,7 @@ module Fresnel.Fold
 , andOf
 , orOf
 , productOf
+, sumOf
 , nullOf
 , previews
 , preview
@@ -161,6 +162,9 @@ orOf o = getAny . foldMapOf o Any
 
 productOf :: Num a => Fold s a -> (s -> a)
 productOf o = getProduct . foldMapOf o Product
+
+sumOf :: Num a => Fold s a -> (s -> a)
+sumOf o = getSum . foldMapOf o Sum
 
 nullOf :: Fold s a -> (s -> Bool)
 nullOf o = foldrOf o (\ _ _ -> False) True
