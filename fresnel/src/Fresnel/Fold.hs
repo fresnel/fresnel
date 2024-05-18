@@ -119,7 +119,7 @@ takingWhile p f = foldring (\ cons nil -> foldrOf f (\ a as -> if p a then cons 
 -- Elimination
 
 has :: Fold s a -> (s -> Bool)
-has o = anyOf o (const True)
+has = notNullOf
 
 hasn't :: Fold s a -> (s -> Bool)
 hasn't = nullOf
