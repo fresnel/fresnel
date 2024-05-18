@@ -27,6 +27,13 @@ prop_failover_monoid_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
 prop_failover_monoid_identity (ArbFold a) as = classifyList as $ toListOf (getFailover (mempty <> Failover a)) as === toListOf a as .&&. toListOf (getFailover (Failover a <> mempty)) as === toListOf a as
 
 
+prop_filtered p as
+  = classify (not (any (applyFun p) as)) "reject all"
+  . classify (all (applyFun p) as) "accept all"
+  . classifyList as
+  $ toListOf (folded.filtered (applyFun p)) as === filter (applyFun p) as
+
+
 prop_replicated (MostlyPositive n) a = classifyInt n $ toListOf (replicated n) a === replicate n a
 
 
