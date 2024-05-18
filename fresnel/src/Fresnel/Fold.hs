@@ -177,7 +177,7 @@ sumOf :: Num a => Fold s a -> (s -> a)
 sumOf o = getSum #. foldMapOf o Sum
 
 altOf :: Alternative f => Fold s a -> (s -> f a)
-altOf o = foldMapByOf o (<|>) empty pure
+altOf o = getAlt #. foldMapOf o (Alt #. pure)
 
 asumOf :: Alternative f => Fold s (f a) -> (s -> f a)
 asumOf o = foldMapByOf o (<|>) empty id
