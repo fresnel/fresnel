@@ -41,6 +41,7 @@ module Fresnel.Fold
 , notElemOf
 , lengthOf
 , nullOf
+, notNullOf
 , previews
 , preview
 , (^?)
@@ -188,6 +189,9 @@ lengthOf o = foldrOf o (const (+ 1)) 0
 
 nullOf :: Fold s a -> (s -> Bool)
 nullOf o = foldrOf o (\ _ _ -> False) True
+
+notNullOf :: Fold s a -> (s -> Bool)
+notNullOf o = foldrOf o (\ _ _ -> True) False
 
 
 previews :: Fold s a -> (a -> r) -> (s -> Maybe r)
