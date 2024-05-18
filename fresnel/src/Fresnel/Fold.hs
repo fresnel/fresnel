@@ -15,6 +15,7 @@ module Fresnel.Fold
 , repeated
 , replicated
 , cycled
+, takingWhile
   -- * Elimination
 , has
 , hasn't
@@ -98,6 +99,9 @@ replicated n0 = rphantom . wander (\ f -> let loop n a = if n <= 0 then pure () 
 
 cycled :: Fold s a -> Fold s a
 cycled f = foldring (\ cons _ s -> let loop = foldrOf f cons loop s in loop)
+
+takingWhile :: (a -> Bool) -> Fold s a -> Fold s a
+takingWhile p f = foldring (\ cons nil -> foldrOf f (\ a as -> if p a then cons a as else nil) nil)
 
 
 -- Elimination
