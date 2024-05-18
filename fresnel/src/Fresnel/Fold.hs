@@ -11,6 +11,7 @@ module Fresnel.Fold
 , ignored
 , backwards
 , filtered
+, repeated
 , replicated
 , cycled
   -- * Elimination
@@ -84,6 +85,9 @@ backwards o = rphantom . wander (\ f -> forwards . traverseOf_ o (Backwards #. f
 
 filtered :: (a -> Bool) -> Fold a a
 filtered p = folding (\ a -> if p a then Just a else Nothing)
+
+repeated :: Fold a a
+repeated = rphantom . wander (\ f a -> let loop = f a *> loop in loop)
 
 replicated :: Int -> Fold a a
 replicated n0 = rphantom . wander (\ f -> let loop n a = if n <= 0 then pure () else f a *> loop (n - 1) a in loop n0)
