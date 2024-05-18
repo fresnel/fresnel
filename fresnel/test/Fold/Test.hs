@@ -37,6 +37,9 @@ prop_filtered p as
 prop_replicated (MostlyPositive n) a = classifyInt n $ toListOf (replicated n) a === replicate n a
 
 
+prop_cycled (NonEmpty as) (NonNegative n) = classifyList as $ take n (toListOf (cycled folded) as) === take n (cycle as)
+
+
 classifyList :: Testable prop => [a] -> prop -> Property
 classifyList as = classify (null as) "empty" . classify (length as == 1) "singleton"
 
