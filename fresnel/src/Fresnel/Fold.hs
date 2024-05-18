@@ -24,6 +24,7 @@ module Fresnel.Fold
 , foldrOf
 , foldlOf'
 , foldOf
+, foldByOf
 , sequenceOf_
 , traverseOf_
 , forOf_
@@ -149,6 +150,9 @@ foldlOf' o snoc nil s = runSnoc (runForget (o (Forget Snoc.singleton)) s) snoc n
 
 foldOf :: Monoid a => Fold s a -> (s -> a)
 foldOf o = foldMapOf o id
+
+foldByOf :: Fold s a -> ((a -> a -> a) -> a -> (s -> a))
+foldByOf o fork nil s = runFork (runForget (o (Forget Fork.singleton)) s) fork id nil
 
 sequenceOf_ :: Applicative f => Fold s (f a) -> (s -> f ())
 sequenceOf_ o = runTraversed . foldMapOf o Traversed
