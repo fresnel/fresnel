@@ -215,7 +215,7 @@ lastOf :: Fold s a -> (s -> Maybe a)
 lastOf o = getLast #. foldMapOf o (Last #. Just)
 
 minimumOf :: Ord a => Fold s a -> (s -> Maybe a)
-minimumOf o = getMin #. foldMapOf o (Min #. Just)
+minimumOf o = minimumByOf o compare
 
 minimumByOf :: Fold s a -> (a -> a -> Ordering) -> (s -> Maybe a)
 minimumByOf o cmp = foldlOf' o (\ a b -> Just (case a of
@@ -225,7 +225,7 @@ minimumByOf o cmp = foldlOf' o (\ a b -> Just (case a of
     | otherwise     -> a)) Nothing
 
 maximumOf :: Ord a => Fold s a -> (s -> Maybe a)
-maximumOf o = getMax #. foldMapOf o (Max #. Just)
+maximumOf o = maximumByOf o compare
 
 maximumByOf :: Fold s a -> (a -> a -> Ordering) -> (s -> Maybe a)
 maximumByOf o cmp = foldlOf' o (\ a b -> Just (case a of
@@ -263,21 +263,3 @@ instance Semigroup (Union s a) where
 
 instance Monoid (Union s a) where
   mempty = Union ignored
-
-
-newtype Min a = Min { getMin :: Maybe a }
-
-instance Ord a => Semigroup (Min a) where
-  l <> r = Min (maybe (getMin r) (\ a -> maybe (Just a) (Just . min a) (getMin r)) (getMin l))
-
-instance Ord a => Monoid (Min a) where
-  mempty = Min Nothing
-
-
-newtype Max a = Max { getMax :: Maybe a }
-
-instance Ord a => Semigroup (Max a) where
-  l <> r = Max (maybe (getMax r) (\ a -> maybe (Just a) (Just . max a) (getMax r)) (getMax l))
-
-instance Ord a => Monoid (Max a) where
-  mempty = Max Nothing
