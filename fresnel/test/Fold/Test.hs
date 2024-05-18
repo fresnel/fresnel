@@ -34,10 +34,7 @@ classifyList :: Testable prop => [a] -> prop -> Property
 classifyList as = classify (null as) "empty" . classify (length as == 1) "singleton"
 
 classifyInt :: Testable prop => Int -> prop -> Property
-classifyInt n
-  | n < 0     = label "-"
-  | n > 0     = label "+"
-  | otherwise = label "0"
+classifyInt n = classify (n == 0) "zero" . classify (n < 0) "negative"
 
 
 newtype ArbFold a = ArbFold (Fold [a] a)
