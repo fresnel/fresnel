@@ -162,16 +162,16 @@ noneOf :: Fold s a -> (a -> Bool) -> (s -> Bool)
 noneOf o p = anyOf o (not . p)
 
 andOf :: Fold s Bool -> (s -> Bool)
-andOf o = getAll . foldMapOf o All
+andOf o = getAll #. foldMapOf o All
 
 orOf :: Fold s Bool -> (s -> Bool)
-orOf o = getAny . foldMapOf o Any
+orOf o = getAny #. foldMapOf o Any
 
 productOf :: Num a => Fold s a -> (s -> a)
-productOf o = getProduct . foldMapOf o Product
+productOf o = getProduct #. foldMapOf o Product
 
 sumOf :: Num a => Fold s a -> (s -> a)
-sumOf o = getSum . foldMapOf o Sum
+sumOf o = getSum #. foldMapOf o Sum
 
 concatOf :: Fold s [a] -> (s -> [a])
 concatOf = foldOf
