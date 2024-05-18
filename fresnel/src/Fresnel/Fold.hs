@@ -12,6 +12,7 @@ module Fresnel.Fold
 , backwards
 , filtered
 , replicated
+, cycled
   -- * Elimination
 , has
 , hasn't
@@ -86,6 +87,9 @@ filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 replicated :: Int -> Fold a a
 replicated n0 = rphantom . wander (\ f -> let loop n a = if n <= 0 then pure () else f a *> loop (n - 1) a in loop n0)
+
+cycled :: Fold s a -> Fold s a
+cycled f = foldring (\ cons _ s -> let loop = foldrOf f cons loop s in loop)
 
 
 -- Elimination
