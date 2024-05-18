@@ -85,7 +85,7 @@ filtered :: (a -> Bool) -> Fold a a
 filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 replicated :: Int -> Fold a a
-replicated n0 = rphantom . wander (\ f -> let loop n a = if n == 0 then pure () else f a *> loop (n - 1) a in loop n0)
+replicated n0 = rphantom . wander (\ f -> let loop n a = if n <= 0 then pure () else f a *> loop (n - 1) a in loop n0)
 
 
 -- Elimination
