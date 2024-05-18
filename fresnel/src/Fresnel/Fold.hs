@@ -35,6 +35,7 @@ module Fresnel.Fold
 , orOf
 , productOf
 , sumOf
+, altOf
 , asumOf
 , concatOf
 , concatMapOf
@@ -174,6 +175,9 @@ productOf o = getProduct #. foldMapOf o Product
 
 sumOf :: Num a => Fold s a -> (s -> a)
 sumOf o = getSum #. foldMapOf o Sum
+
+altOf :: Alternative f => Fold s a -> (s -> f a)
+altOf o = foldMapByOf o (<|>) empty pure
 
 asumOf :: Alternative f => Fold s (f a) -> (s -> f a)
 asumOf o = foldMapByOf o (<|>) empty id
