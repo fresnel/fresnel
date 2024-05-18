@@ -47,6 +47,7 @@ module Fresnel.Fold
 , firstOf
 , lastOf
 , minimumOf
+, maximumOf
 , previews
 , preview
 , (^?)
@@ -214,6 +215,9 @@ lastOf o = getLast #. foldMapOf o (Last #. Just)
 minimumOf :: Ord a => Fold s a -> (s -> Maybe a)
 minimumOf o = getMin #. foldMapOf o (Min #. Just)
 
+maximumOf :: Ord a => Fold s a -> (s -> Maybe a)
+maximumOf o = getMax #. foldMapOf o (Max #. Just)
+
 
 previews :: Fold s a -> (a -> r) -> (s -> Maybe r)
 previews o f = getFirst #. foldMapOf o (First #. Just . f)
@@ -252,3 +256,12 @@ instance Ord a => Semigroup (Min a) where
 
 instance Ord a => Monoid (Min a) where
   mempty = Min Nothing
+
+
+newtype Max a = Max { getMax :: Maybe a }
+
+instance Ord a => Semigroup (Max a) where
+  l <> r = Max (maybe (getMax r) (\ a -> maybe (Just a) (Just . max a) (getMax r)) (getMax l))
+
+instance Ord a => Monoid (Max a) where
+  mempty = Max Nothing
