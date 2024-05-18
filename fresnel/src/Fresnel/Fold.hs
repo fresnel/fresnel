@@ -10,6 +10,7 @@ module Fresnel.Fold
 , foldring
 , ignored
 , backwards
+, filtered
   -- * Elimination
 , has
 , hasn't
@@ -78,6 +79,9 @@ ignored = foldring (\ _ nil _ -> nil)
 
 backwards :: Fold s a -> Fold s a
 backwards o = rphantom . wander (\ f -> forwards . traverseOf_ o (Backwards #. f))
+
+filtered :: (a -> Bool) -> Fold a a
+filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 
 -- Elimination
