@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Fold.Test
@@ -26,11 +27,17 @@ prop_failover_monoid_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
 prop_failover_monoid_identity (ArbFold a) as = classifyList as $ toListOf (getFailover (mempty <> Failover a)) as === toListOf a as .&&. toListOf (getFailover (Failover a <> mempty)) as === toListOf a as
 
 
-prop_replicated n a = let r = replicate n a in classifyList r $ toListOf (replicated n) a === r
+prop_replicated (MostlyPositive n) a = classifyInt n $ toListOf (replicated n) a === replicate n a
 
 
 classifyList :: Testable prop => [a] -> prop -> Property
 classifyList as = classify (null as) "empty" . classify (length as == 1) "singleton"
+
+classifyInt :: Testable prop => Int -> prop -> Property
+classifyInt n
+  | n < 0     = label "-"
+  | n > 0     = label "+"
+  | otherwise = label "0"
 
 
 newtype ArbFold a = ArbFold (Fold [a] a)
@@ -47,6 +54,19 @@ instance Arbitrary a => Arbitrary (ArbFold a) where
     where
     ixed :: Int -> ArbFold a
     ixed i = ArbFold (ix i)
+
+
+newtype MostlyPositive a = MostlyPositive { getMostlyPositive :: a }
+  deriving (Eq, Num, Ord, Show)
+
+instance (Arbitrary a, Num a, Ord a) => Arbitrary (MostlyPositive a) where
+  arbitrary = MostlyPositive <$> frequency
+    [ (90, getPositive <$> arbitrary)
+    , (5, pure 0)
+    , (5, getNegative <$> arbitrary)
+    ]
+
+  shrink (MostlyPositive a) = [MostlyPositive a' | a' <- shrink a, signum a' == signum a]
 
 
 pure []
