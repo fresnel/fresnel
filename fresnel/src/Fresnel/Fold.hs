@@ -46,6 +46,7 @@ module Fresnel.Fold
 , notNullOf
 , firstOf
 , lastOf
+, minimumOf
 , previews
 , preview
 , (^?)
@@ -210,6 +211,9 @@ firstOf o = foldrOf o (\ a _ -> Just a) Nothing
 lastOf :: Fold s a -> (s -> Maybe a)
 lastOf o = getLast #. foldMapOf o (Last #. Just)
 
+minimumOf :: Ord a => Fold s a -> (s -> Maybe a)
+minimumOf o = getMin #. foldMapOf o (Min #. Just)
+
 
 previews :: Fold s a -> (a -> r) -> (s -> Maybe r)
 previews o f = getFirst #. foldMapOf o (First #. Just . f)
@@ -239,3 +243,12 @@ instance Semigroup (Union s a) where
 
 instance Monoid (Union s a) where
   mempty = Union ignored
+
+
+newtype Min a = Min { getMin :: Maybe a }
+
+instance Ord a => Semigroup (Min a) where
+  l <> r = Min (maybe (getMin r) (\ a -> maybe (Just a) (Just . min a) (getMin r)) (getMin l))
+
+instance Ord a => Monoid (Min a) where
+  mempty = Min Nothing
