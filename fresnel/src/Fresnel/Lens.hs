@@ -13,6 +13,7 @@ module Fresnel.Lens
 , chosen
 , alongside
 , inside
+, devoid
   -- * Unpacked
 , UnpackedLens(..)
 , unpackedLens
@@ -23,6 +24,7 @@ import Data.Bifunctor (Bifunctor(..))
 import Data.Profunctor
 import Data.Profunctor.Rep (Corepresentable(..))
 import Data.Profunctor.Sieve (Cosieve(..))
+import Data.Void (Void, absurd)
 import Fresnel.Getter (getting, view)
 import Fresnel.Iso.Internal (IsIso)
 import Fresnel.Lens.Internal (IsLens)
@@ -66,6 +68,9 @@ inside :: Corepresentable p => Lens s t a b -> Lens (p e s) (p e t) (p e a) (p e
 inside o = lens
   (\ s -> cotabulate (view (getting o) . cosieve s))
   (\ s b -> cotabulate (\ e -> set o (cosieve b e) (cosieve s e)))
+
+devoid :: Lens Void Void a b
+devoid = lens absurd const
 
 
 -- Unpacked
