@@ -53,6 +53,7 @@ module Fresnel.Fold
 , maximumByOf
 , findOf
 , findMOf
+, lookupOf
 , previews
 , preview
 , (^?)
@@ -250,6 +251,9 @@ findMOf o p = foldrOf o (\ a as -> do
     return (Just a)
   else
     as) (return Nothing)
+
+lookupOf :: Eq k => Fold s (k, v) -> (k -> s -> Maybe v)
+lookupOf o k = fmap snd . findOf o ((== k) . fst)
 
 
 previews :: Fold s a -> (a -> r) -> (s -> Maybe r)
