@@ -14,6 +14,7 @@ module Fresnel.Lens
 , alongside
 , inside
 , devoid
+, united
   -- * Unpacked
 , UnpackedLens(..)
 , unpackedLens
@@ -71,6 +72,9 @@ inside o = lens
 
 devoid :: Lens Void Void a b
 devoid = lens absurd const
+
+united :: Lens' a ()
+united = lens (const ()) const
 
 
 -- Unpacked
