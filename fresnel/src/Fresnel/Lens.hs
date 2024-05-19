@@ -9,6 +9,7 @@ module Fresnel.Lens
   -- * Elimination
 , withLens
   -- * Combinators
+, choosing
 , alongside
   -- * Unpacked
 , UnpackedLens(..)
@@ -16,10 +17,13 @@ module Fresnel.Lens
 ) where
 
 import Control.Arrow ((&&&), (***))
+import Data.Bifunctor (Bifunctor(..))
 import Data.Profunctor
+import Fresnel.Getter (getting, view)
 import Fresnel.Iso.Internal (IsIso)
 import Fresnel.Lens.Internal (IsLens)
 import Fresnel.Optic
+import Fresnel.Setter (set)
 
 -- Lenses
 
@@ -41,6 +45,11 @@ withLens o = withUnpackedLens (o (unpackedLens id (const id)))
 
 
 -- Combinators
+
+choosing :: Lens s1 t1 a b -> Lens s2 t2 a b -> Lens (Either s1 s2) (Either t1 t2) a b
+choosing l r = lens
+  (either (view (getting l)) (view (getting r)))
+  (\ e b -> bimap (set l b) (set r b) e)
 
 alongside :: Lens s1 t1 a1 b1 -> Lens s2 t2 a2 b2 -> Lens (s1, s2) (t1, t2) (a1, a2) (b1, b2)
 alongside o1 o2 = withLens o1 $ \ get1 set1 -> withLens o2 $ \ get2 set2 ->
