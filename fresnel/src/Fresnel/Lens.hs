@@ -10,6 +10,7 @@ module Fresnel.Lens
 , withLens
   -- * Combinators
 , choosing
+, chosen
 , alongside
   -- * Unpacked
 , UnpackedLens(..)
@@ -50,6 +51,9 @@ choosing :: Lens s1 t1 a b -> Lens s2 t2 a b -> Lens (Either s1 s2) (Either t1 t
 choosing l r = lens
   (either (view (getting l)) (view (getting r)))
   (\ e b -> bimap (set l b) (set r b) e)
+
+chosen :: Lens (Either a a) (Either b b) a b
+chosen = choosing id id
 
 alongside :: Lens s1 t1 a1 b1 -> Lens s2 t2 a2 b2 -> Lens (s1, s2) (t1, t2) (a1, a2) (b1, b2)
 alongside o1 o2 = withLens o1 $ \ get1 set1 -> withLens o2 $ \ get2 set2 ->
