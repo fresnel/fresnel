@@ -30,6 +30,7 @@ module Fresnel.Iso
 , curried
 , uncurried
 , au
+, auf
   -- * Relations
 , non
 , non'
@@ -122,6 +123,9 @@ uncurried = iso uncurry curry
 
 au :: Functor f => Iso s t a b -> (((b -> t) -> f s) -> f a)
 au o f = withIso o (\ sa bt -> sa <$> f bt)
+
+auf :: (Functor f, Functor g) => Iso s t a b -> ((f t -> g s) -> (f b -> g a))
+auf o f fb = withIso o (\ sa bt -> sa <$> f (bt <$> fb))
 
 
 -- Relations
