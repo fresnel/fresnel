@@ -43,7 +43,7 @@ traversed :: Traversable t => Traversal (t a) (t b) a b
 traversed = wander traverse
 
 backwards :: Traversal s t a b -> Traversal s t a b
-backwards o = wander (\ f -> forwards . traverseOf o (Backwards . f))
+backwards o = wander (\ f -> forwards #. traverseOf o (Backwards #. f))
 
 both :: Bitraversable r => Traversal (r a a) (r b b) a b
 both = wander (\ f -> bitraverse f f)
