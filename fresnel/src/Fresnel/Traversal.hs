@@ -7,6 +7,7 @@ module Fresnel.Traversal
   -- * Construction
 , traversed
 , backwards
+, both
   -- * Elimination
 , traverseOf
 , forOf
@@ -20,6 +21,7 @@ module Fresnel.Traversal
 
 import Control.Applicative (ZipList(..))
 import Control.Monad.Trans.State
+import Data.Bitraversable (Bitraversable(..))
 import Data.Profunctor
 import Data.Profunctor.Traversing (Traversing(..))
 import Data.Profunctor.Unsafe ((#.))
@@ -41,6 +43,9 @@ traversed = wander traverse
 
 backwards :: Traversal s t a b -> Traversal s t a b
 backwards o = wander (\ f -> forwards . traverseOf o (Backwards . f))
+
+both :: Bitraversable r => Traversal (r a a) (r b b) a b
+both = wander (\ f -> bitraverse f f)
 
 
 -- Elimination
