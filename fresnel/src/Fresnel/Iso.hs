@@ -29,6 +29,7 @@ module Fresnel.Iso
 , flipped
 , curried
 , uncurried
+, au
   -- * Relations
 , non
 , non'
@@ -118,6 +119,9 @@ curried = iso curry uncurry
 
 uncurried :: Iso (a -> b -> c) (a' -> b' -> c') ((a, b) -> c) ((a', b') -> c')
 uncurried = iso uncurry curry
+
+au :: Functor f => Iso s t a b -> (((b -> t) -> f s) -> f a)
+au o f = withIso o (\ sa bt -> sa <$> f bt)
 
 
 -- Relations
