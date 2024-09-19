@@ -121,6 +121,10 @@ filtered :: (a -> Bool) -> Fold a a
 filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 -- | An infinite fold repeatedly producing its input.
+--
+-- @
+-- 'toListOf' 'repeated' a = 'repeat' a
+-- @
 repeated :: Fold a a
 repeated = rphantom . traversal (\ f a -> let loop = f a *> loop in loop)
 
