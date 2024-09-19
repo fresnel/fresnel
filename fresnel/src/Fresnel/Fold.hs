@@ -65,6 +65,7 @@ module Fresnel.Fold
 
 import Control.Applicative (Alternative(..))
 import Data.Foldable (traverse_)
+import Data.Functor (void)
 import Data.Functor.Contravariant
 import Data.Monoid
 import Data.Profunctor
@@ -108,8 +109,8 @@ foldMapping :: (forall f . Applicative f => (f u -> f u -> f u) -> f v -> (a -> 
 foldMapping fm = rphantom . traversal (fm (*>) (pure v)) where
   v = error "foldMapping: value used"
 
-foldMap1ing :: (forall f . Applicative f => (f u -> f u -> f u) -> (a -> f a) -> (s -> f v)) -> Fold s a
-foldMap1ing fm = rphantom . traversal (fm (*>))
+foldMap1ing :: (forall m . Semigroup m => (a -> m) -> (s -> m)) -> Fold s a
+foldMap1ing fm = rphantom . traversal (\ f a -> getAp (fm (Ap . void . f) a))
 
 backwards :: Fold s a -> Fold s a
 backwards o = rphantom . traversal (\ f -> forwards . traverseOf_ o (Backwards #. f))
