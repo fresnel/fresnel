@@ -112,6 +112,11 @@ foldMapping fm = rphantom . wander (fm (*>) (pure v)) where
 foldMap1ing :: (forall f . Applicative f => (f u -> f u -> f u) -> (a -> f a) -> (s -> f v)) -> Fold s a
 foldMap1ing fm = rphantom . wander (fm (*>))
 
+-- | The trivially empty @'Fold'@.
+--
+-- @
+-- 'toListOf' 'ignored' a = []
+-- @
 ignored :: Fold s a
 ignored = foldring (\ _ nil _ -> nil)
 
