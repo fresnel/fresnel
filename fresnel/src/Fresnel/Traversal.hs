@@ -67,6 +67,12 @@ ignored = traversal (const pure)
 
 -- Elimination
 
+-- | Map over the targets of an 'Fresnel.Iso.Iso', 'Fresnel.Lens.Lens', 'Fresnel.Optional.Optional', or 'Traversal', collecting the results.
+--
+-- @
+-- 'traverseOf' . 'traversal' = 'id'
+-- 'traverseOf' 'traversed' = 'traverse'
+-- @
 traverseOf :: Applicative f => Traversal s t a b -> ((a -> f b) -> (s -> f t))
 traverseOf o = runStar #. o . Star
 
