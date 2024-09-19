@@ -113,6 +113,7 @@ foldring fr = rphantom . traversal (\ f -> fr (\ a -> (f a *>)) (pure v)) where
 foldMapping :: (forall m . Monoid m => (a -> m) -> (s -> m)) -> Fold s a
 foldMapping fm = rphantom . traversal (\ f -> getAp . fm (Ap . void . f))
 
+-- | Make a 'Fold' by lifting a 'foldMap1'-like function.
 foldMap1ing :: (forall m . Semigroup m => (a -> m) -> (s -> m)) -> Fold s a
 foldMap1ing fm = rphantom . traversal (\ f -> getAp . fm (Ap . void . f))
 
