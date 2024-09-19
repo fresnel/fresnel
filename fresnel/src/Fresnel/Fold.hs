@@ -9,6 +9,7 @@ module Fresnel.Fold
 , folding
 , foldring
 , foldMapping
+, foldMap1ing
 , ignored
 , backwards
 , iterated
@@ -107,6 +108,9 @@ foldring fr = rphantom . wander (\ f -> fr (\ a -> (f a *>)) (pure v)) where
 foldMapping :: (forall f . Applicative f => (f u -> f u -> f u) -> f v -> (a -> f a) -> (s -> f w)) -> Fold s a
 foldMapping fm = rphantom . wander (fm (*>) (pure v)) where
   v = error "foldMapping: value used"
+
+foldMap1ing :: (forall f . Applicative f => (f u -> f u -> f u) -> (a -> f a) -> (s -> f v)) -> Fold s a
+foldMap1ing fm = rphantom . wander (fm (*>))
 
 ignored :: Fold s a
 ignored = foldring (\ _ nil _ -> nil)
