@@ -47,6 +47,11 @@ traversal = wander
 traversed :: Traversable t => Traversal (t a) (t b) a b
 traversed = traversal traverse
 
+-- | Reverse the order in which a (finite) 'Traversal' is traversed.
+--
+-- @
+-- 'backwards' . 'backwards' = 'id'
+-- @
 backwards :: Traversal s t a b -> Traversal s t a b
 backwards o = traversal (\ f -> forwards #. traverseOf o (Backwards #. f))
 
