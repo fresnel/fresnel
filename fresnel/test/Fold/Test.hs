@@ -37,7 +37,7 @@ prop_filtered (Fn p) as
   $ toListOf (folded.filtered p) as === filter p as
 
 
-prop_repeated (MostlyPositive n) a = classifyInt n $ take n (toListOf repeated a) === replicate n a
+prop_repeated (MostlyPositive n) a = classifyInt n $ take n (toListOf repeated a) === take n (repeat a)
 
 
 prop_replicated (MostlyPositive n) a = classifyInt n $ toListOf (replicated n) a === replicate n a
