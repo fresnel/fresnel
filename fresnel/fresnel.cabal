@@ -108,6 +108,7 @@ test-suite test
     Test.Options
     Test.Print
     Test.Run
+    Traversal.Test
     Tropical.Test
   build-depends:
     , ansi-terminal ^>= 0.11
