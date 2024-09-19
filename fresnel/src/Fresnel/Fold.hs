@@ -128,6 +128,11 @@ filtered p = folding (\ a -> if p a then Just a else Nothing)
 repeated :: Fold a a
 repeated = rphantom . traversal (\ f a -> let loop = f a *> loop in loop)
 
+-- | A fold producing its input a finite number of times.
+--
+-- @
+-- 'toListOf' ('replicated' n) a = 'replicate' n a
+-- @
 replicated :: Int -> Fold a a
 replicated n0 = rphantom . traversal (\ f -> let loop n a = if n <= 0 then pure () else f a *> loop (n - 1) a in loop n0)
 
