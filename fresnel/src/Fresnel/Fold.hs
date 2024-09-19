@@ -68,7 +68,6 @@ import Data.Foldable (traverse_)
 import Data.Functor.Contravariant
 import Data.Monoid
 import Data.Profunctor
-import Data.Profunctor.Traversing
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Functor.Backwards (Backwards(..))
@@ -78,7 +77,7 @@ import Fresnel.Monoid.Fork as Fork
 import Fresnel.Monoid.Snoc as Snoc
 import Fresnel.Optic
 import Fresnel.OptionalFold.Internal (IsOptionalFold)
-import Fresnel.Traversal (IsTraversal, ignored)
+import Fresnel.Traversal (IsTraversal, ignored, traversal)
 
 -- Folds
 
@@ -93,39 +92,39 @@ instance (Applicative f, Traversable f, Contravariant f) => IsFold (Star f)
 -- Construction
 
 folded :: Foldable f => Fold (f a) a
-folded = rphantom . wander traverse_
+folded = rphantom . traversal traverse_
 
 unfolded :: (s -> Maybe (a, s)) -> Fold s a
-unfolded coalg = rphantom . wander (\ f -> let loop = maybe (pure ()) (\ (a, s) -> f a *> loop s) . coalg in loop)
+unfolded coalg = rphantom . traversal (\ f -> let loop = maybe (pure ()) (\ (a, s) -> f a *> loop s) . coalg in loop)
 
 folding :: Foldable f => (s -> f a) -> Fold s a
-folding f = contrabimap f (const ()) . rmap (const ()) . wander traverse_
+folding f = contrabimap f (const ()) . rmap (const ()) . traversal traverse_
 
 foldring :: (forall f . Applicative f => (a -> f u -> f u) -> f v -> s -> f w) -> Fold s a
-foldring fr = rphantom . wander (\ f -> fr (\ a -> (f a *>)) (pure v)) where
+foldring fr = rphantom . traversal (\ f -> fr (\ a -> (f a *>)) (pure v)) where
   v = error "foldring: value used"
 
 foldMapping :: (forall f . Applicative f => (f u -> f u -> f u) -> f v -> (a -> f a) -> (s -> f w)) -> Fold s a
-foldMapping fm = rphantom . wander (fm (*>) (pure v)) where
+foldMapping fm = rphantom . traversal (fm (*>) (pure v)) where
   v = error "foldMapping: value used"
 
 foldMap1ing :: (forall f . Applicative f => (f u -> f u -> f u) -> (a -> f a) -> (s -> f v)) -> Fold s a
-foldMap1ing fm = rphantom . wander (fm (*>))
+foldMap1ing fm = rphantom . traversal (fm (*>))
 
 backwards :: Fold s a -> Fold s a
-backwards o = rphantom . wander (\ f -> forwards . traverseOf_ o (Backwards #. f))
+backwards o = rphantom . traversal (\ f -> forwards . traverseOf_ o (Backwards #. f))
 
 iterated :: (a -> a) -> Fold a a
-iterated f = rphantom . wander (\ g -> let loop a = g a *> loop (f a) in loop)
+iterated f = rphantom . traversal (\ g -> let loop a = g a *> loop (f a) in loop)
 
 filtered :: (a -> Bool) -> Fold a a
 filtered p = folding (\ a -> if p a then Just a else Nothing)
 
 repeated :: Fold a a
-repeated = rphantom . wander (\ f a -> let loop = f a *> loop in loop)
+repeated = rphantom . traversal (\ f a -> let loop = f a *> loop in loop)
 
 replicated :: Int -> Fold a a
-replicated n0 = rphantom . wander (\ f -> let loop n a = if n <= 0 then pure () else f a *> loop (n - 1) a in loop n0)
+replicated n0 = rphantom . traversal (\ f -> let loop n a = if n <= 0 then pure () else f a *> loop (n - 1) a in loop n0)
 
 cycled :: Fold s a -> Fold s a
 cycled f = foldring (\ cons _ s -> let loop = foldrOf f cons loop s in loop)
@@ -286,7 +285,7 @@ instance Monoid (Failover s a) where
 newtype Union s a = Union { getUnion :: Fold s a }
 
 instance Semigroup (Union s a) where
-  Union a1 <> Union a2 = Union (rphantom . wander (\ f s -> traverseOf_ a1 f s *> traverseOf_ a2 f s) . rphantom)
+  Union a1 <> Union a2 = Union (rphantom . traversal (\ f s -> traverseOf_ a1 f s *> traverseOf_ a2 f s) . rphantom)
 
 instance Monoid (Union s a) where
   mempty = Union ignored

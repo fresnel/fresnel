@@ -45,16 +45,16 @@ traversal :: (forall f . Applicative f => (a -> f b) -> (s -> f t)) -> Traversal
 traversal = wander
 
 traversed :: Traversable t => Traversal (t a) (t b) a b
-traversed = wander traverse
+traversed = traversal traverse
 
 backwards :: Traversal s t a b -> Traversal s t a b
-backwards o = wander (\ f -> forwards #. traverseOf o (Backwards #. f))
+backwards o = traversal (\ f -> forwards #. traverseOf o (Backwards #. f))
 
 both :: Bitraversable r => Traversal (r a a) (r b b) a b
-both = wander (\ f -> bitraverse f f)
+both = traversal (\ f -> bitraverse f f)
 
 beside :: Bitraversable r => Traversal s1 t1 a b -> Traversal s2 t2 a b -> Traversal (r s1 s2) (r t1 t2) a b
-beside l r = wander (\ f -> bitraverse (traverseOf l f) (traverseOf r f))
+beside l r = traversal (\ f -> bitraverse (traverseOf l f) (traverseOf r f))
 
 -- | The trivially empty @'Traversal'@.
 --
@@ -62,7 +62,7 @@ beside l r = wander (\ f -> bitraverse (traverseOf l f) (traverseOf r f))
 -- 'traverseOf' 'ignored' f = pure
 -- @
 ignored :: Traversal' s a
-ignored = wander (const pure)
+ignored = traversal (const pure)
 
 
 -- Elimination
