@@ -61,7 +61,7 @@ beside l r = traversal (\ f -> bitraverse (traverseOf l f) (traverseOf r f))
 -- @
 -- 'traverseOf' 'ignored' f = pure
 -- @
-ignored :: Traversal' s a
+ignored :: Traversal s s a b
 ignored = traversal (const pure)
 
 
