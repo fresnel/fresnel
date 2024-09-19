@@ -110,7 +110,7 @@ foldMapping fm = rphantom . traversal (fm (*>) (pure v)) where
   v = error "foldMapping: value used"
 
 foldMap1ing :: (forall m . Semigroup m => (a -> m) -> (s -> m)) -> Fold s a
-foldMap1ing fm = rphantom . traversal (\ f a -> getAp (fm (Ap . void . f) a))
+foldMap1ing fm = rphantom . traversal (\ f -> getAp . fm (Ap . void . f))
 
 backwards :: Fold s a -> Fold s a
 backwards o = rphantom . traversal (\ f -> forwards . traverseOf_ o (Backwards #. f))
