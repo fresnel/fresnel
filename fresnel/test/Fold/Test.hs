@@ -27,14 +27,14 @@ prop_failover_monoid_identity :: (Eq a, Show a) => ArbFold a -> [a] -> Property
 prop_failover_monoid_identity (ArbFold a) as = classifyList as $ toListOf (getFailover (mempty <> Failover a)) as === toListOf a as .&&. toListOf (getFailover (Failover a <> mempty)) as === toListOf a as
 
 
-prop_iterated f a (MostlyPositive n) = classifyInt n $ take n (toListOf (iterated (applyFun f)) a) === take n (iterate (applyFun f) a)
+prop_iterated (Fn f) a (MostlyPositive n) = classifyInt n $ take n (toListOf (iterated f) a) === take n (iterate f a)
 
 
-prop_filtered p as
-  = classify (not (any (applyFun p) as)) "reject all"
-  . classify (all (applyFun p) as) "accept all"
+prop_filtered (Fn p) as
+  = classify (not (any p as)) "reject all"
+  . classify (all p as) "accept all"
   . classifyList as
-  $ toListOf (folded.filtered (applyFun p)) as === filter (applyFun p) as
+  $ toListOf (folded.filtered p) as === filter p as
 
 
 prop_repeated (MostlyPositive n) a = classifyInt n $ take n (toListOf repeated a) === replicate n a
@@ -46,7 +46,7 @@ prop_replicated (MostlyPositive n) a = classifyInt n $ toListOf (replicated n) a
 prop_cycled (NonEmpty as) (NonNegative n) = classifyList as $ take n (toListOf (cycled folded) as) === take n (cycle as)
 
 
-prop_takingWhile p as = classifyList as $ toListOf (takingWhile (applyFun p) folded) as === takeWhile (applyFun p) as
+prop_takingWhile (Fn p) as = classifyList as $ toListOf (takingWhile p folded) as === takeWhile p as
 
 
 classifyList :: Testable prop => [a] -> prop -> Property

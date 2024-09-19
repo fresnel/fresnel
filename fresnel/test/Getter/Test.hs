@@ -7,7 +7,7 @@ import Fresnel.Getter
 import Test.Group
 import Test.QuickCheck
 
-prop_view_to_involution f x = view (to (applyFun f)) x === applyFun f x
+prop_view_to_involution (Fn f) x = view (to f) x === f x
 
 
 pure []
