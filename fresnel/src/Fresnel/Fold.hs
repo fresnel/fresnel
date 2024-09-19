@@ -105,6 +105,11 @@ foldring :: (forall f . Applicative f => (a -> f u -> f u) -> f v -> s -> f w) -
 foldring fr = rphantom . traversal (\ f -> fr (\ a -> (f a *>)) (pure v)) where
   v = error "foldring: value used"
 
+-- | Make a 'Fold' by lifting a 'foldMap'-like function.
+--
+-- @
+-- 'foldMapping' 'foldMap' = 'folded'
+-- @
 foldMapping :: (forall m . Monoid m => (a -> m) -> (s -> m)) -> Fold s a
 foldMapping fm = rphantom . traversal (\ f -> getAp . fm (Ap . void . f))
 
