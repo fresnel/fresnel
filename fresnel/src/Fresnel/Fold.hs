@@ -105,9 +105,8 @@ foldring :: (forall f . Applicative f => (a -> f u -> f u) -> f v -> s -> f w) -
 foldring fr = rphantom . traversal (\ f -> fr (\ a -> (f a *>)) (pure v)) where
   v = error "foldring: value used"
 
-foldMapping :: (forall f . Applicative f => (f u -> f u -> f u) -> f v -> (a -> f a) -> (s -> f w)) -> Fold s a
-foldMapping fm = rphantom . traversal (fm (*>) (pure v)) where
-  v = error "foldMapping: value used"
+foldMapping :: (forall m . Monoid m => (a -> m) -> (s -> m)) -> Fold s a
+foldMapping fm = rphantom . traversal (\ f -> getAp . fm (Ap . void . f))
 
 foldMap1ing :: (forall m . Semigroup m => (a -> m) -> (s -> m)) -> Fold s a
 foldMap1ing fm = rphantom . traversal (\ f -> getAp . fm (Ap . void . f))
