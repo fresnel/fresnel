@@ -5,6 +5,7 @@ module Fresnel.Traversal
 , Traversal'
 , IsTraversal
   -- * Construction
+, traversal
 , traversed
 , backwards
 , both
@@ -39,6 +40,9 @@ type Traversal' s a = Traversal s s a a
 
 
 -- Construction
+
+traversal :: (forall f . Applicative f => (a -> f b) -> (s -> f t)) -> Traversal s t a b
+traversal = wander
 
 traversed :: Traversable t => Traversal (t a) (t b) a b
 traversed = wander traverse
