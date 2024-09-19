@@ -9,6 +9,7 @@ module Fresnel.Traversal
 , backwards
 , both
 , beside
+, ignored
   -- * Elimination
 , traverseOf
 , forOf
@@ -50,6 +51,14 @@ both = wander (\ f -> bitraverse f f)
 
 beside :: Bitraversable r => Traversal s1 t1 a b -> Traversal s2 t2 a b -> Traversal (r s1 s2) (r t1 t2) a b
 beside l r = wander (\ f -> bitraverse (traverseOf l f) (traverseOf r f))
+
+-- | The trivially empty @'Traversal'@.
+--
+-- @
+-- 'traverseOf' 'ignored' f = pure
+-- @
+ignored :: Traversal' s a
+ignored = wander (const pure)
 
 
 -- Elimination

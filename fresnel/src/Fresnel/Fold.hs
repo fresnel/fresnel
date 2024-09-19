@@ -78,7 +78,7 @@ import Fresnel.Monoid.Fork as Fork
 import Fresnel.Monoid.Snoc as Snoc
 import Fresnel.Optic
 import Fresnel.OptionalFold.Internal (IsOptionalFold)
-import Fresnel.Traversal.Internal (IsTraversal)
+import Fresnel.Traversal (IsTraversal, ignored)
 
 -- Folds
 
@@ -111,14 +111,6 @@ foldMapping fm = rphantom . wander (fm (*>) (pure v)) where
 
 foldMap1ing :: (forall f . Applicative f => (f u -> f u -> f u) -> (a -> f a) -> (s -> f v)) -> Fold s a
 foldMap1ing fm = rphantom . wander (fm (*>))
-
--- | The trivially empty @'Fold'@.
---
--- @
--- 'toListOf' 'ignored' a = []
--- @
-ignored :: Fold s a
-ignored = foldring (\ _ nil _ -> nil)
 
 backwards :: Fold s a -> Fold s a
 backwards o = rphantom . wander (\ f -> forwards . traverseOf_ o (Backwards #. f))
