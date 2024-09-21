@@ -99,7 +99,7 @@ unfolded :: (s -> Maybe (a, s)) -> Fold s a
 unfolded coalg = rphantom . traversal (\ f -> let loop = maybe (pure ()) (\ (a, s) -> f a *> loop s) . coalg in loop)
 
 folding :: Foldable f => (s -> f a) -> Fold s a
-folding f = contrabimap f (const ()) . rmap (const ()) . traversal traverse_
+folding f = contrabimap f (const ()) . traversal traverse_
 
 foldring :: (forall f . Applicative f => (a -> f u -> f u) -> f v -> s -> f w) -> Fold s a
 foldring fr = rphantom . traversal (\ f -> fr (\ a -> (f a *>)) (pure v)) where
