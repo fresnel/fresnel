@@ -11,3 +11,8 @@ instance Functor f => Functor (Ap1 f) where
 
 instance Apply f => Apply (Ap1 f) where
   liftF2 f (Ap1 a) (Ap1 b) = Ap1 (liftF2 f a b)
+
+instance Applicative f => Applicative (Ap1 f) where
+  pure = Ap1 . pure
+
+  liftA2 f (Ap1 a) (Ap1 b) = Ap1 (liftA2 f a b)
