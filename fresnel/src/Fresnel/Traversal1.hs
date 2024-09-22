@@ -13,6 +13,7 @@ module Fresnel.Traversal1
   -- * Elimination
 , traverse1Of
 , for1Of
+, sequence1Of
 ) where
 
 import Control.Applicative.Backwards
@@ -68,3 +69,6 @@ traverse1Of o = runStar #. o .# Star
 
 for1Of :: Apply f => Traversal1 s t a b -> (s -> (a -> f b) -> f t)
 for1Of o = flip (traverse1Of o)
+
+sequence1Of :: Apply f => Traversal1 s t (f b) b -> (s -> f t)
+sequence1Of o = traverse1Of o id
