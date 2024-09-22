@@ -8,7 +8,7 @@ module Fresnel.Semigroup.Fork1
 
 import Data.Foldable (toList)
 import Data.Foldable1
-import Data.Functor.Apply
+import Data.Functor.Alt
 
 -- Non-empty binary trees
 
@@ -39,6 +39,9 @@ instance Applicative Fork1 where
   pure = singleton
 
   liftA2 = liftF2
+
+instance Alt Fork1 where
+  (<!>) = (<>)
 
 
 -- Construction
