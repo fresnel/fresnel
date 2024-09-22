@@ -25,11 +25,11 @@ import Control.Applicative.Backwards
 import Control.Monad.Trans.State
 import Data.Functor.Apply
 import Data.List.NonEmpty (NonEmpty(..), zipWith)
-import Data.Profunctor (Star(..))
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Semigroup.Bitraversable
 import Data.Semigroup.Traversable
 import Fresnel.Optic
+import Fresnel.Profunctor.Star1 (Star1(..))
 import Fresnel.Profunctor.Traversing1
 import Fresnel.Traversal1.Internal
 import Prelude hiding (zipWith)
@@ -73,7 +73,7 @@ beside l r = traversal1 (\ f -> bitraverse1 (traverse1Of l f) (traverse1Of r f))
 -- 'traverse1Of' 'traversed1' = 'traverse1'
 -- @
 traverse1Of :: Apply f => Traversal1 s t a b -> ((a -> f b) -> (s -> f t))
-traverse1Of o = runStar #. o .# Star
+traverse1Of o = runStar1 #. o .# Star1
 
 for1Of :: Apply f => Traversal1 s t a b -> (s -> (a -> f b) -> f t)
 for1Of o = flip (traverse1Of o)
