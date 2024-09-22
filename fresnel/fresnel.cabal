@@ -49,6 +49,7 @@ library
     Fresnel.At
     Fresnel.Bifunctor.Contravariant
     Fresnel.Either
+    Fresnel.Fold1
     Fresnel.Fold
     Fresnel.Functor.Ap1
     Fresnel.Functor.Backwards
@@ -71,7 +72,6 @@ library
     Fresnel.Profunctor.OptionalStar
     Fresnel.Profunctor.Recall
     Fresnel.Profunctor.Traversing1
-    Fresnel.RelevantFold
     Fresnel.Review
     Fresnel.Semigroup.Fork1
     Fresnel.Set
