@@ -8,6 +8,7 @@ module Fresnel.Fold1
 , foldMap1ing
   -- * Elimination
 , foldMap1Of
+, foldMap1ByOf
 ) where
 
 import Data.Functor (void)
@@ -18,6 +19,7 @@ import Fresnel.Bifunctor.Contravariant
 import Fresnel.Fold1.Internal (IsFold1)
 import Fresnel.Functor.Ap1
 import Fresnel.Optic (Optic')
+import Fresnel.Semigroup.Fork1
 import Fresnel.Traversal1
 
 -- Relevant folds
@@ -42,3 +44,6 @@ foldMap1ing fm = rphantom . traversal1 (\ f -> getAp1 #. fm (Ap1 #. void . f))
 
 foldMap1Of :: Semigroup m => Fold1 s a -> ((a -> m) -> (s -> m))
 foldMap1Of o = runForget #. o .# Forget
+
+foldMap1ByOf :: Fold1 s a -> ((r -> r -> r) -> (a -> r) -> (s -> r))
+foldMap1ByOf o fork leaf s = runFork1 (runForget (o (Forget singleton)) s) fork leaf
