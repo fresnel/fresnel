@@ -4,6 +4,7 @@ module Fresnel.Fold1
   Fold1
   -- * Construction
 , folded1
+, unfolded1
 , fold1ing
 , foldMap1ing
   -- * Elimination
@@ -12,6 +13,7 @@ module Fresnel.Fold1
 ) where
 
 import Data.Functor (void)
+import Data.Functor.Apply
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Semigroup.Foldable
@@ -31,6 +33,9 @@ type Fold1 s a = forall p . IsFold1 p => Optic' p s a
 
 folded1 :: Foldable1 t => Fold1 (t a) a
 folded1 = rphantom . traversal1 traverse1_
+
+unfolded1 :: (s -> (a, Maybe s)) -> Fold1 s a
+unfolded1 coalg = rphantom . traversal1 (\ f -> let loop s = case coalg s of { (a, Nothing) -> f a ; (a, Just s') -> f a .> loop s' } in loop)
 
 fold1ing :: Foldable1 t => (s -> t a) -> Fold1 s a
 fold1ing f = contrabimap f (const ()) . traversal1 traverse1_
