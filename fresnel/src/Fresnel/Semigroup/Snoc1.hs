@@ -4,6 +4,7 @@ module Fresnel.Semigroup.Snoc1
   Snoc1(..)
   -- * Construction
 , singleton
+, snoc
 ) where
 
 import Data.Foldable (toList)
@@ -35,3 +36,6 @@ instance Functor Snoc1 where
 
 singleton :: a -> Snoc1 a
 singleton a = Snoc1 (\ f _ -> f a)
+
+snoc :: Snoc1 a -> a -> Snoc1 a
+snoc (Snoc1 r) a = Snoc1 (\ f g -> g (r f g) a)
