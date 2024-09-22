@@ -74,6 +74,7 @@ library
     Fresnel.Profunctor.Recall
     Fresnel.Profunctor.Traversing1
     Fresnel.Review
+    Fresnel.Semigroup.Cons1
     Fresnel.Semigroup.Fork1
     Fresnel.Set
     Fresnel.Setter
