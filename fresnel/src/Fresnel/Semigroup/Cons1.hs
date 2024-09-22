@@ -4,6 +4,7 @@ module Fresnel.Semigroup.Cons1
   Cons1(..)
   -- * Construction
 , singleton
+, cons
 ) where
 
 import Data.Foldable (toList)
@@ -35,3 +36,6 @@ instance Functor Cons1 where
 
 singleton :: a -> Cons1 a
 singleton a = Cons1 (\ f _ -> f a)
+
+cons :: a -> Cons1 a -> Cons1 a
+cons a (Cons1 r) = Cons1 (\ f g -> g a (r f g))
