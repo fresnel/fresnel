@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Fresnel.Functor.Ap1
 ( Ap1(..)
 ) where
@@ -5,14 +6,4 @@ module Fresnel.Functor.Ap1
 import Data.Functor.Apply
 
 newtype Ap1 f a = Ap1 { getAp1 :: f a }
-
-instance Functor f => Functor (Ap1 f) where
-  fmap f (Ap1 g) = Ap1 (fmap f g)
-
-instance Apply f => Apply (Ap1 f) where
-  liftF2 f (Ap1 a) (Ap1 b) = Ap1 (liftF2 f a b)
-
-instance Applicative f => Applicative (Ap1 f) where
-  pure = Ap1 . pure
-
-  liftA2 f (Ap1 a) (Ap1 b) = Ap1 (liftA2 f a b)
+  deriving (Applicative, Apply, Functor, Monad)
