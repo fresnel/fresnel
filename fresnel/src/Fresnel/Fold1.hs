@@ -24,6 +24,8 @@ module Fresnel.Fold1
 , concatMapOf
 , firstOf
 , lastOf
+, minimumOf
+, minimumByOf
 ) where
 
 import Data.Functor (void)
@@ -118,3 +120,11 @@ firstOf o = getFirst #. foldMap1Of o First
 
 lastOf :: Fold1 s a -> (s -> a)
 lastOf o = getLast #. foldMap1Of o Last
+
+minimumOf :: Ord a => Fold1 s a -> (s -> a)
+minimumOf o = minimumByOf o compare
+
+minimumByOf :: Fold1 s a -> (a -> a -> Ordering) -> (s -> a)
+minimumByOf o cmp = foldlMap1Of o id (\ a b -> case cmp a b of
+  GT -> b
+  _  -> a)
