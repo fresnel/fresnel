@@ -31,6 +31,12 @@ instance Functor Fork1 where
 instance Traversable Fork1 where
   traverse f (Fork1 r) = r (liftA2 (<>)) (fmap singleton . f)
 
+instance Applicative Fork1 where
+  pure = singleton
+
+  liftA2 f (Fork1 a) (Fork1 b) = Fork1 (\ (<>) singleton -> a (<>) (\ a' -> b (<>) (singleton . f a')))
+
+
 -- Construction
 
 singleton :: a -> Fork1 a
