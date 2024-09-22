@@ -7,6 +7,7 @@ module Fresnel.Fold1
 , unfolded1
 , fold1ing
 , foldMap1ing
+, iterated
   -- * Elimination
 , foldMap1Of
 , foldMap1ByOf
@@ -43,6 +44,9 @@ fold1ing f = contrabimap f (const ()) . traversal1 traverse1_
 -- | Make a 'Fold1' by lifting a 'foldMap1'-like function.
 foldMap1ing :: (forall m . Semigroup m => (a -> m) -> (s -> m)) -> Fold1 s a
 foldMap1ing fm = rphantom . traversal1 (\ f -> getAp1 #. fm (Ap1 #. void . f))
+
+iterated :: (a -> a) -> Fold1 a a
+iterated f = rphantom . traversal1 (\ g -> let loop a = g a .> loop (f a) in loop)
 
 
 -- Elimination
