@@ -30,8 +30,8 @@ instance Monad m => Traversing1 (Kleisli m) where
 instance Semigroup r => Traversing1 (Forget r) where
   wander1 f (Forget k) = Forget (getConst #. f (Const #. k))
 
-instance Apply f => Traversing1 (Star f) where
-  wander1 f (Star k) = Star (f k)
+instance Applicative f => Traversing1 (Star f) where
+  wander1 f (Star k) = Star (unwrapApplicative . f (WrapApplicative . k))
 
 instance Apply f => Traversing1 (OptionalStar f) where
   wander1 f (OptionalStar k) = OptionalStar (\ k' -> k (\ p -> k' p . f))
