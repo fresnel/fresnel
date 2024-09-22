@@ -34,7 +34,7 @@ import Fresnel.Fold1.Internal (IsFold1)
 import Fresnel.Functor.Ap1
 import Fresnel.Functor.Traversed1
 import Fresnel.Optic (Optic')
-import Fresnel.Semigroup.Fork1
+import Fresnel.Semigroup.Fork1 as Fork1
 import Fresnel.Traversal1
 
 -- Relevant folds
@@ -75,13 +75,13 @@ foldMap1Of :: Semigroup m => Fold1 s a -> ((a -> m) -> (s -> m))
 foldMap1Of o = runForget #. o .# Forget
 
 foldMap1ByOf :: Fold1 s a -> ((r -> r -> r) -> (a -> r) -> (s -> r))
-foldMap1ByOf o fork leaf s = runFork1 (runForget (o (Forget singleton)) s) fork leaf
+foldMap1ByOf o fork leaf s = runFork1 (runForget (o (Forget Fork1.singleton)) s) fork leaf
 
 fold1Of :: Semigroup a => Fold1 s a -> (s -> a)
 fold1Of o = foldMap1Of o id
 
 fold1ByOf :: Fold1 s a -> ((a -> a -> a) -> (s -> a))
-fold1ByOf o fork s = runFork1 (runForget (o (Forget singleton)) s) fork id
+fold1ByOf o fork s = runFork1 (runForget (o (Forget Fork1.singleton)) s) fork id
 
 sequence1Of_ :: Apply f => Fold1 s (f a) -> (s -> f ())
 sequence1Of_ o = runTraversed1 . foldMap1Of o Traversed1
