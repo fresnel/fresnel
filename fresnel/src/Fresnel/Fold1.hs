@@ -63,7 +63,9 @@ folded1 :: Foldable1 t => Fold1 (t a) a
 folded1 = rphantom . traversal1 traverse1_
 
 unfolded1 :: (s -> (a, Maybe s)) -> Fold1 s a
-unfolded1 coalg = rphantom . traversal1 (\ f -> let loop s = case coalg s of { (a, Nothing) -> f a ; (a, Just s') -> f a .> loop s' } in loop)
+unfolded1 coalg = rphantom . traversal1 loop
+  where
+  loop f s = let (a, s') = coalg s in maybe (f a) ((f a .>) . loop f) s'
 
 fold1ing :: Foldable1 t => (s -> t a) -> Fold1 s a
 fold1ing f = contrabimap f (const ()) . traversal1 traverse1_
