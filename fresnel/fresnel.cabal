@@ -69,6 +69,7 @@ library
     Fresnel.Profunctor.Coexp
     Fresnel.Profunctor.OptionalStar
     Fresnel.Profunctor.Recall
+    Fresnel.Profunctor.Traversing1
     Fresnel.RelevantFold
     Fresnel.Review
     Fresnel.Set
