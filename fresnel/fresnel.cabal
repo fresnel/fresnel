@@ -74,6 +74,7 @@ library
     Fresnel.Set
     Fresnel.Setter
     Fresnel.Traversal
+    Fresnel.Traversal1
     Fresnel.Tuple
   other-modules:
     Fresnel.Getter.Internal
