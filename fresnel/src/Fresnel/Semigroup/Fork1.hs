@@ -8,6 +8,7 @@ module Fresnel.Semigroup.Fork1
 
 import Data.Foldable (toList)
 import Data.Foldable1
+import Data.Functor.Apply
 
 -- Non-empty binary trees
 
@@ -31,10 +32,13 @@ instance Functor Fork1 where
 instance Traversable Fork1 where
   traverse f (Fork1 r) = r (liftA2 (<>)) (fmap singleton . f)
 
+instance Apply Fork1 where
+  liftF2 f (Fork1 a) (Fork1 b) = Fork1 (\ (<>) singleton -> a (<>) (\ a' -> b (<>) (singleton . f a')))
+
 instance Applicative Fork1 where
   pure = singleton
 
-  liftA2 f (Fork1 a) (Fork1 b) = Fork1 (\ (<>) singleton -> a (<>) (\ a' -> b (<>) (singleton . f a')))
+  liftA2 = liftF2
 
 
 -- Construction
