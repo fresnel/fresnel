@@ -28,8 +28,8 @@ module Fresnel.Fold1
 , minimumByOf
 , maximumOf
 , maximumByOf
-  -- * Union1 semigroup
-, Union1(..)
+  -- * Union semigroup
+, Union(..)
 ) where
 
 import Data.Functor (void)
@@ -142,9 +142,9 @@ maximumByOf o cmp = foldlMap1Of o id (\ a b -> case cmp a b of
   _  -> a)
 
 
--- Union1 semigroup
+-- Union semigroup
 
-newtype Union1 s a = Union1 { getUnion1 :: Fold1 s a }
+newtype Union s a = Union { getUnion1 :: Fold1 s a }
 
-instance Semigroup (Union1 s a) where
-    Union1 a1 <> Union1 a2 = Union1 (rphantom . traversal1 (\ f s -> traverse1Of_ a1 f s .> traverse1Of_ a2 f s) . rphantom)
+instance Semigroup (Union s a) where
+    Union a1 <> Union a2 = Union (rphantom . traversal1 (\ f s -> traverse1Of_ a1 f s .> traverse1Of_ a2 f s) . rphantom)
