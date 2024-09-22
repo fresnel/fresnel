@@ -15,14 +15,9 @@ module Fresnel.Traversal1
 , for1Of
 , sequence1Of
 , transposeOf
-, mapAccumLOf
-, mapAccumROf
-, scanl1Of
-, scanr1Of
 ) where
 
 import Control.Applicative.Backwards
-import Control.Monad.Trans.State
 import Data.Functor.Apply
 import Data.List.NonEmpty (NonEmpty(..), zipWith)
 import Data.Profunctor.Unsafe ((#.), (.#))
@@ -91,23 +86,3 @@ instance Functor ZipList where
 
 instance Apply ZipList where
   liftF2 f (ZipList as) (ZipList bs) = ZipList (zipWith f as bs)
-
-mapAccumLOf :: Traversal1 s t a b -> (accum -> a -> (b, accum)) -> accum -> s -> (t, accum)
-mapAccumLOf o f z s =
-  let g a = state $ \ accum -> f accum a
-  in runState (traverse1Of o g s) z
-
-mapAccumROf :: Traversal1 s t a b -> (accum -> a -> (b, accum)) -> accum -> s -> (t, accum)
-mapAccumROf o = mapAccumLOf (backwards o)
-
-scanl1Of :: Traversal1 s t a a -> (a -> a -> a) -> s -> t
-scanl1Of o f =
-  let step Nothing  a = (a, Just a)
-      step (Just s) a = let r = f s a in (r, Just r)
-  in fst . mapAccumLOf o step Nothing
-
-scanr1Of :: Traversal1 s t a a -> (a -> a -> a) -> s -> t
-scanr1Of o f =
-  let step Nothing  a = (a, Just a)
-      step (Just s) a = let r = f s a in (r, Just r)
-  in fst . mapAccumROf o step Nothing
