@@ -8,6 +8,7 @@ module Fresnel.Fold1
 , unfolded1
 , fold1ing
 , foldMap1ing
+, backwards
 , iterated
 , repeated
   -- * Elimination
@@ -38,7 +39,7 @@ import Data.Functor.Apply
 import Data.List.NonEmpty (NonEmpty)
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
-import Data.Semigroup (First(..), Last(..))
+import Data.Semigroup (Dual(..), First(..), Last(..))
 import Data.Semigroup.Foldable
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Fold1.Internal (IsFold1)
@@ -48,7 +49,7 @@ import Fresnel.Optic (Optic')
 import Fresnel.Semigroup.Cons1 as Cons1
 import Fresnel.Semigroup.Fork1 as Fork1
 import Fresnel.Semigroup.Snoc1 as Snoc1
-import Fresnel.Traversal1
+import Fresnel.Traversal1 hiding (backwards)
 
 -- Relevant folds
 
@@ -69,6 +70,14 @@ fold1ing f = contrabimap f (const ()) . traversal1 traverse1_
 -- | Make a 'Fold1' by lifting a 'foldMap1'-like function.
 foldMap1ing :: (forall m . Semigroup m => (a -> m) -> (s -> m)) -> Fold1 s a
 foldMap1ing fm = rphantom . traversal1 (\ f -> getAp1 #. fm (Ap1 #. void . f))
+
+-- | Reverse the order in which a (finite) 'Fold1' is traversed.
+--
+-- @
+-- 'backwards' . 'backwards' = 'id'
+-- @
+backwards :: Fold1 s a -> Fold1 s a
+backwards o = rphantom . foldMap1ing (\ f -> getDual #. foldMap1Of o (Dual #. f))
 
 iterated :: (a -> a) -> Fold1 a a
 iterated f = rphantom . traversal1 (\ g -> let loop a = g a .> loop (f a) in loop)
