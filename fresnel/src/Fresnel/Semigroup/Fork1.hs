@@ -5,6 +5,7 @@ module Fresnel.Semigroup.Fork1
 ) where
 
 import Data.Foldable (toList)
+import Data.Foldable1
 
 -- Non-empty binary trees
 
@@ -14,4 +15,7 @@ instance Show a => Show (Fork1 a) where
   showsPrec _ = showList . toList
 
 instance Foldable Fork1 where
-  foldMap f (Fork1 r) = r (<>) f
+  foldMap = foldMap1
+
+instance Foldable1 Fork1 where
+  foldMap1 f (Fork1 r) = r (<>) f
