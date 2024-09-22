@@ -39,6 +39,7 @@ common common
   if (impl(ghc >= 9.10))
     ghc-options:
       -Wno-missing-role-annotations
+      -Wno-term-variable-capture
 
 executable fresnel-diagram
   import: common
