@@ -80,6 +80,7 @@ library
     Fresnel.Traversal1
     Fresnel.Tuple
   other-modules:
+    Fresnel.Fold1.Internal
     Fresnel.Getter.Internal
     Fresnel.Iso.Internal
     Fresnel.Lens.Internal
