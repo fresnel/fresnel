@@ -28,6 +28,8 @@ instance Foldable1 Fork1 where
 instance Functor Fork1 where
   fmap f (Fork1 r) = Fork1 (\ (<>) singleton -> r (<>) (singleton . f))
 
+instance Traversable Fork1 where
+  traverse f (Fork1 r) = r (liftA2 (<>)) (fmap singleton . f)
 
 -- Construction
 
