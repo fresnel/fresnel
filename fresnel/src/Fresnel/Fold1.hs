@@ -17,10 +17,12 @@ module Fresnel.Fold1
 , sequence1Of_
 , traverse1Of_
 , for1Of_
+, toList1Of
 ) where
 
 import Data.Functor (void)
 import Data.Functor.Apply
+import Data.List.NonEmpty (NonEmpty)
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Semigroup.Foldable
@@ -86,3 +88,6 @@ traverse1Of_ o f = runTraversed1 . foldMap1Of o (Traversed1 #. f)
 
 for1Of_ :: Apply f => Fold1 s a -> (s -> (a -> f r) -> f ())
 for1Of_ o = flip (traverse1Of_ o)
+
+toList1Of :: Fold1 s a -> (s -> NonEmpty a)
+toList1Of o = foldMap1Of o pure
