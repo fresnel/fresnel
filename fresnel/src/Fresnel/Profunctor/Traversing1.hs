@@ -3,6 +3,7 @@ module Fresnel.Profunctor.Traversing1
 ( Traversing1(..)
   -- ** Profunctor from Traversing1
 , dimapTraversing1
+, lmapTraversing1
   -- ** Strong from Traversing1
 , firstTraversing1
 , secondTraversing1
@@ -19,6 +20,9 @@ class Strong p => Traversing1 p where
 
 dimapTraversing1 :: Traversing1 p => (a' -> a) -> (b -> b') -> (p a b -> p a' b')
 dimapTraversing1 f g = wander1 (\ k -> fmap g . k . f)
+
+lmapTraversing1 :: Traversing1 p => (a' -> a) -> (p a b -> p a' b)
+lmapTraversing1 f = wander1 (. f)
 
 
 -- Strong from Traversing1
