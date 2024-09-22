@@ -2,6 +2,8 @@
 module Fresnel.Semigroup.Cons1
 ( -- * Non-empty cons lists
   Cons1(..)
+  -- * Construction
+, singleton
 ) where
 
 import Data.Foldable (toList)
@@ -27,3 +29,9 @@ instance Foldable1 Cons1 where
 
 instance Functor Cons1 where
   fmap h (Cons1 r) = Cons1 (\ f g -> r (f . h) (g . h))
+
+
+-- Construction
+
+singleton :: a -> Cons1 a
+singleton a = Cons1 (\ f _ -> f a)
