@@ -2,6 +2,8 @@
 module Fresnel.Semigroup.Fork1
 ( -- * Non-empty binary trees
   Fork1(..)
+  -- * Construction
+, singleton
 ) where
 
 import Data.Foldable (toList)
@@ -25,3 +27,9 @@ instance Foldable1 Fork1 where
 
 instance Functor Fork1 where
   fmap f (Fork1 r) = Fork1 (\ (<>) singleton -> r (<>) (singleton . f))
+
+
+-- Construction
+
+singleton :: a -> Fork1 a
+singleton a = Fork1 (\ _ singleton -> singleton a)
