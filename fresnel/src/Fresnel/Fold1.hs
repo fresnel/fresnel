@@ -34,12 +34,13 @@ module Fresnel.Fold1
 , Union(..)
 ) where
 
+import Control.Applicative.Backwards
 import Data.Functor (void)
 import Data.Functor.Apply
 import Data.List.NonEmpty (NonEmpty)
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
-import Data.Semigroup (Dual(..), First(..), Last(..))
+import Data.Semigroup (First(..), Last(..))
 import Data.Semigroup.Foldable
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Fold1.Internal (IsFold1)
@@ -77,7 +78,7 @@ foldMap1ing fm = rphantom . traversal1 (\ f -> getAp1 #. fm (Ap1 #. void . f))
 -- 'backwards' . 'backwards' = 'id'
 -- @
 backwards :: Fold1 s a -> Fold1 s a
-backwards o = rphantom . foldMap1ing (\ f -> getDual #. foldMap1Of o (Dual #. f))
+backwards o = rphantom . traversal1 (\ f -> forwards . traverse1Of_ o (Backwards #. f))
 
 iterated :: (a -> a) -> Fold1 a a
 iterated f = rphantom . traversal1 (\ g -> let loop a = g a .> loop (f a) in loop)
