@@ -22,3 +22,6 @@ instance Foldable Fork1 where
 
 instance Foldable1 Fork1 where
   foldMap1 f (Fork1 r) = r (<>) f
+
+instance Functor Fork1 where
+  fmap f (Fork1 r) = Fork1 (\ (<>) singleton -> r (<>) (singleton . f))
