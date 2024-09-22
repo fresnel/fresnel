@@ -8,6 +8,7 @@ module Fresnel.Traversal1
 , traversal1
 , traversed1
 , backwards
+, both
   -- * Elimination
 , traverse1Of
 , for1Of
@@ -17,6 +18,7 @@ import Control.Applicative.Backwards
 import Data.Functor.Apply
 import Data.Profunctor (Star(..))
 import Data.Profunctor.Unsafe ((#.), (.#))
+import Data.Semigroup.Bitraversable
 import Data.Semigroup.Traversable
 import Fresnel.Optic
 import Fresnel.Profunctor.Traversing1
@@ -44,6 +46,9 @@ traversed1 = traversal1 traverse1
 -- @
 backwards :: Traversal1 s t a b -> Traversal1 s t a b
 backwards o = traversal1 (\ f -> forwards #. traverse1Of o (Backwards #. f))
+
+both :: Bitraversable1 r => Traversal1 (r a a) (r b b) a b
+both = traversal1 (\ f -> bitraverse1 f f)
 
 
 -- Elimination
