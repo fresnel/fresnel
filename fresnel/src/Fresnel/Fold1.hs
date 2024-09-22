@@ -26,6 +26,8 @@ module Fresnel.Fold1
 , lastOf
 , minimumOf
 , minimumByOf
+, maximumOf
+, maximumByOf
 ) where
 
 import Data.Functor (void)
@@ -127,4 +129,12 @@ minimumOf o = minimumByOf o compare
 minimumByOf :: Fold1 s a -> (a -> a -> Ordering) -> (s -> a)
 minimumByOf o cmp = foldlMap1Of o id (\ a b -> case cmp a b of
   GT -> b
+  _  -> a)
+
+maximumOf :: Ord a => Fold1 s a -> (s -> a)
+maximumOf o = maximumByOf o compare
+
+maximumByOf :: Fold1 s a -> (a -> a -> Ordering) -> (s -> a)
+maximumByOf o cmp = foldlMap1Of o id (\ a b -> case cmp a b of
+  LT -> b
   _  -> a)
