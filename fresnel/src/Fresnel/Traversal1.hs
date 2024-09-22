@@ -7,10 +7,12 @@ module Fresnel.Traversal1
   -- * Construction
 , traversal1
 , traversed1
+, backwards
   -- * Elimination
 , traverse1Of
 ) where
 
+import Control.Applicative.Backwards
 import Data.Functor.Apply
 import Data.Profunctor (Star(..))
 import Data.Profunctor.Unsafe ((#.), (.#))
@@ -33,6 +35,14 @@ traversal1 = wander1
 
 traversed1 :: Traversable1 t => Traversal1 (t a) (t b) a b
 traversed1 = traversal1 traverse1
+
+-- | Reverse the order in which a (finite) 'Traversal1' is traversed.
+--
+-- @
+-- 'backwards' . 'backwards' = 'id'
+-- @
+backwards :: Traversal1 s t a b -> Traversal1 s t a b
+backwards o = traversal1 (\ f -> forwards #. traverse1Of o (Backwards #. f))
 
 
 -- Elimination
