@@ -10,6 +10,7 @@ module Fresnel.Profunctor.Traversing1
 , secondTraversing1
 ) where
 
+import Control.Arrow (Kleisli(..))
 import Data.Functor.Apply
 import Data.Functor.Const
 import Data.Profunctor (Forget(..), Star(..), Strong)
@@ -18,6 +19,9 @@ import Fresnel.Profunctor.OptionalStar (OptionalStar(..))
 
 class Strong p => Traversing1 p where
   wander1 :: (forall f . Apply f => (a -> f b) -> (s -> f t)) -> (p a b -> p s t)
+
+instance Monad m => Traversing1 (Kleisli m) where
+  wander1 f (Kleisli k) = Kleisli (unwrapApplicative . f (WrapApplicative . k))
 
 instance Semigroup r => Traversing1 (Forget r) where
   wander1 f (Forget k) = Forget (getConst #. f (Const #. k))
