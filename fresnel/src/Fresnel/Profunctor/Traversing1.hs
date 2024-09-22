@@ -14,6 +14,7 @@ import Data.Functor.Apply
 import Data.Functor.Const
 import Data.Profunctor (Forget(..), Star(..), Strong)
 import Data.Profunctor.Unsafe ((#.))
+import Fresnel.Profunctor.OptionalStar (OptionalStar(..))
 
 class Strong p => Traversing1 p where
   wander1 :: (forall f . Apply f => (a -> f b) -> (s -> f t)) -> (p a b -> p s t)
@@ -23,6 +24,9 @@ instance Semigroup r => Traversing1 (Forget r) where
 
 instance Apply f => Traversing1 (Star f) where
   wander1 f (Star k) = Star (f k)
+
+instance Apply f => Traversing1 (OptionalStar f) where
+  wander1 f (OptionalStar k) = OptionalStar (\ k' -> k (\ p -> k' p . f))
 
 
 -- Profunctor from Traversing1
