@@ -15,9 +15,11 @@ module Fresnel.Traversal1
 , for1Of
 , sequence1Of
 , transposeOf
+, mapAccumLOf
 ) where
 
 import Control.Applicative.Backwards
+import Control.Monad.Trans.State
 import Data.Functor.Apply
 import Data.List.NonEmpty (NonEmpty(..), zipWith)
 import Data.Profunctor (Star(..))
@@ -86,3 +88,8 @@ instance Functor ZipList where
 
 instance Apply ZipList where
   liftF2 f (ZipList as) (ZipList bs) = ZipList (zipWith f as bs)
+
+mapAccumLOf :: Traversal1 s t a b -> (accum -> a -> (b, accum)) -> accum -> s -> (t, accum)
+mapAccumLOf o f z s =
+  let g a = state $ \ accum -> f accum a
+  in runState (traverse1Of o g s) z
