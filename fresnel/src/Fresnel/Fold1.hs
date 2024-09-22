@@ -19,6 +19,7 @@ module Fresnel.Fold1
 , for1Of_
 , toList1Of
 , firstOf
+, lastOf
 ) where
 
 import Data.Functor (void)
@@ -26,7 +27,7 @@ import Data.Functor.Apply
 import Data.List.NonEmpty (NonEmpty)
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
-import Data.Semigroup (First(..))
+import Data.Semigroup (First(..), Last(..))
 import Data.Semigroup.Foldable
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Fold1.Internal (IsFold1)
@@ -96,3 +97,6 @@ toList1Of o = foldMap1Of o pure
 
 firstOf :: Fold1 s a -> (s -> a)
 firstOf o = getFirst #. foldMap1Of o First
+
+lastOf :: Fold1 s a -> (s -> a)
+lastOf o = getLast #. foldMap1Of o Last
