@@ -9,6 +9,7 @@ module Fresnel.Traversal1
 , traversed1
 , backwards
 , both
+, beside
   -- * Elimination
 , traverse1Of
 , for1Of
@@ -49,6 +50,9 @@ backwards o = traversal1 (\ f -> forwards #. traverse1Of o (Backwards #. f))
 
 both :: Bitraversable1 r => Traversal1 (r a a) (r b b) a b
 both = traversal1 (\ f -> bitraverse1 f f)
+
+beside :: Bitraversable1 r => Traversal1 s1 t1 a b -> Traversal1 s2 t2 a b -> Traversal1 (r s1 s2) (r t1 t2) a b
+beside l r = traversal1 (\ f -> bitraverse1 (traverse1Of l f) (traverse1Of r f))
 
 
 -- Elimination
