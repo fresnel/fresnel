@@ -5,6 +5,7 @@ module Fresnel.Semigroup.Cons1
 ) where
 
 import Data.Foldable (toList)
+import Data.Foldable1
 
 -- Non-empty cons lists
 
@@ -16,3 +17,7 @@ instance Show a => Show (Cons1 a) where
 instance Foldable Cons1 where
   foldMap f (Cons1 r) = r f ((<>) . f)
   foldr f z (Cons1 r) = r (`f` z) f
+
+instance Foldable1 Cons1 where
+  foldMap1 f (Cons1 r) = r f ((<>) . f)
+  foldrMap1 f g (Cons1 r) = r f g
