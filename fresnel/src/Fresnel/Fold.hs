@@ -64,6 +64,7 @@ module Fresnel.Fold
 ) where
 
 import Control.Applicative (Alternative(..))
+import Control.Applicative.Backwards
 import Data.Foldable (traverse_)
 import Data.Functor (void)
 import Data.Functor.Contravariant
@@ -72,7 +73,6 @@ import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Fold1.Internal (IsFold1)
-import Fresnel.Functor.Backwards (Backwards(..))
 import Fresnel.Functor.Traversed
 import Fresnel.Monoid.Cons as Cons
 import Fresnel.Monoid.Fork as Fork

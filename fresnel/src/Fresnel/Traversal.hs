@@ -23,12 +23,12 @@ module Fresnel.Traversal
 ) where
 
 import Control.Applicative (ZipList(..))
+import Control.Applicative.Backwards
 import Control.Monad.Trans.State
 import Data.Bitraversable (Bitraversable(..))
 import Data.Profunctor
 import Data.Profunctor.Traversing (Traversing(..))
 import Data.Profunctor.Unsafe ((#.), (.#))
-import Fresnel.Functor.Backwards
 import Fresnel.Optic
 import Fresnel.Traversal.Internal (IsTraversal)
 
