@@ -14,10 +14,12 @@ module Fresnel.Traversal1
 , traverse1Of
 , for1Of
 , sequence1Of
+, transposeOf
 ) where
 
 import Control.Applicative.Backwards
 import Data.Functor.Apply
+import Data.List.NonEmpty (NonEmpty(..), zipWith)
 import Data.Profunctor (Star(..))
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Data.Semigroup.Bitraversable
@@ -25,6 +27,7 @@ import Data.Semigroup.Traversable
 import Fresnel.Optic
 import Fresnel.Profunctor.Traversing1
 import Fresnel.Traversal1.Internal
+import Prelude hiding (zipWith)
 
 -- Relevant traversals
 
@@ -72,3 +75,14 @@ for1Of o = flip (traverse1Of o)
 
 sequence1Of :: Apply f => Traversal1 s t (f b) b -> (s -> f t)
 sequence1Of o = traverse1Of o id
+
+transposeOf :: Traversal1 s t (NonEmpty a) a -> s -> NonEmpty t
+transposeOf o = getZipList #. traverse1Of o ZipList
+
+newtype ZipList a = ZipList { getZipList :: NonEmpty a }
+
+instance Functor ZipList where
+  fmap f (ZipList as) = ZipList (fmap f as)
+
+instance Apply ZipList where
+  liftF2 f (ZipList as) (ZipList bs) = ZipList (zipWith f as bs)
