@@ -13,6 +13,7 @@ module Fresnel.Fold1
 , foldMap1Of
 , foldMap1ByOf
 , foldrMap1Of
+, foldlMap1Of
 , fold1Of
 , fold1ByOf
 , sequence1Of_
@@ -39,6 +40,7 @@ import Fresnel.Functor.Traversed1
 import Fresnel.Optic (Optic')
 import Fresnel.Semigroup.Cons1 as Cons1
 import Fresnel.Semigroup.Fork1 as Fork1
+import Fresnel.Semigroup.Snoc1 as Snoc1
 import Fresnel.Traversal1
 
 -- Relevant folds
@@ -83,6 +85,9 @@ foldMap1ByOf o fork leaf s = runFork1 (runForget (o (Forget Fork1.singleton)) s)
 
 foldrMap1Of :: Fold1 s a -> ((a -> r) -> (a -> r -> r) -> (s -> r))
 foldrMap1Of o last cons s = runCons1 (runForget (o (Forget Cons1.singleton)) s) last cons
+
+foldlMap1Of :: Fold1 s a -> ((a -> r) -> (r -> a -> r) -> (s -> r))
+foldlMap1Of o first snoc s = runSnoc1 (runForget (o (Forget Snoc1.singleton)) s) first snoc
 
 fold1Of :: Semigroup a => Fold1 s a -> (s -> a)
 fold1Of o = foldMap1Of o id
