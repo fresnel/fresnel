@@ -19,6 +19,8 @@ module Fresnel.Fold1
 , traverse1Of_
 , for1Of_
 , toList1Of
+, concatOf
+, concatMapOf
 , firstOf
 , lastOf
 ) where
@@ -99,6 +101,12 @@ for1Of_ o = flip (traverse1Of_ o)
 
 toList1Of :: Fold1 s a -> (s -> NonEmpty a)
 toList1Of o = foldMap1Of o pure
+
+concatOf :: Fold1 s (NonEmpty a) -> (s -> NonEmpty a)
+concatOf = fold1Of
+
+concatMapOf :: Fold1 s a -> ((a -> NonEmpty r) -> (s -> NonEmpty r))
+concatMapOf = foldMap1Of
 
 firstOf :: Fold1 s a -> (s -> a)
 firstOf o = getFirst #. foldMap1Of o First
