@@ -17,6 +17,7 @@ module Fresnel.Traversal1
 , transposeOf
 , mapAccumLOf
 , mapAccumROf
+, scanl1Of
 ) where
 
 import Control.Applicative.Backwards
@@ -97,3 +98,9 @@ mapAccumLOf o f z s =
 
 mapAccumROf :: Traversal1 s t a b -> (accum -> a -> (b, accum)) -> accum -> s -> (t, accum)
 mapAccumROf o = mapAccumLOf (backwards o)
+
+scanl1Of :: Traversal1 s t a a -> (a -> a -> a) -> s -> t
+scanl1Of o f =
+  let step Nothing  a = (a, Just a)
+      step (Just s) a = let r = f s a in (r, Just r)
+  in fst . mapAccumLOf o step Nothing
