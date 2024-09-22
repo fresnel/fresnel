@@ -6,8 +6,9 @@ import Control.Arrow (Kleisli)
 import Data.Profunctor (Forget, Star)
 import Data.Profunctor.Traversing (Traversing)
 import Fresnel.Optional.Internal (IsOptional)
+import Fresnel.Traversal1.Internal (IsTraversal1)
 
-class (IsOptional p, Traversing p) => IsTraversal p
+class (IsOptional p, IsTraversal1 p, Traversing p) => IsTraversal p
 
 instance IsTraversal (->)
 instance Monad m => IsTraversal (Kleisli m)
