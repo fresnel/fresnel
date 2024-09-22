@@ -74,6 +74,7 @@ fold1ing f = contrabimap f (const ()) . traversal1 traverse1_
 --
 -- @
 -- 'foldMap1ing' 'foldMap1' = 'folded1'
+-- 'foldMap1Of' . 'foldMap1ing' = 'id'
 -- @
 foldMap1ing :: (forall m . Semigroup m => (a -> m) -> (s -> m)) -> Fold1 s a
 foldMap1ing fm = rphantom . traversal1 (\ f -> getAp1 #. fm (Ap1 #. void . f))
