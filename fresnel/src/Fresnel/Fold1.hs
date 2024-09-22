@@ -18,6 +18,7 @@ module Fresnel.Fold1
 , traverse1Of_
 , for1Of_
 , toList1Of
+, firstOf
 ) where
 
 import Data.Functor (void)
@@ -25,6 +26,7 @@ import Data.Functor.Apply
 import Data.List.NonEmpty (NonEmpty)
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
+import Data.Semigroup (First(..))
 import Data.Semigroup.Foldable
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Fold1.Internal (IsFold1)
@@ -91,3 +93,6 @@ for1Of_ o = flip (traverse1Of_ o)
 
 toList1Of :: Fold1 s a -> (s -> NonEmpty a)
 toList1Of o = foldMap1Of o pure
+
+firstOf :: Fold1 s a -> (s -> a)
+firstOf o = getFirst #. foldMap1Of o First
