@@ -8,6 +8,7 @@ module Fresnel.Fold1
 , fold1ing
 , foldMap1ing
 , iterated
+, repeated
   -- * Elimination
 , foldMap1Of
 , foldMap1ByOf
@@ -47,6 +48,14 @@ foldMap1ing fm = rphantom . traversal1 (\ f -> getAp1 #. fm (Ap1 #. void . f))
 
 iterated :: (a -> a) -> Fold1 a a
 iterated f = rphantom . traversal1 (\ g -> let loop a = g a .> loop (f a) in loop)
+
+-- | An infinite fold repeatedly producing its input.
+--
+-- @
+-- 'Fresnel.Fold.toListOf' 'repeated' a = 'repeat' a
+-- @
+repeated :: Fold1 a a
+repeated = rphantom . traversal1 (\ f a -> let loop = f a .> loop in loop)
 
 
 -- Elimination
