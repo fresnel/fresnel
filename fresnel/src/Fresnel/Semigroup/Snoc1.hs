@@ -17,3 +17,6 @@ instance Foldable Snoc1 where
 instance Foldable1 Snoc1 where
   foldMap1 f (Snoc1 r) = r f ((. f) . (<>))
   foldlMap1 f g (Snoc1 r) = r f g
+
+instance Functor Snoc1 where
+  fmap h (Snoc1 r) = Snoc1 (\ f g -> r (f . h) ((. h) . g))
