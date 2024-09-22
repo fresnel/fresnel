@@ -12,6 +12,7 @@ module Fresnel.Fold1
   -- * Elimination
 , foldMap1Of
 , foldMap1ByOf
+, fold1Of
 ) where
 
 import Data.Functor (void)
@@ -65,3 +66,6 @@ foldMap1Of o = runForget #. o .# Forget
 
 foldMap1ByOf :: Fold1 s a -> ((r -> r -> r) -> (a -> r) -> (s -> r))
 foldMap1ByOf o fork leaf s = runFork1 (runForget (o (Forget singleton)) s) fork leaf
+
+fold1Of :: Semigroup a => Fold1 s a -> (s -> a)
+fold1Of o = foldMap1Of o id
