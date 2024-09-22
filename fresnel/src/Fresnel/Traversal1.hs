@@ -10,6 +10,7 @@ module Fresnel.Traversal1
 , backwards
   -- * Elimination
 , traverse1Of
+, for1Of
 ) where
 
 import Control.Applicative.Backwards
@@ -55,3 +56,6 @@ backwards o = traversal1 (\ f -> forwards #. traverse1Of o (Backwards #. f))
 -- @
 traverse1Of :: Apply f => Traversal1 s t a b -> ((a -> f b) -> (s -> f t))
 traverse1Of o = runStar #. o .# Star
+
+for1Of :: Apply f => Traversal1 s t a b -> (s -> (a -> f b) -> f t)
+for1Of o = flip (traverse1Of o)
