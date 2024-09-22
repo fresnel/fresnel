@@ -20,6 +20,11 @@ instance Functor f => Strong (Star1 f) where
   first'  (Star1 h) = Star1 (\ (a, c) -> (,c) <$> h a)
   second' (Star1 h) = Star1 (\ (c, a) -> (c,) <$> h a)
 
+instance Traversable f => Cochoice (Star1 f) where
+  unright (Star1 h) = Star1 (go . Right)
+    where
+    go = either (go . Left) id . sequence . h
+
 instance Apply f => Traversing1 (Star1 f) where
   wander1 f (Star1 h) = Star1 (f h)
 
