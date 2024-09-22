@@ -12,7 +12,7 @@ module Fresnel.Profunctor.Traversing1
 
 import Data.Functor.Apply
 import Data.Functor.Const
-import Data.Profunctor (Forget(..), Strong)
+import Data.Profunctor (Forget(..), Star(..), Strong)
 import Data.Profunctor.Unsafe ((#.))
 
 class Strong p => Traversing1 p where
@@ -20,6 +20,9 @@ class Strong p => Traversing1 p where
 
 instance Semigroup r => Traversing1 (Forget r) where
   wander1 f (Forget k) = Forget (getConst #. f (Const #. k))
+
+instance Apply f => Traversing1 (Star f) where
+  wander1 f (Star k) = Star (f k)
 
 
 -- Profunctor from Traversing1
