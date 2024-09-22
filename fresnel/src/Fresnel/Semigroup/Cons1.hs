@@ -14,6 +14,9 @@ newtype Cons1 a = Cons1 { runCons1 :: forall r . (a -> r) -> (a -> r -> r) -> r 
 instance Show a => Show (Cons1 a) where
   showsPrec _ = showList . toList
 
+instance Semigroup (Cons1 a) where
+  Cons1 a1 <> Cons1 a2 = Cons1 (\ f g -> a1 (\ a -> g a (a2 f g)) g)
+
 instance Foldable Cons1 where
   foldMap f (Cons1 r) = r f ((<>) . f)
   foldr f z (Cons1 r) = r (`f` z) f
