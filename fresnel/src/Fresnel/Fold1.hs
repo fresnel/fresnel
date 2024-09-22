@@ -16,6 +16,7 @@ module Fresnel.Fold1
 , fold1ByOf
 , sequence1Of_
 , traverse1Of_
+, for1Of_
 ) where
 
 import Data.Functor (void)
@@ -82,3 +83,6 @@ sequence1Of_ o = runTraversed1 . foldMap1Of o Traversed1
 
 traverse1Of_ :: Apply f => Fold1 s a -> ((a -> f r) -> (s -> f ()))
 traverse1Of_ o f = runTraversed1 . foldMap1Of o (Traversed1 #. f)
+
+for1Of_ :: Apply f => Fold1 s a -> (s -> (a -> f r) -> f ())
+for1Of_ o = flip (traverse1Of_ o)
