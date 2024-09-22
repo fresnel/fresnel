@@ -13,6 +13,7 @@ module Fresnel.Fold1
 , foldMap1Of
 , foldMap1ByOf
 , fold1Of
+, fold1ByOf
 ) where
 
 import Data.Functor (void)
@@ -69,3 +70,6 @@ foldMap1ByOf o fork leaf s = runFork1 (runForget (o (Forget singleton)) s) fork 
 
 fold1Of :: Semigroup a => Fold1 s a -> (s -> a)
 fold1Of o = foldMap1Of o id
+
+fold1ByOf :: Fold1 s a -> ((a -> a -> a) -> (s -> a))
+fold1ByOf o fork s = runFork1 (runForget (o (Forget singleton)) s) fork id
