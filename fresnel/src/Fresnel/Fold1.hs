@@ -14,6 +14,7 @@ module Fresnel.Fold1
 , foldMap1ByOf
 , fold1Of
 , fold1ByOf
+, sequence1Of_
 ) where
 
 import Data.Functor (void)
@@ -24,6 +25,7 @@ import Data.Semigroup.Foldable
 import Fresnel.Bifunctor.Contravariant
 import Fresnel.Fold1.Internal (IsFold1)
 import Fresnel.Functor.Ap1
+import Fresnel.Functor.Traversed1
 import Fresnel.Optic (Optic')
 import Fresnel.Semigroup.Fork1
 import Fresnel.Traversal1
@@ -73,3 +75,6 @@ fold1Of o = foldMap1Of o id
 
 fold1ByOf :: Fold1 s a -> ((a -> a -> a) -> (s -> a))
 fold1ByOf o fork s = runFork1 (runForget (o (Forget singleton)) s) fork id
+
+sequence1Of_ :: Apply f => Fold1 s (f a) -> (s -> f ())
+sequence1Of_ o = runTraversed1 . foldMap1Of o Traversed1
