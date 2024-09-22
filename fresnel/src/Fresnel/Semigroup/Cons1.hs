@@ -21,3 +21,6 @@ instance Foldable Cons1 where
 instance Foldable1 Cons1 where
   foldMap1 f (Cons1 r) = r f ((<>) . f)
   foldrMap1 f g (Cons1 r) = r f g
+
+instance Functor Cons1 where
+  fmap h (Cons1 r) = Cons1 (\ f g -> r (f . h) (g . h))
