@@ -76,6 +76,7 @@ library
     Fresnel.Review
     Fresnel.Semigroup.Cons1
     Fresnel.Semigroup.Fork1
+    Fresnel.Semigroup.Snoc1
     Fresnel.Set
     Fresnel.Setter
     Fresnel.Traversal
