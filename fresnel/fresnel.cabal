@@ -72,6 +72,7 @@ library
     Fresnel.Profunctor.Traversing1
     Fresnel.RelevantFold
     Fresnel.Review
+    Fresnel.Semigroup.Fork1
     Fresnel.Set
     Fresnel.Setter
     Fresnel.Traversal
