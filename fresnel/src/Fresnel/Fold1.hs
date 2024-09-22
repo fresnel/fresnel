@@ -15,6 +15,7 @@ module Fresnel.Fold1
 , fold1Of
 , fold1ByOf
 , sequence1Of_
+, traverse1Of_
 ) where
 
 import Data.Functor (void)
@@ -78,3 +79,6 @@ fold1ByOf o fork s = runFork1 (runForget (o (Forget singleton)) s) fork id
 
 sequence1Of_ :: Apply f => Fold1 s (f a) -> (s -> f ())
 sequence1Of_ o = runTraversed1 . foldMap1Of o Traversed1
+
+traverse1Of_ :: Apply f => Fold1 s a -> ((a -> f r) -> (s -> f ()))
+traverse1Of_ o f = runTraversed1 . foldMap1Of o (Traversed1 #. f)
