@@ -4,6 +4,7 @@ module Fresnel.Fold1
   Fold1
   -- * Construction
 , folded1
+, fold1ing
 ) where
 
 import Data.Semigroup.Foldable
@@ -21,3 +22,6 @@ type Fold1 s a = forall p . IsFold1 p => Optic' p s a
 
 folded1 :: Foldable1 t => Fold1 (t a) a
 folded1 = rphantom . traversal1 traverse1_
+
+fold1ing :: Foldable1 t => (s -> t a) -> Fold1 s a
+fold1ing f = contrabimap f (const ()) . traversal1 traverse1_
