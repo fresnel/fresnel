@@ -2,6 +2,7 @@
 module Fresnel.Fold1
 ( -- * Relevant folds
   Fold1
+, IsFold1
   -- * Construction
 , folded1
 , unfolded1
