@@ -2,6 +2,8 @@
 module Fresnel.Semigroup.Snoc1
 ( -- * Non-empty snoc lists
   Snoc1(..)
+  -- * Construction
+, singleton
 ) where
 
 import Data.Foldable (toList)
@@ -27,3 +29,9 @@ instance Foldable1 Snoc1 where
 
 instance Functor Snoc1 where
   fmap h (Snoc1 r) = Snoc1 (\ f g -> r (f . h) ((. h) . g))
+
+
+-- Construction
+
+singleton :: a -> Snoc1 a
+singleton a = Snoc1 (\ f _ -> f a)
