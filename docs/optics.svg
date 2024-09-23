@@ -1,6 +1,6 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-575 -150 1300 650" class="show-profunctors">
     <style>
-@font-face {
+        @font-face {
   font-family: 'Computer Modern Serif';
   src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.eot');
   src: url('https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/font/Serif/cmunrm.eot?#iefix') format('embedded-opentype'),
@@ -251,6 +251,7 @@ stop {
 .edge {
   stroke-width: var(--edge-stroke-width, 0.5px);
 }
+
     </style>
     <defs>
         <linearGradient id="gradient-Iso-Lens" x1="100%" y1="0%" x2="0%" y2="100%">
@@ -629,4 +630,14 @@ stop {
             <use href="#Traversing-Mapping" class="edge Class Traversing Mapping" transform="translate(-200.0 -100.0)" />
         </g>
     </g>
+    <script>
+        function ancestors(v) {
+  return v.getAttribute("data-ancestors")?.split(' ').filter(i => i.length > 0).map(i => document.getElementById(i)) || [];
+}
+document.querySelectorAll('.vertex').forEach(v => {
+  v.onmouseover = () => [v, ...ancestors(v)].forEach(e => e.classList.add('hover'));
+  v.onmouseout = () => [v, ...ancestors(v)].forEach(e => e.classList.remove('hover'));
+});
+
+    </script>
 </svg>
