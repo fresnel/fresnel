@@ -262,7 +262,7 @@ data Diagram a = Diagram
 -- Vectors
 
 data V2 a = V2 a a
-  deriving (Functor)
+  deriving (Functor, Show)
 
 instance Num a => Num (V2 a) where
   (+) = liftA2 (+)
@@ -278,7 +278,7 @@ instance Applicative V2 where
   V2 f1 f2 <*> V2 a1 a2 = V2 (f1 a1) (f2 a2)
 
 data V3 a = V3 a a a
-  deriving (Functor)
+  deriving (Functor, Show)
 
 instance Num a => Num (V3 a) where
   (+) = liftA2 (+)
