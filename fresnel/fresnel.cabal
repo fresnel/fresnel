@@ -101,6 +101,9 @@ library
     , semigroupoids ^>= 6
     , transformers  >= 0.4 && < 0.7
     , unordered-containers ^>= 0.2
+  if (impl(ghc < 9.6))
+    build-depends:
+      , foldable1-classes-compat ^>= 0.1
   hs-source-dirs: src
 
 test-suite test
