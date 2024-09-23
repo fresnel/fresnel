@@ -135,7 +135,9 @@ edgePath s e = edgeX
         | otherwise = do
     let δ = scale (project (V3 dx 0 0))
         sδ = signum δ
-        hoffset = V2 (-10) 5
+        hoffset
+          | dx < 0    = V2 10 (-5)
+          | otherwise = V2 (-10) 5
         isLast = dy == 0 && dz == 0
     uncurryV2 mr hoffset
     uncurryV2 lr (δ - hoffset * if isLast then 2 else 1)
@@ -149,7 +151,9 @@ edgePath s e = edgeX
           | otherwise = do
     let δ = scale (project (V3 0 dy 0))
         sδ = signum δ
-        hoffset = V2 10 5
+        hoffset
+          | dy < 0    = V2 (-10) (-5)
+          | otherwise = V2 10 5
     unless c $ uncurryV2 mr (sδ * hoffset)
     uncurryV2 lr (δ - sδ * hoffset * if c then 1 else 2)
     if dz /= 0 then
