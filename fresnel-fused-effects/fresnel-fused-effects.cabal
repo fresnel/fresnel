@@ -39,6 +39,10 @@ common common
   if (impl(ghc >= 9.2))
     ghc-options:
       -Wno-missing-kind-signatures
+  if (impl(ghc >= 9.8))
+    ghc-options:
+      -Wno-missing-role-annotations
+      -Wno-term-variable-capture
 
 library
   import: common

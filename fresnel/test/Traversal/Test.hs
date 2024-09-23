@@ -1,12 +1,13 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Review.Test
+module Traversal.Test
 ( tests
 ) where
-import Fresnel.Review
+
+import Fresnel.Traversal
 import Test.Group
 import Test.QuickCheck
 
-prop_review_unto_involution (Fn f) x = review (unto f) x === f x
+prop_ignored (Fn f) a = traverseOf ignored f a === [a]
 
 
 pure []

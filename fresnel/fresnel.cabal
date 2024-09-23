@@ -10,7 +10,7 @@ license-file:       LICENSE
 author:             Rob Rix
 maintainer:         rob.rix@me.com
 
-copyright:          2021–2023 Rob Rix
+copyright:          2021–2024 Rob Rix
 category:           Control
 extra-doc-files:
   CHANGELOG.md
@@ -39,6 +39,10 @@ common common
   if (impl(ghc >= 9.2))
     ghc-options:
       -Wno-missing-kind-signatures
+  if (impl(ghc >= 9.8))
+    ghc-options:
+      -Wno-missing-role-annotations
+      -Wno-term-variable-capture
 
 library
   import: common
@@ -105,6 +109,7 @@ test-suite test
     Test.Options
     Test.Print
     Test.Run
+    Traversal.Test
     Tropical.Test
   build-depends:
     , ansi-terminal ^>= 0.11
@@ -112,11 +117,14 @@ test-suite test
     , containers
     , fresnel
     , fused-effects ^>= 1.1
-    , template-haskell >= 2.16 && < 2.22
+    , template-haskell >= 2.16 && < 2.23
     , QuickCheck ^>= 2.14
   if (impl(ghc >= 9.2))
     ghc-options:
       -Wno-missing-signatures
+  if (impl(ghc >= 9.8))
+    ghc-options:
+      -Wno-x-partial
 
 
 source-repository head

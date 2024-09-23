@@ -5,8 +5,12 @@ module Fresnel.Traversal
 , Traversal'
 , IsTraversal
   -- * Construction
+, traversal
 , traversed
 , backwards
+, both
+, beside
+, ignored
   -- * Elimination
 , traverseOf
 , forOf
@@ -20,6 +24,7 @@ module Fresnel.Traversal
 
 import Control.Applicative (ZipList(..))
 import Control.Monad.Trans.State
+import Data.Bitraversable (Bitraversable(..))
 import Data.Profunctor
 import Data.Profunctor.Traversing (Traversing(..))
 import Data.Profunctor.Unsafe ((#.))
@@ -36,17 +41,45 @@ type Traversal' s a = Traversal s s a a
 
 -- Construction
 
-traversed :: Traversable t => Traversal (t a) (t b) a b
-traversed = wander traverse
+traversal :: (forall f . Applicative f => (a -> f b) -> (s -> f t)) -> Traversal s t a b
+traversal f = wander f
 
+traversed :: Traversable t => Traversal (t a) (t b) a b
+traversed = traversal traverse
+
+-- | Reverse the order in which a (finite) 'Traversal' is traversed.
+--
+-- @
+-- 'backwards' . 'backwards' = 'id'
+-- @
 backwards :: Traversal s t a b -> Traversal s t a b
-backwards o = wander (\ f -> forwards . traverseOf o (Backwards . f))
+backwards o = traversal (\ f -> forwards #. traverseOf o (Backwards #. f))
+
+both :: Bitraversable r => Traversal (r a a) (r b b) a b
+both = traversal (\ f -> bitraverse f f)
+
+beside :: Bitraversable r => Traversal s1 t1 a b -> Traversal s2 t2 a b -> Traversal (r s1 s2) (r t1 t2) a b
+beside l r = traversal (\ f -> bitraverse (traverseOf l f) (traverseOf r f))
+
+-- | The trivially empty @'Traversal'@.
+--
+-- @
+-- 'traverseOf' 'ignored' f = pure
+-- @
+ignored :: Traversal s s a b
+ignored = traversal (const pure)
 
 
 -- Elimination
 
+-- | Map over the targets of an 'Fresnel.Iso.Iso', 'Fresnel.Lens.Lens', 'Fresnel.Optional.Optional', or 'Traversal', collecting the results.
+--
+-- @
+-- 'traverseOf' . 'traversal' = 'id'
+-- 'traverseOf' 'traversed' = 'traverse'
+-- @
 traverseOf :: Applicative f => Traversal s t a b -> ((a -> f b) -> (s -> f t))
-traverseOf o = runStar . o . Star
+traverseOf o = runStar #. o . Star
 
 forOf :: Applicative f => Traversal s t a b -> (s -> (a -> f b) -> f t)
 forOf o = flip (traverseOf o)

@@ -18,6 +18,7 @@ import           System.Environment (getArgs)
 import           Test.Group
 import           Test.Options
 import           Test.Run
+import qualified Traversal.Test
 import qualified Tropical.Test
 
 main :: IO ()
@@ -31,5 +32,6 @@ tests =
   , Monoid.Fork.Test.tests
   , Profunctor.Coexp.Test.tests
   , Review.Test.tests
+  , Traversal.Test.tests
   , Tropical.Test.tests
   ]
