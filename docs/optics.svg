@@ -303,9 +303,9 @@ stop {
             <stop class="Setter" offset="100%" />
         </linearGradient>
     </defs>
-    <g id="Iso" class="vertex Optic" transform="translate(0 0)">
-        <path id="Iso-Lens" class="edge Optic Iso Lens" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " />
-        <path id="Iso-Prism" class="edge Optic Iso Prism" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+    <g id="Iso" class="vertex Optic" transform="translate(0.0 0.0)">
+        <path id="Iso-Lens" class="edge Optic Iso Lens" d="m -10.0,5.0 l -180.0,90.0 m 6.0,-8.0 l -6.0,8.0 l 10.0,0.0 " />
+        <path id="Iso-Prism" class="edge Optic Iso Prism" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -315,9 +315,9 @@ stop {
             <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(0.0 -100.0)" />
         </g>
     </g>
-    <g id="Lens" class="vertex Optic" transform="translate(-200 100)">
-        <path id="Lens-Optional" class="edge Optic Lens Optional" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
-        <path id="Lens-Getter" class="edge Optic Lens Getter" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " />
+    <g id="Lens" class="vertex Optic" transform="translate(-200.0 100.0)">
+        <path id="Lens-Optional" class="edge Optic Lens Optional" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
+        <path id="Lens-Getter" class="edge Optic Lens Getter" d="m -10.0,5.0 l -180.0,90.0 m 6.0,-8.0 l -6.0,8.0 l 10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,-15 h -50 " />
         <text transform="translate(-80 -30)">
@@ -330,8 +330,8 @@ stop {
             <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(0.0 -100.0)" />
         </g>
     </g>
-    <g id="Getter" class="vertex Optic" transform="translate(-400 200)">
-        <path id="Getter-OptionalFold" class="edge Optic Getter OptionalFold" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+    <g id="Getter" class="vertex Optic" transform="translate(-400.0 200.0)">
+        <path id="Getter-OptionalFold" class="edge Optic Getter OptionalFold" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,15 h -50 " />
         <text transform="translate(-80 30)">
@@ -348,9 +348,9 @@ stop {
             <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(200.0 -200.0)" />
         </g>
     </g>
-    <g id="Prism" class="vertex Optic" transform="translate(200 100)">
-        <path id="Prism-Optional" class="edge Optic Prism Optional" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " />
-        <path id="Prism-Review" class="edge Optic Prism Review" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+    <g id="Prism" class="vertex Optic" transform="translate(200.0 100.0)">
+        <path id="Prism-Optional" class="edge Optic Prism Optional" d="m -10.0,5.0 l -180.0,90.0 m 6.0,-8.0 l -6.0,8.0 l 10.0,0.0 " />
+        <path id="Prism-Review" class="edge Optic Prism Review" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -363,7 +363,7 @@ stop {
             <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-200.0 -200.0)" />
         </g>
     </g>
-    <g id="Review" class="vertex Optic" transform="translate(400 200)">
+    <g id="Review" class="vertex Optic" transform="translate(400.0 200.0)">
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -380,9 +380,9 @@ stop {
             <use href="#Profunctor-Iso" class="edge Class Profunctor Iso" transform="translate(-400.0 -300.0)" />
         </g>
     </g>
-    <g id="Optional" class="vertex Optic" transform="translate(0 200)">
-        <path id="Optional-OptionalFold" class="edge Optic Optional OptionalFold" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " />
-        <path id="Optional-Traversal" class="edge Optic Optional Traversal" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+    <g id="Optional" class="vertex Optic" transform="translate(0.0 200.0)">
+        <path id="Optional-OptionalFold" class="edge Optic Optional OptionalFold" d="m -10.0,5.0 l -180.0,90.0 m 6.0,-8.0 l -6.0,8.0 l 10.0,0.0 " />
+        <path id="Optional-Traversal" class="edge Optic Optional Traversal" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,0 h -50 " />
         <text transform="translate(-80 0)">
@@ -400,8 +400,8 @@ stop {
             <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(-200.0 -200.0)" />
         </g>
     </g>
-    <g id="OptionalFold" class="vertex Optic" transform="translate(-200 300)">
-        <path id="OptionalFold-Fold" class="edge Optic OptionalFold Fold" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+    <g id="OptionalFold" class="vertex Optic" transform="translate(-200.0 300.0)">
+        <path id="OptionalFold-Fold" class="edge Optic OptionalFold Fold" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,15 h -50 " />
         <text transform="translate(-80 30)">
@@ -425,9 +425,9 @@ stop {
             <use href="#Strong-Lens" class="edge Class Strong Lens" transform="translate(0.0 -300.0)" />
         </g>
     </g>
-    <g id="Traversal" class="vertex Optic" transform="translate(200 300)">
-        <path id="Traversal-Fold" class="edge Optic Traversal Fold" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " />
-        <path id="Traversal-Setter" class="edge Optic Traversal Setter" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+    <g id="Traversal" class="vertex Optic" transform="translate(200.0 300.0)">
+        <path id="Traversal-Fold" class="edge Optic Traversal Fold" d="m -10.0,5.0 l -180.0,90.0 m 6.0,-8.0 l -6.0,8.0 l 10.0,0.0 " />
+        <path id="Traversal-Setter" class="edge Optic Traversal Setter" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -449,7 +449,7 @@ stop {
             <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(0.0 -100.0)" />
         </g>
     </g>
-    <g id="Fold" class="vertex Optic" transform="translate(0 400)">
+    <g id="Fold" class="vertex Optic" transform="translate(0.0 400.0)">
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,15 h -50 " />
         <text transform="translate(-80 30)">
@@ -479,7 +479,7 @@ stop {
             <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(200.0 -200.0)" />
         </g>
     </g>
-    <g id="Setter" class="vertex Optic" transform="translate(400 400)">
+    <g id="Setter" class="vertex Optic" transform="translate(400.0 400.0)">
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,15 h 50 " />
         <text transform="translate(80 30)">
@@ -506,13 +506,13 @@ stop {
             <use href="#Traversing-Traversal" class="edge Class Traversing Traversal" transform="translate(-200.0 -200.0)" />
         </g>
     </g>
-    <g id="Profunctor" class="vertex Class" transform="translate(0 -100)">
-        <path id="Profunctor-Iso" class="edge Class Profunctor Iso" d="m 0,10 l 0,80 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
-        <path id="Profunctor-Strong" class="edge Class Profunctor Strong" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " transform="translate(-5.0 -2.5)" />
-        <path id="Profunctor-Choice" class="edge Class Profunctor Choice" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " transform="translate(-10.0 5.0)" />
-        <path id="Profunctor-Cochoice" class="edge Class Profunctor Cochoice" d="m -10,5 l -380,190 m 6,-8 l -6,8 l 10,0 " transform="translate(5.0 2.5)" />
-        <path id="Profunctor-Costrong" class="edge Class Profunctor Costrong" d="m 10,5 l 380,190 m -6,-8 l 6,8 l -10,0 " />
-        <path id="Profunctor-Closed" class="edge Class Profunctor Closed" d="m 10,5 l 580,290 m -6,-8 l 6,8 l -10,0 " transform="translate(10.0 -5.0)" />
+    <g id="Profunctor" class="vertex Class" transform="translate(0.0 -100.0)">
+        <path id="Profunctor-Iso" class="edge Class Profunctor Iso" d="m 0.0,10.0 l -0.0,80.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
+        <path id="Profunctor-Strong" class="edge Class Profunctor Strong" d="m -10.0,5.0 l -180.0,90.0 m 6.0,-8.0 l -6.0,8.0 l 10.0,0.0 " transform="translate(-5.0 -2.5)" />
+        <path id="Profunctor-Choice" class="edge Class Profunctor Choice" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " transform="translate(-10.0 5.0)" />
+        <path id="Profunctor-Cochoice" class="edge Class Profunctor Cochoice" d="m -10.0,5.0 l -380.0,190.0 m 6.0,-8.0 l -6.0,8.0 l 10.0,0.0 " transform="translate(5.0 2.5)" />
+        <path id="Profunctor-Costrong" class="edge Class Profunctor Costrong" d="m 10.0,5.0 l 380.0,190.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
+        <path id="Profunctor-Closed" class="edge Class Profunctor Closed" d="m 10.0,5.0 l 580.0,290.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " transform="translate(10.0 -5.0)" />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -521,9 +521,9 @@ stop {
         <g class="ancestors">
         </g>
     </g>
-    <g id="Strong" class="vertex Class" transform="translate(-200 0)">
-        <path id="Strong-Lens" class="edge Class Strong Lens" d="m 0,10 l 0,80 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
-        <path id="Strong-Traversing" class="edge Class Strong Traversing" d="m 10,5 l 380,190 m -6,-8 l 6,8 l -10,0 " transform="translate(-5.0 2.5)" />
+    <g id="Strong" class="vertex Class" transform="translate(-200.0 0.0)">
+        <path id="Strong-Lens" class="edge Class Strong Lens" d="m 0.0,10.0 l -0.0,80.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
+        <path id="Strong-Traversing" class="edge Class Strong Traversing" d="m 10.0,5.0 l 380.0,190.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " transform="translate(-5.0 2.5)" />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,-15 h -50 " />
         <text transform="translate(-80 -30)">
@@ -533,8 +533,8 @@ stop {
             <use href="#Profunctor-Strong" class="edge Class Profunctor Strong" transform="translate(200.0 -100.0)" />
         </g>
     </g>
-    <g id="Cochoice" class="vertex Class" transform="translate(-400 100)">
-        <path id="Cochoice-Getter" class="edge Class Cochoice Getter" d="m 0,10 l 0,80 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " transform="translate(-5.0 2.5)" />
+    <g id="Cochoice" class="vertex Class" transform="translate(-400.0 100.0)">
+        <path id="Cochoice-Getter" class="edge Class Cochoice Getter" d="m 0.0,10.0 l -0.0,80.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " transform="translate(-5.0 2.5)" />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,-15 h -50 " />
         <text transform="translate(-80 -30)">
@@ -544,8 +544,8 @@ stop {
             <use href="#Profunctor-Cochoice" class="edge Class Profunctor Cochoice" transform="translate(400.0 -200.0)" />
         </g>
     </g>
-    <g id="Bicontravariant" class="vertex Class" transform="translate(-400 0)">
-        <path id="Bicontravariant-Getter" class="edge Class Bicontravariant Getter" d="m 0,10 l 0,180 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " transform="translate(5.0 -2.5)" />
+    <g id="Bicontravariant" class="vertex Class" transform="translate(-400.0 0.0)">
+        <path id="Bicontravariant-Getter" class="edge Class Bicontravariant Getter" d="m 0.0,10.0 l -0.0,180.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " transform="translate(5.0 -2.5)" />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,-15 h -50 " />
         <text transform="translate(-80 -30)">
@@ -554,9 +554,9 @@ stop {
         <g class="ancestors">
         </g>
     </g>
-    <g id="Choice" class="vertex Class" transform="translate(200 0)">
-        <path id="Choice-Prism" class="edge Class Choice Prism" d="m 0,10 l 0,80 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
-        <path id="Choice-Traversing" class="edge Class Choice Traversing" d="m -10,5 l -190,95 l 190,95 m -6,-8 l 6,8 l -10,0 " transform="translate(5.0 -2.5)" />
+    <g id="Choice" class="vertex Class" transform="translate(200.0 0.0)">
+        <path id="Choice-Prism" class="edge Class Choice Prism" d="m 0.0,10.0 l -0.0,80.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
+        <path id="Choice-Traversing" class="edge Class Choice Traversing" d="m -10.0,5.0 l -190.0,95.0 l 190.0,95.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " transform="translate(5.0 -2.5)" />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -566,8 +566,8 @@ stop {
             <use href="#Profunctor-Choice" class="edge Class Profunctor Choice" transform="translate(-200.0 -100.0)" />
         </g>
     </g>
-    <g id="Costrong" class="vertex Class" transform="translate(400 100)">
-        <path id="Costrong-Review" class="edge Class Costrong Review" d="m 0,10 l 0,80 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " transform="translate(5.0 2.5)" />
+    <g id="Costrong" class="vertex Class" transform="translate(400.0 100.0)">
+        <path id="Costrong-Review" class="edge Class Costrong Review" d="m 0.0,10.0 l -0.0,80.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " transform="translate(5.0 2.5)" />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -577,8 +577,8 @@ stop {
             <use href="#Profunctor-Costrong" class="edge Class Profunctor Costrong" transform="translate(-400.0 -200.0)" />
         </g>
     </g>
-    <g id="Bifunctor" class="vertex Class" transform="translate(400 0)">
-        <path id="Bifunctor-Review" class="edge Class Bifunctor Review" d="m 0,10 l 0,180 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " transform="translate(-5.0 -2.5)" />
+    <g id="Bifunctor" class="vertex Class" transform="translate(400.0 0.0)">
+        <path id="Bifunctor-Review" class="edge Class Bifunctor Review" d="m 0.0,10.0 l -0.0,180.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " transform="translate(-5.0 -2.5)" />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -587,8 +587,8 @@ stop {
         <g class="ancestors">
         </g>
     </g>
-    <g id="Closed" class="vertex Class" transform="translate(600 200)">
-        <path id="Closed-Mapping" class="edge Class Closed Mapping" d="m -10,5 l -180,90 m 6,-8 l -6,8 l 10,0 " />
+    <g id="Closed" class="vertex Class" transform="translate(600.0 200.0)">
+        <path id="Closed-Mapping" class="edge Class Closed Mapping" d="m -10.0,5.0 l -180.0,90.0 m 6.0,-8.0 l -6.0,8.0 l 10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,-15 h 50 " />
         <text transform="translate(80 -30)">
@@ -598,9 +598,9 @@ stop {
             <use href="#Profunctor-Closed" class="edge Class Profunctor Closed" transform="translate(-600.0 -300.0)" />
         </g>
     </g>
-    <g id="Traversing" class="vertex Class" transform="translate(200 200)">
-        <path id="Traversing-Traversal" class="edge Class Traversing Traversal" d="m 0,10 l 0,80 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
-        <path id="Traversing-Mapping" class="edge Class Traversing Mapping" d="m 10,5 l 180,90 m -6,-8 l 6,8 l -10,0 " />
+    <g id="Traversing" class="vertex Class" transform="translate(200.0 200.0)">
+        <path id="Traversing-Traversal" class="edge Class Traversing Traversal" d="m 0.0,10.0 l -0.0,80.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
+        <path id="Traversing-Mapping" class="edge Class Traversing Mapping" d="m 10.0,5.0 l 180.0,90.0 m -6.0,-8.0 l 6.0,8.0 l -10.0,0.0 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l -30,15 h -50 " />
         <text transform="translate(-80 30)">
@@ -613,8 +613,8 @@ stop {
             <use href="#Strong-Traversing" class="edge Class Strong Traversing" transform="translate(-400.0 -200.0)" />
         </g>
     </g>
-    <g id="Mapping" class="vertex Class" transform="translate(400 300)">
-        <path id="Mapping-Setter" class="edge Class Mapping Setter" d="m 0,10 l 0,80 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
+    <g id="Mapping" class="vertex Class" transform="translate(400.0 300.0)">
+        <path id="Mapping-Setter" class="edge Class Mapping Setter" d="m 0.0,10.0 l -0.0,80.0 m -4.472136,-8.944272 l 4.472136,8.944272 l 4.472136,-8.944272 " />
         <circle r="2.5" />
         <path class="label" d="m 0,0 l 30,15 h 50 " />
         <text transform="translate(80 30)">

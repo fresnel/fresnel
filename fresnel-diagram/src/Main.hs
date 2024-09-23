@@ -126,7 +126,7 @@ href = customAttribute "href"
 (!??) :: Svg -> Maybe Attribute -> Svg
 s !?? a = s !? maybe (False, mempty) (True,) a
 
-edgePath :: V3 Int -> V3 Int -> Path
+edgePath :: V3 Float -> V3 Float -> Path
 edgePath s e = edgeX
   where
   V3 dx dy dz = e - s
@@ -168,19 +168,19 @@ edgePath s e = edgeX
     uncurryV2 lr (V2 4.47213595499958 8.94427190999916 :: V2 Float)
     uncurryV2 lr (V2 4.47213595499958 (-8.94427190999916) :: V2 Float)
 
-edgeOffset :: V3 Int -> V3 Int -> V2 Float
-edgeOffset s e = realToFrac <$> scale (project (e - s))
+edgeOffset :: V3 Float -> V3 Float -> V2 Float
+edgeOffset s e = scale (project (e - s))
 
-project :: V3 Int -> V2 Int
+project :: V3 Float -> V2 Float
 project (V3 x y z) = V2 (negate x + y) (x + y - z)
 
-scale :: V2 Int -> V2 Int
+scale :: V2 Float -> V2 Float
 scale (V2 x y) = V2 (x * 200) (y * 100)
 
 data Vertex = Vertex
   { kind     :: VertexKind
   , name     :: String
-  , coords   :: V3 Int
+  , coords   :: V3 Float
   , labelPos :: V2 (Maybe Extent)
   , inEdges  :: [(Vertex, Maybe (V2 Float))]
   , outEdges :: [(Maybe (V2 Float), Vertex)]
