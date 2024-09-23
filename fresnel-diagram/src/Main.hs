@@ -19,7 +19,7 @@ import qualified Data.Map as Map
 import           System.Console.GetOpt
 import           System.Environment (getArgs)
 import           Text.Blaze.Svg.Renderer.Pretty
-import           Text.Blaze.Svg11 as S hiding (z)
+import           Text.Blaze.Svg11 as S hiding (scale, z)
 import qualified Text.Blaze.Svg11.Attributes as A
 
 main :: IO ()
@@ -68,8 +68,6 @@ renderVertex v@Vertex{ kind, name, coords = coords@(V3 x _ _), labelPos = V2 ex 
       Foldable.fold (ancestors v)
   , defs)
   where
-  project (V3 x y z) = V2 (negate x + y) (x + y - z)
-  scale (V2 x y) = V2 (x * 200) (y * 100)
   labelEdge = do
     mr 0 (0 :: Int)
     lr (sige ex * 30) (sige ey * 15)
@@ -133,8 +131,6 @@ edgePath s e = edgeX
   where
   V3 dx dy dz = e - s
   voffset = V2 0 10
-  project (V3 x y z) = V2 (negate x + y) (x + y - z)
-  scale (V2 x y) = V2 (x * 200) (y * 100)
   edgeX | dx == 0   = edgeY False
         | otherwise = do
     let δ = scale (project (V3 dx 0 0))
@@ -174,10 +170,12 @@ edgePath s e = edgeX
 
 edgeOffset :: V3 Int -> V3 Int -> V2 Float
 edgeOffset s e = realToFrac <$> scale (project (e - s))
-  where
-  project (V3 x y z) = V2 (negate x + y) (x + y - z)
-  scale (V2 x y) = V2 (x * 200) (y * 100)
 
+project :: V3 Int -> V2 Int
+project (V3 x y z) = V2 (negate x + y) (x + y - z)
+
+scale :: V2 Int -> V2 Int
+scale (V2 x y) = V2 (x * 200) (y * 100)
 
 data Vertex = Vertex
   { kind     :: VertexKind
