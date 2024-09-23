@@ -122,6 +122,9 @@ test-suite test
   if (impl(ghc >= 9.2))
     ghc-options:
       -Wno-missing-signatures
+  if (impl(ghc >= 9.8))
+    ghc-options:
+      -Wno-x-partial
 
 
 source-repository head
