@@ -38,8 +38,10 @@
   --iso-colour: hsl(0, 50%, 50%);
   --prism-colour: hsl(45, 50%, 50%);
   --review-colour: hsl(90, 50%, 50%);
+  --traversal1-colour: hsl(270, 25%, 50%);
   --traversal-colour: hsl(135, 50%, 50%);
   --setter-colour: hsl(135, 50%, 75%);
+  --fold1-colour: hsl(180, 25%, 50%);
   --fold-colour: hsl(180, 50%, 50%);
   --optional-fold-colour: hsl(225, 50%, 50%);
   --getter-colour: hsl(270, 50%, 50%);
@@ -140,9 +142,21 @@ use.Class {
   color: var(--optional-fold-colour);
 }
 
+#Traversal1,
+.Traversal1,
+#Traversal1 text {
+  color: var(--traversal1-colour);
+  text-anchor: end;
+}
+
 #Traversal,
 .Traversal {
   color: var(--traversal-colour);
+}
+
+#Fold1,
+.Fold1 {
+  color: var(--fold1-colour);
 }
 
 #Fold,
@@ -183,6 +197,10 @@ use.Class {
   stroke: url(#gradient-Getter-OptionalFold);
 }
 
+.Getter.Fold1 {
+  stroke: url(#gradient-Getter-Fold1);
+}
+
 .Optional.OptionalFold {
   stroke: url(#gradient-Optional-OptionalFold);
 }
@@ -195,12 +213,24 @@ use.Class {
   stroke: url(#gradient-Optional-Traversal);
 }
 
+.Traversal1.Traversal {
+  stroke: url(#gradient-Traversal1-Traversal);
+}
+
+.Traversal1.Fold1 {
+  stroke: url(#gradient-Traversal1-Fold1);
+}
+
 .Traversal.Fold {
   stroke: url(#gradient-Traversal-Fold);
 }
 
 .Traversal.Setter {
   stroke: url(#gradient-Traversal-Setter);
+}
+
+.Fold1.Fold {
+  stroke: url(#gradient-Fold1-Fold);
 }
 
 stop {

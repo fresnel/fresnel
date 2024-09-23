@@ -209,25 +209,28 @@ offset = (,) . Just
 graph :: Diagram Vertex
 graph = diagram
   where
-  diagram = Diagram{ iso, lens, getter, prism, review, optional, optionalFold, traversal, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing, mapping }
+  diagram = Diagram{ iso, lens, getter, prism, review, optional, optionalFold, traversal1, traversal, fold1, fold, setter, profunctor, strong, cochoice, bicontravariant, choice, costrong, bifunctor, closed, traversing1, traversing, mapping }
   iso             = optic "Iso"             (V3 0 0 0) (V2 mx mn) [dest lens, dest prism]
-  lens            = optic "Lens"            (V3 1 0 0) (V2 mn mn) [dest optional, dest getter]
-  getter          = optic "Getter"          (V3 2 0 0) (V2 mn mx) [dest optionalFold]
+  lens            = optic "Lens"            (V3 1 0 0) (V2 mn mn) [offset nx optional, offset ny getter, offset (py + nx) traversal1]
+  getter          = optic "Getter"          (V3 2 0 0) (V2 mn mx) [offset (px + py) fold1, dest optionalFold]
   prism           = optic "Prism"           (V3 0 1 0) (V2 mx mn) [dest optional, dest review]
   review          = optic "Review"          (V3 0 2 0) (V2 mx mn) []
-  optional        = optic "Optional"        (V3 1 1 0) (V2 mn no) [dest optionalFold, dest traversal]
-  optionalFold    = optic "OptionalFold"    (V3 2 1 0) (V2 mn mx) [dest fold]
+  optional        = optic "Optional"        (V3 1 1 0) (V2 mn no) [dest optionalFold, offset nx traversal]
+  optionalFold    = optic "OptionalFold"    (V3 2 1 0) (V2 mn mx) [offset px fold]
+  traversal1      = optic "Traversal1"      (V3 1.5 0.67 0) (V2 mn no) [offset px traversal, offset nx fold1]
   traversal       = optic "Traversal"       (V3 1 2 0) (V2 mx mn) [dest fold, dest setter]
+  fold1           = optic "Fold1"           (V3 1.5 1.33 0) (V2 mx mx) [offset nx fold]
   fold            = optic "Fold"            (V3 2 2 0) (V2 mn mx) []
   setter          = optic "Setter"          (V3 1 3 0) (V2 mx mx) []
-  profunctor      = klass "Profunctor"      (V3 0 0 1) (V2 mx mn) [dest iso, offset ny strong, offset (px * 2) choice, offset py cochoice, dest costrong, offset (nx * 2) closed]
-  strong          = klass "Strong"          (V3 1 0 1) (V2 mn mn) [dest lens, offset px traversing]
+  profunctor      = klass "Profunctor"      (V3 0 0 1) (V2 mx mn) [dest iso, offset py strong, offset (px * 2) choice, offset ny cochoice, dest costrong, offset (nx * 2) closed]
+  strong          = klass "Strong"          (V3 1 0 1) (V2 mn mn) [dest lens, offset px traversing, offset py traversing1]
   cochoice        = klass "Cochoice"        (V3 2 0 1) (V2 mn mn) [offset px getter]
   bicontravariant = klass "Bicontravariant" (V3 2 0 2) (V2 mn mn) [offset nx getter]
   choice          = klass "Choice"          (V3 0 1 1) (V2 mx mn) [dest prism, offset nx traversing]
   costrong        = klass "Costrong"        (V3 0 2 1) (V2 mx mn) [offset py review]
   bifunctor       = klass "Bifunctor"       (V3 0 2 2) (V2 mx mn) [offset ny review]
   closed          = klass "Closed"          (V3 0 3 1) (V2 mx mn) [dest mapping]
+  traversing1     = klass "Traversing1"     (V3 1.5 0.67 1) (V2 mx mx) [dest traversal1]
   traversing      = klass "Traversing"      (V3 1 2 1) (V2 mn mx) [dest traversal, dest mapping]
   mapping         = klass "Mapping"         (V3 1 3 1) (V2 mx mx) [dest setter]
   optic name p l = Vertex Optic name p l (parents name)
@@ -246,7 +249,9 @@ data Diagram a = Diagram
   , review          :: a
   , optional        :: a
   , optionalFold    :: a
+  , traversal1      :: a
   , traversal       :: a
+  , fold1           :: a
   , fold            :: a
   , setter          :: a
   , profunctor      :: a
@@ -257,6 +262,7 @@ data Diagram a = Diagram
   , costrong        :: a
   , bifunctor       :: a
   , closed          :: a
+  , traversing1     :: a
   , traversing      :: a
   , mapping         :: a
   }
