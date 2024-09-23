@@ -45,7 +45,7 @@ data Opt a = CSS a | JS a
 renderDiagram :: Diagram Vertex -> [Opt FilePath] -> IO Svg
 renderDiagram diagram opts = do
   opts' <- traverse (traverse readFile) opts
-  pure $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -150 1300 650" ! A.class_ "show-profunctors" $ do
+  pure $ svg ! A.version "1.1" ! xmlns "http://www.w3.org/2000/svg" ! A.viewbox "-575 -225 1300 725" ! A.class_ "show-profunctors" $ do
     foldMap (\case
       CSS s -> S.style (toMarkup s)
       _     -> mempty) opts'
@@ -176,7 +176,7 @@ edgeOffset :: V3 Float -> V3 Float -> V2 Float
 edgeOffset s e = scale (project (e - s))
 
 project :: V3 Float -> V2 Float
-project (V3 x y z) = V2 (negate x + y) (x + y - z)
+project (V3 x y z) = V2 (negate x + y) (x + y - z * 1.5)
 
 scale :: V2 Float -> V2 Float
 scale (V2 x y) = V2 (x * 200) (y * 100)
