@@ -266,8 +266,8 @@ data V2 a = V2 a a
 
 instance Num a => Num (V2 a) where
   (+) = liftA2 (+)
-  (*) = liftA2 (+)
-  (-) = liftA2 (+)
+  (*) = liftA2 (*)
+  (-) = liftA2 (-)
   abs = fmap abs
   signum = fmap signum
   negate = fmap negate
@@ -282,8 +282,8 @@ data V3 a = V3 a a a
 
 instance Num a => Num (V3 a) where
   (+) = liftA2 (+)
-  (*) = liftA2 (+)
-  (-) = liftA2 (+)
+  (*) = liftA2 (*)
+  (-) = liftA2 (-)
   abs = fmap abs
   signum = fmap signum
   negate = fmap negate
