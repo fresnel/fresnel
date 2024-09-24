@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               fresnel-fused-effects
-version:            0.0.0.0
+version:            0.0.0.1
 synopsis:           fresnel/fused-effects integration
 description:        A handful of operators bridging `fresnel` optics to `fused-effects` effects.
 homepage:           https://github.com/fresnel/fresnel
