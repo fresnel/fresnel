@@ -1,6 +1,7 @@
 # 0.0.0.4
 
 - Add non-empty folds and traversals, `Fold1` and `Traversal1` respectively.
+- Add a dependency on `semigroupoids` to support the above.
 - Add a number of constructors and eliminators, primarily over `Fold` and `Traversal`.
 - Support ghc 9.8
 - Support ghc 9.10
