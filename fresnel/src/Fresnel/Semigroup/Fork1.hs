@@ -38,7 +38,7 @@ instance Apply Fork1 where
 instance Applicative Fork1 where
   pure = singleton
 
-  liftA2 = liftF2
+  (<*>) = (<.>)
 
 instance Alt Fork1 where
   (<!>) = (<>)
