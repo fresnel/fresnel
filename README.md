@@ -34,6 +34,6 @@ Unlike both `lens` and `prolens`, `fresnel` uses somewhat more approachable name
 
 Unlike both `lens` _and_ `optics`, `fresnel` (currently) has no support for indexed optics, or certain other baroque optics. Some of these would be simpler additions than others, and are likely to be added in the fullness of time.
 
-Like [`prolens`][], and also unlike either of the others, `fresnel` requires a reasonably small set of dependencies: `base`, `containers`, `profunctors`, and `unordered-containers`. On the other hand, [`prolens`][] requires even fewer dependencies: only `base`.
+Like [`prolens`][], and also unlike either of the others, `fresnel` requires a reasonably small set of dependencies: `base`, `containers`, `profunctors`, `semigroupoids`, and `unordered-containers`. On the other hand, [`prolens`][] requires even fewer dependencies: only `base`.
 
 [`prolens`]: https://github.com/kowainik/prolens
