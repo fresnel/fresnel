@@ -30,7 +30,7 @@ instance Functor Fork1 where
   fmap f (Fork1 r) = Fork1 (\ (<>) singleton -> r (<>) (singleton . f))
 
 instance Traversable Fork1 where
-  traverse f (Fork1 r) = r (liftA2 (<>)) (fmap singleton . f)
+  traverse f (Fork1 r) = r ((<*>) . fmap (<>)) (fmap singleton . f)
 
 instance Apply Fork1 where
   liftF2 f (Fork1 a) (Fork1 b) = Fork1 (\ (<>) singleton -> a (<>) (\ a' -> b (<>) (singleton . f a')))
