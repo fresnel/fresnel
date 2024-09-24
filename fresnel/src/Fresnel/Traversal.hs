@@ -23,12 +23,12 @@ module Fresnel.Traversal
 ) where
 
 import Control.Applicative (ZipList(..))
+import Control.Applicative.Backwards
 import Control.Monad.Trans.State
 import Data.Bitraversable (Bitraversable(..))
 import Data.Profunctor
 import Data.Profunctor.Traversing (Traversing(..))
-import Data.Profunctor.Unsafe ((#.))
-import Fresnel.Functor.Backwards
+import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Optic
 import Fresnel.Traversal.Internal (IsTraversal)
 
@@ -79,7 +79,7 @@ ignored = traversal (const pure)
 -- 'traverseOf' 'traversed' = 'traverse'
 -- @
 traverseOf :: Applicative f => Traversal s t a b -> ((a -> f b) -> (s -> f t))
-traverseOf o = runStar #. o . Star
+traverseOf o = runStar #. o .# Star
 
 forOf :: Applicative f => Traversal s t a b -> (s -> (a -> f b) -> f t)
 forOf o = flip (traverseOf o)

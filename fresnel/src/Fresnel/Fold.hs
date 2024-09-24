@@ -64,6 +64,7 @@ module Fresnel.Fold
 ) where
 
 import Control.Applicative (Alternative(..))
+import Control.Applicative.Backwards
 import Data.Foldable (traverse_)
 import Data.Functor (void)
 import Data.Functor.Contravariant
@@ -71,7 +72,7 @@ import Data.Monoid
 import Data.Profunctor
 import Data.Profunctor.Unsafe ((#.), (.#))
 import Fresnel.Bifunctor.Contravariant
-import Fresnel.Functor.Backwards (Backwards(..))
+import Fresnel.Fold1.Internal (IsFold1)
 import Fresnel.Functor.Traversed
 import Fresnel.Monoid.Cons as Cons
 import Fresnel.Monoid.Fork as Fork
@@ -84,7 +85,7 @@ import Fresnel.Traversal (IsTraversal, ignored, traversal)
 
 type Fold s a = forall p . IsFold p => Optic' p s a
 
-class (IsOptionalFold p, IsTraversal p) => IsFold p
+class (IsOptionalFold p, IsFold1 p, IsTraversal p) => IsFold p
 
 instance Monoid r => IsFold (Forget r)
 instance (Applicative f, Traversable f, Contravariant f) => IsFold (Star f)
@@ -99,7 +100,7 @@ unfolded :: (s -> Maybe (a, s)) -> Fold s a
 unfolded coalg = rphantom . traversal (\ f -> let loop = maybe (pure ()) (\ (a, s) -> f a *> loop s) . coalg in loop)
 
 folding :: Foldable f => (s -> f a) -> Fold s a
-folding f = contrabimap f (const ()) . rmap (const ()) . traversal traverse_
+folding f = contrabimap f (const ()) . traversal traverse_
 
 foldring :: (forall f . Applicative f => (a -> f u -> f u) -> f v -> s -> f w) -> Fold s a
 foldring fr = rphantom . traversal (\ f -> fr (\ a -> (f a *>)) (pure v)) where
