@@ -1,4 +1,4 @@
-# 0.0.0.4
+# 0.1.0.0
 
 - Add non-empty folds and traversals, `Fold1` and `Traversal1` respectively.
 - Add a dependency on `semigroupoids` to support the above.
