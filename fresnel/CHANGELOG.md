@@ -1,3 +1,8 @@
+# 0.1.0.1
+
+- Loosen the bounds on `containers`.
+
+
 # 0.1.0.0
 
 - Add non-empty folds and traversals, `Fold1` and `Traversal1` respectively.
