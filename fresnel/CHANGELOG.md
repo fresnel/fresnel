@@ -1,6 +1,8 @@
 # 0.1.0.2
 
-- Loosen the upper bound on `hashable`.
+- Support GHC 9.12:
+  - Loosen the upper bound on `hashable`.
+  - Loosen the upper bound on `template-haskell`.
 
 
 # 0.1.0.1
