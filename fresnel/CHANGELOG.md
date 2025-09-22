@@ -1,3 +1,10 @@
+# 0.1.0.2
+
+- Support GHC 9.12:
+  - Loosen the upper bound on `hashable`.
+  - Loosen the upper bound on `template-haskell`.
+
+
 # 0.1.0.1
 
 - Loosen the bounds on `containers`.
