@@ -1,3 +1,8 @@
+# 0.1.0.2
+
+- Loosen the upper bound on `hashable`.
+
+
 # 0.1.0.1
 
 - Loosen the bounds on `containers`.
